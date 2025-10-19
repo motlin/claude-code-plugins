@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "motlin-claude-code-plugins",
+  "version": "0.1.0",
+  "description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
+  "owner": {
+    "name": "Craig Motlin"
+  },
+  "plugins": [
+    {
+      "name": "markdown-tasks",
+      "description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+      "version": "0.1.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/markdown-tasks",
+      "category": "productivity"
+    }
+  ]
+}
