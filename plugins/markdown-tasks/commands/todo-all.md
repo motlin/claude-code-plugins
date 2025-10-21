@@ -17,7 +17,7 @@ If the user did not provide instructions, then we are working through ALL incomp
   - Use the `@markdown-tasks` skill to extract the first incomplete task from `.llm/todo.md`
   - It returns the first `Not started` task
 - If a task is found:
-  - Check if we've already attempted this task 2 times
+  - Check if we've already attempted this task 1 time
   - If yes, mark it as blocked (with `- [!]`) and continue to next task
   - If no, launch the `@markdown-tasks:do-todo` agent to implement it
   - Do NOT mark the task as complete yourself - the `do-todo` agent does this
@@ -46,6 +46,6 @@ The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Inter
 Throughout the process, provide clear status updates:
 - "Starting task: [task description]"
 - "Task completed successfully: [task description]"
-- "Task failed (attempt X/2): [task description]"
+- "Task failed: [task description]"
 - "Skipping blocked task: [task description]"
-- "All tasks completed" or "Stopping due to multiple failures"
+- "All tasks completed" or "Stopping due to failures"
