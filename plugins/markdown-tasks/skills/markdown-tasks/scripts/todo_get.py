@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import re
 
 
 def extract_first_todo(filename):
     try:
+        if not os.path.exists(filename):
+            print(f"No todos found (file doesn't exist)", file=sys.stderr)
+            sys.exit(1)
+
         with open(filename, "r") as file:
             lines = file.readlines()
 
@@ -13,32 +18,23 @@ def extract_first_todo(filename):
         in_todo = False
 
         for i, line in enumerate(lines):
-            # Check for incomplete checkbox
             if re.match(r"^- \[ \]", line):
                 if in_todo:
-                    # We've found another todo, stop here
                     break
                 todo_lines.append(line)
                 in_todo = True
             elif in_todo:
-                # Check if this line is part of the current todo
-                # It should be indented (start with spaces or tabs)
                 if re.match(r"^[\s\t]+", line) and line.strip():
                     todo_lines.append(line)
                 elif re.match(r"^- \[[x>]\]", line):
-                    # Found a complete or in-progress checkbox, stop
                     break
                 elif re.match(r"^#", line):
-                    # Found a markdown header, stop
                     break
                 elif line.strip() == "":
-                    # Empty line might be part of the todo, include it
                     todo_lines.append(line)
                 else:
-                    # Non-indented content that's not a checkbox or header, stop
                     break
 
-        # Remove trailing empty lines
         while todo_lines and todo_lines[-1].strip() == "":
             todo_lines.pop()
 

@@ -9,6 +9,7 @@
     "./commands/plan.md",
     "./commands/split-tasks.md",
     "./commands/todo.md",
+    "./commands/todo-add.md",
     "./commands/todo-all.md",
     "./commands/todo-sweep.md",
     "./commands/worktree.md"

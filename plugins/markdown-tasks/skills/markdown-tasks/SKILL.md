@@ -36,6 +36,16 @@ This returns:
 - All indented context lines below it
 - Stops at the next checkbox, header, or non-indented content
 
+## Adding Tasks
+
+To add a new todo to the list:
+
+```bash
+python3 scripts/todo_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "Task description"
+```
+
+This creates the `.llm/` directory and `todo.md` file if they don't exist, and appends the new task with a `[ ]` checkbox.
+
 ## Marking Tasks Complete
 
 After implementing a task, mark it as done:
@@ -121,6 +131,25 @@ $ python3 scripts/todo_complete.py .llm/todo.md --progress
 ```
 
 ## Script Details
+
+### todo_add.py
+
+**Purpose**: Add a new task to the todo list
+
+**Input**:
+- Path to todo.md file
+- Task description
+
+**Output**: The added task line
+
+**Exit codes**:
+- 0: Success
+- 1: Error
+
+**Behavior**:
+- Creates `.llm/` directory if it doesn't exist
+- Creates `todo.md` file if it doesn't exist
+- Appends task with `[ ]` checkbox
 
 ### todo_get.py
 

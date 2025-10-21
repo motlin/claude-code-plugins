@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import re
 import argparse
 
 
 def mark_first_todo(filename, mark_type):
     try:
+        if not os.path.exists(filename):
+            print(f"No todos found (file doesn't exist)", file=sys.stderr)
+            sys.exit(1)
+
         with open(filename, "r") as file:
             lines = file.readlines()
 
@@ -25,7 +30,6 @@ def mark_first_todo(filename, mark_type):
                 modified = True
                 found_todo = True
 
-                # Collect associated lines for this todo
                 j = i + 1
                 while j < len(lines):
                     next_line = lines[j]
@@ -46,7 +50,6 @@ def mark_first_todo(filename, mark_type):
             with open(filename, "w") as file:
                 file.writelines(lines)
 
-            # Remove trailing empty lines from output
             while todo_lines and todo_lines[-1].strip() == "":
                 todo_lines.pop()
 
