@@ -19,7 +19,8 @@ If the user did not provide instructions, then we are working through ALL incomp
 - If a task is found:
   - Check if we've already attempted this task 2 times
   - If yes, mark it as blocked (with `- [!]`) and continue to next task
-  - If no, launch the `do-todo` agent to implement it
+  - If no, launch the `@markdown-tasks:do-todo` agent to implement it
+  - Do NOT mark the task as complete yourself - the `do-todo` agent does this
 - Repeat until no incomplete tasks remain or we have met the user's instructions
 
 ## Todo context
@@ -36,7 +37,9 @@ The task list is in `.llm/todo.md`. You will not use the Read tool on this file.
 ## Important notes
 
 - Each task is handled completely by the `do-todo` agent before moving to the next
+- The `do-todo` agent marks tasks as complete - do NOT call todo_complete.py yourself
 - Each task gets its own commit for clear history
+- After each agent returns, check the task list again to see if more tasks remain
 
 ## User feedback
 
