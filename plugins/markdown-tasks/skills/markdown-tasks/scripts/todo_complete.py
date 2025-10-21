@@ -2,8 +2,85 @@
 
 import sys
 import os
+import subprocess
 import re
 import argparse
+
+
+def find_git_root(start_path):
+    try:
+        result = subprocess.run(
+            ["git", "-C", start_path, "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return None
+
+
+def is_file_in_git_status(filename):
+    directory = os.path.dirname(filename) or "."
+    git_root = find_git_root(directory)
+
+    if not git_root:
+        return False
+
+    absolute_filename = os.path.realpath(filename)
+    git_root_real = os.path.realpath(git_root)
+    relative_filename = os.path.relpath(absolute_filename, git_root_real)
+
+    try:
+        result = subprocess.run(
+            ["git", "-C", git_root, "status", "--short", relative_filename],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return False
+
+
+def is_file_tracked(filename):
+    directory = os.path.dirname(filename) or "."
+    git_root = find_git_root(directory)
+
+    if not git_root:
+        return False
+
+    absolute_filename = os.path.realpath(filename)
+    git_root_real = os.path.realpath(git_root)
+    relative_filename = os.path.relpath(absolute_filename, git_root_real)
+
+    try:
+        result = subprocess.run(
+            ["git", "-C", git_root, "ls-files", relative_filename],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return bool(result.stdout.strip())
+    except subprocess.CalledProcessError:
+        return False
+
+
+def verify_gitignored(filename):
+    status = is_file_in_git_status(filename)
+    if not status:
+        return
+
+    if is_file_tracked(filename):
+        print(
+            f"Warning: {filename} is tracked by git and cannot be excluded. Run: git rm --cached {filename}",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            f"Warning: {filename} is not gitignored. Add /.llm to .git/info/exclude",
+            file=sys.stderr,
+        )
 
 
 def mark_first_todo(filename, mark_type):
@@ -49,6 +126,8 @@ def mark_first_todo(filename, mark_type):
         if modified:
             with open(filename, "w") as file:
                 file.writelines(lines)
+
+            verify_gitignored(filename)
 
             while todo_lines and todo_lines[-1].strip() == "":
                 todo_lines.pop()
