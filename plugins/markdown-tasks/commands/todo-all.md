@@ -25,13 +25,13 @@ If the user did not provide instructions, then we are working through ALL incomp
 
 ## Todo context
 
-The task list is in `.llm/todo.md`. You will not use the Read tool on this file. You'll interact with it through the `@markdown-tasks` skill. The format is:
+The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Interact with it through the `@markdown-tasks` skill. The format is:
 
 ```markdown
 - `[ ]` - Not started
 - `[x]` - Completed
 - `[>]` - In progress in a peer directory/worktree
-- `[!]` - Blocked/Failed after multiple attempts
+- `[!]` - Blocked after multiple failed attempts
 ```
 
 ## Important notes
