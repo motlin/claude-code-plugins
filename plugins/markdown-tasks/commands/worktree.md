@@ -20,7 +20,7 @@ The task list is in `.llm/todo.md`. The format is:
 - Come up with a kebab-case task name based on the todo item (e.g., "auth-feature", "database-migration")
 
 - Create the worktree:
-  - Run `worktree <task-name>`
+  - Run `bash plugins/markdown-tasks/skills/markdown-tasks/scripts/worktree <task-name>` from the repository root
   - This command marks the task with `[>]` and creates the worktree
   - If the command exits with a non-success exit code, stop here and give a good summary to the user
 
@@ -31,7 +31,7 @@ The task list is in `.llm/todo.md`. The format is:
 
 ## Conclusion
 
-Run a command to create a new terminal tab in the newly created worktree, and run `claude --dangerously-skip-permissions /todo` in that tab.
+Run a command to create a new terminal tab in the newly created worktree, and run `claude /todo` in that tab.
 
 If we are running in iTerm:
 
@@ -42,7 +42,7 @@ osascript -e 'tell application "iTerm"
         tell current tab
             tell current session
                 write text "cd <worktree-absolute-path>"
-                write text "claude --dangerously-skip-permissions /todo"
+                write text "claude /todo"
             end tell
         end tell
     end tell
@@ -52,7 +52,7 @@ end tell'
 If we are running in xfce4-terminal:
 
 ```console
-xfce4-terminal --tab --working-directory="<worktree-absolute-path>" -x bash -c "cd <worktree-absolute-path> && claude code --dangerously-skip-permissions /todo; exec bash"
+xfce4-terminal --tab --working-directory="<worktree-absolute-path>" -x bash -c "cd <worktree-absolute-path> && claude code /todo; exec bash"
 ```
 
 ## Loop

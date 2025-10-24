@@ -1,6 +1,6 @@
-🔁 Process all todos automatically
+🔁 Process all tasks automatically
 
-Repeatedly work through incomplete tasks from the project todo list.
+Repeatedly work through incomplete tasks from the project task list.
 
 If the user provided additional instructions, they will appear here:
 
@@ -19,11 +19,11 @@ If the user did not provide instructions, then we are working through ALL incomp
 - If a task is found:
   - Check if we've already attempted this task 1 time
   - If yes, mark it as blocked (with `- [!]`) and continue to next task
-  - If no, launch the `@markdown-tasks:do-todo` agent to implement it
-  - Do NOT mark the task as complete yourself - the `do-todo` agent does this
+  - If no, launch the `@markdown-tasks:do-task` agent to implement it
+  - Do NOT mark the task as complete yourself - the `do-task` agent does this
 - Repeat until no incomplete tasks remain or we have met the user's instructions
 
-## Todo context
+## Task context
 
 The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Interact with it through the `@markdown-tasks` skill. The format is:
 
@@ -36,8 +36,8 @@ The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Inter
 
 ## Important notes
 
-- Each task is handled completely by the `do-todo` agent before moving to the next
-- The `do-todo` agent marks tasks as complete - do NOT call todo_complete.py yourself
+- Each task is handled completely by the `do-task` agent before moving to the next
+- The `do-task` agent marks tasks as complete - do NOT call task_complete.py yourself
 - Each task gets its own commit for clear history
 - After each agent returns, check the task list again to see if more tasks remain
 

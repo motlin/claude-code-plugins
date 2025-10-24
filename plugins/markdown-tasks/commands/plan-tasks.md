@@ -1,15 +1,19 @@
 ---
-name: split-tasks
-description: Split a big plan into small, self-contained tasks in a markdown checklist
+name: plan-tasks
+description: Capture conversation planning into self-contained tasks at end of discussion
 ---
 
-# Split Tasks
+# Plan Tasks
 
-Transform a high-level plan or complex project into a markdown task list where each task is completely self-contained with all necessary context inline.
+Transform conversation planning and requirements into a markdown task list where each task is completely self-contained with all necessary context inline.
+
+## When to Use
+
+Use this command at the **end of a planning conversation** when you've discussed requirements, approaches, and implementation details but haven't started coding yet. This captures the conversation context into actionable tasks in `.llm/todo.md`.
 
 ## Input
 
-The input is the current conversation where planning and requirements have been discussed. You'll take the plans, ideas, and requirements from the discussion and transform them into self-contained tasks in a markdown checklist format, typically saved (appended) to `.llm/todo.md`.
+The input is the current conversation where planning and requirements have been discussed. You'll take the plans, ideas, and requirements from the discussion and transform them into self-contained tasks in a markdown checklist format, typically appended to `.llm/todo.md`.
 
 ## Task Writing Guidelines
 

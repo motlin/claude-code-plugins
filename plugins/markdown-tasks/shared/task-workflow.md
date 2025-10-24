@@ -1,7 +1,13 @@
-✅ Find and implement the next incomplete task from the project todo list.
+✅ Find and implement the next incomplete task from the project task list.
 
-## Todo context
-The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Interact with it through the `@markdown-tasks` skill. The format is:
+**🚨 CRITICAL: Never use the Read tool on `.llm/todo.md`. Always use the `@markdown-tasks` skill.**
+
+## Task context
+The task list is in `.llm/todo.md`.
+
+**IMPORTANT: Never use the Read tool on `.llm/todo.md`**. Always interact with the task list exclusively through the `@markdown-tasks` skill using the Python scripts described below. This ensures proper isolation and prevents context pollution.
+
+The task format is:
 
 ```markdown
 - `[ ]` - Not started
@@ -14,12 +20,13 @@ The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Inter
 
 - Find the next incomplete task
   - Use the `@markdown-tasks` skill to extract the first incomplete task from `.llm/todo.md`
-  - It returns the first `Not started` task with all its context
+  - Never read `.llm/todo.md` directly with the Read tool
+  - The skill returns the first `Not started` task with all its context
 
 - Implement the task
 - Think hard about the plan
 - Focus ONLY on implementing this specific task
-- Ignore TODOs in the source code
+- Ignore TODO/TASK comments in the source code
 - Work through the implementation methodically and completely, addressing all aspects of the task
 - Run appropriate tests and validation to ensure the implementation works
 

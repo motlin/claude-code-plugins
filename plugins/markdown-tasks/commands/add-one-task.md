@@ -1,4 +1,4 @@
-➕ Add a todo to the project task list.
+➕ Add a task to the project task list.
 
 Takes the user's description and adds it to `.llm/todo.md` as an incomplete task.
 
@@ -12,17 +12,17 @@ $ARGUMENTS
 
 - Extract the description from the user's input
 - If no description was provided, ask the user for one
-- Add the todo using the `@markdown-tasks` skill:
+- Add the task using the `@markdown-tasks` skill:
   ```bash
-  python3 scripts/todo_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "<description>"
+  python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "<description>"
   ```
 - The script will:
   - Create `.llm/` directory if it doesn't exist
   - Create `todo.md` file if it doesn't exist
-  - Append the new todo with `[ ]` checkbox
-- Confirm to the user that the todo was added
+  - Append the new task with `[ ]` checkbox
+- Confirm to the user that the task was added
 
-## Todo context
+## Task context
 
 The task list is in `.llm/todo.md`. The format is:
 

@@ -89,7 +89,7 @@ def ensure_gitignored(filename):
         )
 
 
-def add_todo(filename, description):
+def add_task(filename, description):
     try:
         directory = os.path.dirname(filename)
         if directory and not os.path.exists(directory):
@@ -113,10 +113,10 @@ def add_todo(filename, description):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Add a todo to the task list")
-    parser.add_argument("filename", help="File containing todos")
-    parser.add_argument("description", help="Todo description")
+    parser = argparse.ArgumentParser(description="Add a task to the task list")
+    parser.add_argument("filename", help="File containing tasks")
+    parser.add_argument("description", help="Task description")
 
     args = parser.parse_args()
 
-    add_todo(args.filename, args.description)
+    add_task(args.filename, args.description)

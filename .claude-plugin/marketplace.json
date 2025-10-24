@@ -3,6 +3,7 @@
   "name": "motlin-claude-code-plugins",
   "version": "0.1.0",
   "description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
+  "license": "Apache-2.0",
   "owner": {
     "name": "Craig Motlin"
   },

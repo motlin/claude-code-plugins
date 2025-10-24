@@ -5,41 +5,41 @@ import os
 import re
 
 
-def extract_first_todo(filename):
+def extract_first_task(filename):
     try:
         if not os.path.exists(filename):
-            print(f"No todos found (file doesn't exist)", file=sys.stderr)
+            print(f"No tasks found (file doesn't exist)", file=sys.stderr)
             sys.exit(1)
 
         with open(filename, "r") as file:
             lines = file.readlines()
 
-        todo_lines = []
-        in_todo = False
+        task_lines = []
+        in_task = False
 
         for i, line in enumerate(lines):
             if re.match(r"^- \[ \]", line):
-                if in_todo:
+                if in_task:
                     break
-                todo_lines.append(line)
-                in_todo = True
-            elif in_todo:
+                task_lines.append(line)
+                in_task = True
+            elif in_task:
                 if re.match(r"^[\s\t]+", line) and line.strip():
-                    todo_lines.append(line)
+                    task_lines.append(line)
                 elif re.match(r"^- \[[x>]\]", line):
                     break
                 elif re.match(r"^#", line):
                     break
                 elif line.strip() == "":
-                    todo_lines.append(line)
+                    task_lines.append(line)
                 else:
                     break
 
-        while todo_lines and todo_lines[-1].strip() == "":
-            todo_lines.pop()
+        while task_lines and task_lines[-1].strip() == "":
+            task_lines.pop()
 
-        if todo_lines:
-            print("".join(todo_lines), end="")
+        if task_lines:
+            print("".join(task_lines), end="")
 
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found", file=sys.stderr)
@@ -51,7 +51,7 @@ def extract_first_todo(filename):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: todo-get <filename>", file=sys.stderr)
+        print("Usage: task-get <filename>", file=sys.stderr)
         sys.exit(1)
 
-    extract_first_todo(sys.argv[1])
+    extract_first_task(sys.argv[1])

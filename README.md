@@ -1,21 +1,20 @@
-# Claude Code Plugins
+# Markdown Tasks Plugin for Claude Code
 
-Collection of Claude Code plugins for task management, workflow automation, and productivity.
+Keep your tasks in a simple markdown file (`todo.md`) and let Claude Code implement them automatically.
 
-## Plugins
+## Naming
 
-### Markdown Tasks
+This plugin uses "task" terminology (e.g., `/do-one-task`, `/add-one-task`) instead of "todo" to avoid conflicts with Claude Code's built-in `/todos` command.
 
-Task management system for Claude Code using markdown checkboxes in `.llm/todo.md` with slash commands for planning, implementing, and tracking tasks across git worktrees.
+## Quick Start
 
-## Features
+Most common workflows:
 
-- 📝 Markdown-based task tracking in `.llm/todo.md`
-- ✅ Visual checkbox system for task states (`[ ]`, `[x]`, `[>]`, `[!]`)
-- 🤖 Automated task implementation with the `do-todo` agent
-- 🌳 Parallel task execution using git worktrees
-- 🔄 Integrated build pipeline (format, lint, test, commit)
-- 🎯 Self-contained task format with full context
+```bash
+/add-one-task <description>  # Add a single task to the list
+/do-all-tasks                # Implement all tasks in .llm/todo.md
+/sweep-todos                 # Find TODO comments and add them to the list
+```
 
 ## Installation
 
@@ -27,67 +26,92 @@ Task management system for Claude Code using markdown checkboxes in `.llm/todo.m
 /plugin install markdown-tasks
 ```
 
+If you are behind a proxy, you can install the marketplace from a directory.
+
+```bash
+git clone https://github.com/motlin/claude-code-plugins.git/ ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
+claude
+/plugin marketplace add ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
+/plugin install markdown-tasks
+```
+
 This installs:
-- 6 slash commands (`/plan`, `/split-tasks`, `/todo`, `/todo-all`, `/todo-sweep`, `/worktree`)
-- 1 agent (`do-todo`)
+- 6 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/worktree`)
+- 1 agent (`do-task`)
 - 1 skill (`markdown-tasks`) with bundled Python scripts
 
 No additional setup required - the skill's scripts are automatically available when the plugin is installed.
 
-### Verification
+## Permissions Configuration
 
-Check that the plugin is installed:
+To enable Claude Code to run uninterrupted for as long as possible, configure it to skip permission prompts. Proceed with caution.
 
-```bash
-/plugin list
+### Option 1: Permissive Settings (Recommended)
+
+Configure permissive permissions in `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "MultiEdit",
+      "Read",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)"
+    ],
+    "ask": []
+  }
+}
 ```
 
-Check that the commands are available:
+### Option 2: CLI Flag
+
+For per-session control:
 
 ```bash
-/help
+claude --dangerously-skip-permissions /todo
 ```
-
-## Task States
-
-Tasks use markdown checkboxes with different states:
-
-- `[ ]` - Ready to work on
-- `[x]` - Completed and committed
-- `[>]` - In progress (currently being worked on in a worktree)
-- `[!]` - Blocked after 2 failed attempts
 
 ## Commands
 
-### `/plan` - Create Initial Task List
+### `/add-one-task` - Add Single Task
 
-Converts high-level requirements into a structured task list in `.llm/todo.md`.
+Adds a single task to `.llm/todo.md`.
 
 ```bash
-/plan Implement user authentication with OAuth
+/add-one-task Implement user authentication with OAuth
 ```
 
-Creates tasks with:
-- Full absolute file paths
-- Exact class/function/method names
-- Code analogies to existing patterns
-- Dependencies and prerequisites
-- Expected outcomes
+### `/do-all-tasks` - Process All Tasks
 
-### `/split-tasks` - Break Down Complex Plans
-
-Transforms discussion context into granular, self-contained tasks.
+Works through all incomplete tasks sequentially using the `do-task` agent.
 
 ```bash
-/split-tasks
+/do-all-tasks
 ```
 
-### `/todo` - Work on Next Task
+Each task is implemented in complete isolation:
+- The `do-task` agent reads only the single task description and its context
+- No information about other tasks pollutes the agent's context
+- Prevents confusion between similar tasks or accidentally implementing the wrong feature
+- Each task gets its own commit
 
-Finds and implements exactly one incomplete task with full build validation.
+When a task fails, it's marked as blocked (`[!]`) and `/do-all-tasks` skips it and continues with the next task. You can manually change `[!]` back to `[ ]` in `.llm/todo.md` to retry the task later.
+
+### `/sweep-todos` - Harvest Code TODOs
+
+Finds all TODO comments in codebase and adds them to `.llm/todo.md`.
+
+### `/do-one-task` - Work on Next Task
+
+Finds and implements exactly one incomplete task.
 
 ```bash
-/todo
+/do-one-task
 ```
 
 Workflow:
@@ -96,19 +120,25 @@ Workflow:
 3. Runs build pipeline (comment-cleaner, precommit-runner, git-commit-handler, git-rebaser)
 4. Marks task as `[x]`
 
-### `/todo-all` - Process All Tasks
+Uses the `do-task` agent internally.
 
-Automatically works through all incomplete tasks sequentially.
+#### `do-task` Agent
+
+Implements a single task with full build pipeline and marks it complete.
+
+Used internally by `/do-one-task` and `/do-all-tasks` commands.
+
+## Other Commands
+
+### `/plan-tasks` - Capture Conversation Planning
+
+Captures conversation planning and requirements into actionable tasks. Use at the **end of a planning discussion** before starting implementation.
 
 ```bash
-/todo-all
+/plan-tasks
 ```
 
-Features:
-- Tracks attempt count (max 2 attempts per task)
-- Marks blocked tasks as `[!]`
-- Each task gets its own commit
-- Provides status updates
+Transforms discussion context into granular, self-contained tasks in `.llm/todo.md`.
 
 ### `/worktree` - Parallel Task Execution
 
@@ -124,55 +154,55 @@ Workflow per task:
 3. Marks task as `[>]` in-progress
 4. Opens new Claude Code session in worktree
 
-### `/todo-sweep` - Harvest Code TODOs
+## Task States
 
-Finds all TODO comments in codebase and adds them to `.llm/todo.md`.
+Tasks use markdown checkboxes with different states:
+
+- `[ ]` - Ready to work on
+- `[x]` - Completed and committed
+- `[>]` - In progress (currently being worked on in a worktree)
+- `[!]` - Blocked after failed attempt
+
+## Scripts
+
+The plugin includes Python scripts and binaries in `plugins/markdown-tasks/skills/markdown-tasks/scripts/`:
+
+- `worktree` - Creates git worktrees for parallel task development
+- `todo_get.py` and `todo_complete.py` - Extract and mark individual tasks
+- `todo_add.py` - Add new tasks to the list
+
+These tools prevent context pollution by ensuring agents only see the specific task they're working on, not the entire task list.
+
+### Benefits
+
+When implementing tasks, agents receive only:
+- The single task description
+- Its context lines
+- Nothing about other unrelated tasks
+
+This focused context prevents context rot:
+- Confusion between similar tasks
+- Accidentally implementing the wrong feature
+- LLM attention being split across multiple objectives
+
+### `todo_get.py`
+
+Extracts exactly one task with its context.
 
 ```bash
-/todo-sweep
+python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
-Output format:
-```markdown
-- [ ] Implement TODO from src/api/client.ts:87: Extract commonality in getRootNodes and getChildNodes
-```
-
-## Agent
-
-### `do-todo` - Complete Task Workflow
-
-Implements a single task with full build pipeline and marks it complete.
-
-Used internally by `/todo` and `/todo-all` commands.
-
-## Binaries
-
-### `todo-get`
-
-Extracts the first incomplete task from todo.md.
-
-```bash
-todo-get $(git rev-parse --show-toplevel)/.llm/todo.md
-```
-
-Returns:
-- First `[ ]` task
-- All indented context lines below it
-- Stops at next checkbox or header
-
-### `todo-complete`
+### `todo_complete.py`
 
 Marks the first incomplete task as done or in-progress.
 
 ```bash
 # Mark as done (default)
-todo-complete $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 
 # Mark as in-progress
-todo-complete $(git rev-parse --show-toplevel)/.llm/todo.md --progress
-
-# Explicitly mark as done
-todo-complete $(git rev-parse --show-toplevel)/.llm/todo.md --done
+python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md --progress
 ```
 
 ## Task Format
@@ -189,18 +219,18 @@ Each task in `.llm/todo.md` should be independently readable with full context:
   - Expected: All `/api/*` routes require valid JWT
 ```
 
-Indented lines provide context and are extracted by `todo-get`.
+Indented lines provide context and are extracted by `task-get`.
 
 ## Workflow Examples
 
 ### Basic Single Task
 
 ```bash
-# Create plan
-/plan Add dark mode toggle to settings
+# Add a task
+/add-one-task Add dark mode toggle to settings
 
-# Implement first task
-/todo
+# Implement it
+/do-one-task
 
 # Task is now marked [x] and committed
 ```
@@ -208,49 +238,29 @@ Indented lines provide context and are extracted by `todo-get`.
 ### Process All Tasks
 
 ```bash
-# Create plan
-/plan Implement user dashboard with charts
+# Add multiple tasks
+/add-one-task Implement user dashboard with charts
+/add-one-task Add authentication
+/add-one-task Create settings page
 
-# Implement all tasks automatically
-/todo-all
+# Implement all tasks
+/do-all-tasks
 ```
 
-### Parallel Development
+### Code Review with TODOs
 
 ```bash
-# Create plan with multiple independent tasks
-/plan Add feature set: auth, dashboard, settings, notifications
+# During code review, leave TODO comments in the code
+#   // TODO: Add rate limiting to login endpoint
+#   // TODO: Implement password reset functionality
+#   // TODO: Add session timeout handling
 
-# Create 4 parallel worktrees
-/worktree 4
+# Sweep all TODOs into .llm/todo.md
+/sweep-todos
 
-# Each worktree has its own Claude Code session
-# Tasks are marked [>] in original todo.md
+# Review the collected tasks in .llm/todo.md and add context if needed
+
+# Implement all tasks
+/do-all-tasks
 ```
 
-## Architecture
-
-```
-User Request
-    ↓
-/plan or /split-tasks
-    ↓
-Create .llm/todo.md
-    ↓
-    ├── Single: /todo → todo-get → implement → build → todo-complete
-    ├── Multiple: /todo-all → loop(do-todo agent)
-    ├── Parallel: /worktree → create worktrees with [>] markers
-    └── Harvest: /todo-sweep → append code TODOs
-```
-
-## File Locations
-
-- **Todo File**: `<repository-root>/.llm/todo.md`
-- **Directory**: `.llm/` (automatically excluded from git via `.git/info/exclude`)
-- **Binaries**: `plugins/markdown-tasks/skills/markdown-tasks/bin/todo-get`, `plugins/markdown-tasks/skills/markdown-tasks/bin/todo-complete`
-- **Commands**: `plugins/markdown-tasks/commands/*.md`
-- **Agent**: `plugins/markdown-tasks/agents/do-todo.md`
-
-## License
-
-MIT
