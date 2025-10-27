@@ -119,6 +119,22 @@ When a task fails, it's marked as blocked (`[!]`) and `/do-all-tasks` skips it a
 
 Finds all TODO comments in codebase and adds them to `.llm/todo.md`.
 
+```bash
+/sweep-todos
+```
+
+Example output showing discovered TODOs:
+
+```markdown
+### TODOs from Codebase (found by /sweep-todos)
+
+- [ ] Implement TODO from src/utils/validators.js:42: Add email format validation
+- [ ] Implement TODO from src/components/UserForm.tsx:78: Add phone number field with country code selector
+- [ ] Implement TODO from src/api/auth.ts:156: Implement rate limiting for login attempts
+- [ ] Implement TODO from tests/integration/payment.test.ts:23: Add test coverage for refund scenarios
+- [ ] Implement TODO from src/services/cache.ts:91: Add explicit generics support for type safety
+```
+
 ### `/do-one-task` - Work on Next Task
 
 Finds and implements exactly one incomplete task.
