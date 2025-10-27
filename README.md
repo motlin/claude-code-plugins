@@ -58,10 +58,23 @@ Configure permissive permissions in `~/.claude/settings.json`:
       "Edit",
       "MultiEdit",
       "Read",
-      "WebSearch"
+      "WebSearch",
+      "Write",
+      "Skill(markdown-tasks:markdown-tasks)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [
-      "Bash(rm -rf:*)"
+      "Bash(git add --all:*)",
+      "Bash(git add --force:*)",
+      "Bash(git add -A:*)",
+      "Bash(git add -f:*)",
+      "Bash(git commit -a:*)",
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git worktree remove --force:*)",
+      "Bash(rm -rf:*)",
+      "Edit(~/.claude/settings.json)",
+      "MultiEdit(~/.claude/settings.json)"
     ],
     "ask": []
   }
