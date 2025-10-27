@@ -7,8 +7,7 @@
     "name": "Craig Motlin"
   },
   "commands": [
-    "./commands/plan.md",
-    "./commands/split-tasks.md",
+    "./commands/plan-tasks.md",
     "./commands/do-one-task.md",
     "./commands/add-one-task.md",
     "./commands/do-all-tasks.md",
