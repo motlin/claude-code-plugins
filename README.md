@@ -16,6 +16,8 @@ Most common workflows:
 /sweep-todos                 # Find TODO comments and add them to the list
 ```
 
+You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out the task list.
+
 ## Installation
 
 ```bash
