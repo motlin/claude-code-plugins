@@ -46,6 +46,21 @@ python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "Task 
 
 This creates the `.llm/` directory and `todo.md` file if they don't exist, and appends the new task with a `[ ]` checkbox.
 
+**Important**: You can (and should) pass a multi-line string with all indented implementation details in a single call:
+
+```bash
+python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "Fix temporal table primary keys to use (id, system_to) pattern
+  Problem: All temporal tables currently use (id, system_from) as PK
+  Files: src/db/schema.ts, src/commands/cache/import-backup.ts
+
+  Solution:
+  - Change primary key to: (id/nodeId, systemTo)
+  - Change index to: (id/nodeId, systemFrom)
+  - Create migration to recreate tables with new schema"
+```
+
+This is more efficient than adding just the title and then editing the file separately to add context. The script preserves all indentation in the multi-line string.
+
 ## Marking Tasks Complete
 
 After implementing a task, mark it as done:
