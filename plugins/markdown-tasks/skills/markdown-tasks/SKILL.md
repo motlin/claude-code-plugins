@@ -13,7 +13,6 @@ Tasks use markdown checkboxes with different states:
 
 - `[ ]` - Not started (ready to work on)
 - `[x]` - Completed and committed
-- `[>]` - In progress (being worked on in a worktree)
 - `[!]` - Blocked after failed attempts
 
 Each task includes indented context lines with full implementation details:
@@ -70,14 +69,6 @@ python3 scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 This changes the first `[ ]` to `[x]`.
-
-To mark a task as in-progress (for worktrees):
-
-```bash
-python3 scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md --progress
-```
-
-This changes the first `[ ]` to `[>]`.
 
 ## Workflow Guidelines
 
@@ -150,17 +141,6 @@ $ python3 scripts/task_complete.py .llm/todo.md
   - Return 401 for invalid tokens
 ```
 
-### Example: Mark In-Progress
-
-```bash
-$ python3 scripts/task_complete.py .llm/todo.md --progress
-- [>] Add authentication middleware to API routes
-  - File: `src/routes/api.ts`
-  - Add middleware similar to `src/middleware/auth.ts`
-  - Implement JWT validation
-  - Return 401 for invalid tokens
-```
-
 ## Script Details
 
 ### task_add.py
@@ -198,10 +178,7 @@ $ python3 scripts/task_complete.py .llm/todo.md --progress
 
 **Purpose**: Mark first incomplete task as done or in-progress
 
-**Input**:
-- Path to todo.md file
-- Optional: `--progress` flag for in-progress marking
-- Optional: `--done` flag for explicit completion (default)
+**Input**: Path to todo.md file
 
 **Output**: The marked task with context
 

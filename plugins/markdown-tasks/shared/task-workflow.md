@@ -12,7 +12,6 @@ The task format is:
 ```markdown
 - `[ ]` - Not started
 - `[x]` - Completed
-- `[>]` - In progress in a peer directory/worktree
 - `[!]` - Blocked after multiple failed attempts
 ```
 

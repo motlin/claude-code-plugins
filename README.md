@@ -38,7 +38,7 @@ claude
 ```
 
 This installs:
-- 6 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/worktree`)
+- 5 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`)
 - 1 agent (`do-task`)
 - 1 skill (`markdown-tasks`) with bundled Python scripts
 
@@ -171,36 +171,21 @@ Captures conversation planning and requirements into actionable tasks. Use at th
 
 Transforms discussion context into granular, self-contained tasks in `.llm/todo.md`.
 
-### `/worktree` - Parallel Task Execution
-
-Creates git worktrees for parallel task processing.
-
-```bash
-/worktree 3  # Creates 3 worktrees for next 3 tasks
-```
-
-Workflow per task:
-1. Generates kebab-case task name
-2. Creates git worktree
-3. Marks task as `[>]` in-progress
-4. Opens new Claude Code session in worktree
-
 ## Task States
 
 Tasks use markdown checkboxes with different states:
 
 - `[ ]` - Ready to work on
 - `[x]` - Completed and committed
-- `[>]` - In progress (currently being worked on in a worktree)
 - `[!]` - Blocked after failed attempt
 
 ## Scripts
 
-The plugin includes Python scripts and binaries in `plugins/markdown-tasks/skills/markdown-tasks/scripts/`:
+The plugin includes Python scripts in `plugins/markdown-tasks/skills/markdown-tasks/scripts/`:
 
-- `worktree` - Creates git worktrees for parallel task development
-- `todo_get.py` and `todo_complete.py` - Extract and mark individual tasks
-- `todo_add.py` - Add new tasks to the list
+- `task_get.py` and `task_complete.py` - Extract and mark individual tasks
+- `task_add.py` - Add new tasks to the list
+- `task_archive.py` - Archive completed task lists
 
 These tools prevent context pollution by ensuring agents only see the specific task they're working on, not the entire task list.
 
@@ -216,24 +201,20 @@ This focused context prevents context rot:
 - Accidentally implementing the wrong feature
 - LLM attention being split across multiple objectives
 
-### `todo_get.py`
+### `task_get.py`
 
 Extracts exactly one task with its context.
 
 ```bash
-python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
-### `todo_complete.py`
+### `task_complete.py`
 
-Marks the first incomplete task as done or in-progress.
+Marks the first incomplete task as done.
 
 ```bash
-# Mark as done (default)
-python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
-
-# Mark as in-progress
-python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/todo_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md --progress
+python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ## Task Format

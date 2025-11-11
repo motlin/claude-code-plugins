@@ -29,7 +29,6 @@ The task list is in `.llm/todo.md`. The format is:
 ```markdown
 - `[ ]` - Not started
 - `[x]` - Completed
-- `[>]` - In progress in a peer directory/worktree
 ```
 
 ## Important notes

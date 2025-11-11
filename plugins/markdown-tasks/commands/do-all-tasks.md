@@ -30,7 +30,6 @@ The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Inter
 ```markdown
 - `[ ]` - Not started
 - `[x]` - Completed
-- `[>]` - In progress in a peer directory/worktree
 - `[!]` - Blocked after multiple failed attempts
 ```
 

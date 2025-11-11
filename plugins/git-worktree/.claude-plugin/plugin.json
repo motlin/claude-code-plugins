@@ -1,0 +1,12 @@
+{
+  "name": "git-worktree",
+  "description": "Git worktree management with a slash command to create worktrees with project configuration",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/worktree.md"
+  ]
+}
