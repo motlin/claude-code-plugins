@@ -70,6 +70,16 @@ python3 scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 
 This changes the first `[ ]` to `[x]`.
 
+## Archiving Completed Tasks
+
+After all tasks are completed, archive the task list:
+
+```bash
+python3 scripts/task_archive.py $(git rev-parse --show-toplevel)/.llm/todo.md
+```
+
+This moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date. If a file with that name already exists, a counter suffix is added (e.g., `YYYY-MM-DD-todo-1.md`).
+
 ## Workflow Guidelines
 
 ### When Implementing a Task
@@ -185,6 +195,22 @@ $ python3 scripts/task_complete.py .llm/todo.md
 **Exit codes**:
 - 0: Success
 - 1: No incomplete tasks found or error
+
+### task_archive.py
+
+**Purpose**: Archive a completed task list to a dated backup file
+
+**Input**: Path to todo.md file
+
+**Output**: Confirmation message with the archived filename
+
+**Exit codes**:
+- 0: Success
+- 1: File not found or error
+
+**Behavior**:
+- Moves the file to `YYYY-MM-DD-<basename>.md` in the same directory
+- If a file with that name exists, adds a counter suffix (`-1`, `-2`, etc.)
 
 ## Dependencies
 

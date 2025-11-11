@@ -22,6 +22,9 @@ If the user did not provide instructions, then we are working through ALL incomp
   - If no, launch the `@markdown-tasks:do-task` agent to implement it
   - Do NOT mark the task as complete yourself - the `do-task` agent does this
 - Repeat until no incomplete tasks remain or we have met the user's instructions
+- When all tasks are completed:
+  - Archive the task list using: `python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_archive.py .llm/todo.md`
+  - This moves the file to `.llm/YYYY-MM-DD-todo.md`
 
 ## Task context
 
@@ -47,4 +50,4 @@ Throughout the process, provide clear status updates:
 - "Task completed successfully: [task description]"
 - "Task failed: [task description]"
 - "Skipping blocked task: [task description]"
-- "All tasks completed" or "Stopping due to failures"
+- "All tasks completed - task list archived to .llm/YYYY-MM-DD-todo.md" or "Stopping due to failures"
