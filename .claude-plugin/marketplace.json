@@ -17,6 +17,26 @@
       },
       "source": "./plugins/markdown-tasks",
       "category": "productivity"
+    },
+    {
+      "name": "tmux",
+      "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+      "version": "0.1.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/tmux",
+      "category": "productivity"
+    },
+    {
+      "name": "git-worktree",
+      "description": "Git worktree management with a slash command to create worktrees with project configuration",
+      "version": "0.1.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/git-worktree",
+      "category": "productivity"
     }
   ]
 }
