@@ -14,21 +14,21 @@ If the user did not provide instructions, then we are working through ALL incomp
 
 - Track attempt count and previously attempted tasks to prevent infinite loops
 - Find whether there is an incomplete task
-  - Use the `@markdown-tasks` skill to extract the first incomplete task from `.llm/todo.md`
+  - Use the `@tasks` skill to extract the first incomplete task from `.llm/todo.md`
   - It returns the first `Not started` task
 - If a task is found:
   - Check if we've already attempted this task 1 time
   - If yes, mark it as blocked (with `- [!]`) and continue to next task
-  - If no, launch the `@markdown-tasks:do-task` agent to implement it
+  - If no, launch the `@tasks:do-task` agent to implement it
   - Do NOT mark the task as complete yourself - the `do-task` agent does this
 - Repeat until no incomplete tasks remain or we have met the user's instructions
 - When all tasks are completed:
-  - Archive the task list using: `python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_archive.py .llm/todo.md`
+  - Archive the task list using: `python3 plugins/markdown-tasks/skills/tasks/scripts/task_archive.py .llm/todo.md`
   - This moves the file to `.llm/YYYY-MM-DD-todo.md`
 
 ## Task context
 
-The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Interact with it through the `@markdown-tasks` skill. The format is:
+The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Interact with it through the `@tasks` skill. The format is:
 
 ```markdown
 - `[ ]` - Not started

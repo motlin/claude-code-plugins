@@ -1,11 +1,11 @@
 ✅ Find and implement the next incomplete task from the project task list.
 
-**🚨 CRITICAL: Never use the Read tool on `.llm/todo.md`. Always use the `@markdown-tasks` skill.**
+**🚨 CRITICAL: Never use the Read tool on `.llm/todo.md`. Always use the `@tasks` skill.**
 
 ## Task context
 The task list is in `.llm/todo.md`.
 
-**IMPORTANT: Never use the Read tool on `.llm/todo.md`**. Always interact with the task list exclusively through the `@markdown-tasks` skill using the Python scripts described below. This ensures proper isolation and prevents context pollution.
+**IMPORTANT: Never use the Read tool on `.llm/todo.md`**. Always interact with the task list exclusively through the `@tasks` skill using the Python scripts described below. This ensures proper isolation and prevents context pollution.
 
 The task format is:
 
@@ -18,7 +18,7 @@ The task format is:
 ## Steps
 
 - Find the next incomplete task
-  - Use the `@markdown-tasks` skill to extract the first incomplete task from `.llm/todo.md`
+  - Use the `@tasks` skill to extract the first incomplete task from `.llm/todo.md`
   - Never read `.llm/todo.md` directly with the Read tool
   - The skill returns the first `Not started` task with all its context
 
@@ -36,5 +36,5 @@ The task format is:
   - Rebase on top of the upstream branch with the @git-rebaser agent
 
 - ✅ Finally mark the task as complete:
-  - Use the `@markdown-tasks` skill to mark the first incomplete task in `.llm/todo.md` as done
+  - Use the `@tasks` skill to mark the first incomplete task in `.llm/todo.md` as done
   - It changes the checkbox from `[ ]` to `[x]`

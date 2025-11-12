@@ -17,6 +17,6 @@
     "./agents/do-task.md"
   ],
   "skills": [
-    "./skills/markdown-tasks"
+    "./skills/tasks"
   ]
 }

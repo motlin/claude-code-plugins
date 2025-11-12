@@ -12,7 +12,7 @@ $ARGUMENTS
 
 - Extract the description from the user's input
 - If no description was provided, ask the user for one
-- Add the task using the `@markdown-tasks` skill:
+- Add the task using the `@tasks` skill:
   ```bash
   python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "<description>"
   ```

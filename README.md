@@ -62,7 +62,7 @@ Configure permissive permissions in `~/.claude/settings.json`:
       "Read",
       "WebSearch",
       "Write",
-      "Skill(markdown-tasks:markdown-tasks)",
+      "Skill(markdown-tasks:tasks)",
       "WebFetch(domain:github.com)"
     ],
     "deny": [
@@ -181,7 +181,7 @@ Tasks use markdown checkboxes with different states:
 
 ## Scripts
 
-The plugin includes Python scripts in `plugins/markdown-tasks/skills/markdown-tasks/scripts/`:
+The plugin includes Python scripts in `plugins/markdown-tasks/skills/tasks/scripts/`:
 
 - `task_get.py` and `task_complete.py` - Extract and mark individual tasks
 - `task_add.py` - Add new tasks to the list
@@ -206,7 +206,7 @@ This focused context prevents context rot:
 Extracts exactly one task with its context.
 
 ```bash
-python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ### `task_complete.py`
@@ -214,7 +214,7 @@ python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_get.py $(git r
 Marks the first incomplete task as done.
 
 ```bash
-python3 plugins/markdown-tasks/skills/markdown-tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 plugins/markdown-tasks/skills/tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ## Task Format
