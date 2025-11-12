@@ -23,7 +23,7 @@ If the user did not provide instructions, then we are working through ALL incomp
   - Do NOT mark the task as complete yourself - the `do-task` agent does this
 - Repeat until no incomplete tasks remain or we have met the user's instructions
 - When all tasks are completed:
-  - Archive the task list using: `python3 plugins/markdown-tasks/skills/tasks/scripts/task_archive.py .llm/todo.md`
+  - Archive the task list using: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md`
   - This moves the file to `.llm/YYYY-MM-DD-todo.md`
 
 ## Task context

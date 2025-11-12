@@ -14,7 +14,7 @@ $ARGUMENTS
 - If no description was provided, ask the user for one
 - Add the task using the `@tasks` skill:
   ```bash
-  python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "<description>"
+  python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md "<description>"
   ```
 - The script will:
   - Create `.llm/` directory if it doesn't exist

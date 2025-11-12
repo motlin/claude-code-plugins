@@ -27,7 +27,7 @@ Each task includes indented context lines with full implementation details:
 To get the first incomplete task:
 
 ```bash
-python3 scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md
 ```
 
 This returns:
@@ -40,7 +40,7 @@ This returns:
 To add a new todo to the list:
 
 ```bash
-python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "Task description"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md "Task description"
 ```
 
 This creates the `.llm/` directory and `todo.md` file if they don't exist, and appends the new task with a `[ ]` checkbox.
@@ -48,7 +48,7 @@ This creates the `.llm/` directory and `todo.md` file if they don't exist, and a
 **Important**: You can (and should) pass a multi-line string with all indented implementation details in a single call:
 
 ```bash
-python3 scripts/task_add.py $(git rev-parse --show-toplevel)/.llm/todo.md "Fix temporal table primary keys to use (id, system_to) pattern
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md "Fix temporal table primary keys to use (id, system_to) pattern
   Problem: All temporal tables currently use (id, system_from) as PK
   Files: src/db/schema.ts, src/commands/cache/import-backup.ts
 
@@ -65,7 +65,7 @@ This is more efficient than adding just the title and then editing the file sepa
 After implementing a task, mark it as done:
 
 ```bash
-python3 scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md
 ```
 
 This changes the first `[ ]` to `[x]`.
@@ -75,7 +75,7 @@ This changes the first `[ ]` to `[x]`.
 After all tasks are completed, archive the task list:
 
 ```bash
-python3 scripts/task_archive.py $(git rev-parse --show-toplevel)/.llm/todo.md
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md
 ```
 
 This moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date. If a file with that name already exists, a counter suffix is added (e.g., `YYYY-MM-DD-todo-1.md`).
@@ -132,7 +132,7 @@ The `.llm/` directory is gitignored via `.git/info/exclude`.
 ### Example: Extract Task
 
 ```bash
-$ python3 scripts/task_get.py .llm/todo.md
+$ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md
 - [ ] Add authentication middleware to API routes
   - File: `src/routes/api.ts`
   - Add middleware similar to `src/middleware/auth.ts`
@@ -143,7 +143,7 @@ $ python3 scripts/task_get.py .llm/todo.md
 ### Example: Mark Complete
 
 ```bash
-$ python3 scripts/task_complete.py .llm/todo.md
+$ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_PROJECT_DIR}/.llm/todo.md
 - [x] Add authentication middleware to API routes
   - File: `src/routes/api.ts`
   - Add middleware similar to `src/middleware/auth.ts`
