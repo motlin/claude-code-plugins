@@ -1,10 +1,9 @@
 {
   "name": "tmux",
   "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }
