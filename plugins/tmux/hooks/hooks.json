@@ -21,16 +21,17 @@
         ]
       }
     ],
-    "Notification": [
+    "SessionStart": [
       {
-        "matcher": "idle_prompt",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⏸\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\""
           }
         ]
-      },
+      }
+    ],
+    "Notification": [
       {
         "matcher": "permission_prompt",
         "hooks": [
