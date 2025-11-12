@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-tmux display-message -p '#{window_name}' | sed 's/^[^ ]* //'
+jq --raw-output '.cwd // ""' | xargs basename

@@ -3,13 +3,14 @@
 set -euo pipefail
 
 indicator="${1:-}"
+dir_name="${2:-}"
 
 if [ -z "${TMUX:-}" ]; then
   exit 0
 fi
 
-script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -z "$dir_name" ]; then
+  dir_name=$(basename "$PWD")
+fi
 
-base_name=$("$script_dir/extract-base-window-name.sh")
-
-tmux rename-window "$indicator $base_name"
+tmux rename-window "$indicator $dir_name"
