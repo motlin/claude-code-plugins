@@ -4,7 +4,7 @@ set -euo pipefail
 
 indicator="${1:-}"
 
-if [ -z "$TMUX" ]; then
+if [ -z "${TMUX:-}" ]; then
   exit 0
 fi
 
