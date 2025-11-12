@@ -8,7 +8,7 @@ case "$tool_name" in
   Bash)
     echo '$'
     ;;
-  Edit|Write|MultiEdit)
+  Create|Edit|Write|MultiEdit)
     echo '✎'
     ;;
   Read)
