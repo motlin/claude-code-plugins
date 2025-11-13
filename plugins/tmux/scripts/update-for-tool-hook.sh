@@ -2,6 +2,14 @@
 
 set -Eeuo pipefail
 
+if [ -z "${TMUX:-}" ]; then
+  exit 0
+fi
+
+if [ -z "${TMUX_PANE:-}" ]; then
+  exit 0
+fi
+
 script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 json=$(cat)
