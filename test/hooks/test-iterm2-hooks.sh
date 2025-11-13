@@ -29,6 +29,27 @@ else
 fi
 unset LC_TERMINAL
 
+test "update-iterm-title.sh exits early when LC_TERMINAL not set"
+unset LC_TERMINAL || true
+test_json=$(create_test_json "/tmp/test" "Bash")
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-iterm-title.sh" "\$" 2>&1); then
+  assert_exit_code 0 0
+else
+  exit_code=$?
+  assert_exit_code 0 $exit_code "Should exit 0 when LC_TERMINAL not set"
+fi
+
+test "update-iterm-title.sh exits early when LC_TERMINAL is not iTerm2"
+export LC_TERMINAL="xterm"
+test_json=$(create_test_json "/tmp/test" "Bash")
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-iterm-title.sh" "\$" 2>&1); then
+  assert_exit_code 0 0
+else
+  exit_code=$?
+  assert_exit_code 0 $exit_code "Should exit 0 when LC_TERMINAL is not iTerm2"
+fi
+unset LC_TERMINAL
+
 test "update-for-tool-hook.sh recognizes Bash tool icon"
 test_json=$(create_test_json "/tmp/test" "Bash")
 temp_script=$(mktemp)

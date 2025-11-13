@@ -2,6 +2,10 @@
 
 set -Eeuo pipefail
 
+if [ "${LC_TERMINAL:-}" != "iTerm2" ]; then
+  exit 0
+fi
+
 indicator="${1:-}"
 
 json=$(cat)
