@@ -1,12 +1,11 @@
 #!/bin/bash
 
-set -euo pipefail
+set -Eeuo pipefail
 
 indicator="${1:-}"
-dir_name="${2:-}"
 
-if [ -z "$dir_name" ]; then
-  dir_name=$(basename "$PWD")
-fi
+json=$(cat)
+cwd=$(echo "$json" | jq --raw-output '.cwd')
+dir_name=$(basename "$cwd")
 
 printf "\e]0;%s %s\a" "$indicator" "$dir_name"

@@ -5,7 +5,7 @@
       {
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\""
           }
         ]
@@ -15,7 +15,7 @@
       {
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✓\""
           }
         ]
@@ -26,6 +26,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/capture-tmux-pane.sh"
+          },
+          {
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\""
           }
         ]
@@ -36,7 +40,7 @@
         "matcher": "permission_prompt",
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"?\""
           }
         ]
@@ -46,7 +50,7 @@
       {
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⌫\""
           }
         ]
@@ -56,7 +60,7 @@
       {
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh"
           }
         ]
@@ -66,7 +70,7 @@
       {
         "hooks": [
           {
-            "type": "command",
+            "type": "stdin",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\""
           }
         ]
