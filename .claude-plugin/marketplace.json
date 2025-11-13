@@ -29,6 +29,16 @@
       "category": "productivity"
     },
     {
+      "name": "iterm2",
+      "description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+      "version": "0.1.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/iterm2",
+      "category": "productivity"
+    },
+    {
       "name": "git-worktree",
       "description": "Git worktree management with a slash command to create worktrees with project configuration",
       "version": "0.7.0",
