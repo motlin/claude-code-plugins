@@ -22,19 +22,18 @@ You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out th
 
 ```bash
 # Add the marketplace
-/plugin marketplace add motlin/claude-code-plugins
+claude plugin marketplace add motlin/claude-code-plugins
 
 # Install the markdown-tasks plugin
-/plugin install markdown-tasks
+claude plugin install markdown-tasks@motlin-claude-code-plugins
 ```
 
 If you are behind a proxy, you can install the marketplace from a directory.
 
 ```bash
 git clone https://github.com/motlin/claude-code-plugins.git/ ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
-claude
-/plugin marketplace add ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
-/plugin install markdown-tasks
+claude plugin marketplace add ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
+claude plugin install markdown-tasks@motlin-claude-code-plugins
 ```
 
 This installs:

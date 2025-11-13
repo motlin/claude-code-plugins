@@ -23,10 +23,11 @@
     ],
     "SessionStart": [
       {
+        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/capture-tmux-pane.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh"
           },
           {
             "type": "command",
