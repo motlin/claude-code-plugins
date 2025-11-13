@@ -4,6 +4,13 @@ set dotenv-filename := ".envrc"
 default:
     @just --list --unsorted
 
+# ✓ Run automated tests for plugin hooks
+test:
+    ./test/run-tests.sh
+
+# Run all formatting tools for pre-commit
+precommit: test
+
 # 🚀 Create a new release with version bump, commit, tag, and push
 release VERSION:
     sed -i '' 's/"version": "[^"]*"/"version": "{{VERSION}}"/' .claude-plugin/marketplace.json
