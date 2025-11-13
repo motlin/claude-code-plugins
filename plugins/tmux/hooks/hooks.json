@@ -27,10 +27,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh"
-          },
-          {
-            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\""
           }
         ]
