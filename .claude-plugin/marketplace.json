@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "motlin-claude-code-plugins",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
   "license": "Apache-2.0",
   "owner": {
@@ -11,7 +11,7 @@
     {
       "name": "markdown-tasks",
       "description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
-      "version": "0.11.1",
+      "version": "0.11.2",
       "author": {
         "name": "Craig Motlin"
       },
@@ -21,7 +21,7 @@
     {
       "name": "tmux-titles",
       "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-      "version": "0.11.1",
+      "version": "0.11.2",
       "author": {
         "name": "Craig Motlin"
       },
@@ -31,7 +31,7 @@
     {
       "name": "iterm2-titles",
       "description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-      "version": "0.11.1",
+      "version": "0.11.2",
       "author": {
         "name": "Craig Motlin"
       },
@@ -41,7 +41,7 @@
     {
       "name": "git-worktree",
       "description": "Git worktree management with a slash command to create worktrees with project configuration",
-      "version": "0.11.1",
+      "version": "0.11.2",
       "author": {
         "name": "Craig Motlin"
       },
