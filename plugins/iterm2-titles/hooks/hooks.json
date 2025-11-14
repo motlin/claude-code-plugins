@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✻\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✻\"",
+            "timeout": 500
           }
         ]
       }
@@ -16,7 +17,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✓\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✓\"",
+            "timeout": 500
           }
         ]
       }
@@ -26,7 +28,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"○\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"○\"",
+            "timeout": 500
           }
         ]
       }
@@ -37,7 +40,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"?\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"?\"",
+            "timeout": 500
           }
         ]
       }
@@ -47,7 +51,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"⌫\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"⌫\"",
+            "timeout": 500
           }
         ]
       }
@@ -57,7 +62,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh",
+            "timeout": 500
           }
         ]
       }
@@ -67,7 +73,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✻\""
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title.sh \"✻\"",
+            "timeout": 500
           }
         ]
       }
