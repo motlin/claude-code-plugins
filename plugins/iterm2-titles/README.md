@@ -20,6 +20,7 @@ The window title format is: `[icon] [directory-name]`
 ## Requirements
 
 - `jq` must be installed for JSON parsing
+- `uv` must be installed for Python script execution
 - iTerm2 terminal emulator
 
 ## Installation
