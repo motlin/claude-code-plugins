@@ -1,5 +1,5 @@
 {
-  "name": "tmux",
+  "name": "tmux-titles",
   "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
   "version": "0.10.1",
   "license": "Apache-2.0",

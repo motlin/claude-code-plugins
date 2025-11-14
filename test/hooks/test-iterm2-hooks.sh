@@ -11,7 +11,7 @@ PROJECT_ROOT="$(command cd "$script_dir/../.." && pwd)"
 test "update-for-tool-hook.sh exits early when LC_TERMINAL not set"
 unset LC_TERMINAL || true
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-for-tool-hook.sh" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-for-tool-hook.sh" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -21,7 +21,7 @@ fi
 test "update-for-tool-hook.sh exits early when LC_TERMINAL is not iTerm2"
 export LC_TERMINAL="xterm"
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-for-tool-hook.sh" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-for-tool-hook.sh" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -32,7 +32,7 @@ unset LC_TERMINAL
 test "update-iterm-title.sh exits early when LC_TERMINAL not set"
 unset LC_TERMINAL || true
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-iterm-title.sh" "\$" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title.sh" "\$" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -42,7 +42,7 @@ fi
 test "update-iterm-title.sh exits early when LC_TERMINAL is not iTerm2"
 export LC_TERMINAL="xterm"
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2/scripts/update-iterm-title.sh" "\$" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title.sh" "\$" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?

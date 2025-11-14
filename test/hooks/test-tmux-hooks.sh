@@ -11,7 +11,7 @@ PROJECT_ROOT="$(command cd "$script_dir/../.." && pwd)"
 test "update-for-tool-hook.sh exits early when TMUX not set"
 unset TMUX TMUX_PANE || true
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux/scripts/update-for-tool-hook.sh" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux-titles/scripts/update-for-tool-hook.sh" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -22,7 +22,7 @@ test "update-for-tool-hook.sh exits early when TMUX_PANE not set"
 export TMUX="test"
 unset TMUX_PANE || true
 test_json=$(create_test_json "/tmp/test" "Bash")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux/scripts/update-for-tool-hook.sh" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux-titles/scripts/update-for-tool-hook.sh" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -33,7 +33,7 @@ unset TMUX
 test "update-tmux-title.sh exits early when TMUX not set"
 unset TMUX TMUX_PANE || true
 test_json=$(create_test_json "/tmp/test")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux/scripts/update-tmux-title.sh" "✻" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux-titles/scripts/update-tmux-title.sh" "✻" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
@@ -44,7 +44,7 @@ test "update-tmux-title.sh exits early when TMUX_PANE not set"
 export TMUX="test"
 unset TMUX_PANE || true
 test_json=$(create_test_json "/tmp/test")
-if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux/scripts/update-tmux-title.sh" "✻" 2>&1); then
+if output=$(echo "$test_json" | "$PROJECT_ROOT/plugins/tmux-titles/scripts/update-tmux-title.sh" "✻" 2>&1); then
   assert_exit_code 0 0
 else
   exit_code=$?
