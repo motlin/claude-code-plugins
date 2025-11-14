@@ -19,23 +19,23 @@
       "category": "productivity"
     },
     {
-      "name": "tmux",
+      "name": "tmux-titles",
       "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
       "version": "0.11.1",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/tmux",
+      "source": "./plugins/tmux-titles",
       "category": "productivity"
     },
     {
-      "name": "iterm2",
+      "name": "iterm2-titles",
       "description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
       "version": "0.11.1",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/iterm2",
+      "source": "./plugins/iterm2-titles",
       "category": "productivity"
     },
     {
