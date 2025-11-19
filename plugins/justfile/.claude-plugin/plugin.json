@@ -1,5 +1,5 @@
 {
-  "name": "justfile-utils",
+  "name": "justfile",
   "description": "Utilities for working with justfiles, including doc comment optimization",
   "version": "0.13.0",
   "license": "Apache-2.0",

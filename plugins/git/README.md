@@ -1,8 +1,11 @@
-# git-workflow
+# git
 
-Git workflow automation with smart commits, conflict resolution, rebase management, and worktree cleanup.
+Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup.
 
 ## Commands
+
+### `/worktree`
+Create a git worktree in a peer directory with project configuration files copied over.
 
 ### `/commit`
 Commit local changes to git with intelligent file staging and commit message generation.

@@ -12,7 +12,7 @@ If that user-supplied text is already kebab case, use it directly as the branch 
 
 ## Steps
 
-- Run `bash plugins/git-worktree/scripts/worktree.sh <branch-name>` from the repository root
+- Run `bash plugins/git/scripts/worktree.sh <branch-name>` from the repository root
 - If the command exits with a non-success exit code, stop here and give a good summary to the user
 
 ## Conclusion

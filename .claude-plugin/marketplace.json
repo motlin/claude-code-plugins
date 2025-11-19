@@ -39,16 +39,6 @@
       "category": "productivity"
     },
     {
-      "name": "git-worktree",
-      "description": "Git worktree management with a slash command to create worktrees with project configuration",
-      "version": "0.13.0",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/git-worktree",
-      "category": "productivity"
-    },
-    {
       "name": "build-automation",
       "description": "Test and build automation tools that loop until all commits pass",
       "version": "0.13.0",
@@ -69,13 +59,13 @@
       "category": "productivity"
     },
     {
-      "name": "git-workflow",
-      "description": "Git workflow automation with smart commits, conflict resolution, rebase management, and worktree cleanup",
+      "name": "git",
+      "description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
       "version": "0.13.0",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/git-workflow",
+      "source": "./plugins/git",
       "category": "productivity"
     },
     {
@@ -89,13 +79,13 @@
       "category": "productivity"
     },
     {
-      "name": "justfile-utils",
+      "name": "justfile",
       "description": "Utilities for working with justfiles, including doc comment optimization",
       "version": "0.13.0",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/justfile-utils",
+      "source": "./plugins/justfile",
       "category": "productivity"
     }
   ]
