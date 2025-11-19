@@ -2,6 +2,8 @@
 
 set -Eeuo pipefail
 
+json=$(cat)
+
 indicator="${1:-}"
 
 if [ -z "${TMUX:-}" ]; then
@@ -11,8 +13,6 @@ fi
 if [ -z "${TMUX_PANE:-}" ]; then
   exit 0
 fi
-
-json=$(cat)
 cwd=$(echo "$json" | jq --raw-output '.cwd')
 dir_name=$(basename "$cwd")
 

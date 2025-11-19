@@ -2,13 +2,13 @@
 
 set -Eeuo pipefail
 
+json=$(cat)
+
 if [ "${LC_TERMINAL:-}" != "iTerm2" ]; then
   exit 0
 fi
 
 indicator="${1:-}"
-
-json=$(cat)
 cwd=$(echo "$json" | jq --raw-output '.cwd')
 dir_name=$(basename "$cwd")
 

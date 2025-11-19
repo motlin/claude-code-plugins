@@ -2,13 +2,13 @@
 
 set -Eeuo pipefail
 
+json=$(cat)
+
 if [ "${LC_TERMINAL:-}" != "iTerm2" ]; then
   exit 0
 fi
 
 script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-json=$(cat)
 tool_name=$(echo "$json" | jq --raw-output '.tool_name')
 
 case "$tool_name" in

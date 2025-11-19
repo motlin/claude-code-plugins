@@ -23,14 +23,14 @@ setup() {
 @test "update-iterm-title.sh exits early when LC_TERMINAL not set" {
   unset LC_TERMINAL || true
   test_json=$(create_test_json "/tmp/test" "Bash")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title.sh' '\$'"
+  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title-python.sh' '\$'"
   [ "$status" -eq 0 ]
 }
 
 @test "update-iterm-title.sh exits early when LC_TERMINAL is not iTerm2" {
   export LC_TERMINAL="xterm"
   test_json=$(create_test_json "/tmp/test" "Bash")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title.sh' '\$'"
+  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-iterm-title-python.sh' '\$'"
   [ "$status" -eq 0 ]
   unset LC_TERMINAL
 }
