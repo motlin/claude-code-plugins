@@ -25,6 +25,7 @@ claude plugin marketplace add "$SCRIPT_DIR"
 
 mkdir -p ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
 ln -sf "$SCRIPT_DIR/plugins" ~/.claude/plugins/marketplaces/motlin-claude-code-plugins/plugins
+ln -sf "$SCRIPT_DIR/.claude-plugin" ~/.claude/plugins/marketplaces/motlin-claude-code-plugins/.claude-plugin
 
 for plugin in "${PLUGINS[@]}"; do
     echo "claude plugin install $plugin@$MARKETPLACE_NAME"
