@@ -22,7 +22,7 @@ You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out th
 
 - 5 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`)
 - 1 agent (`do-task`)
-- 1 skill (`markdown-tasks`) with bundled Python scripts
+- 1 skill (`tasks`) with bundled Python scripts
 
 No additional setup required - the skill's scripts are automatically available when the plugin is installed.
 
