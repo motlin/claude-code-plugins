@@ -25,3 +25,14 @@ Or run [`install.sh`](install.sh):
 curl -fsSL https://raw.githubusercontent.com/motlin/claude-code-plugins/main/install.sh | bash
 ```
 
+If you are behind a proxy, you can install the marketplace from a directory.
+
+```bash
+git clone https://github.com/motlin/claude-code-plugins.git/ ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
+claude plugin marketplace add ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
+claude plugin install markdown-tasks@motlin-claude-code-plugins
+claude plugin install git-worktree@motlin-claude-code-plugins
+claude plugin install tmux-titles@motlin-claude-code-plugins
+claude plugin install iterm2-titles@motlin-claude-code-plugins
+```
+
