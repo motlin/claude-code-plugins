@@ -1,0 +1,14 @@
+{
+  "name": "build-automation",
+  "description": "Test and build automation tools that loop until all commits pass",
+  "version": "0.13.0",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/test-branch.md",
+    "./commands/test-all.md",
+    "./commands/fix.md"
+  ]
+}

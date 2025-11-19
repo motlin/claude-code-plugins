@@ -9,6 +9,11 @@ PLUGINS=(
     "iterm2-titles"
     "tmux-titles"
     "git-worktree"
+    "build-automation"
+    "code-quality"
+    "git-workflow"
+    "java-maven"
+    "justfile-utils"
 )
 
 for plugin in "${PLUGINS[@]}"; do

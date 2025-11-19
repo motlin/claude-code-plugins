@@ -1,0 +1,12 @@
+{
+  "name": "justfile-utils",
+  "description": "Utilities for working with justfiles, including doc comment optimization",
+  "version": "0.13.0",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/justfile-recipe-short-doc.md"
+  ]
+}

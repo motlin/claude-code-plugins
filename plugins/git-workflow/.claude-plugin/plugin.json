@@ -1,0 +1,16 @@
+{
+  "name": "git-workflow",
+  "description": "Git workflow automation with smart commits, conflict resolution, rebase management, and worktree cleanup",
+  "version": "0.13.0",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/commit.md",
+    "./commands/commit-chunks.md",
+    "./commands/conflicts.md",
+    "./commands/rebase-all.md",
+    "./commands/clean-worktrees.md"
+  ]
+}

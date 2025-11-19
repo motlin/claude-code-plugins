@@ -47,6 +47,56 @@
       },
       "source": "./plugins/git-worktree",
       "category": "productivity"
+    },
+    {
+      "name": "build-automation",
+      "description": "Test and build automation tools that loop until all commits pass",
+      "version": "0.13.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/build-automation",
+      "category": "productivity"
+    },
+    {
+      "name": "code-quality",
+      "description": "Code quality tools for comment cleanup and emoji enhancement",
+      "version": "0.13.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/code-quality",
+      "category": "productivity"
+    },
+    {
+      "name": "git-workflow",
+      "description": "Git workflow automation with smart commits, conflict resolution, rebase management, and worktree cleanup",
+      "version": "0.13.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/git-workflow",
+      "category": "productivity"
+    },
+    {
+      "name": "java-maven",
+      "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+      "version": "0.13.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/java-maven",
+      "category": "productivity"
+    },
+    {
+      "name": "justfile-utils",
+      "description": "Utilities for working with justfiles, including doc comment optimization",
+      "version": "0.13.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/justfile-utils",
+      "category": "productivity"
     }
   ]
 }
