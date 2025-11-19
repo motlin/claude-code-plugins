@@ -50,7 +50,10 @@ async def main(connection):
             await target_tab.async_set_title(title)
             log(f"Set title '{title}' on tab {target_tab.tab_id}")
         else:
-            log(f"Could not find tab with ID {iterm_tab_id}, skipping update")
+            log(f"Could not find tab with ID {iterm_tab_id}, removing stale mapping")
+            if os.path.exists(tab_id_file):
+                os.remove(tab_id_file)
+                log(f"Removed stale mapping file {tab_id_file}")
     else:
         log(f"No persisted tab ID found for termid={termid}, skipping update")
 
