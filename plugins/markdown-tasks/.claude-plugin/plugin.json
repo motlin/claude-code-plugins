@@ -1,7 +1,7 @@
 {
   "name": "markdown-tasks",
   "description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
