@@ -8,12 +8,11 @@ PLUGINS=(
     "markdown-tasks"
     "iterm2-titles"
     "tmux-titles"
-    "git-worktree"
     "build"
     "code-quality"
-    "git-workflow"
+    "git"
     "java-maven"
-    "justfile-utils"
+    "justfile"
 )
 
 for plugin in "${PLUGINS[@]}"; do
