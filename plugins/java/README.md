@@ -1,4 +1,4 @@
-# java-maven
+# java
 
 Java and Maven tools for OpenRewrite import ordering and POM dependency management.
 

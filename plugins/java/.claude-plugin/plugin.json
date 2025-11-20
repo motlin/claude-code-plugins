@@ -1,5 +1,5 @@
 {
-  "name": "java-maven",
+  "name": "java",
   "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
   "version": "0.14.0",
   "license": "Apache-2.0",

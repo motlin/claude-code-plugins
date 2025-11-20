@@ -1,5 +1,5 @@
 {
-  "name": "code-quality",
+  "name": "code",
   "description": "Code quality tools for comment cleanup and emoji enhancement",
   "version": "0.14.0",
   "license": "Apache-2.0",

@@ -10,9 +10,9 @@ PLUGINS=(
     "iterm2-titles"
     "tmux-titles"
     "build"
-    "code-quality"
+    "code"
     "git"
-    "java-maven"
+    "java"
     "justfile"
 )
 

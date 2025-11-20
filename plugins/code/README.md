@@ -1,4 +1,4 @@
-# code-quality
+# code
 
 Code quality tools for comment cleanup and emoji enhancement.
 

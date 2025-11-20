@@ -49,13 +49,13 @@
       "category": "productivity"
     },
     {
-      "name": "code-quality",
+      "name": "code",
       "description": "Code quality tools for comment cleanup and emoji enhancement",
       "version": "0.14.0",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/code-quality",
+      "source": "./plugins/code",
       "category": "productivity"
     },
     {
@@ -69,13 +69,13 @@
       "category": "productivity"
     },
     {
-      "name": "java-maven",
+      "name": "java",
       "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
       "version": "0.14.0",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/java-maven",
+      "source": "./plugins/java",
       "category": "productivity"
     },
     {
