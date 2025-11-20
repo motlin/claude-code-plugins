@@ -20,7 +20,7 @@ def strip_leading_icon(title):
     """Remove leading icon and space from title, leaving just the directory name."""
     # Pattern matches: optional icon (emoji/symbol) + space + rest
     # This handles icons like ✓, ✻, ○, ?, ⌫, $, ✎, …
-    pattern = r'^[^\w\s/]+\s+'
+    pattern = r'^[^a-zA-Z0-9_/.-]+\s+'
     stripped = re.sub(pattern, '', title)
     return stripped
 
