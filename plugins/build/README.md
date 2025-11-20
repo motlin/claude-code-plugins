@@ -1,4 +1,4 @@
-# build-automation
+# build
 
 Test and build automation tools that loop until all commits pass.
 

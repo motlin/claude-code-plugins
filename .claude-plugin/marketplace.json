@@ -39,13 +39,13 @@
       "category": "productivity"
     },
     {
-      "name": "build-automation",
+      "name": "build",
       "description": "Test and build automation tools that loop until all commits pass",
       "version": "0.14.0",
       "author": {
         "name": "Craig Motlin"
       },
-      "source": "./plugins/build-automation",
+      "source": "./plugins/build",
       "category": "productivity"
     },
     {

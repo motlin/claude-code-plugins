@@ -8,7 +8,7 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 - **[git-worktree](plugins/git-worktree/README.md)** - Git worktree management utilities
 - **[tmux-titles](plugins/tmux-titles/README.md)** - tmux terminal integration with window title updates and status indicators
 - **[iterm2-titles](plugins/iterm2-titles/README.md)** - iTerm2 terminal integration with status indicators
-- **[build-automation](plugins/build-automation/README.md)** - Test and build automation tools that loop until all commits pass
+- **[build](plugins/build/README.md)** - Test and build automation tools that loop until all commits pass
 - **[code-quality](plugins/code-quality/README.md)** - Code quality tools for comment cleanup and emoji enhancement
 - **[git-workflow](plugins/git-workflow/README.md)** - Git workflow automation with smart commits, conflict resolution, rebase management, and worktree cleanup
 - **[java-maven](plugins/java-maven/README.md)** - Java and Maven tools for OpenRewrite import ordering and POM dependency management
@@ -22,7 +22,7 @@ claude plugin install markdown-tasks@motlin-claude-code-plugins
 claude plugin install git-worktree@motlin-claude-code-plugins
 claude plugin install tmux-titles@motlin-claude-code-plugins
 claude plugin install iterm2-titles@motlin-claude-code-plugins
-claude plugin install build-automation@motlin-claude-code-plugins
+claude plugin install build@motlin-claude-code-plugins
 claude plugin install code-quality@motlin-claude-code-plugins
 claude plugin install git-workflow@motlin-claude-code-plugins
 claude plugin install java-maven@motlin-claude-code-plugins
@@ -44,7 +44,7 @@ claude plugin install markdown-tasks@motlin-claude-code-plugins
 claude plugin install git-worktree@motlin-claude-code-plugins
 claude plugin install tmux-titles@motlin-claude-code-plugins
 claude plugin install iterm2-titles@motlin-claude-code-plugins
-claude plugin install build-automation@motlin-claude-code-plugins
+claude plugin install build@motlin-claude-code-plugins
 claude plugin install code-quality@motlin-claude-code-plugins
 claude plugin install git-workflow@motlin-claude-code-plugins
 claude plugin install java-maven@motlin-claude-code-plugins

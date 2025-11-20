@@ -1,5 +1,5 @@
 {
-  "name": "build-automation",
+  "name": "build",
   "description": "Test and build automation tools that loop until all commits pass",
   "version": "0.14.0",
   "license": "Apache-2.0",

@@ -9,7 +9,7 @@ PLUGINS=(
     "iterm2-titles"
     "tmux-titles"
     "git-worktree"
-    "build-automation"
+    "build"
     "code-quality"
     "git-workflow"
     "java-maven"
