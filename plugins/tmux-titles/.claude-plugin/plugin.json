@@ -1,7 +1,7 @@
 {
   "name": "tmux-titles",
   "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
