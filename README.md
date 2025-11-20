@@ -15,29 +15,23 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 
 ## Installation
 
+### 1. Add the Marketplace
+
+From GitHub:
+
 ```bash
 claude plugin marketplace add motlin/claude-code-plugins
-claude plugin install markdown-tasks@motlin-claude-code-plugins
-claude plugin install tmux-titles@motlin-claude-code-plugins
-claude plugin install iterm2-titles@motlin-claude-code-plugins
-claude plugin install build@motlin-claude-code-plugins
-claude plugin install code@motlin-claude-code-plugins
-claude plugin install git@motlin-claude-code-plugins
-claude plugin install java@motlin-claude-code-plugins
-claude plugin install justfile@motlin-claude-code-plugins
 ```
 
-Or run [`install.sh`](install.sh):
+For local development or if you are behind a firewall, clone first and add from a local directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/motlin/claude-code-plugins/main/install.sh | bash
+claude plugin marketplace add "$(pwd)"
 ```
 
-If you are behind a proxy, you can install the marketplace from a directory.
+### 2. Install the Plugins
 
 ```bash
-git clone https://github.com/motlin/claude-code-plugins.git/ ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
-claude plugin marketplace add ~/.claude/plugins/marketplaces/motlin-claude-code-plugins
 claude plugin install markdown-tasks@motlin-claude-code-plugins
 claude plugin install tmux-titles@motlin-claude-code-plugins
 claude plugin install iterm2-titles@motlin-claude-code-plugins
