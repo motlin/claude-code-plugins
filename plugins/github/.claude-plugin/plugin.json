@@ -1,0 +1,12 @@
+{
+  "name": "github",
+  "description": "GitHub Actions troubleshooting and CI/CD automation",
+  "version": "0.14.3",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/gha.md"
+  ]
+}

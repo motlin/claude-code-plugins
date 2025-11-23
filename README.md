@@ -11,6 +11,7 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 - **[build](plugins/build/README.md)** - Test and build automation tools that loop until all commits pass
 - **[code](plugins/code/README.md)** - Code quality tools for comment cleanup and emoji enhancement
 - **[git](plugins/git/README.md)** - Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup
+- **[github](plugins/github/README.md)** - GitHub Actions troubleshooting and CI/CD automation
 - **[java](plugins/java/README.md)** - Java and Maven tools for OpenRewrite import ordering and POM dependency management
 - **[justfile](plugins/justfile/README.md)** - Utilities for working with justfiles, including doc comment optimization
 
@@ -40,6 +41,7 @@ claude plugin install iterm2-titles@motlin-claude-code-plugins
 claude plugin install build@motlin-claude-code-plugins
 claude plugin install code@motlin-claude-code-plugins
 claude plugin install git@motlin-claude-code-plugins
+claude plugin install github@motlin-claude-code-plugins
 claude plugin install java@motlin-claude-code-plugins
 claude plugin install justfile@motlin-claude-code-plugins
 ```
