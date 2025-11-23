@@ -6,6 +6,9 @@
   "author": {
     "name": "Craig Motlin"
   },
+  "agents": [
+    "./agents/liquibase-lock-resolver.md"
+  ],
   "commands": [
     "./commands/openrewrite-imports.md",
     "./commands/pom-ordering.md"
