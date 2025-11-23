@@ -6,6 +6,11 @@
   "author": {
     "name": "Craig Motlin"
   },
+  "agents": [
+    "./agents/precommit-runner.md",
+    "./agents/test-branch-fixer.md",
+    "./agents/build-fixer-autosquash.md"
+  ],
   "commands": [
     "./commands/test-branch.md",
     "./commands/test-all.md",
