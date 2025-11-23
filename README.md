@@ -5,6 +5,7 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 ## Available Plugins
 
 - **[markdown-tasks](plugins/markdown-tasks/README.md)** - Keep your tasks in a simple markdown file (`todo.md`) and let Claude Code implement them automatically
+- **[orchestration](plugins/orchestration/README.md)** - Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation
 - **[tmux-titles](plugins/tmux-titles/README.md)** - tmux terminal integration with window title updates and status indicators
 - **[iterm2-titles](plugins/iterm2-titles/README.md)** - iTerm2 terminal integration with status indicators
 - **[build](plugins/build/README.md)** - Test and build automation tools that loop until all commits pass
@@ -33,6 +34,7 @@ claude plugin marketplace add "$(pwd)"
 
 ```bash
 claude plugin install markdown-tasks@motlin-claude-code-plugins
+claude plugin install orchestration@motlin-claude-code-plugins
 claude plugin install tmux-titles@motlin-claude-code-plugins
 claude plugin install iterm2-titles@motlin-claude-code-plugins
 claude plugin install build@motlin-claude-code-plugins
