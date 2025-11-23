@@ -11,6 +11,9 @@
     "./agents/test-branch-fixer.md",
     "./agents/build-fixer-autosquash.md"
   ],
+  "skills": [
+    "./skills/precommit/SKILL.md"
+  ],
   "commands": [
     "./commands/test-branch.md",
     "./commands/test-all.md",

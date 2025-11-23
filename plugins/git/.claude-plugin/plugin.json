@@ -11,6 +11,9 @@
     "./agents/rebaser.md",
     "./agents/conflict-resolver.md"
   ],
+  "skills": [
+    "./skills/git-workflow/SKILL.md"
+  ],
   "commands": [
     "./commands/worktree.md",
     "./commands/commit.md",

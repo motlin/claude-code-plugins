@@ -9,6 +9,9 @@
   "agents": [
     "./agents/comment-cleaner.md"
   ],
+  "skills": [
+    "./skills/code-quality/SKILL.md"
+  ],
   "commands": [
     "./commands/comments.md",
     "./commands/all-comments.md",
