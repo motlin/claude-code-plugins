@@ -7,4 +7,4 @@ description: Split local changes into multiple logical commits
 
 For each proposed commit, show me the message and the list of files. Show all proposals at once. Wait for my confirmation, then commit all.
 
-@git:shared/git-commit-instructions.md
+See [shared/git-commit-instructions.md](../shared/git-commit-instructions.md) for commit guidelines.
