@@ -5,6 +5,12 @@ description: Core orchestration guidelines for conversation style, code style, t
 
 # Orchestration Guidelines
 
+**Core Skills:** Always invoke these skills to get domain-specific guidelines:
+
+- Git operations: Use `@git:git-workflow` skill for all git operations
+- Build validation: Use `@build:precommit` skill before running builds or tests
+- Code editing: Use `@code:code-quality` skill before editing code
+
 ## Conversation Style
 
 - If the user asks a question, only answer the question, do not edit code
