@@ -6,4 +6,4 @@ model: haiku
 color: red
 ---
 
-@shared/git-commit-instructions.md
+@git:shared/git-commit-instructions.md

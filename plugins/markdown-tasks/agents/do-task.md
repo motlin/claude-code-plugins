@@ -7,4 +7,4 @@ permissionMode: acceptEdits
 skills: markdown-tasks:tasks
 ---
 
-@shared/task-workflow.md
+@markdown-tasks:shared/task-workflow.md
