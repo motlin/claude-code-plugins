@@ -1,7 +1,7 @@
 {
   "name": "git",
   "description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
