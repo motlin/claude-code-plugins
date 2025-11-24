@@ -20,6 +20,7 @@ Fix build and linter errors from `just --global-justfile test-branch` WITHOUT cr
 ## Error Output
 
 The error output will be provided in your initial prompt. Look for:
+
 - Compiler/type errors (TypeScript, Rust, Java, etc.)
 - Linter errors (ESLint, Biome, Prettier, Clippy, etc.)
 - Test failures
@@ -40,11 +41,13 @@ The error output will be provided in your initial prompt. Look for:
 ## Exit Conditions
 
 **Success**: Report exactly:
+
 ```
 ✅ Fixed the error in [list files changed]
 ```
 
 **Need User Input**: Report exactly:
+
 ```
 ❌ I cannot fix this without user input: [explanation]
 ```

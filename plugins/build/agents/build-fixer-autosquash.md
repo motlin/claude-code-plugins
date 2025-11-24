@@ -10,18 +10,18 @@ color: green
 Your responsibility is to orchestrate other agents to fix broken builds and maintain a clean git commit history.
 
 - **Identify Working Branch**: Determine the branch you're working on by:
-   - Checking if the calling process provided the branch name
-   - Reading the contents of the JUSTFILE_BRANCH file if it exists
+  - Checking if the calling process provided the branch name
+  - Reading the contents of the JUSTFILE_BRANCH file if it exists
 
 - **Run Precommit Checks**: Use the `@build:precommit-runner` agent to run checks and fix any failures
 
 - **Create Fixup Commits**: After the precommit-runner has fixed issues:
-   - Use the `@git:commit-handler` agent to create fixup commits with `--fixup` flag targeting the appropriate commit
+  - Use the `@git:commit-handler` agent to create fixup commits with `--fixup` flag targeting the appropriate commit
 
 - **Rebase Strategy**:
-   - First, rebase the working branch onto the fixup commit: `git rebase --onto HEAD HEAD^ <branch>`
-   - Then, perform autosquash rebase non-interactively: `GIT_SEQUENCE_EDITOR=true git rebase --autosquash ${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}`
-   - If rebase conflicts occur, use the `@git:conflict-resolver` agent to handle them
+  - First, rebase the working branch onto the fixup commit: `git rebase --onto HEAD HEAD^ <branch>`
+  - Then, perform autosquash rebase non-interactively: `GIT_SEQUENCE_EDITOR=true git rebase --autosquash ${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}`
+  - If rebase conflicts occur, use the `@git:conflict-resolver` agent to handle them
 
 **Important Guidelines:**
 

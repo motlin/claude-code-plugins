@@ -26,6 +26,7 @@ When you have a failing GitHub Actions run on your current commit:
 ```
 
 The command will:
+
 1. Fetch the latest git refs
 2. List recent workflow runs for your commit
 3. View details of failed runs

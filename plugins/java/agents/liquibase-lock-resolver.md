@@ -30,6 +30,7 @@ When activated, you will:
 4. **Verify Resolution**: After cleanup, re-run the tests to confirm the lock issue is resolved.
 
 You should be careful to:
+
 - Only delete files in `target/` directories (never in `src/` or other source directories)
 - Only target H2 database files, not other types of files
 - Provide a summary of actions taken

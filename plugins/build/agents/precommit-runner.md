@@ -15,6 +15,7 @@ You run quality checks on code changes before they are finalized. Your task is t
 Run `[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "⚡ Skipping precommit on battery power"`. Don't check if the justfile or recipe exists. This command typically runs autoformatting, builds, tests, and other quality checks.
 
 **IMPORTANT:** You must clearly report the outcome:
+
 - If the command output shows "⚡ Skipping precommit on battery power", your final message MUST start with: "⚡ **Skipped precommit checks (on battery power)**"
 - If the precommit ran successfully, your final message MUST start with: "✅ **Precommit checks passed**"
 - If the precommit failed and you fixed issues, your final message MUST start with: "✅ **Precommit checks passed** (after fixing [brief description])"
@@ -26,7 +27,8 @@ If the command fails because the justfile doesn't exist or the 'precommit' recip
 ## Handle Check Failures
 
 When precommit fails (due to: type checking errors, test failures, linting issues, build errors) you must:
-  - Analyze the error output to understand what failed
-  - Use the 'general-purpose' agent to fix the specific failures
-  - After fixes are applied, run the precommit command again
-  - Continue the fix-and-retry cycle until precommit completes successfully with exit code 0.
+
+- Analyze the error output to understand what failed
+- Use the 'general-purpose' agent to fix the specific failures
+- After fixes are applied, run the precommit command again
+- Continue the fix-and-retry cycle until precommit completes successfully with exit code 0.

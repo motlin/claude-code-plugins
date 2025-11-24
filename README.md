@@ -45,4 +45,3 @@ claude plugin install github@motlin-claude-code-plugins
 claude plugin install java@motlin-claude-code-plugins
 claude plugin install justfile@motlin-claude-code-plugins
 ```
-

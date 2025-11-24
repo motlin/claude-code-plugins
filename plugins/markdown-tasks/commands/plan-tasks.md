@@ -32,4 +32,3 @@ Each task should be written so it can be read independently from `- [ ]` to the 
 ```markdown
 - [ ] Create a new test class `SynchronizedBagTest` at `/Users/craig/projects/eclipse-collections/unit-tests-thread-safety/src/test/java/org/eclipse/collections/impl/bag/mutable/SynchronizedBagTest.java` to test thread-safety of `org.eclipse.collections.impl.bag.mutable.SynchronizedBag`. Similar to how `SynchronizedMutableListTest` covers `SynchronizedMutableList`, this should extend `SynchronizedTestTrait` and implement test traits like `SynchronizedCollectionTestTrait`, `SynchronizedMutableIterableTestTrait`, and `SynchronizedRichIterableTestTrait`. The test should verify that all public methods of SynchronizedBag properly synchronize on the lock object using the `assertSynchronized()` method. Include tests for bag-specific methods like `addOccurrences()`, `removeOccurrences()`, `occurrencesOf()`, `forEachWithOccurrences()`, and `toMapOfItemToCount()`.
 ```
-

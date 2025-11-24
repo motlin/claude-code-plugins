@@ -6,12 +6,15 @@ description: Fix OpenRewrite import ordering test failures
 🔧 Fixing OpenRewrite Import Ordering Test Failures
 
 ## Problem
+
 OpenRewrite recipe tests fail with diffs showing only import order differences, not actual transformation issues.
 
 ## Symptoms
+
 - Test failure shows the transformation worked correctly
 - Only difference is the order of import statements
 - Error looks like:
+
 ```diff
 -import java.util.List;
 -import org.assertj.core.api.Assertions;
@@ -20,7 +23,9 @@ OpenRewrite recipe tests fail with diffs showing only import order differences, 
 ```
 
 ## Root Cause
+
 OpenRewrite manages imports automatically based on:
+
 - Existing imports in the file
 - JavaTemplate configuration
 - Import optimization rules
@@ -29,7 +34,9 @@ OpenRewrite manages imports automatically based on:
 ## Solution Approach
 
 ### 1. Fix the Recipe (if imports are missing)
+
 Ensure your JavaTemplate is properly configured:
+
 ```java
 JavaTemplate template = JavaTemplate
     .builder("Your.template.code()")
@@ -45,6 +52,7 @@ JavaTemplate template = JavaTemplate
 ```
 
 Don't forget to call:
+
 ```java
 maybeAddImport("org.assertj.core.api.Assertions");
 maybeAddImport("org.eclipse.collections.impl.utility.Iterate");
@@ -52,9 +60,11 @@ maybeRemoveImport("old.package.OldClass");
 ```
 
 ### 2. Fix the Test Expectations
+
 Accept the actual import order that OpenRewrite produces:
 
 **Instead of forcing a specific order:**
+
 ```java
 // DON'T expect a specific order you want
 "import java.util.List;\n" +
@@ -62,6 +72,7 @@ Accept the actual import order that OpenRewrite produces:
 ```
 
 **Use the actual order OpenRewrite produces:**
+
 ```java
 // DO accept the order OpenRewrite generates
 "import org.assertj.core.api.Assertions;\n" +
@@ -71,7 +82,9 @@ Accept the actual import order that OpenRewrite produces:
 ```
 
 ### 3. Common Import Ordering Patterns
+
 OpenRewrite typically orders imports as:
+
 1. Third-party packages (org.assertj, org.eclipse.collections, etc.)
 2. Blank line
 3. Java standard library (`java.*`, `javax.*`)
@@ -79,15 +92,18 @@ OpenRewrite typically orders imports as:
 5. Static imports
 
 ## Quick Fix Steps
+
 1. Run the failing test and copy the actual output from the error message
 2. Replace the expected output in your test with the actual output
 3. Verify the transformation logic is correct (ignore import order)
 4. Re-run the test to confirm it passes
 
 ## Note on ~~> Syntax
+
 The `~~>` prefix in test expectations is not standard in this codebase. It's used in some OpenRewrite projects to indicate "ignore everything before this line" but isn't recognized in all contexts. If you see it failing, remove it and use exact matching instead.
 
 ## Example Fix
+
 ```java
 @Test
 void replacesVerifyWithAssertJ() {

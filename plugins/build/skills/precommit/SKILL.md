@@ -16,6 +16,7 @@ This skill provides guidelines for running precommit checks, testing builds, and
 - Do not commit the changes when done (that's handled separately)
 
 This command typically runs:
+
 - Linters and formatters
 - Type checkers
 - Unit tests
@@ -28,6 +29,7 @@ Run `just --global-justfile test-branch` on all commits in the current branch. W
 ### Overview
 
 This automates the test-fix loop:
+
 1. Run `just --global-justfile test-branch` to test each commit
 2. If a commit fails:
    - Extract the error from the build output

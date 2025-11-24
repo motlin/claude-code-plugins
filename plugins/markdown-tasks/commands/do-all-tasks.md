@@ -46,6 +46,7 @@ The task list is in `.llm/todo.md`. Do not use the Read tool on this file. Inter
 ## User feedback
 
 Throughout the process, provide clear status updates:
+
 - "Starting task: [task description]"
 - "Task completed successfully: [task description]"
 - "Task failed: [task description]"

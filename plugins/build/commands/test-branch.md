@@ -8,6 +8,7 @@ Run `just --global-justfile test-branch` on all commits in the current branch. W
 ## Overview
 
 This command automates the test-fix loop:
+
 1. Run `just --global-justfile test-branch` to test each commit
 2. If a commit fails:
    - Extract the error from the build output

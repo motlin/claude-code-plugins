@@ -99,14 +99,17 @@ description: Core orchestration guidelines for conversation style, code style, t
 ## Workflow Orchestration
 
 When a code change is ready, and we are about to return control to the user, do these things in order:
+
 1. Verify the build passes using the `@build:precommit-runner` agent
 2. Commit to git using the `@git:commit-handler` agent
 3. Rebase on top of the upstream branch with the `@git:rebaser` agent
 
 Don't run long-lived processes like development servers or file watchers:
+
 - Don't run `npm run dev`
 - Echo copy/pasteable commands and ask the user to run it instead
 
 Use long flag names when using the Bash tool:
+
 - Don't run `git commit -m`
 - Run `git commit --message` instead

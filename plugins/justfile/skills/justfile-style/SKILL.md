@@ -20,6 +20,7 @@ For very short justfile recipes, change the doc comment string to be the entire 
 ### Example Transformation
 
 ❌ Before:
+
 ```justfile
 # Install dependencies
 [group('setup')]
@@ -28,6 +29,7 @@ install:
 ```
 
 ✅ After:
+
 ```justfile
 # npm install
 [group('setup')]
@@ -49,6 +51,7 @@ For simple, single-command recipes, the command itself is often more informative
 Keep descriptive doc comments for:
 
 1. **Multi-line recipes**:
+
 ```justfile
 # Set up development environment
 [group('setup')]
@@ -59,6 +62,7 @@ dev-setup:
 ```
 
 2. **Shebang recipes**:
+
 ```justfile
 # Generate API documentation
 [group('docs')]
@@ -69,6 +73,7 @@ gen-docs:
 ```
 
 3. **Long single-line commands** (>120 characters):
+
 ```justfile
 # Build production bundle with optimizations
 [group('build')]

@@ -37,6 +37,7 @@ You rebase local git commits on top of the upstream remote/branch.
 - After delegating to the git-rebase-conflict-resolver agent for conflicts, consider your task complete - that agent will handle the entire conflict resolution process
 
 **Workflow:**
+
 1. Check `git status` for uncommitted changes
 2. Execute `just --global-justfile rebase`
 3. If successful: Report success and exit

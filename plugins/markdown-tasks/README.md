@@ -92,6 +92,7 @@ Works through all incomplete tasks sequentially using the `do-task` agent.
 ```
 
 Each task is implemented in complete isolation:
+
 - The `do-task` agent reads only the single task description and its context
 - No information about other tasks pollutes the agent's context
 - Prevents confusion between similar tasks or accidentally implementing the wrong feature
@@ -128,6 +129,7 @@ Finds and implements exactly one incomplete task.
 ```
 
 Workflow:
+
 1. Extracts first `[ ]` task
 2. Implements the task
 3. Runs build pipeline (comment-cleaner, precommit-runner, git-commit-handler, git-rebaser)
@@ -172,11 +174,13 @@ These tools prevent context pollution by ensuring agents only see the specific t
 ### Benefits
 
 When implementing tasks, agents receive only:
+
 - The single task description
 - Its context lines
 - Nothing about other unrelated tasks
 
 This focused context prevents context rot:
+
 - Confusion between similar tasks
 - Accidentally implementing the wrong feature
 - LLM attention being split across multiple objectives

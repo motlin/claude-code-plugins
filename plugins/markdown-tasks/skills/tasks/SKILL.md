@@ -16,6 +16,7 @@ Tasks use markdown checkboxes with different states:
 - `[!]` - Blocked after failed attempts
 
 Each task includes indented context lines with full implementation details:
+
 - Absolute file paths
 - Exact function/class names
 - Code analogies to existing patterns
@@ -31,6 +32,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py ${CLAUDE_PROJECT_
 ```
 
 This returns:
+
 - The first `[ ]` checkbox line
 - All indented context lines below it
 - Stops at the next checkbox, header, or non-indented content
@@ -96,6 +98,7 @@ This moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's dat
 ### When Planning Tasks
 
 Create tasks that are:
+
 - Independently readable without external context
 - Self-contained with full implementation details
 - Specific about file paths and function names
@@ -121,6 +124,7 @@ Each task contains the shared API pattern context because `task_get.py` only ext
 ### Task List Location
 
 The task list is always at:
+
 ```
 <repository-root>/.llm/todo.md
 ```
@@ -158,16 +162,19 @@ $ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_P
 **Purpose**: Add a new task to the todo list
 
 **Input**:
+
 - Path to todo.md file
 - Task description
 
 **Output**: The added task line
 
 **Exit codes**:
+
 - 0: Success
 - 1: Error
 
 **Behavior**:
+
 - Creates `.llm/` directory if it doesn't exist
 - Creates `todo.md` file if it doesn't exist
 - Appends task with `[ ]` checkbox
@@ -181,6 +188,7 @@ $ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_P
 **Output**: Task line and all indented context lines
 
 **Exit codes**:
+
 - 0: Success
 - 1: File not found or error
 
@@ -193,6 +201,7 @@ $ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_P
 **Output**: The marked task with context
 
 **Exit codes**:
+
 - 0: Success
 - 1: No incomplete tasks found or error
 
@@ -205,10 +214,12 @@ $ python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py ${CLAUDE_P
 **Output**: Confirmation message with the archived filename
 
 **Exit codes**:
+
 - 0: Success
 - 1: File not found or error
 
 **Behavior**:
+
 - Moves the file to `YYYY-MM-DD-<basename>.md` in the same directory
 - If a file with that name exists, adds a counter suffix (`-1`, `-2`, etc.)
 

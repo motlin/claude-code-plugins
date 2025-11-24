@@ -7,16 +7,19 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 ### 1. Basic Single Task Addition
 
 **Screenshot 1: Command Input**
+
 - Run the command: `/add-one-task Implement user authentication`
 - Capture the terminal/UI showing the command being entered
 - Ensure the command and description are clearly visible
 
 **Screenshot 2: Claude's Response**
+
 - Capture Claude's confirmation message
 - Should show acknowledgment that the task was added to `.llm/todo.md`
 - Include any output from the `task_add.py` script
 
 **Screenshot 3: Resulting Entry in todo.md**
+
 - Open `.llm/todo.md` in your editor
 - Show the newly added task with `[ ]` checkbox
 - Highlight or focus on the new entry
@@ -28,6 +31,7 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 ### 2. Multi-line Task with Context
 
 **Screenshot 4: Multi-line Command**
+
 - Demonstrate adding a task with detailed context
 - Run a command like:
   ```
@@ -47,6 +51,7 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 ### 3. Building Up a Task List
 
 **Screenshot 5: Multiple Sequential Additions**
+
 - Run `/add-one-task` three or more times with different tasks
 - Show the progression:
   ```
@@ -64,6 +69,7 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 ## Screenshot Organization
 
 Save screenshots with descriptive names:
+
 - `add-one-task-01-command-input.png`
 - `add-one-task-02-claude-response.png`
 - `add-one-task-03-todo-result.png`
@@ -82,6 +88,7 @@ Save screenshots with descriptive names:
 ## Documentation Goals
 
 The screenshots should demonstrate:
+
 - How simple it is to add a single task
 - That tasks are stored in `.llm/todo.md` with checkbox syntax
 - How to build up a task list incrementally

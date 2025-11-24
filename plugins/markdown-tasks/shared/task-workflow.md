@@ -3,6 +3,7 @@
 **🚨 CRITICAL: Never use the Read tool on `.llm/todo.md`. Always use the `@tasks` skill.**
 
 ## Task context
+
 The task list is in `.llm/todo.md`.
 
 **IMPORTANT: Never use the Read tool on `.llm/todo.md`**. Always interact with the task list exclusively through the `@tasks` skill using the Python scripts described below. This ensures proper isolation and prevents context pollution.

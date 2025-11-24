@@ -50,11 +50,13 @@ Do not delete these comments:
 If you find any end-of-line comments, move them above the code they describe:
 
 ❌ Bad:
+
 ```typescript
 const result = transform(data); // Apply transformation
 ```
 
 ✅ Good:
+
 ```typescript
 // Apply transformation
 const result = transform(data);
@@ -67,6 +69,7 @@ Comments should go on their own lines for better readability.
 ### For Uncommitted Changes Only
 
 📍 When cleaning up comments in uncommitted code:
+
 - Only consider and edit local code changes that are not yet committed to git
 - Use `git diff` to identify which files have uncommitted changes
 - Focus only on those files
@@ -74,6 +77,7 @@ Comments should go on their own lines for better readability.
 ### For Entire Codebase
 
 When cleaning up comments across the entire codebase:
+
 - Apply the same rules to all files
 - Use appropriate tools like `Glob` and `Grep` to find files that need cleanup
 - Be systematic and thorough

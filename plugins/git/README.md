@@ -5,21 +5,27 @@ Git workflow automation with smart commits, conflict resolution, rebase manageme
 ## Commands
 
 ### `/worktree`
+
 Create a git worktree in a peer directory with project configuration files copied over.
 
 ### `/commit`
+
 Commit local changes to git with intelligent file staging and commit message generation.
 
 ### `/commit-chunks`
+
 Split local changes into multiple logical commits, proposing sensible groupings.
 
 ### `/conflicts`
+
 Fix all merge conflicts and continue the git rebase automatically.
 
 ### `/rebase-all`
+
 Rebase all branches onto a configurable upstream branch using `just --global-justfile git-all`.
 
 ### `/clean-worktrees`
+
 Remove git worktrees safely without using `--force`.
 
 ## Shared Files

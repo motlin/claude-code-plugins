@@ -12,6 +12,7 @@ This skill provides guidelines for git operations including commits, conflict re
 ### File Staging
 
 📦 Stage files individually using `git add <file1> <file2> ...`
+
 - NEVER use commands like `git add .`, `git add -A`, or `git commit -am` which stage all changes
 - Use single quotes around file names containing `$` characters
   - Example: `git add 'app/routes/_protected.foo.$bar.tsx'`
@@ -20,6 +21,7 @@ This skill provides guidelines for git operations including commits, conflict re
 ### Commit Message Style
 
 Commit messages should:
+
 - Start with a present-tense verb (Fix, Add, Implement, etc.)
 - Be concise (60-120 characters)
 - Be a single line
@@ -36,6 +38,7 @@ Commit messages should:
 ### Pre-commit Hooks
 
 When pre-commit hooks fail:
+
 - Stage the files modified by the hooks individually
 - Retry the commit
 - Never use `git commit --no-verify`
@@ -77,6 +80,7 @@ When pre-commit hooks fail:
 3. Continue this cycle until the command completes successfully without errors or conflicts
 
 When communicating during multi-branch rebases:
+
 - Clearly indicate which branch you're working on
 - Summarize the conflicts found
 - Report progress after each iteration
@@ -89,6 +93,7 @@ Git worktrees allow you to work on multiple branches simultaneously by checking 
 ### Creating Worktrees
 
 Follow the repository's naming convention for worktree directories. Common patterns:
+
 - Feature branches: `../repo-feature-name/`
 - Bug fixes: `../repo-bugfix-name/`
 - Version branches: `../repo-v2/`
@@ -96,6 +101,7 @@ Follow the repository's naming convention for worktree directories. Common patte
 ### Cleaning Up Worktrees
 
 Remove git worktrees safely when they're no longer needed:
+
 - List existing worktrees with `git worktree list`
 - Remove worktrees that are no longer in use
 - Clean up both the working directory and git's internal tracking

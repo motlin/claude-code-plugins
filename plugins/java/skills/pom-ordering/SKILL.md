@@ -8,6 +8,7 @@ description: Enforce Maven POM dependency ordering rules. This skill should be u
 First, group dependencies by scope (compile, runtime, test).
 
 Within each scope, group by groupId in this order:
+
 1. First-party (${project.groupId} or modules within the project)
 2. cool.klass
 3. io.liftwizard
@@ -19,6 +20,7 @@ Within each scope, group by groupId in this order:
 ## Region Comment Structure
 
 Use region comments for each groupId+scope combination:
+
 - `<!--region Project compile dependencies -->`
 - `<!--region Project runtime dependencies -->`
 - `<!--region Klass compile dependencies -->`
@@ -32,6 +34,7 @@ Use region comments for each groupId+scope combination:
 Close each region with `<!--endregion [name] -->`
 
 Within some groups, use nested regions for further organization:
+
 - For io.liftwizard runtime: `<!--region Liftwizard bundles -->` then `<!--region Liftwizard config-->`
 - For io.dropwizard: core modules first, then specialized modules
 

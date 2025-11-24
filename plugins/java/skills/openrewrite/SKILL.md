@@ -25,6 +25,7 @@ OpenRewrite recipe tests fail with diffs showing only import order differences:
 ### Root Cause
 
 OpenRewrite manages imports automatically based on:
+
 - Existing imports in the file
 - JavaTemplate configuration
 - Import optimization rules
@@ -51,6 +52,7 @@ JavaTemplate template = JavaTemplate
 ```
 
 Don't forget to call:
+
 ```java
 maybeAddImport("org.assertj.core.api.Assertions");
 maybeAddImport("org.eclipse.collections.impl.utility.Iterate");
@@ -62,6 +64,7 @@ maybeRemoveImport("old.package.OldClass");
 Accept the actual import order that OpenRewrite produces:
 
 ❌ Instead of forcing a specific order:
+
 ```java
 // DON'T expect a specific order you want
 "import java.util.List;\n" +
@@ -69,6 +72,7 @@ Accept the actual import order that OpenRewrite produces:
 ```
 
 ✅ Use the actual order OpenRewrite produces:
+
 ```java
 // DO accept the order OpenRewrite generates
 "import org.assertj.core.api.Assertions;\n" +
@@ -80,6 +84,7 @@ Accept the actual import order that OpenRewrite produces:
 #### 3. Common Import Ordering Patterns
 
 OpenRewrite typically orders imports as:
+
 1. Third-party packages (org.assertj, org.eclipse.collections, etc.)
 2. Blank line
 3. Java standard library (`java.*`, `javax.*`)

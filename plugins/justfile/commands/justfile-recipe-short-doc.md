@@ -13,6 +13,7 @@ install:
 ```
 
 After:
+
 ```justfile
 # npm install
 [group('setup')]
