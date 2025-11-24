@@ -14,6 +14,11 @@ You run quality checks on code changes before they are finalized. Your task is t
 
 Run `[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "⚡ Skipping precommit on battery power"`. Don't check if the justfile or recipe exists. This command typically runs autoformatting, builds, tests, and other quality checks.
 
+**IMPORTANT:** You must clearly report the outcome:
+- If the command output shows "⚡ Skipping precommit on battery power", your final message MUST start with: "⚡ **Skipped precommit checks (on battery power)**"
+- If the precommit ran successfully, your final message MUST start with: "✅ **Precommit checks passed**"
+- If the precommit failed and you fixed issues, your final message MUST start with: "✅ **Precommit checks passed** (after fixing [brief description])"
+
 ## Handle Missing Recipe
 
 If the command fails because the justfile doesn't exist or the 'precommit' recipe is not defined, clearly explain this situation. Your response should indicate whether the justfile file is missing or whether just the `precommit` recipe is missing.

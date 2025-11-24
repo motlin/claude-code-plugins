@@ -69,6 +69,16 @@
       "category": "productivity"
     },
     {
+      "name": "github",
+      "description": "GitHub Actions troubleshooting and CI/CD automation",
+      "version": "0.15.1",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/github",
+      "category": "productivity"
+    },
+    {
       "name": "java",
       "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
       "version": "0.15.1",
@@ -86,6 +96,16 @@
         "name": "Craig Motlin"
       },
       "source": "./plugins/justfile",
+      "category": "productivity"
+    },
+    {
+      "name": "orchestration",
+      "description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
+      "version": "0.15.1",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/orchestration",
       "category": "productivity"
     }
   ]
