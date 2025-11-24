@@ -82,7 +82,7 @@ Accept the actual import order that OpenRewrite produces:
 OpenRewrite typically orders imports as:
 1. Third-party packages (org.assertj, org.eclipse.collections, etc.)
 2. Blank line
-3. Java standard library (java.*, javax.*)
+3. Java standard library (`java.*`, `javax.*`)
 4. Blank line (if static imports exist)
 5. Static imports
 
