@@ -1,7 +1,7 @@
 {
   "name": "java",
   "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
