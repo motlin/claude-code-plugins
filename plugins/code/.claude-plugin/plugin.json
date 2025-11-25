@@ -10,7 +10,10 @@
     "./agents/comment-cleaner.md"
   ],
   "skills": [
-    "./skills/code-quality/SKILL.md"
+    "./skills/code-quality/SKILL.md",
+    "./skills/comment-cleanup/SKILL.md",
+    "./skills/testing/SKILL.md",
+    "./skills/cli/SKILL.md"
   ],
   "commands": [
     "./commands/comments.md",
