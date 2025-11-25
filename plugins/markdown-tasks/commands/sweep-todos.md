@@ -1,3 +1,7 @@
+---
+description: Find all TODO and TASK comments and add them to the project task list
+---
+
 🔍 Find all TODO and TASK comments and add them to the project task list
 
 Search the codebase for all TODO and TASK comments and add them to `.llm/todo.md`. Each TODO or TASK found in the code will be converted to a task in the markdown task list with a clear description including the file location and the full comment text.

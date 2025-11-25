@@ -1,5 +1,4 @@
 ---
-allowed-tools: Bash(just:*)
 description: Run just precommit and fix failures without committing
 ---
 

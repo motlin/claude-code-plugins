@@ -1,3 +1,5 @@
+ALWAYS use the `code:cli` skill.
+
 ## Context
 
 - Current git status: !`git status`

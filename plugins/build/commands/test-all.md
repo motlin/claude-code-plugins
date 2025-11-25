@@ -1,5 +1,4 @@
 ---
-allowed-tools: Task, Bash(just:*)
 description: Run tests on all commits and fix failures in a loop
 ---
 

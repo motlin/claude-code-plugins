@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Edit, Glob
+argument-hint: file or content to enhance
 description: Add appropriate emoji to make content more engaging
 ---
 

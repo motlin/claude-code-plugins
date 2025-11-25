@@ -1,3 +1,8 @@
+---
+argument-hint: task description
+description: Add a task to the project task list
+---
+
 ➕ Add a task to the project task list.
 
 Takes the user's description and adds it to `.llm/todo.md` as an incomplete task.

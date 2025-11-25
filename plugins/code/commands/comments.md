@@ -1,5 +1,4 @@
 ---
-allowed-tools: Bash(git:*), Read, Edit, Glob, Grep
 description: Remove obvious and redundant comments from uncommitted changes
 ---
 

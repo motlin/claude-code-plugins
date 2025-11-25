@@ -1,5 +1,4 @@
 ---
-allowed-tools: Task, Bash(just:*), Bash(git:*), BashOutput, KillShell
 description: Test all commits and fix errors in a loop
 ---
 

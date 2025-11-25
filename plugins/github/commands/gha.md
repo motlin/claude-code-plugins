@@ -1,5 +1,4 @@
 ---
-allowed-tools: Bash(git:*), Bash(gh:*), Bash(just:*), Read, Edit
 description: Fix failing GitHub Actions for the current commit
 ---
 

@@ -1,5 +1,4 @@
 ---
-allowed-tools: Read, Edit, Glob, Grep
 description: Remove obvious and redundant comments from all files
 ---
 

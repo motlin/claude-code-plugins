@@ -1,5 +1,4 @@
 ---
-allowed-tools: Read, Edit
 description: Fix OpenRewrite import ordering test failures
 ---
 

@@ -1,5 +1,4 @@
 ---
-allowed-tools: Read, Edit, Glob
 description: Shorten justfile recipe doc comments for simple recipes
 ---
 

@@ -1,14 +1,19 @@
+---
+argument-hint: branch-name
+description: Create a git worktree in a peer directory
+---
+
 🌳 Create Git Worktree
 
 Create a git worktree in a peer directory.
 
 ## Arguments
 
-$ARGUMENTS should be a kebab-case task name (e.g., "auth-feature", "database-migration")
+The argument should be a kebab-case task name (e.g., "auth-feature", "database-migration").
 
 The user passed in: `$ARGUMENTS`
 
-If that user-supplied text is already kebab case, use it directly as the branch name. Otherwise come up with a good kebab-case name based on what the user passed in.
+If that text is already kebab case, use it directly as the branch name. Otherwise come up with a good kebab-case name based on what the user passed in.
 
 ## Steps
 

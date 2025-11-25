@@ -1,5 +1,4 @@
 ---
-allowed-tools: Task, Bash(just:*)
 description: Rebase all branches onto a configurable upstream branch
 ---
 

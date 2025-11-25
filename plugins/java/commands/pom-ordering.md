@@ -1,5 +1,4 @@
 ---
-allowed-tools: Skill(pom-ordering)
 description: Check Maven POM file dependency ordering
 ---
 

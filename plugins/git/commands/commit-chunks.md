@@ -1,5 +1,4 @@
 ---
-allowed-tools: Bash(git:*), Bash(just:*)
 description: Split local changes into multiple logical commits
 ---
 
@@ -7,4 +6,4 @@ description: Split local changes into multiple logical commits
 
 For each proposed commit, show me the message and the list of files. Show all proposals at once. Wait for my confirmation, then commit all.
 
-See [shared/git-commit-instructions.md](../shared/git-commit-instructions.md) for commit guidelines.
+See [shared/git-commit-instructions.md](../shared/git-commit-instructions.md) for commit context.

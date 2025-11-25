@@ -1,3 +1,8 @@
+---
+argument-hint: optional instructions
+description: Process all tasks automatically
+---
+
 🔁 Process all tasks automatically
 
 Repeatedly work through incomplete tasks from the project task list.
