@@ -25,6 +25,10 @@ Each task includes indented context lines with full implementation details:
 
 ## Extracting the Next Task
 
+**NEVER use the `Read` tool on `.llm/todo.md`**.
+
+Always interact with the task list exclusively through the Python scripts described below.
+
 To get the first incomplete task:
 
 ```bash
