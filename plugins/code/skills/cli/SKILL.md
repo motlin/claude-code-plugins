@@ -1,6 +1,6 @@
 ---
 name: cli
-description: CLI guidelines. Use whenever using the Bash tool, which is almost always.
+description: CLI guidelines. Use whenever using the Bash tool, which is almost always. Also use when you see "command not found: __zoxide_z" errors.
 ---
 
 # CLI Guidelines

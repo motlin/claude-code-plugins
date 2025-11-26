@@ -7,7 +7,7 @@ description: Capture conversation planning into self-contained tasks at end of d
 
 Transform conversation planning and requirements into a markdown task list where each task is completely self-contained with all necessary context inline.
 
-See [shared/task-format.md](../shared/task-format.md) for task format and location.
+@../shared/task-format.md
 
 ## When to Use
 

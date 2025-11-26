@@ -15,7 +15,10 @@ $ARGUMENTS
 
 1. Extract the description from the user's input
 2. If no description was provided, ask the user for one
-3. Add the task - See [task-add.md](../shared/scripts/task-add.md)
+3. Add the task:
+
+@../shared/scripts/task-add.md
+
 4. Confirm to the user that the task was added
 
 ## Notes

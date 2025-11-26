@@ -26,8 +26,9 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
    - **Do NOT add instructions to the agent prompt** - the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
    - Do NOT mark the task as complete yourself - the `do-task` agent does this
 4. Repeat until no incomplete tasks remain or the user's instructions are met
-5. When all tasks are completed:
-   - Archive the task list - See [task-archive.md](../shared/scripts/task-archive.md)
+5. When all tasks are completed, archive the task list:
+
+@../shared/scripts/task-archive.md
 
 ## Notes
 
