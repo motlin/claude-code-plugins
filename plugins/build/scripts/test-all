@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Test all branches containing upstream as ancestor
+# Usage: test-all [TESTS] [FLAGS...]
+#
+# Arguments:
+#   TESTS - Test configuration name (default: $GIT_TESTS or "default")
+#   FLAGS - Additional flags for git test (default: --retest --verbose --verbose)
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to test against (default: upstream)
+#   UPSTREAM_BRANCH - Branch to test against (default: main)
+#   GIT_TESTS       - Default test configuration (default: default)
+#   FAIL_FAST       - Stop on first failure (default: false)
+
+set -uo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+git_tests="${GIT_TESTS:-default}"
+fail_fast="${FAIL_FAST:-false}"
+
+TESTS="${1:-$git_tests}"
+shift 1 2>/dev/null || true
+FLAGS="${*:---retest --verbose --verbose}"
+
+if [ "$fail_fast" = "true" ]; then
+    set -Ee
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+mapfile -t branches < <(git for-each-ref --format='%(refname:short)' refs/heads/ --sort -committerdate --contains "${upstream_remote}/${upstream_branch}")
+
+total_branches=${#branches[@]}
+echo "Found ${total_branches} branches containing remote ref ${upstream_remote}/${upstream_branch} as ancestor: ${branches[*]}"
+
+current=1
+for branch in "${branches[@]}"
+do
+    echo -n "[${current}/${total_branches}] "
+    echo "Running: test-branch \"${branch}\" '${TESTS}' ${FLAGS}"
+    # shellcheck disable=SC2086
+    "$SCRIPT_DIR/test-branch" "$branch" "$TESTS" $FLAGS
+    ((current++))
+done

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Test commits in the current branch using git-test
+# Usage: test-branch [BRANCH] [TESTS] [FLAGS...]
+#
+# Arguments:
+#   BRANCH - Branch to test (default: HEAD)
+#   TESTS  - Test configuration name (default: $GIT_TESTS or "default")
+#   FLAGS  - Additional flags for git test (default: --retest --verbose --verbose)
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
+#   GIT_TESTS       - Default test configuration (default: default)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+git_tests="${GIT_TESTS:-default}"
+
+BRANCH="${1:-HEAD}"
+TESTS="${2:-$git_tests}"
+shift 2 2>/dev/null || true
+FLAGS="${*:---retest --verbose --verbose}"
+
+if [ "$BRANCH" = "HEAD" ]; then
+    BRANCH=$(git branch --show-current)
+    if [ -z "$BRANCH" ]; then
+        BRANCH=$(git rev-parse HEAD)
+    fi
+fi
+
+# Save the branch name for test-fix to use
+echo "$BRANCH" > JUSTFILE_BRANCH
+
+tests_arg=""
+if [ -n "$TESTS" ]; then
+    tests_arg="--tests $TESTS"
+fi
+
+echo "Running: git test run $tests_arg $FLAGS ${upstream_remote}/${upstream_branch}..${BRANCH}"
+# shellcheck disable=SC2086
+git test run $tests_arg $FLAGS "${upstream_remote}/${upstream_branch}..${BRANCH}"

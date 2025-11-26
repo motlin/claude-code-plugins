@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Rebase all branches, prune worktrees, and delete merged branches
+# Usage: git-all
+#
+# This script combines three operations:
+# 1. Rebase all branches onto upstream/main
+# 2. Prune stale worktrees
+# 3. Delete branches merged into upstream/main
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to use (default: upstream)
+#   UPSTREAM_BRANCH - Branch to use (default: main)
+#   OFFLINE         - Skip network operations if true (default: false)
+
+set -Eeuo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Run rebase-all
+"$SCRIPT_DIR/rebase-all"
+
+# Prune worktrees
+echo "Pruning stale worktrees..."
+git worktree prune --verbose
+
+# Delete merged branches
+"$SCRIPT_DIR/delete-merged"

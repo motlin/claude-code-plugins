@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Fetch from upstream remote
+# Usage: fetch
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to fetch from (default: upstream)
+#   OFFLINE         - Skip fetching if true (default: false)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+offline="${OFFLINE:-false}"
+
+if [ "$offline" != "true" ]; then
+    echo "Running: git fetch ${upstream_remote} --quiet --tags --prune"
+    git fetch "${upstream_remote}" --quiet --tags --prune
+fi

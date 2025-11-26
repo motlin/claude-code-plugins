@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Rebase all branches onto upstream/main or matching up-to-date origin branch
+# Usage: rebase-all
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
+#   OFFLINE         - Skip fetching if true (default: false)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check for local modifications
+"$SCRIPT_DIR/check-local-modifications"
+
+# Fetch upstream
+"$SCRIPT_DIR/fetch"
+
+# Get branches that are not ancestors of upstream/main
+mapfile -t branches < <(git for-each-ref --format='%(refname:short)' refs/heads/ --sort -committerdate --no-contains "${upstream_remote}/${upstream_branch}")
+total=${#branches[@]}
+current=0
+
+for branch in "${branches[@]}"
+do
+    current=$((current + 1))
+
+    # Skip branches included in other branches
+    included_count=$(git branch --contains "$branch" | wc -l)
+    if [ "$included_count" -gt 1 ]; then
+        echo "[${current}/${total}] Skipping branch $branch as it is included in other branches"
+        continue
+    fi
+
+    # Skip branches checked out in other worktrees
+    current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+    if [ "$branch" != "$current_branch" ] && git worktree list 2>/dev/null | grep -q "\[$branch\]"; then
+        echo "[${current}/${total}] Skipping branch $branch as it is currently checked out in another worktree"
+        continue
+    fi
+
+    # Try to checkout the branch
+    if ! git checkout --quiet "$branch" 2>/dev/null; then
+        echo "[${current}/${total}] Skipping branch $branch as it cannot be checked out (possibly in use by a worktree)"
+        continue
+    fi
+
+    rebase_message="[${current}/${total}] Rebasing branch $branch onto"
+
+    # Check if origin/$branch exists
+    if git rev-parse --verify "origin/$branch" &>/dev/null; then
+        # Check if upstream/main is an ancestor of origin/$branch
+        if git merge-base --is-ancestor "${upstream_remote}/${upstream_branch}" "origin/$branch"; then
+            echo "$rebase_message origin/$branch (because origin/$branch exists and is up-to-date with ${upstream_remote}/${upstream_branch})"
+            git rebase --rebase-merges --update-refs --quiet "origin/$branch"
+        else
+            echo "$rebase_message ${upstream_remote}/${upstream_branch} (because origin/$branch exists but is not an ancestor)"
+            git rebase --rebase-merges --update-refs --quiet "${upstream_remote}/${upstream_branch}"
+        fi
+    else
+        echo "$rebase_message ${upstream_remote}/${upstream_branch} (because origin/$branch does not exist)"
+        git rebase --rebase-merges --update-refs --quiet "${upstream_remote}/${upstream_branch}"
+    fi
+done

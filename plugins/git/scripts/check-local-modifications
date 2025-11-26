@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Check for local modifications and fail if found
+# Usage: check-local-modifications
+#
+# Exits with error if:
+# - Working tree has uncommitted changes
+# - Index has staged changes
+# - Untracked files exist
+
+set -uo pipefail
+
+ERRORS=""
+
+git diff --ignore-submodules --quiet || ERRORS+="- Working tree has uncommitted changes\n"
+git diff --ignore-submodules --staged --quiet || ERRORS+="- Index has staged changes\n"
+git status --porcelain --ignore-submodules | grep -q '^??' && ERRORS+="- Untracked files exist\n" || true
+
+if [ -n "$ERRORS" ]; then
+    echo "Local modifications found:"
+    echo -e "$ERRORS"
+    git status --ignore-submodules
+    exit 1
+fi

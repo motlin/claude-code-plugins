@@ -2,12 +2,12 @@
 description: Rebase all branches onto a configurable upstream branch
 ---
 
-🔄 Keep all branches in a repository up-to-date by rebasing them onto a configurable upstream branch.
+Keep all branches in a repository up-to-date by rebasing them onto a configurable upstream branch.
 
-Initial Rebase Attempt: Run `just --global-justfile git-all` to attempt rebasing all branches.
+Initial Rebase Attempt: Run `${CLAUDE_PLUGIN_ROOT}/scripts/git-all` to attempt rebasing all branches.
 
 - If the command fails with merge conflicts, use the `git-rebase-conflict-resolver` agent to resolve all conflicts in the affected branch
-- After resolving conflicts run `just --global-justfile git-all` again.
+- After resolving conflicts run `${CLAUDE_PLUGIN_ROOT}/scripts/git-all` again.
 - Continue this cycle until the command completes successfully without errors or conflicts.
 
 When communicating:

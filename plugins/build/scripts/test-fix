@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Fix the current commit with staged changes and rebase
+# Usage: test-fix
+#
+# This script:
+# 1. Stages modified files
+# 2. Runs pre-commit hooks on changed files
+# 3. Creates a fixup commit for HEAD
+# 4. Rebases to squash the fixup
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "Staging changes."
+git add --update
+
+echo "Running pre-commit checks."
+# Run pre-commit on changed files, allowing it to fail (it may make changes)
+uv tool run pre-commit run --files "$(git diff --cached --name-only | tr '\n' ' ')" || true
+git add --update
+
+echo "Committing fixup."
+git commit --quiet --fixup HEAD --no-verify
+
+echo "Checking for unstaged files."
+# Check for local modifications
+ERRORS=""
+git diff --ignore-submodules --quiet || ERRORS+="- Working tree has uncommitted changes\n"
+git diff --ignore-submodules --staged --quiet || ERRORS+="- Index has staged changes\n"
+git status --porcelain --ignore-submodules | grep -q '^??' && ERRORS+="- Untracked files exist\n" || true
+
+if [ -n "$ERRORS" ]; then
+    echo "Local modifications found:"
+    echo -e "$ERRORS"
+    git status --ignore-submodules
+    exit 1
+fi
+
+BRANCH=$(cat JUSTFILE_BRANCH)
+echo "Rebasing the last branch used with test-fix: $BRANCH"
+git rebase --quiet --onto HEAD HEAD^ "$BRANCH"
+git checkout --quiet "$BRANCH"
+
+echo "Squashing changes."
+git rebase --autosquash --rebase-merges --update-refs "${upstream_remote}/${upstream_branch}"
+
+echo "Cleaning up."
+rm JUSTFILE_BRANCH
+
+# Now run test-branch again
+"$SCRIPT_DIR/test-branch"

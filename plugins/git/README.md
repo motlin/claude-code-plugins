@@ -22,7 +22,7 @@ Fix all merge conflicts and continue the git rebase automatically.
 
 ### `/rebase-all`
 
-Rebase all branches onto a configurable upstream branch using `just --global-justfile git-all`.
+Rebase all branches onto a configurable upstream branch.
 
 ### `/clean-worktrees`
 

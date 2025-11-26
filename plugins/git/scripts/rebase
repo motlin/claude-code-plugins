@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Rebase current branch onto upstream/main
+# Usage: rebase [interactive]
+#
+# Arguments:
+#   interactive - Use interactive rebase (default: true)
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
+#   OFFLINE         - Skip fetching if true (default: false)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+offline="${OFFLINE:-false}"
+interactive="${1:-true}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check for local modifications
+"$SCRIPT_DIR/check-local-modifications"
+
+# Fetch upstream
+"$SCRIPT_DIR/fetch"
+
+# Build rebase command
+rebase_args=""
+if [ "$interactive" = "true" ]; then
+    rebase_args="--interactive"
+fi
+
+echo "Running: git rebase $rebase_args --autosquash --rebase-merges --update-refs ${upstream_remote}/${upstream_branch}"
+# shellcheck disable=SC2086
+git rebase $rebase_args --autosquash --rebase-merges --update-refs "${upstream_remote}/${upstream_branch}"

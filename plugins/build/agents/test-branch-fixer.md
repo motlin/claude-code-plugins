@@ -6,11 +6,11 @@ model: sonnet
 color: blue
 ---
 
-Fix build and linter errors from `just --global-justfile test-branch` WITHOUT creating a git commit.
+Fix build and linter errors from the test-branch script WITHOUT creating a git commit.
 
 ## Task
 
-`just --global-justfile test-branch` tests each commit individually. One commit failed with the error output provided below.
+The test-branch script tests each commit individually. One commit failed with the error output provided below.
 
 1. Analyze the error carefully to understand what's broken
 2. Fix the code to resolve the error
@@ -60,4 +60,4 @@ The error output will be provided in your initial prompt. Look for:
 4. Edit src/foo.ts line 42 to use `baz` instead of `bar`
 5. Report: "✅ Fixed the error in src/foo.ts"
 
-Remember: Do NOT commit. The parent workflow handles commits via `just --global-justfile test-fix`.
+Remember: Do NOT commit. The parent workflow handles commits via the test-fix script.

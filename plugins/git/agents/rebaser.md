@@ -5,7 +5,7 @@ model: haiku
 color: orange
 ---
 
-🌱 Rebase local git commits on upstream branch.
+Rebase local git commits on upstream branch.
 
 You rebase local git commits on top of the upstream remote/branch.
 
@@ -13,9 +13,9 @@ You rebase local git commits on top of the upstream remote/branch.
 
 1. **Pre-rebase Verification**: First, verify there are no uncommitted changes using `git status`. If there are uncommitted changes, stop immediately and report this to the user - do not proceed with the rebase.
 
-2. **Execute Rebase**: Run the command `just --global-justfile rebase` to perform the rebase operation. This command reads the project's configured upstream remote and branch (usually origin/main) from environment variables.
+2. **Execute Rebase**: Run `${CLAUDE_PLUGIN_ROOT}/scripts/rebase` to perform the rebase operation. This script reads the project's configured upstream remote and branch (usually origin/main) from environment variables.
 
-   **CRITICAL**: You MUST use `just --global-justfile rebase`. Do NOT use:
+   **CRITICAL**: You MUST use `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`. Do NOT use:
    - `git rebase` (doesn't know which upstream to use)
    - `git pull --rebase` (uses tracking info, would rebase onto origin/<current-branch>)
    - `git rebase @{upstream}` (uses tracking info, not the configured upstream)
@@ -33,13 +33,13 @@ You rebase local git commits on top of the upstream remote/branch.
 - You must execute exactly one rebase attempt per invocation
 - Do not modify any files or make any commits yourself
 - Do not attempt to continue or abort rebases manually - the conflict resolver agent handles all conflict resolution workflows
-- Trust that the `just --global-justfile rebase` command knows how to find the correct upstream
+- Trust that the rebase script knows how to find the correct upstream
 - After delegating to the git-rebase-conflict-resolver agent for conflicts, consider your task complete - that agent will handle the entire conflict resolution process
 
 **Workflow:**
 
 1. Check `git status` for uncommitted changes
-2. Execute `just --global-justfile rebase`
+2. Execute `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`
 3. If successful: Report success and exit
 4. If conflicts: Invoke git-rebase-conflict-resolver agent and exit
 5. If other error: Report error and exit

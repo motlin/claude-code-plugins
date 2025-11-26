@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Delete local and remote branches merged into upstream/main
+# Usage: delete-merged
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to check against (default: upstream)
+#   UPSTREAM_BRANCH - Branch to check against (default: main)
+#   OFFLINE         - Skip remote operations if true (default: false)
+
+set -Eeu  # No pipefail or the grep commands fail when nothing needs to be deleted
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+offline="${OFFLINE:-false}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Fetch first
+"$SCRIPT_DIR/fetch"
+
+# Delete local merged branches
+echo "Deleting local branches merged into ${upstream_remote}/${upstream_branch}..."
+git branch --merged "remotes/${upstream_remote}/${upstream_branch}" |
+    grep --invert-match "^\*" |  # Exclude current branch
+    grep --invert-match "^+" |   # Exclude branches checked out in worktrees (marked with +)
+    sed 's/^[[:space:]]*//' |    # Trim leading whitespace
+    xargs --no-run-if-empty git branch -D || true
+
+# Delete remote merged branches
+if [ "$offline" != "true" ]; then
+    echo "Deleting remote branches merged into ${upstream_remote}/${upstream_branch}..."
+    git branch --remote --list 'origin/*' --merged "remotes/${upstream_remote}/${upstream_branch}" \
+        | grep --invert-match "${upstream_branch}" \
+        | grep --invert-match HEAD \
+        | grep "origin/" \
+        | grep --invert-match "origin/pr/" \
+        | cut -d "/" -f 2- \
+        | xargs --no-run-if-empty git push --delete origin || true
+else
+    echo "Skipping delete-remote-merged in offline mode"
+fi

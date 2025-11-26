@@ -1,6 +1,6 @@
 ---
 name: precommit
-description: Running precommit checks and build validation using just commands. Use when validating code changes, running tests, or fixing build failures.
+description: Running precommit checks and build validation. Use when validating code changes, running tests, or fixing build failures.
 ---
 
 # Precommit and Build Validation
@@ -9,7 +9,7 @@ This skill provides guidelines for running precommit checks, testing builds, and
 
 ## Running Precommit Checks
 
-🔧 Run `just precommit` to validate code before committing:
+Run `just precommit` to validate code before committing:
 
 - Use a timeout of at least 10 minutes
 - If it fails, analyze the errors and fix them directly
@@ -24,24 +24,24 @@ This command typically runs:
 
 ## Testing All Commits
 
-Run `just --global-justfile test-branch` on all commits in the current branch. When a build failure occurs, fix the error, create a fixup commit, rebase, and retry until all commits pass.
+Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-branch` on all commits in the current branch. When a build failure occurs, fix the error, create a fixup commit, rebase, and retry until all commits pass.
 
 ### Overview
 
 This automates the test-fix loop:
 
-1. Run `just --global-justfile test-branch` to test each commit
+1. Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-branch` to test each commit
 2. If a commit fails:
    - Extract the error from the build output
    - Fix the error
-   - Run `just --global-justfile test-fix` to create fixup commit and rebase
+   - Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-fix` to create fixup commit and rebase
    - Repeat from step 1
 3. If all commits pass, report success
 
 ### Execution Loop
 
 1. **Start the test run in background**:
-   - Run `just --global-justfile test-branch` with `run_in_background: true`
+   - Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-branch` with `run_in_background: true`
    - Save the shell ID for monitoring
 
 2. **Monitor the output**:
@@ -52,7 +52,7 @@ This automates the test-fix loop:
 
 3. **When the shell completes**:
    - If exit code is 0:
-     - Report: "✅ All commits pass!"
+     - Report: "All commits pass!"
      - Exit
    - If exit code is non-zero:
      - Filtered output now contains errors but not the full build log
@@ -67,15 +67,15 @@ This automates the test-fix loop:
      - Exit and let the user decide
    - If you successfully fixed the code:
      - Verify there are unstaged changes with `git status --porcelain`
-     - Run `just --global-justfile test-fix` (NOT in background)
+     - Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-fix` (NOT in background)
      - Go back to step 1
 
-5. **Safety limit**: If more than 10 iterations occur, report: "⚠️ Too many iterations. Please review manually." and exit
+5. **Safety limit**: If more than 10 iterations occur, report: "Too many iterations. Please review manually." and exit
 
 ### Important Notes
 
 - The `BashOutput` filter is critical: it extracts errors without consuming the entire build log
 - Each fix should use fresh context
 - You may need user input; respect that and exit gracefully
-- Do NOT commit anything yourself; the `test-fix` command handles that
+- Do NOT commit anything yourself; the `test-fix` script handles that
 - Use `KillShell` if you need to abort a running background shell
