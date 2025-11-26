@@ -24,3 +24,17 @@ When a code change is ready, and we are about to return control to the user, do 
 1. Verify the build passes using the `@build:precommit-runner` agent
 2. Commit to git using the `@git:commit-handler` agent
 3. Rebase on top of the upstream branch with the `@git:rebaser` agent
+
+## Plugin Health Check
+
+Run the master doctor script to verify all plugins are properly configured:
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/../orchestration/scripts/doctor-all.sh
+```
+
+This runs `doctor.sh` from each plugin, checking for:
+
+- Required binaries (just, git, gh, python3, tmux, etc.)
+- Required files and scripts
+- Proper file permissions
