@@ -9,7 +9,7 @@ The plugin displays different icons in your iTerm2 window title based on what Cl
 - `✻` Working/Active (UserPromptSubmit, PostToolUse)
 - `✓` Complete (Stop)
 - `○` Session Start (SessionStart)
-- `?` Question (Notification: permission_prompt)
+- `?` Question (Notification: permission_prompt/elicitation_dialog, PreToolUse: AskUserQuestion)
 - `⌫` Cleanup (PreCompact)
 - `$` Shell command (PreToolUse: Bash)
 - `✎` File modification (PreToolUse: Edit/Write/MultiEdit)

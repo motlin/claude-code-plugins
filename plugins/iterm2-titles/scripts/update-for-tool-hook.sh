@@ -21,6 +21,9 @@ case "$tool_name" in
   Read)
     icon='…'
     ;;
+  AskUserQuestion)
+    icon='?'
+    ;;
   *)
     icon='✻'
     ;;

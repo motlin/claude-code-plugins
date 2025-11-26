@@ -42,7 +42,7 @@
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt",
+        "matcher": "permission_prompt|elicitation_dialog",
         "hooks": [
           {
             "type": "command",
