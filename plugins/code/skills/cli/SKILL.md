@@ -14,13 +14,6 @@ description: CLI guidelines. Use whenever using the Bash tool, which is almost a
   - Don't run `cd <dir> && git <subcommand>`
   - Prefer `git -C <dir> <subcommand>`
 
-## Long-Running Processes
-
-Don't run long-lived processes like development servers or file watchers:
-
-- Don't run `npm run dev`
-- Echo copy/pasteable commands and ask the user to run it instead
-
 ## Flag Names
 
 Prefer long flag names when available:
