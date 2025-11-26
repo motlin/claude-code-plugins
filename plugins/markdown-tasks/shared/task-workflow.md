@@ -3,7 +3,6 @@
 ## Steps
 
 1. **Extract the task** - See [task-get.md](scripts/task-get.md)
-   - The script returns the first `[ ]` task with all its indented context
 
 2. **Implement the task**
    - Think hard about the plan
