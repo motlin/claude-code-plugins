@@ -1,5 +1,5 @@
 ---
-name: claude-code-guide
+name: offline-claude-code-guide
 description: Offline Claude Code documentation fallback. Use when the user asks about Claude Code features, capabilities, or configuration and the built-in claude-code-guide subagent fails due to network issues or proxy blocking.
 ---
 
