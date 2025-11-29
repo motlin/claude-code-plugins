@@ -18,4 +18,4 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 
 ## Task Format
 
-@../task-format.md
+@task-format.md

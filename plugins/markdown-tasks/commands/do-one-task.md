@@ -4,4 +4,4 @@ description: Find and implement the next incomplete task from the project task l
 
 Find and implement the next incomplete task from the project task list.
 
-@../shared/task-workflow.md
+@../skills/tasks/task-workflow.md

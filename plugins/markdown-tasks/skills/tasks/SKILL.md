@@ -11,10 +11,10 @@ This skill enables working with the markdown task list stored in `.llm/todo.md`.
 
 These scripts require Python 3 with standard library only (no external packages needed).
 
-@../../shared/scripts/task-get.md
+@task-get.md
 
-@../../shared/scripts/task-add.md
+@task-add.md
 
-@../../shared/scripts/task-complete.md
+@task-complete.md
 
-@../../shared/scripts/task-archive.md
+@task-archive.md

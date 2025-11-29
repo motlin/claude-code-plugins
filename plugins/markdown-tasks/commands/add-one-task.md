@@ -11,6 +11,6 @@ $ARGUMENTS
 
 If no description was provided, ask the user for one.
 
-@../shared/scripts/task-add.md
+@../skills/tasks/task-add.md
 
 Confirm to the user that the task was added.
