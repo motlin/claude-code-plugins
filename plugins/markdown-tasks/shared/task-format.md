@@ -2,13 +2,9 @@
 
 The task list is in `.llm/todo.md`.
 
-**NEVER use the `Read` tool on `.llm/todo.md`**.
-
-Always interact with the task list exclusively through the `@tasks` skill using the Python scripts it provides.
+NEVER use the `Read` tool on `.llm/todo.md`. Always interact with the task list exclusively through the Python scripts in this Skill.
 
 ## Task States
-
-Tasks use markdown checkboxes with different states:
 
 - `[ ]` - Not started (ready to work on)
 - `[x]` - Completed
@@ -24,48 +20,57 @@ Each task includes indented context lines with full implementation details:
 - Dependencies and prerequisites
 - Expected outcomes
 
-## Example Task
-
-```markdown
-- [ ] Add authentication middleware to API routes
-  - File: `src/routes/api.ts`
-  - Add middleware similar to `src/middleware/auth.ts`
-  - Implement JWT validation
-  - Return 401 for invalid tokens
-```
-
 ## Task List Location
 
-The task list is always at:
+The task list is always at `<repository-root>/.llm/todo.md`. The `.llm/` directory is gitignored via `.git/info/exclude`.
 
-```
-<repository-root>/.llm/todo.md
-```
+## Standalone Context
 
-The `.llm/` directory is gitignored via `.git/info/exclude`.
+Each task is extracted and executed in isolation. The `task_get.py` script extracts only one task at a time - it cannot see other tasks in the file. Therefore:
 
-## Planning Guidelines
+1. Every task must contain ALL context needed to implement it
+2. Repeat shared context in every related task - if 5 tasks share the same background, repeat it 5 times
+3. Never reference other tasks - phrases like "similar to task above" are useless
+4. Include the full picture - source of inspiration, files involved, patterns to follow
 
-Create tasks that are:
+When adding multiple related tasks (e.g., from a feature comparison table), each task must independently contain:
 
-- Independently readable without external context
-- Self-contained with full implementation details
-- Specific about file paths and function names
-- Clear about expected outcomes
-- Properly indented for context preservation
+- The source/inspiration (e.g., "Adopting pattern from typescript-template repo")
+- Specific files to modify or create
+- Implementation details and patterns to follow
+- Any prerequisites or dependencies
 
-Since each task is read independently using `task_get.py`, any context that is relevant to multiple tasks MUST be repeated in each task's indented context. Do not rely on tasks reading shared context from elsewhere in the file.
+## Example: Bad vs Good Task Lists
 
-For example, if multiple tasks need to know about a specific API pattern:
+Bad - Relies on shared context that won't be visible:
 
 ```markdown
-- [ ] Implement user endpoint
-  - API pattern: Use `BaseController` class from `src/controllers/base.ts`
-  - File: `src/controllers/user.ts`
+# Adopting features from typescript-template
 
-- [ ] Implement post endpoint
-  - API pattern: Use `BaseController` class from `src/controllers/base.ts`
-  - File: `src/controllers/post.ts`
+- [ ] Add auto-fix jobs
+- [ ] Add pre-commit CI job
+- [ ] Add ESLint annotations
 ```
 
-Each task contains the shared API pattern context because `task_get.py` only extracts one task at a time.
+Good - Each task is completely self-contained:
+
+```markdown
+- [ ] Add auto-fix jobs to pull-request.yml
+  - Adopting feature from typescript-template repository
+  - File: `.github/workflows/pull-request.yml`
+  - Add jobs: eslint-fix, biome-format-fix, prettier-fix
+  - These jobs auto-push formatting fixes to PR branches
+  - Reference: typescript-template/.github/workflows/pull-request.yml
+
+- [ ] Add pre-commit CI job to merge-group.yml
+  - Adopting feature from typescript-template repository
+  - File: `.github/workflows/merge-group.yml`
+  - Use pre-commit/action to run hooks in CI
+  - Reference: typescript-template/.github/workflows/merge-group.yml
+
+- [ ] Add ESLint annotations to show lint errors inline on PRs
+  - Adopting feature from typescript-template repository
+  - File: `.github/workflows/pull-request.yml`
+  - Use ataylorme/eslint-annotate-action
+  - Reference: typescript-template/.github/workflows/pull-request.yml
+```

@@ -1,21 +1,21 @@
 # task_add.py - Add New Task
 
-Add a new task to the list:
+## Adding a Task
+
+1. Expand the description into a self-contained task with all necessary context
+2. Use multi-line format with indented details
+3. Run the script:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+  Context line 1
+  Context line 2"
 ```
 
-Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox.
-
-**Important**: You can (and should) pass a multi-line string with all indented implementation details in a single call:
-
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Fix temporal table primary keys to use (id, system_to) pattern
-  Problem: All temporal tables currently use (id, system_from) as PK
-  Files: src/db/schema.ts, src/commands/cache/import-backup.ts
-```
-
-The script preserves all indentation in the multi-line string.
+Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
 
 **Exit codes**: 0 (success), 1 (error)
+
+## Task Format
+
+@../task-format.md
