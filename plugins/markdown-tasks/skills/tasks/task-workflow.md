@@ -2,7 +2,9 @@
 
 ## Steps
 
-1. **Extract the task** - See [task-get.md](scripts/task-get.md)
+1. **Extract the task**
+
+@task-get.md
 
 2. **Implement the task**
    - Think hard about the plan
@@ -16,4 +18,6 @@
    - Commit to git using the `@git:commit-handler` agent
    - Rebase on top of the upstream branch with the `@git:rebaser` agent
 
-4. **Mark the task complete** - See [task-complete.md](scripts/task-complete.md)
+4. **Mark the task complete**
+
+@task-complete.md

@@ -5,7 +5,7 @@ description: Running precommit checks and build validation. ALWAYS use after ANY
 
 # Precommit and Build Validation
 
-See [shared/precommit-instructions.md](../../shared/precommit-instructions.md) for execution details on how to validate changes after they are written.
+@../../shared/precommit-instructions.md
 
 ## Commands and Agents
 

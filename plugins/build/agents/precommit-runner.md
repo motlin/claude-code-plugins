@@ -5,6 +5,6 @@ model: haiku
 color: pink
 ---
 
-See [shared/precommit-instructions.md](../shared/precommit-instructions.md) for precommit execution.
+@../shared/precommit-instructions.md
 
 Fix any failures.
