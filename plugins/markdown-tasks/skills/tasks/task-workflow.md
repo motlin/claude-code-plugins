@@ -1,10 +1,14 @@
 # Task Implementation Workflow
 
+**CRITICAL**: Do NOT explore or search the plugin directory. Run bash commands exactly as shown.
+
 ## Steps
 
-1. **Extract the task**
+1. **Extract the task** - Run exactly:
 
-@task-get.md
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+   ```
 
 2. **Implement the task**
    - Think hard about the plan
@@ -18,6 +22,7 @@
    - Commit to git using the `@git:commit-handler` agent
    - Rebase on top of the upstream branch with the `@git:rebaser` agent
 
-4. **Mark the task complete**
-
-@task-complete.md
+4. **Mark the task complete** - Run exactly:
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+   ```
