@@ -1,6 +1,6 @@
 # task_archive.py - Archive Task List
 
-Archive a completed task list:
+Archive a completed task list by running this command (do NOT read the script file):
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md

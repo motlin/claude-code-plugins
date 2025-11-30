@@ -1,6 +1,6 @@
 # task_get.py - Extract Next Task
 
-Extract the first incomplete task with its context:
+Extract the first incomplete task with its context by running this command (do NOT read the script file):
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md

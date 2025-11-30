@@ -4,7 +4,7 @@
 
 1. Expand the description into a self-contained task with all necessary context
 2. Use multi-line format with indented details
-3. Run the script:
+3. Run this command (do NOT read the script file):
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description

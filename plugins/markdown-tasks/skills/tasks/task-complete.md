@@ -1,6 +1,6 @@
 # task_complete.py - Mark Task Done
 
-Mark the first incomplete task as done:
+Mark the first incomplete task as done by running this command (do NOT read the script file):
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
