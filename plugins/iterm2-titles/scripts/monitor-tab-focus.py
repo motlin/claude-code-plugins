@@ -32,7 +32,7 @@ async def monitor_tab_focus(connection, tab_id):
 
     async def on_tab_selected(tab):
         if tab.tab_id == tab_id:
-            current_title = await tab.async_get_variable("titleOverride")
+            current_title = await tab.async_get_variable("title")
             log(f"Tab focused: current_title='{current_title}'")
 
             # Strip leading icon if present
