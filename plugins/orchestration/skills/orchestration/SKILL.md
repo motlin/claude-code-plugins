@@ -19,14 +19,11 @@ Invoke these skills liberally - most tasks use multiple skills:
 
 ## Git Commits
 
-**ALWAYS** use the `@git:commit-handler` agent for any git commit operation, including:
+**ALWAYS** delegate to the `@git:commit-handler` agent for all commit operations. Never run `git commit` directly.
 
-- Creating new commits
-- Rewriting commit messages
-- Amending commits
-- Interactive rebasing that changes commit messages
+**ALWAYS** delegate to the `@git:conflict-resolver` agent to resolve any git merge or rebase conflicts.
 
-Never commit directly with `git commit` - always delegate to the agent.
+**ALWAYS** delegate to the `@git:rebaser` agent to rebase the current branch on upstream.
 
 ## Workflow Orchestration
 

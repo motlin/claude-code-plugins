@@ -9,22 +9,12 @@ This skill provides guidelines for git operations including commits, conflict re
 
 ## Commit Guidelines
 
-Use the `/git:commit` command or `git:commit-handler` agent.
-
-## Splitting Changes into Multiple Commits
-
-Use the `/git:commit-chunks` command.
+**ALWAYS** delegate to the `git:commit-handler` agent for all commit operations. Never run `git commit` directly.
 
 ## Conflict Resolution
 
-Use the `/git:conflicts` command or `git:conflict-resolver` agent.
+**ALWAYS** delegate to the `git:conflict-resolver` agent to resolve any git merge or rebase conflicts.
 
-## Rebasing All Branches
+## Rebasing
 
-Use the `/git:rebase-all` command.
-
-## Worktree Management
-
-Use the `/git:worktree` command for creating worktrees.
-
-Use the `/git:clean-worktrees` command for cleaning up worktrees.
+**ALWAYS** delegate to the `git:rebaser` agent to rebase the current branch on upstream.
