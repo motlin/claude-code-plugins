@@ -3,6 +3,7 @@ name: liquibase-lock-resolver
 description: Use this agent when you encounter a Liquibase lock error during Maven builds, specifically when you see error messages indicating 'Could not acquire change log lock' or 'Currently locked by' in test failures. Examples:\n\n<example>\nContext: During development, a Maven build fails with Liquibase lock errors.\nuser: "Run the tests"\nassistant: "I'll run the tests for you"\n<maven test output shows Liquibase lock errors>\nassistant: "I see there's a Liquibase lock error. Let me use the liquibase-lock-resolver agent to clean up the test databases"\n<commentary>\nThe build failed due to Liquibase locks, so the liquibase-lock-resolver agent should be used to clean up H2 test databases.\n</commentary>\n</example>\n\n<example>\nContext: User reports test failures related to database locks.\nuser: "The tests are failing with 'Could not acquire change log lock' errors"\nassistant: "I'll use the liquibase-lock-resolver agent to clean up the locked test databases"\n<commentary>\nThe user explicitly mentioned Liquibase lock errors, triggering the need for the liquibase-lock-resolver agent.\n</commentary>\n</example>
 tools: Task, Bash, Glob, Grep, LS, ExitPlanMode, Read, Edit, MultiEdit, Write, NotebookRead, NotebookEdit, WebFetch, TodoWrite, WebSearch
 color: gold
+skills: orchestration:orchestration
 ---
 
 🔓 Resolve Liquibase database lock errors.

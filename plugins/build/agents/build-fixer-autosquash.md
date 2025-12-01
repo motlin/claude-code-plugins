@@ -3,6 +3,7 @@ name: build-fixer-autosquash
 description: Use this agent to fix broken builds and clean up commit history with fixup commits and autosquash rebasing.\n\n<example>\nuser: "The build is broken, can you fix it and clean up my commits?"\nassistant: "I'll launch the build-fixer-autosquash agent to fix the build issues and organize your commits properly"\n<commentary>\nThe user needs both build fixes and commit cleanup, which is exactly what the build-fixer-autosquash agent handles.\n</commentary>\n</example>
 model: haiku
 color: green
+skills: orchestration:orchestration
 ---
 
 🔨 Fix broken builds and maintain clean git commit history.

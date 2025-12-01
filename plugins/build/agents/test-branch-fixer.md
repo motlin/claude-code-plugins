@@ -4,6 +4,7 @@ description: Fix a build error from test-branch without committing
 tools: Read, Edit, MultiEdit, Grep, Glob, Bash(npm:*), Bash(cargo:*), Bash(mvn:*), Bash(gradle:*)
 model: sonnet
 color: blue
+skills: orchestration:orchestration
 ---
 
 Fix build and linter errors from the test-branch script WITHOUT creating a git commit.

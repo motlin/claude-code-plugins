@@ -3,7 +3,7 @@ name: conflict-resolver
 description: Use this agent to handle git merge conflicts.
 model: haiku
 color: yellow
-skills: code:cli
+skills: orchestration:orchestration, code:cli
 ---
 
 🔀 Fix all merge conflicts and continue the git rebase.

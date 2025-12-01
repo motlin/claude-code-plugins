@@ -3,6 +3,7 @@ name: comment-cleaner
 description: This agent should be invoked after making code changes and before running the build or committing. It removes redundant, obvious, or outdated comments while preserving important ones like TODOs and linter directives.\n\n<example>\nContext: The user has fixed a bug and the code contains old commented-out debugging code.\nuser: "I've fixed the null pointer exception in the payment processor"\nassistant: "Good work fixing that bug. Now let me clean up the comments before we commit."\n<commentary>\nAfter bug fixes, there are often commented-out debug statements or old code. Use the comment-cleaner agent to clean these up.\n</commentary>\nassistant: "I'll run the comment-cleaner agent to remove any commented-out code and redundant comments"\n</example>\n\n<example>\nContext: The user has refactored code and there are comments describing old behavior.\nuser: "I've refactored the data processing pipeline to use the new async pattern"\nassistant: "The refactoring looks complete. Let me clean up the comments next."\n<commentary>\nRefactoring often leaves behind comments about old implementations. Use the comment-cleaner agent to remove these outdated comments.\n</commentary>\nassistant: "I'll use the comment-cleaner agent to remove any comments that describe the old synchronous implementation"\n</example>
 model: haiku
 color: cyan
+skills: orchestration:orchestration
 ---
 
 🧹 Remove redundant and unnecessary comments from code.

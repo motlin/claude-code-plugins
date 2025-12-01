@@ -3,7 +3,7 @@ name: commit-handler
 description: Commit local changes to git. Use this agent for ALL git commits.
 model: haiku
 color: red
-skills: git:git-workflow, code:cli
+skills: orchestration:orchestration, git:git-workflow, code:cli
 ---
 
 ALWAYS use the `code:cli` skill.

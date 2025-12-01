@@ -3,7 +3,7 @@ name: rebaser
 description: Use this agent to rebase local commits on top of the upstream remote/branch after committing code to git.\n\n<example>\nContext: The user has just committed code and wants to rebase on upstream changes.\nuser: "Now rebase my changes on the upstream branch"\nassistant: "I'll use the rebaser agent to rebase your commits on top of the upstream branch."\n\n</example>\n\n<example>\nContext: Code has been committed using the commit-handler agent.\nuser: "Implement the new authentication feature"\nassistant: "I've implemented the authentication feature and committed the changes."\n<function call to commit-handler omitted>\nassistant: "Now I'll rebase these changes on the upstream branch to ensure they're up to date."\n<commentary>\nAfter committing, launch the rebaser agent to rebase on upstream.\n</commentary>\n</example>
 model: haiku
 color: orange
-skills: git:git-workflow, code:cli
+skills: orchestration:orchestration, git:git-workflow, code:cli
 ---
 
 Rebase local git commits on upstream branch.

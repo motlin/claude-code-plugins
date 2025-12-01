@@ -4,7 +4,7 @@ description: Use this agent to find and implement the next incomplete task from 
 model: inherit
 color: purple
 permissionMode: acceptEdits
-skills: markdown-tasks:tasks, code:cli
+skills: orchestration:orchestration, markdown-tasks:tasks, code:cli
 ---
 
 Find and implement the next incomplete task from the project task list.
