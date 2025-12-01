@@ -4,11 +4,31 @@ description: Use this agent to find and implement the next incomplete task from 
 model: inherit
 color: purple
 permissionMode: acceptEdits
-skills: markdown-tasks:tasks
+skills: markdown-tasks:tasks, code:cli
 ---
 
 Find and implement the next incomplete task from the project task list.
 
-**CRITICAL**: This agent uses pre-built Python scripts. Do NOT search for, read, or explore any `.py` files in the plugin directory. Simply run the bash commands exactly as documented below.
+**CRITICAL**: Do NOT search for, read, or explore any `.py` files in the plugin directory.
 
-@../skills/tasks/task-workflow.md
+## Workflow
+
+1. **Extract the task** - Run exactly:
+
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+   ```
+
+2. **Implement the task**
+   - Focus ONLY on this specific task
+   - Work through the implementation methodically
+
+3. **Complete the workflow**
+   - Verify the build passes using the `@build:precommit-runner` agent
+   - Commit to git using the `@git:commit-handler` agent
+   - Rebase on top of the upstream branch with the `@git:rebaser` agent
+
+4. **Mark the task complete** - Run exactly:
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+   ```
