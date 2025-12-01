@@ -17,6 +17,17 @@ Invoke these skills liberally - most tasks use multiple skills:
 | `@orchestration:conversation-style` | For response guidelines               |
 | `@orchestration:llm-context`        | When working with `.llm/` directories |
 
+## Git Commits
+
+**ALWAYS** use the `@git:commit-handler` agent for any git commit operation, including:
+
+- Creating new commits
+- Rewriting commit messages
+- Amending commits
+- Interactive rebasing that changes commit messages
+
+Never commit directly with `git commit` - always delegate to the agent.
+
 ## Workflow Orchestration
 
 When a code change is ready, and we are about to return control to the user, do these things in order:
