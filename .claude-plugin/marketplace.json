@@ -107,6 +107,16 @@
       },
       "source": "./plugins/orchestration",
       "category": "productivity"
+    },
+    {
+      "name": "offline-claude-code-guide",
+      "description": "Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails due to network issues or proxy blocking",
+      "version": "0.18.9",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/offline-claude-code-guide",
+      "category": "productivity"
     }
   ]
 }
