@@ -1,7 +1,7 @@
 {
   "name": "build",
   "description": "Test and build automation tools that loop until all commits pass",
-  "version": "0.18.9",
+  "version": "0.18.10",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
