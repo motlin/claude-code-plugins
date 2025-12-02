@@ -14,6 +14,7 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 - **[github](plugins/github/README.md)** - GitHub Actions troubleshooting and CI/CD automation
 - **[java](plugins/java/README.md)** - Java and Maven tools for OpenRewrite import ordering and POM dependency management
 - **[justfile](plugins/justfile/README.md)** - Utilities for working with justfiles, including doc comment optimization
+- **[offline-claude-code-guide](plugins/offline-claude-code-guide/README.md)** - Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails
 
 ## Installation
 
@@ -44,4 +45,5 @@ claude plugin install git@motlin-claude-code-plugins
 claude plugin install github@motlin-claude-code-plugins
 claude plugin install java@motlin-claude-code-plugins
 claude plugin install justfile@motlin-claude-code-plugins
+claude plugin install offline-claude-code-guide@motlin-claude-code-plugins
 ```
