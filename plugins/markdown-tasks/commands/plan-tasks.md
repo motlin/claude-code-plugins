@@ -7,7 +7,26 @@ description: Capture conversation planning into self-contained tasks at end of d
 
 Transform conversation planning and requirements into a markdown task list where each task is completely self-contained with all necessary context inline.
 
-@../skills/tasks/task-format.md
+## Task Format
+
+The task list is in `.llm/todo.md`.
+
+NEVER use the `Read` tool on `.llm/todo.md`. Always interact with the task list exclusively through the Python scripts.
+
+### Task States
+
+- `[ ]` - Not started (ready to work on)
+- `[x]` - Completed
+- `[!]` - Blocked after failed attempt
+
+### Standalone Context
+
+Each task is extracted and executed in isolation. The `task_get.py` script extracts only one task at a time - it cannot see other tasks in the file. Therefore:
+
+1. Every task must contain ALL context needed to implement it
+2. Repeat shared context in every related task - if 5 tasks share the same background, repeat it 5 times
+3. Never reference other tasks - phrases like "similar to task above" are useless
+4. Include the full picture - source of inspiration, files involved, patterns to follow
 
 ## When to Use
 

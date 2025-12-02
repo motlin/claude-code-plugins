@@ -18,15 +18,21 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 ## Steps
 
 1. Track attempt count and previously attempted tasks to prevent infinite loops
-2. Use the `@tasks` skill to extract the first incomplete task from `.llm/todo.md`
+2. Extract the first incomplete task from `.llm/todo.md`:
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+   ```
 3. If a task is found:
    - Check if we have already attempted this task 1 time
    - If yes, mark it as blocked (with `- [!]`) and continue to next task
-   - If no, launch the `@tasks:do-task` agent to implement it
+   - If no, launch the `markdown-tasks:do-task` agent to implement it
    - **Do NOT add instructions to the agent prompt** - the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
    - Do NOT mark the task as complete yourself - the `do-task` agent does this
 4. Repeat until no incomplete tasks remain or the user's instructions are met
-5. When all tasks are completed, archive the task list using [task-archive.md](../skills/tasks/task-archive.md)
+5. When all tasks are completed, archive the task list:
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md
+   ```
 
 ## Notes
 

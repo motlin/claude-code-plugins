@@ -4,4 +4,24 @@ description: Remove obvious and redundant comments from all files
 
 🧹 Remove obvious and redundant comments from all files in the codebase.
 
-@../shared/comment-removal-rules.md
+## Comments to Remove
+
+- Commented out code
+- Comments that describe edits like "added", "removed", or "changed" something
+- Obvious explanations
+  - Comments that are obvious because they're close to method names
+
+## Comments to Keep
+
+- TODO comments
+- Comments preventing empty blocks
+  - Empty catch blocks, empty else blocks
+  - `// deliberately empty`
+- Linter/formatter directives
+  - `// prettier-ignore`
+  - `// eslint-disable-next-line`
+  - `// @ts-ignore`
+
+## Comment Position
+
+Move end-of-line comments above the code they describe.

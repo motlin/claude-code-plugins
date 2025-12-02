@@ -21,10 +21,78 @@ Simply **run the bash commands exactly as shown**. The scripts handle all the co
 
 These scripts require Python 3 with standard library only (no external packages needed).
 
-@task-get.md
+### task_get.py - Extract Next Task
 
-@task-add.md
+Extract the first incomplete task with its context by running this command (do NOT read the script file):
 
-@task-complete.md
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+```
 
-@task-archive.md
+Returns the first `[ ]` checkbox line with all indented context lines below it.
+
+**Exit codes**: 0 (success), 1 (file not found or error)
+
+### task_add.py - Add New Task
+
+Add a new task by running this command (do NOT read the script file):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+  Context line 1
+  Context line 2"
+```
+
+Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
+
+**Exit codes**: 0 (success), 1 (error)
+
+### task_complete.py - Mark Task Done
+
+Mark the first incomplete task as done by running this command (do NOT read the script file):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+```
+
+Changes the first `[ ]` to `[x]`.
+
+**Exit codes**: 0 (success), 1 (no incomplete tasks or error)
+
+### task_archive.py - Archive Task List
+
+Archive a completed task list by running this command (do NOT read the script file):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md
+```
+
+Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.
+
+**Exit codes**: 0 (success), 1 (file not found or error)
+
+## Task Format
+
+The task list is in `.llm/todo.md`.
+
+NEVER use the `Read` tool on `.llm/todo.md`. Always interact with the task list exclusively through the Python scripts.
+
+### Task States
+
+- `[ ]` - Not started (ready to work on)
+- `[x]` - Completed
+- `[!]` - Blocked after failed attempt
+
+### Task Structure
+
+Each task includes indented context lines with full implementation details:
+
+- Absolute file paths
+- Exact function/class names
+- Code analogies to existing patterns
+- Dependencies and prerequisites
+- Expected outcomes
+
+### Standalone Context
+
+Each task is extracted and executed in isolation. Every task must contain ALL context needed to implement it. Repeat shared context in every related task. Never reference other tasks.

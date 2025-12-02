@@ -24,9 +24,9 @@ Find and implement the next incomplete task from the project task list.
    - Work through the implementation methodically
 
 3. **Complete the workflow**
-   - Verify the build passes using the `@build:precommit-runner` agent
-   - Commit to git using the `@git:commit-handler` agent
-   - Rebase on top of the upstream branch with the `@git:rebaser` agent
+   - Verify the build passes using the `build:precommit-runner` agent
+   - Commit to git using the `git:commit-handler` agent
+   - Rebase on top of the upstream branch with the `git:rebaser` agent
 
 4. **Mark the task complete** - Run exactly:
    ```bash
