@@ -25,6 +25,10 @@ Invoke these skills liberally - most tasks use multiple skills:
 
 **ALWAYS** delegate to the `@git:rebaser` agent to rebase the current branch on upstream.
 
+## File Writing Policy
+
+**NEVER** write files to `/tmp` or other system temporary directories - reading from `/tmp` triggers permission prompts. Write scratch files and temporary outputs to `.llm/` instead.
+
 ## Workflow Orchestration
 
 When a code change is ready, and we are about to return control to the user, do these things in order:
