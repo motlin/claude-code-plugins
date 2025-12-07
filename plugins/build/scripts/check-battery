@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Check if machine is on battery power
+# Usage: check-battery && <command>
+#
+# Exit codes:
+#   0 - On AC power, safe to proceed
+#   1 - On battery power, skip heavy operations
+
+set -Eeuo pipefail
+
+check_macos() {
+    power_source=$(pmset -g batt | head -n1 | cut -d "'" -f2)
+    [ "$power_source" = "Battery Power" ]
+}
+
+check_linux() {
+    for supply in /sys/class/power_supply/BAT*; do
+        [ -d "$supply" ] || continue
+        status_file="$supply/status"
+        [ -f "$status_file" ] || continue
+        status=$(cat "$status_file")
+        if [ "$status" = "Discharging" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+check_windows() {
+    if command -v wmic &>/dev/null; then
+        battery_status=$(wmic path Win32_Battery get BatteryStatus 2>/dev/null | grep -E '^[0-9]' | tr -d '[:space:]')
+        [ "$battery_status" = "1" ] && return 0
+    elif command -v powershell &>/dev/null; then
+        battery_status=$(powershell -Command "(Get-WmiObject Win32_Battery).BatteryStatus" 2>/dev/null | tr -d '[:space:]')
+        [ "$battery_status" = "1" ] && return 0
+    fi
+    return 1
+}
+
+case "$(uname)" in
+    Darwin)
+        if check_macos; then exit 1; fi
+        ;;
+    Linux)
+        if check_linux; then exit 1; fi
+        ;;
+    MINGW*|MSYS*|CYGWIN*)
+        if check_windows; then exit 1; fi
+        ;;
+esac
+
+exit 0

@@ -10,7 +10,8 @@ description: Running precommit checks and build validation. ALWAYS use after ANY
 **CRITICAL**: Before running any build or test commands, check if the machine is on battery power:
 
 ```bash
-[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "⚡ Skipping precommit on battery power"
+${CLAUDE_PLUGIN_ROOT}/scripts/check-battery || { echo "⚡ Skipping precommit on battery power"; exit 0; }
+just precommit
 ```
 
 - If on battery power, skip the build and report: "⚡ **Skipped precommit checks (on battery power)**"
