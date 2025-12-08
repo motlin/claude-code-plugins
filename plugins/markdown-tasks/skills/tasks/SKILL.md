@@ -19,14 +19,12 @@ Simply **run the bash commands exactly as shown**. The scripts handle all the co
 
 ## Scripts
 
-These scripts require Python 3 with standard library only (no external packages needed).
-
 ### task_get.py - Extract Next Task
 
 Extract the first incomplete task with its context by running this command (do NOT read the script file):
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
 ```
 
 Returns the first `[ ]` checkbox line with all indented context lines below it.
@@ -38,7 +36,7 @@ Returns the first `[ ]` checkbox line with all indented context lines below it.
 Add a new task by running this command (do NOT read the script file):
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```
@@ -52,7 +50,7 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 Mark the first incomplete task as done by running this command (do NOT read the script file):
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
 ```
 
 Changes the first `[ ]` to `[x]`.
@@ -64,7 +62,7 @@ Changes the first `[ ]` to `[x]`.
 Archive a completed task list by running this command (do NOT read the script file):
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md
+${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md
 ```
 
 Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.

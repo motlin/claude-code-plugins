@@ -190,7 +190,7 @@ This focused context prevents context rot:
 Extracts exactly one task with its context.
 
 ```bash
-python3 plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ### `task_complete.py`
@@ -198,7 +198,7 @@ python3 plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse 
 Marks the first incomplete task as done.
 
 ```bash
-python3 plugins/markdown-tasks/skills/tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/skills/tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ## Task Format
