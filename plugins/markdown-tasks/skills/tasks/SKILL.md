@@ -12,7 +12,7 @@ This skill enables working with the markdown task list stored in `.llm/todo.md`.
 The scripts referenced below are part of this plugin and are pre-verified to work correctly. Do NOT:
 
 - Search for or read the `.py` script files
-- Explore the `${CLAUDE_PLUGIN_ROOT}` directory
+- Explore the plugin directory
 - Try to understand the script implementation
 
 Simply **run the bash commands exactly as shown**. The scripts handle all the complexity internally.
@@ -24,7 +24,7 @@ Simply **run the bash commands exactly as shown**. The scripts handle all the co
 Extract the first incomplete task with its context by running this command (do NOT read the script file):
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+skills/tasks/scripts/task_get.py .llm/todo.md
 ```
 
 Returns the first `[ ]` checkbox line with all indented context lines below it.
@@ -36,7 +36,7 @@ Returns the first `[ ]` checkbox line with all indented context lines below it.
 Add a new task by running this command (do NOT read the script file):
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+skills/tasks/scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```
@@ -50,7 +50,7 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 Mark the first incomplete task as done by running this command (do NOT read the script file):
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+skills/tasks/scripts/task_complete.py .llm/todo.md
 ```
 
 Changes the first `[ ]` to `[x]`.
@@ -62,7 +62,7 @@ Changes the first `[ ]` to `[x]`.
 Archive a completed task list by running this command (do NOT read the script file):
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_archive.py .llm/todo.md
+skills/tasks/scripts/task_archive.py .llm/todo.md
 ```
 
 Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.

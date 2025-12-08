@@ -42,7 +42,7 @@ When a code change is ready, and we are about to return control to the user, do 
 Run the master doctor script to verify all plugins are properly configured:
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/../orchestration/scripts/doctor-all.sh
+scripts/doctor-all.sh
 ```
 
 This runs `doctor.sh` from each plugin, checking for:

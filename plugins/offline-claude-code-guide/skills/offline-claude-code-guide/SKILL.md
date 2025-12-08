@@ -9,11 +9,11 @@ This skill provides offline access to Claude Code documentation when the built-i
 
 ## Documentation Location
 
-All Claude Code documentation is available locally. First read the documentation map at `${CLAUDE_PLUGIN_ROOT}/docs/claude_code_docs_map.md` to find which file contains the relevant information.
+All Claude Code documentation is available locally. First read the documentation map at `docs/claude_code_docs_map.md` to find which file contains the relevant information.
 
 ## How to Answer Questions
 
 1. Read [claude_code_docs_map.md](../../docs/claude_code_docs_map.md) to identify which documentation file contains the relevant information
-2. Read the appropriate documentation file(s) from `${CLAUDE_PLUGIN_ROOT}/docs/`
+2. Read the appropriate documentation file(s) from `docs/`
 3. Provide accurate information based on the official documentation
 4. Include relevant examples and code snippets from the docs

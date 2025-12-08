@@ -18,7 +18,7 @@ If no description was provided, ask the user for one.
 3. Run this command (do NOT read the script file):
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+skills/tasks/scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```

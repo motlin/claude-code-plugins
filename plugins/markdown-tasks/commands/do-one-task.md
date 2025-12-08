@@ -13,7 +13,7 @@ Find and implement the next incomplete task from the project task list.
 1. **Extract the task** - Run exactly:
 
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_get.py .llm/todo.md
+   skills/tasks/scripts/task_get.py .llm/todo.md
    ```
 
 2. **Implement the task**
@@ -30,5 +30,5 @@ Find and implement the next incomplete task from the project task list.
 
 4. **Mark the task complete** - Run exactly:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/skills/tasks/scripts/task_complete.py .llm/todo.md
+   skills/tasks/scripts/task_complete.py .llm/todo.md
    ```
