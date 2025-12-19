@@ -1,7 +1,7 @@
 {
   "name": "offline-claude-code-guide",
   "description": "Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails due to network issues or proxy blocking",
-  "version": "0.18.13",
+  "version": "1.0.0",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
