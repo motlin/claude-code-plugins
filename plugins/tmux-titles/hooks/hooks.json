@@ -84,6 +84,17 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh",
+            "timeout": 500
+          }
+        ]
+      }
     ]
   }
 }

@@ -15,7 +15,36 @@ The plugin displays different icons in your tmux window title based on what Clau
 - `✎` File modification (PreToolUse: Edit/Write/MultiEdit)
 - `…` File reading (PreToolUse: Read)
 
-The window title format is: `[icon] [directory-name]`
+The window title format is: `[icon] [name]` (or `[name] [icon]` with suffix positioning)
+
+## Configuration
+
+Configure the plugin via environment variables in your `settings.json`:
+
+```json
+{
+  "env": {
+    "TMUX_TITLES_MODE": "window",
+    "TMUX_TITLES_POSITION": "suffix"
+  }
+}
+```
+
+### TMUX_TITLES_MODE
+
+Controls how the window name is determined:
+- `directory` (default) - Sets the window name to the current working directory name
+- `window` - Uses the existing tmux window name
+
+When using `window` mode, if your window is named "Bugfix" when you start Claude, it will display as "✻ Bugfix" while working, "✓ Bugfix" when complete, etc.
+
+### TMUX_TITLES_POSITION
+
+Controls where the status indicator appears:
+- `prefix` (default) - Icon appears at the start: `✻ Bugfix`
+- `suffix` - Icon appears at the end: `Bugfix ✻`
+
+Using `suffix` is useful if you switch windows by typing the name (e.g., `<prefix>` then window name), since the name stays at the beginning.
 
 ## Requirements
 
@@ -24,6 +53,8 @@ The window title format is: `[icon] [directory-name]`
 - safe to leave on when tmux is not running
 
 ## tmux Configuration
+
+### For `directory` mode (default)
 
 Add these settings to your `~/.config/tmux/tmux.conf`:
 
@@ -34,12 +65,21 @@ set -g automatic-rename on
 # Re-enable automatic rename after switching windows
 set-hook -g after-select-window 'setw automatic-rename on'
 
-# Choose window name format
-# Option 1: Show directory name (matches plugin's [icon] [directory-name] format)
+# Show directory name (matches plugin's format)
 set -g automatic-rename-format '#{b:pane_current_path}'
-# Option 2: Show process name (claude)
-# set -g automatic-rename-format '#{pane_current_command}'
 ```
+
+### For `window` mode
+
+When using `window` mode, you should disable automatic renaming so your custom window names persist:
+
+```tmux
+# Disable automatic window renaming to preserve custom names
+set -g automatic-rename off
+set -g allow-rename off
+```
+
+You can then name windows manually with `<prefix>,` or `tmux rename-window "my-window-name"`.
 
 ## Installation
 
