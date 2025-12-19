@@ -44,7 +44,7 @@ Controls where the status indicator appears:
 - `prefix` (default) - Icon appears at the start: `✻ Bugfix`
 - `suffix` - Icon appears at the end: `Bugfix ✻`
 
-Using `suffix` is useful if you switch windows by typing the name (e.g., `<prefix>` then window name), since the name stays at the beginning.
+Using `suffix` is useful if you switch windows by typing the name (e.g., `<prefix> '` then window name), since the name stays at the beginning.
 
 ## Requirements
 
