@@ -1,0 +1,29 @@
+{
+  "description": "Send Pushover notifications when Claude Code needs user attention",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "SILENT=true woof 'Claude needs permission'",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "SILENT=true woof 'Claude has a question'",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}
