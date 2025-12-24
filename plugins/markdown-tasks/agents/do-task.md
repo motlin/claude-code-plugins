@@ -9,14 +9,16 @@ skills: orchestration:orchestration, markdown-tasks:tasks, code:cli
 
 Find and implement the next incomplete task from the project task list.
 
-**CRITICAL**: Do NOT search for, read, or explore any `.py` files in the plugin directory.
+## Locating Scripts
+
+The `markdown-tasks:tasks` skill is loaded. The scripts are in the `scripts/` subdirectory adjacent to that skill file.
 
 ## Workflow
 
-1. **Extract the task** - Run exactly:
+1. **Extract the task** - Run:
 
    ```bash
-   skills/tasks/scripts/task_get.py .llm/todo.md
+   python scripts/task_get.py .llm/todo.md
    ```
 
 2. **Implement the task**
@@ -28,7 +30,7 @@ Find and implement the next incomplete task from the project task list.
    - Commit to git using the `git:commit-handler` agent
    - Rebase on top of the upstream branch with the `git:rebaser` agent
 
-4. **Mark the task complete** - Run exactly:
+4. **Mark the task complete** - Run:
    ```bash
-   skills/tasks/scripts/task_complete.py .llm/todo.md
+   python scripts/task_complete.py .llm/todo.md
    ```

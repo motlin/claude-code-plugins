@@ -11,14 +11,18 @@ $ARGUMENTS
 
 If no description was provided, ask the user for one.
 
+## Locating Scripts
+
+Use the `markdown-tasks:tasks` skill to locate the scripts. The scripts are in the `scripts/` subdirectory adjacent to that skill file.
+
 ## Adding a Task
 
 1. Expand the description into a self-contained task with all necessary context
 2. Use multi-line format with indented details
-3. Run this command (do NOT read the script file):
+3. Run this command:
 
 ```bash
-skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+python scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```

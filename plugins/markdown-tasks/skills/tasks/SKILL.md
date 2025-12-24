@@ -7,24 +7,18 @@ description: Work with markdown-based task lists in .llm/todo.md files. Use when
 
 This skill enables working with the markdown task list stored in `.llm/todo.md`.
 
-## Important: Do Not Explore Plugin Directory
+## Locating Scripts
 
-The scripts referenced below are part of this plugin and are pre-verified to work correctly. Do NOT:
-
-- Search for or read the `.py` script files
-- Explore the plugin directory
-- Try to understand the script implementation
-
-Simply **run the bash commands exactly as shown**. The scripts handle all the complexity internally.
+The scripts are in the `scripts/` subdirectory adjacent to this file. Use the directory path of this skill file to construct full script paths.
 
 ## Scripts
 
 ### task_get.py - Extract Next Task
 
-Extract the first incomplete task with its context by running this command (do NOT read the script file):
+Extract the first incomplete task with its context:
 
 ```bash
-skills/tasks/scripts/task_get.py .llm/todo.md
+python scripts/task_get.py .llm/todo.md
 ```
 
 Returns the first `[ ]` checkbox line with all indented context lines below it.
@@ -33,10 +27,10 @@ Returns the first `[ ]` checkbox line with all indented context lines below it.
 
 ### task_add.py - Add New Task
 
-Add a new task by running this command (do NOT read the script file):
+Add a new task:
 
 ```bash
-skills/tasks/scripts/task_add.py .llm/todo.md "Task description
+python scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```
@@ -47,10 +41,10 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 
 ### task_complete.py - Mark Task Done
 
-Mark the first incomplete task as done by running this command (do NOT read the script file):
+Mark the first incomplete task as done:
 
 ```bash
-skills/tasks/scripts/task_complete.py .llm/todo.md
+python scripts/task_complete.py .llm/todo.md
 ```
 
 Changes the first `[ ]` to `[x]`.
@@ -59,10 +53,10 @@ Changes the first `[ ]` to `[x]`.
 
 ### task_archive.py - Archive Task List
 
-Archive a completed task list by running this command (do NOT read the script file):
+Archive a completed task list:
 
 ```bash
-skills/tasks/scripts/task_archive.py .llm/todo.md
+python scripts/task_archive.py .llm/todo.md
 ```
 
 Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.
