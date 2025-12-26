@@ -88,3 +88,5 @@ Each task includes indented context lines with full implementation details:
 ### Standalone Context
 
 Each task is extracted and executed in isolation. Every task must contain ALL context needed to implement it. Repeat shared context in every related task. Never reference other tasks.
+
+If tasks were created from a plan file (e.g., from planning mode), include the plan file path in each task so the implementing agent can read the full context.

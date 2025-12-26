@@ -27,6 +27,7 @@ Each task is extracted and executed in isolation. The `task_get.py` script extra
 2. Repeat shared context in every related task - if 5 tasks share the same background, repeat it 5 times
 3. Never reference other tasks - phrases like "similar to task above" are useless
 4. Include the full picture - source of inspiration, files involved, patterns to follow
+5. If a plan file exists (e.g., `~/.claude/plans/*.md`), include its path in each task so the implementing agent can read the full context
 
 ## When to Use
 
