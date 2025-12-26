@@ -6,7 +6,7 @@ Find and implement the next incomplete task from the project task list.
 
 ## Locating Scripts
 
-Use the `markdown-tasks:tasks` skill to locate the scripts. The scripts are in the `scripts/` subdirectory adjacent to that skill file.
+The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
 
 ## Task Implementation Workflow
 

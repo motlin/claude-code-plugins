@@ -17,7 +17,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 
 ## Locating Scripts
 
-Use the `markdown-tasks:tasks` skill to locate the scripts. The scripts are in the `scripts/` subdirectory adjacent to that skill file.
+The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
 
 ## Steps
 

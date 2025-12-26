@@ -9,7 +9,7 @@ This skill enables working with the markdown task list stored in `.llm/todo.md`.
 
 ## Locating Scripts
 
-The scripts are in the `scripts/` subdirectory adjacent to this file. Use the directory path of this skill file to construct full script paths.
+The scripts are in this plugin's `skills/tasks/scripts/` directory.
 
 ## Scripts
 
