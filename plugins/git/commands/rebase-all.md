@@ -1,5 +1,6 @@
 ---
 description: Rebase all branches onto a configurable upstream branch
+model: haiku
 ---
 
 Keep all branches in a repository up-to-date by rebasing them onto a configurable upstream branch.

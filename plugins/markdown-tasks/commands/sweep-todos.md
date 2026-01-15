@@ -1,5 +1,6 @@
 ---
 description: Find all TODO and TASK comments and add them to the project task list
+model: haiku
 ---
 
 Find all TODO and TASK comments and add them to the project task list.

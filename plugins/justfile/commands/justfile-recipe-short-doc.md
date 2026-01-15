@@ -1,5 +1,6 @@
 ---
 description: Shorten justfile recipe doc comments for simple recipes
+model: haiku
 ---
 
 For very short justfile recipes, change the doc comment string to be the entire command. Before:

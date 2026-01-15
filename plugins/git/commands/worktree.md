@@ -1,6 +1,7 @@
 ---
 argument-hint: branch-name
 description: Create a git worktree in a peer directory
+model: haiku
 ---
 
 Create a git worktree in a peer directory.

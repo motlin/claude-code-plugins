@@ -1,6 +1,7 @@
 ---
 argument-hint: task description
 description: Add a task to the project task list
+model: haiku
 ---
 
 Add a task to the project task list.

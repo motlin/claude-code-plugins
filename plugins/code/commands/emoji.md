@@ -1,6 +1,7 @@
 ---
 argument-hint: file or content to enhance
 description: Add appropriate emoji to make content more engaging
+model: haiku
 ---
 
 😊 Add appropriate emoji to the content we're working on to make it more engaging and easier to scan.
