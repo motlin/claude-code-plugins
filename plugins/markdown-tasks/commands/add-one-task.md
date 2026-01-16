@@ -12,10 +12,6 @@ $ARGUMENTS
 
 If no description was provided, ask the user for one.
 
-## Locating Scripts
-
-The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
-
 ## Adding a Task
 
 1. Expand the description into a self-contained task with all necessary context
@@ -23,7 +19,7 @@ The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directo
 3. Run this command:
 
 ```bash
-python scripts/task_add.py .llm/todo.md "Task description
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```

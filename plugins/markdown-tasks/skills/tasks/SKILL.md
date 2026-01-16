@@ -7,10 +7,6 @@ description: Work with markdown-based task lists in .llm/todo.md files. Use when
 
 This skill enables working with the markdown task list stored in `.llm/todo.md`.
 
-## Locating Scripts
-
-The scripts are in this plugin's `skills/tasks/scripts/` directory.
-
 ## Scripts
 
 ### task_get.py - Extract Next Task
@@ -18,7 +14,7 @@ The scripts are in this plugin's `skills/tasks/scripts/` directory.
 Extract the first incomplete task with its context:
 
 ```bash
-python scripts/task_get.py .llm/todo.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_get.py .llm/todo.md
 ```
 
 Returns the first `[ ]` checkbox line with all indented context lines below it.
@@ -30,7 +26,7 @@ Returns the first `[ ]` checkbox line with all indented context lines below it.
 Add a new task:
 
 ```bash
-python scripts/task_add.py .llm/todo.md "Task description
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Task description
   Context line 1
   Context line 2"
 ```
@@ -44,7 +40,7 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 Mark the first incomplete task as done:
 
 ```bash
-python scripts/task_complete.py .llm/todo.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_complete.py .llm/todo.md
 ```
 
 Changes the first `[ ]` to `[x]`.
@@ -56,7 +52,7 @@ Changes the first `[ ]` to `[x]`.
 Archive a completed task list:
 
 ```bash
-python scripts/task_archive.py .llm/todo.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_archive.py .llm/todo.md
 ```
 
 Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.

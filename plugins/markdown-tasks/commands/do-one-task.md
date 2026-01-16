@@ -4,10 +4,6 @@ description: Find and implement the next incomplete task from the project task l
 
 Find and implement the next incomplete task from the project task list.
 
-## Locating Scripts
-
-The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
-
 ## Task Implementation Workflow
 
 ### Steps
@@ -15,7 +11,7 @@ The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directo
 1. **Extract the task** - Run:
 
    ```bash
-   python scripts/task_get.py .llm/todo.md
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/task_get.py .llm/todo.md
    ```
 
 2. **Implement the task**
@@ -32,5 +28,5 @@ The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directo
 
 4. **Mark the task complete** - Run:
    ```bash
-   python scripts/task_complete.py .llm/todo.md
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/task_complete.py .llm/todo.md
    ```

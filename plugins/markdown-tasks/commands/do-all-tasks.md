@@ -15,16 +15,12 @@ $ARGUMENTS
 
 If the user did not provide instructions, work through ALL incomplete tasks until NONE remain.
 
-## Locating Scripts
-
-The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
-
 ## Steps
 
 1. Track attempt count and previously attempted tasks to prevent infinite loops
 2. Extract the first incomplete task from `.llm/todo.md`:
    ```bash
-   python scripts/task_get.py .llm/todo.md
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/task_get.py .llm/todo.md
    ```
 3. If a task is found:
    - Check if we have already attempted this task 1 time
@@ -35,7 +31,7 @@ The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directo
 4. Repeat until no incomplete tasks remain or the user's instructions are met
 5. When all tasks are completed, archive the task list:
    ```bash
-   python scripts/task_archive.py .llm/todo.md
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/task_archive.py .llm/todo.md
    ```
 
 ## Notes
