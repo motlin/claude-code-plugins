@@ -16,7 +16,7 @@ If that text is already kebab case, use it directly as the branch name. Otherwis
 
 ## Steps
 
-- Run `${CLAUDE_PLUGIN_ROOT}/plugins/git/scripts/worktree.sh <branch-name>` from the repository root
+- Run `${CLAUDE_PLUGIN_ROOT}/scripts/worktree.sh <branch-name>` from the repository root
 - If the command exits with a non-success exit code, stop here and give a good summary to the user
 
 ## Conclusion
