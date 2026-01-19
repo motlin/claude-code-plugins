@@ -1,0 +1,5 @@
+{
+  "name": "git-guards",
+  "version": "1.0.0",
+  "description": "Block dangerous git commands before they execute"
+}

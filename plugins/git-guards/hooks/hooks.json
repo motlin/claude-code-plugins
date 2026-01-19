@@ -1,0 +1,17 @@
+{
+  "description": "Block dangerous git commands that could cause data loss or pick up unrelated changes",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-git.sh",
+            "timeout": 500
+          }
+        ]
+      }
+    ]
+  }
+}
