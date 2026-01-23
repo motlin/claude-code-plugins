@@ -1,7 +1,7 @@
 {
   "name": "justfile",
   "description": "Utilities for working with justfiles, including doc comment optimization",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
