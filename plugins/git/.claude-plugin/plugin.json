@@ -20,6 +20,7 @@
     "./commands/commit-chunks.md",
     "./commands/conflicts.md",
     "./commands/rebase-all.md",
-    "./commands/clean-worktrees.md"
+    "./commands/clean-worktrees.md",
+    "./commands/split-branch.md"
   ]
 }
