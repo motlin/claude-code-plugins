@@ -1,7 +1,7 @@
 {
   "name": "pushover",
   "description": "Send Pushover notifications when Claude Code needs your attention (permission prompts, questions)",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
