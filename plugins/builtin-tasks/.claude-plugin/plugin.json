@@ -1,0 +1,22 @@
+{
+  "name": "builtin-tasks",
+  "description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+  "version": "1.4.1",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "commands": [
+    "./commands/import-plan.md",
+    "./commands/do-one-task.md",
+    "./commands/do-all-tasks.md",
+    "./commands/do-all-with-team.md"
+  ],
+  "agents": [
+    "./agents/do-task.md"
+  ],
+  "skills": [
+    "./skills/team-lead",
+    "./skills/team-member"
+  ]
+}
