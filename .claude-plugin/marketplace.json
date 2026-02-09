@@ -49,6 +49,16 @@
       "category": "productivity"
     },
     {
+      "name": "builtin-tasks",
+      "description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+      "version": "1.4.1",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/builtin-tasks",
+      "category": "productivity"
+    },
+    {
       "name": "code",
       "description": "Code quality tools for comment cleanup and emoji enhancement",
       "version": "1.4.1",
