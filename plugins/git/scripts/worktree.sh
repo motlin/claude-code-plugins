@@ -19,8 +19,13 @@ BRANCH_NAME="${TASK_NAME}"
 WORKTREE_PATH="$(dirname "$ORIGINAL_REPO_PATH")/${WORKTREE_NAME}"
 
 # Create the git worktree
-echo "git worktree add --quiet \"$WORKTREE_PATH\" -b \"$BRANCH_NAME\" \"${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}\""
-git worktree add --quiet "$WORKTREE_PATH" -b "$BRANCH_NAME" "${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}"
+if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+    echo "git worktree add --quiet \"$WORKTREE_PATH\" \"$BRANCH_NAME\""
+    git worktree add --quiet "$WORKTREE_PATH" "$BRANCH_NAME"
+else
+    echo "git worktree add --quiet \"$WORKTREE_PATH\" -b \"$BRANCH_NAME\" \"${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}\""
+    git worktree add --quiet "$WORKTREE_PATH" -b "$BRANCH_NAME" "${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}"
+fi
 
 # Copy .envrc if it exists
 if [ -f ".envrc" ]; then
