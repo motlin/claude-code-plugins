@@ -4,20 +4,13 @@ description: Run just precommit and fix failures without committing
 
 🔧 Run precommit and fix any failures that occur.
 
-## 🔋 Battery Check
+## 🔋 Battery Check and Running Precommit
 
-**CRITICAL**: Before running any build or test commands, check if the machine is on battery power:
+Run this command to check if the machine is on battery power and to run or skip the build accordingly:
 
 ```bash
-[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "⚡ Skipping precommit on battery power"
+[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "🔋 Skipping precommit on battery power"
 ```
-
-- If on battery power, skip the build and report: "⚡ **Skipped precommit checks (on battery power)**"
-- If on AC power, proceed with the build
-
-## ⚙️ Running Precommit
-
-Run `just precommit` to validate code:
 
 - Use a timeout of at least 10 minutes
 - Don't check if the justfile or recipe exists first
@@ -38,10 +31,10 @@ When precommit fails (due to: type checking errors, test failures, linting issue
 
 ## ✅ Reporting Results
 
-Your final message MUST start with one of:
+Your final message must start with one of:
 
-- "⚡ **Skipped precommit checks (on battery power)**" - if skipped due to battery
-- "✅ **Precommit checks passed**" - if ran successfully
-- "✅ **Precommit checks passed** (after fixing [brief description])" - if fixed issues
+- "🔋 Skipped precommit checks (on battery power)" - if skipped due to battery
+- "✅ Precommit checks passed" - if ran successfully
+- "✅ Precommit checks passed (after fixing [brief description])" - if fixed issues
 
 Do not commit the changes when done.
