@@ -1,7 +1,7 @@
 {
   "name": "code",
   "description": "Code quality tools for comment cleanup and emoji enhancement",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
