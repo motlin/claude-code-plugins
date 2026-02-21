@@ -32,14 +32,14 @@ git -C "$source_dir" ls-files --others --ignored --exclude-standard -z \
 
 if [ -f "$worktree_dir/.envrc" ] && command -v direnv &> /dev/null; then
   echo "Running direnv allow in $worktree_dir"
-  direnv allow "$worktree_dir"
+  direnv allow "$worktree_dir" || echo "Warning: direnv allow failed" >&2
 fi
 
 mise_configs=(".mise.toml" ".mise/config.toml" ".mise.local.toml" ".mise/config.local.toml" "mise.toml")
 for config in "${mise_configs[@]}"; do
   if [ -f "$worktree_dir/$config" ] && command -v mise &> /dev/null; then
     echo "Running mise trust in $worktree_dir"
-    mise trust "$worktree_dir"
+    mise trust "$worktree_dir" || echo "Warning: mise trust failed" >&2
     break
   fi
 done
