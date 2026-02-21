@@ -24,5 +24,6 @@ claude plugin install offline-claude-code-guide@motlin-claude-code-plugins
 claude plugin install orchestration@motlin-claude-code-plugins
 claude plugin install pushover@motlin-claude-code-plugins
 claude plugin install tmux-titles@motlin-claude-code-plugins
+claude plugin install worktree-setup@motlin-claude-code-plugins
 
 echo "✅ Installation complete!"

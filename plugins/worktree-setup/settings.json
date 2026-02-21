@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rsync:*)",
+      "Bash(direnv allow:*)",
+      "Bash(mise trust:*)",
+      "Bash(git ls-files:*)"
+    ]
+  }
+}

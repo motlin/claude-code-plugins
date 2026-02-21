@@ -1,0 +1,16 @@
+{
+  "description": "Copy gitignored files and configure direnv/mise on agent worktree creation",
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/on-worktree-create.sh",
+            "timeout": 120000
+          }
+        ]
+      }
+    ]
+  }
+}
