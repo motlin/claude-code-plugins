@@ -14,6 +14,7 @@ echo "🔧 Installing plugins..."
 claude plugin install build@motlin-claude-code-plugins
 claude plugin install builtin-tasks@motlin-claude-code-plugins
 claude plugin install code@motlin-claude-code-plugins
+claude plugin install ghostty-titles@motlin-claude-code-plugins
 claude plugin install git@motlin-claude-code-plugins
 claude plugin install github@motlin-claude-code-plugins
 claude plugin install iterm2-titles@motlin-claude-code-plugins

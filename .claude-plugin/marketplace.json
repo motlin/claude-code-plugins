@@ -69,6 +69,16 @@
       "category": "productivity"
     },
     {
+      "name": "ghostty-titles",
+      "description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+      "version": "1.6.0",
+      "author": {
+        "name": "Craig Motlin"
+      },
+      "source": "./plugins/ghostty-titles",
+      "category": "productivity"
+    },
+    {
       "name": "git",
       "description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
       "version": "1.6.0",
