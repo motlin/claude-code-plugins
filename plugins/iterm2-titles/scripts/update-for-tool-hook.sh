@@ -29,4 +29,4 @@ case "$tool_name" in
     ;;
 esac
 
-echo "$json" | "$script_dir/update-iterm-title-python.sh" "$icon"
+echo "$json" | "$script_dir/update-title.sh" "$icon"

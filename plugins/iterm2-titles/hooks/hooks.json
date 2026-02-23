@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"✻\"",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"✻\"",
             "timeout": 500
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"✓\"",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"✓\"",
             "timeout": 500
           }
         ]
@@ -28,17 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-iterm-tab.sh",
-            "timeout": 500
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"○\"",
-            "timeout": 500
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/start-tab-monitor.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"○\"",
             "timeout": 500
           }
         ]
@@ -50,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"?\"",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"?\"",
             "timeout": 500
           }
         ]
@@ -61,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"⌫\"",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"⌫\"",
             "timeout": 500
           }
         ]
@@ -83,18 +73,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-iterm-title-python.sh \"✻\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/stop-tab-monitor.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"✻\"",
             "timeout": 500
           }
         ]

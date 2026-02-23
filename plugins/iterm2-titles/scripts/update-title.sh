@@ -6,7 +6,7 @@ json=$(cat)
 
 icon="${1:-}"
 
-if [ "${TERM_PROGRAM:-}" != "ghostty" ]; then
+if [ "${LC_TERMINAL:-}" != "iTerm2" ]; then
   exit 0
 fi
 
