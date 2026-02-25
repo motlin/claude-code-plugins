@@ -10,7 +10,8 @@
     "./commands/import-plan.md",
     "./commands/do-one-task.md",
     "./commands/do-all-tasks.md",
-    "./commands/do-all-with-team.md"
+    "./commands/do-all-with-team.md",
+    "./commands/sweep-todos.md"
   ],
   "agents": [
     "./agents/do-task.md"
