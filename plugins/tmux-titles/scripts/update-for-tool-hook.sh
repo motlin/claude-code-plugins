@@ -12,7 +12,6 @@ if [ -z "${TMUX_PANE:-}" ]; then
   exit 0
 fi
 
-script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 tool_name=$(echo "$json" | jq --raw-output '.tool_name')
 
 case "$tool_name" in
@@ -33,4 +32,4 @@ case "$tool_name" in
     ;;
 esac
 
-echo "$json" | "$script_dir/update-tmux-title.sh" "$icon"
+echo "$json" | "$(dirname "${BASH_SOURCE[0]}")/update-tmux-title.sh" "$icon"

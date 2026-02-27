@@ -15,36 +15,11 @@ The plugin displays different icons in your tmux window title based on what Clau
 - `✎` File modification (PreToolUse: Edit/Write/MultiEdit)
 - `…` File reading (PreToolUse: Read)
 
-The window title format is: `[icon] [name]` (or `[name] [icon]` with suffix positioning)
+## How It Works
 
-## Configuration
+The plugin stores the current status indicator in a tmux window user option (`@claude_indicator`) rather than modifying the window name directly. This avoids conflicts with `automatic-rename` and per-window color formatting.
 
-Configure the plugin via environment variables in your `settings.json`:
-
-```json
-{
-  "env": {
-    "TMUX_TITLES_MODE": "window",
-    "TMUX_TITLES_POSITION": "suffix"
-  }
-}
-```
-
-### TMUX_TITLES_MODE
-
-Controls how the window name is determined:
-- `directory` (default) - Sets the window name to the current working directory name
-- `window` - Uses the existing tmux window name
-
-When using `window` mode, if your window is named "Bugfix" when you start Claude, it will display as "✻ Bugfix" while working, "✓ Bugfix" when complete, etc.
-
-### TMUX_TITLES_POSITION
-
-Controls where the status indicator appears:
-- `prefix` (default) - Icon appears at the start: `✻ Bugfix`
-- `suffix` - Icon appears at the end: `Bugfix ✻`
-
-Using `suffix` is useful if you switch windows by typing the name (e.g., `<prefix> '` then window name), since the name stays at the beginning.
+Your `window-status-format` and `window-status-current-format` in tmux.conf should include `#{?@claude_indicator,#{@claude_indicator} ,}` before `#W` to display the indicator.
 
 ## Requirements
 
@@ -54,32 +29,18 @@ Using `suffix` is useful if you switch windows by typing the name (e.g., `<prefi
 
 ## tmux Configuration
 
-### For `directory` mode (default)
-
 Add these settings to your `~/.config/tmux/tmux.conf`:
 
 ```tmux
 # Enable automatic window renaming
 set -g automatic-rename on
-
-# Re-enable automatic rename after switching windows
-set-hook -g after-select-window 'setw automatic-rename on'
-
-# Show directory name (matches plugin's format)
 set -g automatic-rename-format '#{b:pane_current_path}'
+
+# Include #{?@claude_indicator,#{@claude_indicator} ,} before #W in your format strings
+# Example with just the indicator (no per-project colors):
+set -g window-status-current-format "#[bold]#I#F #{?@claude_indicator,#{@claude_indicator} ,}#W "
+set -g window-status-format "#I#F #{?@claude_indicator,#{@claude_indicator} ,}#W "
 ```
-
-### For `window` mode
-
-When using `window` mode, you should disable automatic renaming so your custom window names persist:
-
-```tmux
-# Disable automatic window renaming to preserve custom names
-set -g automatic-rename off
-set -g allow-rename off
-```
-
-You can then name windows manually with `<prefix>,` or `tmux rename-window "my-window-name"`.
 
 ## Installation
 
