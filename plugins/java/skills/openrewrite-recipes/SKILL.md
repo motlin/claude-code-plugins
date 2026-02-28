@@ -1,0 +1,122 @@
+---
+name: openrewrite-recipes
+description: OpenRewrite recipe authoring patterns and API best practices. Use when writing or editing OpenRewrite recipe Java source code (visitors, matchers, type checks, list transformations).
+---
+
+# OpenRewrite Recipe Authoring Patterns
+
+## MethodMatcher
+
+### Use wildcards instead of enumerating methods
+
+```java
+// BAD: separate matcher per variant
+private static final MethodMatcher IS_TRACE_ENABLED = new MethodMatcher("org.slf4j.Logger isTraceEnabled()");
+private static final MethodMatcher IS_DEBUG_ENABLED = new MethodMatcher("org.slf4j.Logger isDebugEnabled()");
+// ... repeated for info, warn, error, plus marker overloads = 10 matchers
+
+// GOOD: single wildcard matcher
+private static final MethodMatcher IS_X_ENABLED = new MethodMatcher("org.slf4j.Logger is*Enabled(..)");
+```
+
+This also simplifies `Preconditions.check()`:
+
+```java
+// BAD
+Preconditions.check(or(
+    new UsesMethod<>(IS_TRACE_ENABLED),
+    new UsesMethod<>(IS_DEBUG_ENABLED),
+    // ... 8 more
+), visitor);
+
+// GOOD
+Preconditions.check(new UsesMethod<>(IS_X_ENABLED), visitor);
+```
+
+### Use MethodMatcher for method+type validation
+
+Instead of manually checking method name and receiver type:
+
+```java
+// BAD
+if (!"getMessage".equals(method.getSimpleName())) return false;
+Expression select = method.getSelect();
+if (select == null) return false;
+return TypeUtils.isAssignableTo("java.lang.Throwable", select.getType());
+
+// GOOD
+private static final MethodMatcher GET_MESSAGE = new MethodMatcher("java.lang.Throwable getMessage()");
+// then: GET_MESSAGE.matches(argument)
+```
+
+## TypeUtils
+
+### Use `isOfClassType()` instead of manual FQN comparison
+
+```java
+// BAD
+JavaType.FullyQualified type = TypeUtils.asFullyQualified(select.getType());
+return type != null && "org.slf4j.Logger".equals(type.getFullyQualifiedName());
+
+// GOOD
+TypeUtils.isOfClassType(select.getType(), "org.slf4j.Logger")
+```
+
+## ListUtils for Statement Transformations
+
+### Use `ListUtils.flatMap()` instead of manual ArrayList + modified flag
+
+```java
+// BAD
+List<Statement> newStatements = new ArrayList<>();
+boolean modified = false;
+for (Statement stmt : visited.getStatements()) {
+    if (shouldTransform(stmt)) {
+        newStatements.addAll(extractStatements(stmt));
+        modified = true;
+    } else {
+        newStatements.add(stmt);
+    }
+}
+if (modified) return visited.withStatements(newStatements);
+return visited;
+
+// GOOD
+return visited.withStatements(ListUtils.flatMap(visited.getStatements(), stmt -> {
+    if (shouldTransform(stmt)) {
+        return extractStatements(stmt); // return List = replace with multiple
+    }
+    return stmt; // return single item = keep as-is
+}));
+```
+
+### Use `ListUtils.map()` and `ListUtils.mapFirst()` for whitespace adjustments
+
+```java
+List<Statement> bodyStatements = ListUtils.map(
+    extractStatements(ifStmt.getThenPart()),
+    st -> st.withPrefix(Space.build(whitespace, emptyList())));
+return ListUtils.mapFirst(bodyStatements,
+    first -> first.withPrefix(ifStmt.getPrefix()));
+```
+
+## Recipe Composition
+
+### Don't duplicate logic handled by earlier recipes
+
+When recipes run in a composition (e.g., `Slf4jBestPractices`), earlier recipes transform the code before later ones see it. Don't handle cases that earlier recipes already cover.
+
+Example: `RemoveUnnecessaryLogLevelGuards` should NOT treat string concatenation (`"Name: " + name`) as safe to unguard. The `ParameterizedLogging` recipe runs first and converts concatenation to parameterized form. If concatenation still exists when the guard-removal recipe runs, the guard is still needed for performance.
+
+### Add test cases for edge cases where transformation should NOT apply
+
+Always test that the recipe correctly _preserves_ code that should not be changed, not just that it transforms code that should be changed.
+
+## Code Style
+
+- Explicit imports over wildcards (`java.util.List` not `java.util.*`)
+- Static imports for `Collections.emptyList()` and `singletonList()`
+- `@Nullable` from `org.jspecify.annotations` on methods that can return null
+- Don't add `@NonNull` on parameters (non-null is the default)
+- Inline small single-use helper methods rather than creating many tiny private methods
+- Ternary for simple conditional returns

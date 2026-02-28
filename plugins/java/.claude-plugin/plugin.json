@@ -15,6 +15,7 @@
   ],
   "skills": [
     "./skills/openrewrite/SKILL.md",
+    "./skills/openrewrite-recipes/SKILL.md",
     "./skills/pom-ordering/SKILL.md"
   ]
 }
