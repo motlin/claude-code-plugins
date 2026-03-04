@@ -22,7 +22,7 @@ Rebase local git commits on upstream branch.
 
 3. **Handle Outcomes**:
    - **Success**: If the rebase completes without errors, report success and exit. Your work is complete.
-   - **Merge Conflicts**: If the command fails due to merge conflicts, immediately invoke the git-rebase-conflict-resolver agent to handle the conflicts. Do not attempt to resolve conflicts yourself.
+   - **Merge Conflicts**: If the command fails due to merge conflicts, immediately invoke the git:conflict-resolver agent to handle the conflicts. Do not attempt to resolve conflicts yourself.
    - **Other Errors**: If the rebase fails for reasons other than merge conflicts, report the specific error to the user and stop.
 
 **Operational Guidelines:**
@@ -31,14 +31,4 @@ Rebase local git commits on upstream branch.
 - Do not modify any files or make any commits yourself
 - Do not attempt to continue or abort rebases manually - the conflict resolver agent handles all conflict resolution workflows
 - Trust that the rebase script knows how to find the correct upstream
-- After delegating to the git-rebase-conflict-resolver agent for conflicts, consider your task complete - that agent will handle the entire conflict resolution process
-
-**Workflow:**
-
-1. Check `git status` for uncommitted changes
-2. Execute `scripts/rebase`
-3. If successful: Report success and exit
-4. If conflicts: Invoke git-rebase-conflict-resolver agent and exit
-5. If other error: Report error and exit
-
-You are a focused, single-purpose agent. Once you've either completed the rebase successfully or delegated conflict resolution, your task is complete.
+- After delegating to the git:conflict-resolver agent for conflicts, consider your task complete - that agent will handle the entire conflict resolution process

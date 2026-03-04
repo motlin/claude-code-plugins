@@ -34,7 +34,6 @@ ALWAYS use the `code:cli` skill.
 - Borrow language from the original prompt
 - Avoid praise adjectives (comprehensive, robust, essential, best practices)
 - Echo exactly this: Running: `git commit --message "<message>"`
-- 🚀 Run git commit without confirming again with the user.
 
 3. **Pre-commit hooks**
 

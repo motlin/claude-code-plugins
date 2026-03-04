@@ -14,6 +14,10 @@ Check Maven POM file dependency ordering using the pom-ordering skill.
 
 ## Skills
 
+### `openrewrite-recipes`
+
+Create new OpenRewrite recipes for Java codebases, including recipe YAML configuration, unit tests, and integration with the existing rewrite module.
+
 ### `pom-ordering`
 
 Enforce Maven POM dependency ordering rules with specific groupId ordering and region comment structure.

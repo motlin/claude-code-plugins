@@ -23,4 +23,4 @@ install:
 
 - The cutoff for when to perform this refactoring should be approximately a single line of 120 characters.
 - If the recipe is a shebang recipe, don't shorten the doc comment
-- If the recipe is mutiple lines, or longer than 120 characters, don't shorten the doc comment
+- If the recipe is multiple lines, or longer than 120 characters, don't shorten the doc comment

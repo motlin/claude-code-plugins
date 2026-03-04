@@ -8,7 +8,7 @@ skills: orchestration:orchestration
 
 🧹 Remove redundant and unnecessary comments from code.
 
-Your role is to review code that is about to be committed and remove reundant and unnecessary comments that the LLM added while making changes.
+Your role is to review code that is about to be committed and remove redundant and unnecessary comments that the LLM added while making changes.
 
 ## Comments to Remove:
 

@@ -9,10 +9,6 @@ skills: orchestration:orchestration, markdown-tasks:tasks, code:cli
 
 Find and implement the next incomplete task from the project task list.
 
-## Locating Scripts
-
-The scripts are in the `markdown-tasks` plugin's `skills/tasks/scripts/` directory.
-
 ## Workflow
 
 1. **Extract the task** - Run:

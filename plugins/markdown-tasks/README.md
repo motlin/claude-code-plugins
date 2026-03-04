@@ -20,7 +20,7 @@ You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out th
 
 ## What Gets Installed
 
-- 5 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`)
+- 7 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/count-tasks`, `/import-plan`)
 - 1 agent (`do-task`)
 - 1 skill (`tasks`) with bundled Python scripts
 
@@ -132,7 +132,7 @@ Workflow:
 
 1. Extracts first `[ ]` task
 2. Implements the task
-3. Runs build pipeline (comment-cleaner, precommit-runner, git-commit-handler, git-rebaser)
+3. Runs build pipeline (precommit-runner, commit-handler, rebaser)
 4. Marks task as `[x]`
 
 Uses the `do-task` agent internally.
@@ -163,7 +163,7 @@ Tasks use markdown checkboxes with different states:
 
 ## Scripts
 
-The plugin includes Python scripts in `plugins/markdown-tasks/skills/tasks/scripts/`:
+The plugin includes Python scripts in `plugins/markdown-tasks/scripts/`:
 
 - `task_get.py` and `task_complete.py` - Extract and mark individual tasks
 - `task_add.py` - Add new tasks to the list
@@ -190,7 +190,7 @@ This focused context prevents context rot:
 Extracts exactly one task with its context.
 
 ```bash
-plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ### `task_complete.py`
@@ -198,7 +198,7 @@ plugins/markdown-tasks/skills/tasks/scripts/task_get.py $(git rev-parse --show-t
 Marks the first incomplete task as done.
 
 ```bash
-plugins/markdown-tasks/skills/tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
 ## Task Format
