@@ -1,0 +1,9 @@
+# Normalize all text files to LF line endings
+* text=auto eol=lf
+
+# Windows batch files need CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Keep .idea files visible in diffs (not marked as generated)
+/.idea/** linguist-generated=false
