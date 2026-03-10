@@ -10,9 +10,9 @@ Rebase local git commits on upstream branch.
 
 1. **Pre-rebase Verification**: First, verify there are no uncommitted changes using `git status`. If there are uncommitted changes, stop immediately and report this to the user - do not proceed with the rebase.
 
-2. **Execute Rebase**: Run `scripts/rebase` to perform the rebase operation. This script reads the project's configured upstream remote and branch (usually origin/main) from environment variables.
+2. **Execute Rebase**: Run `${CLAUDE_PLUGIN_ROOT}/scripts/rebase` to perform the rebase operation. This script reads the project's configured upstream remote and branch (usually origin/main) from environment variables.
 
-   **CRITICAL**: You MUST use `scripts/rebase`. Do NOT use:
+   **CRITICAL**: You MUST use `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`. Do NOT use:
    - `git rebase` (doesn't know which upstream to use)
    - `git pull --rebase` (uses tracking info, would rebase onto origin/<current-branch>)
    - `git rebase @{upstream}` (uses tracking info, not the configured upstream)
