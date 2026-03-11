@@ -1,5 +1,5 @@
 {
-  "name": "guidelines",
+  "name": "plugin-and-skill-dev",
   "description": "Development guidelines for writing stable, maintainable skills, agents, and commands",
   "version": "1.7.2",
   "license": "Apache-2.0",
