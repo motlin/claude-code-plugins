@@ -1,12 +1,18 @@
 ---
-description: Test each commit in the current branch with git-test, fix failures, and loop
+description: Test every commit in the current branch, fix failures, and loop until all pass
 ---
 
-Automate the test-fix loop for the current branch against upstream/main. Test each commit with git-test, fix failures, create fixup commits, and repeat until all commits pass.
+Automates the test-fix loop for the current branch against the upstream branch. Tests each commit, fixes failures, creates fixup commits, and repeats until all commits pass.
 
 ## Setup
 
-Initialize a report at `${TMPDIR}/report.md`:
+Create a temp directory and set `WORKDIR` to it:
+
+```bash
+WORKDIR=$(mktemp -d)
+```
+
+Initialize a report at `${WORKDIR}/report.md`:
 
 ```markdown
 # Test Branch Report
@@ -14,7 +20,7 @@ Initialize a report at `${TMPDIR}/report.md`:
 Started: [timestamp]
 ```
 
-Set `iteration = 0` and `max_iterations = 10`. Create a temp directory with `mktemp -d` and use it as `TMPDIR` for all temp files below.
+Set `iteration = 0` and `max_iterations = 10`.
 
 ## Loop
 
@@ -23,40 +29,42 @@ Set `iteration = 0` and `max_iterations = 10`. Create a temp directory with `mkt
 Increment iteration. Redirect output to a temp file since build logs can be 10K+ lines:
 
 ```bash
-just --global-justfile test-branch > ${TMPDIR}/build.log 2>&1; echo $?
+just --global-justfile test-branch > ${WORKDIR}/build.log 2>&1; echo $?
 ```
 
-Use a 10-minute timeout.
+Use a 10-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
 
 - Exit code 0: all commits pass. Go to **Done**.
 - Non-zero: continue to Step 2.
 
 ### Step 2: Extract errors
 
-Read the last 200 lines of `${TMPDIR}/build.log`:
+Read the last 200 lines of `${WORKDIR}/build.log`:
 
 ```bash
-tail -200 ${TMPDIR}/build.log | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+tail -200 ${WORKDIR}/build.log | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
 ```
 
-Identify the failing commit from the "BAD COMMIT" line. Append the iteration to the report.
+Identify the failing commit from the "BAD COMMIT" line. If this is the same commit that failed in the previous iteration, stop and display the report with "Stopped: same commit failed twice". Otherwise, append the iteration to the report.
 
 ### Step 3: Check for auto-formatted changes
 
 Run `git status --porcelain`. If there are local changes, the pre-commit hook already auto-formatted files — there's nothing to fix. Skip straight to Step 4.
 
-If there are no local changes, invoke `/build:fix` with the prompt: "The build error is near the end of ${TMPDIR}/build.log". This lets it skip re-running precommit and jump straight to fixing. Do not create commits -- test-fix handles that.
+If there are no local changes, invoke `/build:fix Fix the build error toward the end of: ${WORKDIR}/build.log`. This skips re-running precommit since the errors are already captured. Do not create commits -- test-fix handles that.
 
 ### Step 4: Run test-fix
 
 ```bash
-just --global-justfile test-fix > ${TMPDIR}/test-fix.log 2>&1; echo $?
+just --global-justfile test-fix > ${WORKDIR}/test-fix.log 2>&1; echo $?
 ```
 
-Use a 10-minute timeout. This stages changes, creates a fixup commit, rebases to squash it, then re-runs test-branch on all commits.
+Use a 10-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
+
+This stages changes, creates a fixup commit, rebases to squash it into the failing commit, then re-runs test-branch on all commits.
 
 - Exit code 0: all commits pass. Go to **Done**.
-- Non-zero: display the report, tell the user test-fix failed, and stop. The user can inspect `${TMPDIR}/test-fix.log` and re-invoke this command to continue.
+- Non-zero: display the report, tell the user test-fix failed, and stop. The user can inspect `${WORKDIR}/test-fix.log` and re-invoke this command to continue.
 
 ## Done
 
@@ -81,5 +89,4 @@ Completed: [timestamp]
 ## Safety
 
 - Maximum 10 iterations
-- If the same commit fails twice, stop
 - Always display the report when stopping

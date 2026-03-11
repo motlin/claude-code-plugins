@@ -1,8 +1,13 @@
 ---
 description: Run just precommit and fix failures without committing
+argument-hint: [error context]
 ---
 
 🔧 Run precommit and fix any failures that occur.
+
+## 📄 Existing Error Context
+
+If an argument is provided, it describes errors to fix — typically referencing a build log file. Skip running precommit entirely. Read the referenced log file (last 200 lines, stripping ANSI codes), identify the errors, and fix them directly. Do not run precommit afterward; the caller handles verification.
 
 ## 🔋 Battery Check and Running Precommit
 
@@ -36,5 +41,6 @@ Your final message must start with one of:
 - "🔋 Skipped precommit checks (on battery power)" - if skipped due to battery
 - "✅ Precommit checks passed" - if ran successfully
 - "✅ Precommit checks passed (after fixing [brief description])" - if fixed issues
+- "✅ Fixed errors from provided context ([brief description])" - if fixed errors from argument context without running precommit
 
 Do not commit the changes when done.
