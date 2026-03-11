@@ -8,7 +8,6 @@
   },
   "agents": [
     "./agents/precommit-runner.md",
-    "./agents/test-branch-fixer.md",
     "./agents/build-fixer-autosquash.md"
   ],
   "skills": [

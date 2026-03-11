@@ -1,63 +1,85 @@
 ---
-description: Test all commits and fix errors in a loop
+description: Test each commit in the current branch with git-test, fix failures, and loop
 ---
 
-Run the test-branch script on all commits in the current branch. When a build failure occurs, use a fresh subagent to fix the error, create a fixup commit, rebase, and retry until all commits pass.
+Automate the test-fix loop for the current branch against upstream/main. Test each commit with git-test, fix failures, create fixup commits, and repeat until all commits pass.
 
-## Overview
+## Setup
 
-This command automates the test-fix loop:
+Initialize a report at `${TMPDIR}/report.md`:
 
-1. Run `scripts/test-branch` to test each commit
-2. If a commit fails:
-   - Extract the error from the build output
-   - Launch a subagent to fix the error
-   - Run `scripts/test-fix` to create fixup commit and rebase
-   - Repeat from step 1
-3. If all commits pass, report success
+```markdown
+# Test Branch Report
 
-## Task
+Started: [timestamp]
+```
 
-Execute the following loop:
+Set `iteration = 0` and `max_iterations = 10`. Create a temp directory with `mktemp -d` and use it as `TMPDIR` for all temp files below.
 
-1. **Start the test run in background**:
-   - Run `scripts/test-branch` with `run_in_background: true`
-   - Save the shell ID for monitoring
+## Loop
 
-2. **Monitor the output**:
-   - Use `BashOutput` with a filter regex to capture only relevant lines:
-     - Filter: `"FAILURE|SUCCESS|ERROR|error:|warning:|✗|BAD COMMIT|GOOD COMMIT|Recipe.*failed"`
-   - Poll periodically until the shell completes
-   - Accumulate the filtered output
+### Step 1: Run test-branch
 
-3. **When the shell completes**:
-   - If exit code is 0:
-     - Report: "All commits pass!"
-     - Exit
-   - If exit code is non-zero:
-     - Filtered output now contains errors but not the full 10MB+ log
-     - Use the Task tool to launch the `test-branch-fixer` agent with:
-       - The filtered error output
-       - The current git status
-       - The commit SHA that failed (visible in the "BAD COMMIT" line)
-     - Wait for the agent to complete
+Increment iteration. Redirect output to a temp file since build logs can be 10K+ lines:
 
-4. **Handle the agent result**:
-   - If the agent reports it cannot fix without user input:
-     - Show the error to the user
-     - Ask: "I need help fixing this error. Should I: (a) Skip this commit, (b) Wait for you to fix it manually, or (c) Try a different approach?"
-     - Exit and let the user decide
-   - If the agent successfully fixed the code:
-     - Verify there are unstaged changes with `git status --porcelain`
-     - Run `scripts/test-fix` (NOT in background)
-     - Go back to step 1
+```bash
+just --global-justfile test-branch > ${TMPDIR}/build.log 2>&1; echo $?
+```
 
-5. **Safety limit**: If more than 10 iterations occur, report: "Too many iterations. Please review manually." and exit
+Use a 10-minute timeout.
 
-## Notes
+- Exit code 0: all commits pass. Go to **Done**.
+- Non-zero: continue to Step 2.
 
-- The `BashOutput` filter is critical: it extracts errors without consuming the entire build log
-- Each fix uses a fresh subagent for clean context
-- The agent may report it needs user input; respect that and exit gracefully
-- Do NOT commit anything yourself; the `test-fix` script handles that
-- Use `KillShell` if you need to abort a running background shell
+### Step 2: Extract errors
+
+Read the last 200 lines of `${TMPDIR}/build.log`:
+
+```bash
+tail -200 ${TMPDIR}/build.log | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+```
+
+Identify the failing commit from the "BAD COMMIT" line. Append the iteration to the report.
+
+### Step 3: Check for auto-formatted changes
+
+Run `git status --porcelain`. If there are local changes, the pre-commit hook already auto-formatted files — there's nothing to fix. Skip straight to Step 4.
+
+If there are no local changes, invoke `/build:fix` with the prompt: "The build error is near the end of ${TMPDIR}/build.log". This lets it skip re-running precommit and jump straight to fixing. Do not create commits -- test-fix handles that.
+
+### Step 4: Run test-fix
+
+```bash
+just --global-justfile test-fix > ${TMPDIR}/test-fix.log 2>&1; echo $?
+```
+
+Use a 10-minute timeout. This stages changes, creates a fixup commit, rebases to squash it, then re-runs test-branch on all commits.
+
+- Exit code 0: all commits pass. Go to **Done**.
+- Non-zero: display the report, tell the user test-fix failed, and stop. The user can inspect `${TMPDIR}/test-fix.log` and re-invoke this command to continue.
+
+## Done
+
+Append success to the report. Display the full report.
+
+## Report Format
+
+```markdown
+## Iteration 1
+
+**Failing commit:** [short SHA] [subject]
+**Error:** [1-2 line summary]
+**Fix:** [what changed]
+**Files:** [list]
+
+## Result
+
+**All commits pass after N iterations** or **Stopped: [reason]**
+Completed: [timestamp]
+```
+
+## Safety
+
+- Maximum 10 iterations
+- If the same commit fails twice, stop
+- Always display the report when stopping
