@@ -1,6 +1,10 @@
 ---
 name: writing-instructions
-description: Guidelines for writing skills, agents, and commands that remain stable over time
+description: >-
+  This skill should be used when writing, reviewing, or editing SKILL.md files, agent
+  instructions, or command definitions. Use when the user asks about best practices for
+  instruction formatting, how to avoid unnecessary git churn in markdown instructions,
+  whether to use numbered steps, or how to structure headers in skills and agents.
 ---
 
 # Writing Instructions for Skills, Agents, and Commands
