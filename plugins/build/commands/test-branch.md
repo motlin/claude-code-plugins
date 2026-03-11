@@ -37,23 +37,17 @@ Use a 10-minute timeout. If the timeout expires, stop and display the report wit
 - Exit code 0: all commits pass. Go to **Done**.
 - Non-zero: continue to Step 2.
 
-### Step 2: Extract errors
+### Step 2: Check for auto-formatted changes
 
-Read the last 200 lines of `${WORKDIR}/build.log`:
+Run `git status --porcelain`. If there are local changes, the pre-commit hook already auto-formatted files — there's nothing to fix. Skip straight to Step 3.
 
-```bash
-tail -200 ${WORKDIR}/build.log | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
-```
+### Step 2b: Identify failing commit and fix
 
-Identify the failing commit from the "BAD COMMIT" line. If this is the same commit that failed in the previous iteration, stop and display the report with "Stopped: same commit failed twice". Otherwise, append the iteration to the report.
+The failing commit is HEAD (git-test checks out each commit). Get it with `git log --oneline -1`. Append the iteration to the report. If this is the same commit that failed in the previous iteration, stop and display the report with "Stopped: same commit failed twice".
 
-### Step 3: Check for auto-formatted changes
+If there are no local changes (Step 2 found nothing), invoke `/build:fix Fix the build error toward the end of: ${WORKDIR}/build.log`. This skips re-running precommit since the errors are already captured. Do not create commits — test-fix handles that.
 
-Run `git status --porcelain`. If there are local changes, the pre-commit hook already auto-formatted files — there's nothing to fix. Skip straight to Step 4.
-
-If there are no local changes, invoke `/build:fix Fix the build error toward the end of: ${WORKDIR}/build.log`. This skips re-running precommit since the errors are already captured. Do not create commits -- test-fix handles that.
-
-### Step 4: Run test-fix
+### Step 3: Run test-fix
 
 ```bash
 just --global-justfile test-fix > ${WORKDIR}/test-fix.log 2>&1; echo $?
