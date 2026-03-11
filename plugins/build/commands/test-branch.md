@@ -84,3 +84,4 @@ Completed: [timestamp]
 
 - Maximum 10 iterations
 - Always display the report when stopping
+- NEVER run `git test forget-results` — the cache is the whole point of git-test, letting it skip already-passing commits
