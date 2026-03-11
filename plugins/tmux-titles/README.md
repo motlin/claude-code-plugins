@@ -15,6 +15,10 @@ The plugin displays different icons in your tmux window title based on what Clau
 - `✎` File modification (PreToolUse: Edit/Write/MultiEdit)
 - `…` File reading (PreToolUse: Read)
 
+## Rename Window
+
+Type `/rename my-project` in Claude Code to rename the current tmux window. The hook matches `/rename ` prompts and calls `tmux rename-window` with the provided name.
+
 ## How It Works
 
 The plugin stores the current status indicator in a tmux window user option (`@claude_indicator`) rather than modifying the window name directly. This avoids conflicts with `automatic-rename` and per-window color formatting.

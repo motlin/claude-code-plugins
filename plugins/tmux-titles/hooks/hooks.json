@@ -10,6 +10,16 @@
             "timeout": 500
           }
         ]
+      },
+      {
+        "matcher": "^/rename ",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/rename-tmux-window.sh",
+            "timeout": 500
+          }
+        ]
       }
     ],
     "Stop": [

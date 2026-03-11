@@ -122,6 +122,39 @@ EOF
   [[ "$output" =~ "cwd:/home/user/projects/my-app" ]]
 }
 
+@test "rename-tmux-window.sh exits early when TMUX not set" {
+  unset TMUX TMUX_PANE || true
+  test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "/rename my-project"}')
+  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
+  [ "$status" -eq 0 ]
+}
+
+@test "rename-tmux-window.sh exits early when TMUX_PANE not set" {
+  export TMUX="test"
+  unset TMUX_PANE || true
+  test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "/rename my-project"}')
+  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
+  [ "$status" -eq 0 ]
+  unset TMUX
+}
+
+@test "rename-tmux-window.sh extracts name from prompt" {
+  test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "/rename my-project"}')
+  temp_script=$(mktemp)
+  cat > "$temp_script" << 'EOF'
+#!/bin/bash
+set -Eeuo pipefail
+json=$(cat)
+prompt=$(echo "$json" | jq --raw-output '.prompt')
+name=$(echo "$prompt" | sed 's|^/rename ||')
+echo "name:$name"
+EOF
+  chmod +x "$temp_script"
+  run bash -c "echo '$test_json' | '$temp_script'"
+  rm "$temp_script"
+  [[ "$output" =~ "name:my-project" ]]
+}
+
 @test "tmux escape code format is correct" {
   test_json=$(create_test_json "/home/user/projects/my-app")
   temp_script=$(mktemp)
