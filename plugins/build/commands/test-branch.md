@@ -85,3 +85,4 @@ Completed: [timestamp]
 - Maximum 10 iterations
 - Always display the report when stopping
 - NEVER run `git test forget-results` — the cache is the whole point of git-test, letting it skip already-passing commits
+- NEVER rebase manually — only `just --global-justfile test-fix` does rebasing. If test-fix fails (including rebase conflicts), stop and display the report. Do not attempt to resolve conflicts or work around the failure.
