@@ -32,7 +32,7 @@ Increment iteration. Redirect output to a temp file since build logs can be 10K+
 just --global-justfile test-branch > ${WORKDIR}/build.log 2>&1; echo $?
 ```
 
-Use a 10-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
+Use a 30-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
 
 - Exit code 0: all commits pass. Go to **Done**.
 - Non-zero: continue to Step 2.
@@ -53,7 +53,7 @@ If there are no local changes (Step 2 found nothing), invoke `/build:fix Fix the
 just --global-justfile test-fix > ${WORKDIR}/test-fix.log 2>&1; echo $?
 ```
 
-Use a 10-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
+Use a 30-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
 
 This stages changes, creates a fixup commit, rebases to squash it into the failing commit, then re-runs test-branch on all commits.
 
