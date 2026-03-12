@@ -13,6 +13,11 @@ if [ -z "${TMUX_PANE:-}" ]; then
 fi
 
 prompt=$(echo "$json" | jq --raw-output '.prompt')
+
+if [[ "$prompt" != /rename\ * ]]; then
+  exit 0
+fi
+
 name=$(echo "$prompt" | sed 's|^/rename ||')
 
 if [ -z "$name" ]; then

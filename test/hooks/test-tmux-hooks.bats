@@ -138,6 +138,16 @@ EOF
   unset TMUX
 }
 
+@test "rename-tmux-window.sh exits early for non-rename prompt" {
+  export TMUX="test"
+  export TMUX_PANE="%0"
+  test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "fix the bug"}')
+  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+  unset TMUX TMUX_PANE
+}
+
 @test "rename-tmux-window.sh extracts name from prompt" {
   test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "/rename my-project"}')
   temp_script=$(mktemp)
