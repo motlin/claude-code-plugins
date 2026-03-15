@@ -1,6 +1,6 @@
 ---
 name: openrewrite
-description: OpenRewrite recipe development and test maintenance. Use when writing OpenRewrite recipes, fixing test failures, or working with import ordering in recipe tests.
+description: OpenRewrite recipe test maintenance. Use when fixing test failures, import ordering issues, type validation problems, IDE warnings, or writing comprehensive recipe tests.
 ---
 
 # OpenRewrite Recipe Development
@@ -139,6 +139,83 @@ void replacesVerifyWithAssertJ() {
     );
 }
 ```
+
+## Testing Best Practices
+
+### Type Validation in Tests
+
+For tests involving custom types with incomplete type information, disable type validation as a last resort. Prefer specifying types that exist:
+
+```java
+@Test
+void withCustomType() {
+    rewriteRun(
+      spec -> spec.typeValidationOptions(TypeValidation.none()),
+      java(
+        // test code
+      )
+    );
+}
+```
+
+### Suppressing IDE Warnings in Tests
+
+When testing code with intentional issues (that the recipe will fix), suppress IDE warnings:
+
+```java
+// Single test method
+@SuppressWarnings("RedundantCast")
+@Test
+void testRedundantCast() { ... }
+
+// Multiple tests with same warning - move to class level
+@SuppressWarnings({"ConstantConditions", "RedundantCast"})
+class MyRecipeTest implements RewriteTest { ... }
+```
+
+Common suppressions: `"RedundantCast"`, `"ConstantConditions"`, `"unused"`, `"unchecked"`
+
+### IDE Support with Language Comments
+
+Add `//language=java` before string templates to enable IDE syntax highlighting.
+
+When using `java("before", "after")` with no customization, place the comment before `java`:
+
+```java
+//language=java
+java(
+    """
+      public class Before { }
+      """,
+    """
+      public class After { }
+      """
+)
+```
+
+When there's customization or multiple `java()` calls, place comments on individual strings:
+
+```java
+spec -> spec.typeValidationOptions(TypeValidation.none()),
+//language=java
+java(
+    """
+      public class Test { }
+      """
+)
+```
+
+Do NOT add `//language=java` to JavaTemplate strings containing parameters like `#{any()}` or `#{}` — these aren't valid Java and will cause IDE errors.
+
+### Test Coverage
+
+Ensure comprehensive coverage including:
+
+- Basic cases
+- Edge cases (custom types, fully qualified types)
+- Cases where the recipe should NOT make changes
+- Import handling scenarios
+- Formatting preservation
 
 ## Maven POM Dependency Ordering
 

@@ -1,6 +1,6 @@
 ---
 name: openrewrite-recipes
-description: OpenRewrite recipe authoring patterns and API best practices. Use when writing or editing OpenRewrite recipe Java source code (visitors, matchers, type checks, list transformations).
+description: OpenRewrite recipe authoring patterns and API best practices. Use when writing or editing OpenRewrite recipe Java source code (visitors, matchers, type checks, templates, metadata, YAML config, list transformations, at-scale validation).
 ---
 
 # OpenRewrite Recipe Authoring Patterns
@@ -187,6 +187,108 @@ public TreeVisitor<?, ExecutionContext> getVisitor() {
     );
 }
 ```
+
+## JavaTemplate Usage
+
+### Declare imports when the template introduces types
+
+```java
+JavaTemplate template = JavaTemplate.builder("#{any()}.toArray(new #{}[0])")
+        .imports(fqn)  // Declare the import
+        .build();
+```
+
+### Always call `maybeAddImport()` after applying a template
+
+After applying a template that uses a type, add the import to the compilation unit:
+
+```java
+Expression result = template.apply(...);
+maybeAddImport(fqn);  // Add the import to the source file
+```
+
+## Visitor Patterns
+
+### JavaVisitor vs JavaIsoVisitor
+
+Use `JavaIsoVisitor` when returning the same LST element type you're visiting (most common for simple transformations):
+
+```java
+@Override
+public J.TypeCast visitTypeCast(J.TypeCast typeCast, ExecutionContext ctx) {
+    J.TypeCast tc = super.visitTypeCast(typeCast, ctx);
+    // ... transform ...
+    return tc;  // Still a J.TypeCast
+}
+```
+
+Use `JavaVisitor` when you need to return a different LST element type (e.g., unwrapping parentheses):
+
+```java
+@Override
+public J visitParentheses(J.Parentheses parentheses, ExecutionContext ctx) {
+    // ... some logic ...
+    return someExpression;  // Not a J.Parentheses
+}
+```
+
+### Handle parenthesized expressions explicitly
+
+When dealing with expressions that might be parenthesized, visit `J.Parentheses` nodes too.
+
+### Preserve formatting when replacing expressions
+
+```java
+return visitedParentheses.withTree(result);  // Preserves parentheses structure and prefix
+```
+
+## Recipe Metadata
+
+### Include RSPEC tags for SonarQube rules
+
+```java
+@Override
+public Set<String> getTags() {
+    return Collections.singleton("RSPEC-S3020");
+}
+```
+
+### Provide accurate time estimates
+
+Use the same time estimate from the SonarQube definition:
+
+```java
+@Override
+public Duration getEstimatedEffortPerOccurrence() {
+    return Duration.ofMinutes(2);
+}
+```
+
+## YAML Configuration
+
+### Add recipes to appropriate recipe collections
+
+Don't forget to add new recipes to relevant YAML files:
+
+```yaml
+recipeList:
+  - org.openrewrite.staticanalysis.CollectionToArrayShouldHaveProperType
+```
+
+Common collections:
+
+- `common-static-analysis.yml` - General static analysis fixes
+- `java-best-practices.yml` - Java-specific best practices
+- `static-analysis.yml` - Broader static analysis recipes
+
+## At-Scale Validation
+
+### Test recipes against real-world codebases
+
+Before submitting, run at scale against large codebases (e.g., Spring, Netflix orgs). This catches bugs unit tests miss:
+
+- Inherited members being incorrectly qualified (e.g., `SuperClass.this.method()` instead of `this.method()`)
+- Recipes accidentally modifying Kotlin files (see Language Scoping above)
 
 ## Code Style
 
