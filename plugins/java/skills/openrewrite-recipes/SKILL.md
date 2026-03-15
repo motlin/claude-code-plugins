@@ -62,6 +62,43 @@ return type != null && "org.slf4j.Logger".equals(type.getFullyQualifiedName());
 TypeUtils.isOfClassType(select.getType(), "org.slf4j.Logger")
 ```
 
+### Use `TypeUtils.isOfType()` instead of FQN string equality
+
+```java
+// BAD
+currentType.getFullyQualifiedName().equals(targetType.getFullyQualifiedName())
+
+// GOOD
+TypeUtils.isOfType(currentType, targetType)
+```
+
+### Handle inheritance with `isAssignableTo()`
+
+When matching a member's declaring type against the current class, check both exact match and subtype relationship. Without this, inherited members get incorrectly attributed to the superclass:
+
+```java
+// BAD: misses inherited members
+if (TypeUtils.isOfType(currentType, declaringType)) { ... }
+
+// GOOD: handles both direct and inherited members
+if (TypeUtils.isOfType(currentType, declaringType) ||
+        TypeUtils.isAssignableTo(declaringType.getFullyQualifiedName(), currentType)) { ... }
+```
+
+Use the FQN-based `isAssignableTo` overload to handle parameterized types correctly.
+
+### Use `instanceof JavaType.FullyQualified` not `JavaType.Class`
+
+`JavaType.Class` extends `JavaType.FullyQualified`, so checking for the parent type is broader and more correct:
+
+```java
+// BAD: too narrow
+if (fieldType.getOwner() instanceof JavaType.Class)
+
+// GOOD: covers more cases
+if (fieldType.getOwner() instanceof JavaType.FullyQualified)
+```
+
 ## ListUtils for Statement Transformations
 
 ### Use `ListUtils.flatMap()` instead of manual ArrayList + modified flag
@@ -112,6 +149,45 @@ Example: `RemoveUnnecessaryLogLevelGuards` should NOT treat string concatenation
 
 Always test that the recipe correctly _preserves_ code that should not be changed, not just that it transforms code that should be changed.
 
+## AST Construction
+
+### Use `JavaElementFactory` for common nodes
+
+```java
+// BAD: verbose manual construction
+new J.Identifier(Tree.randomId(), Space.EMPTY, Markers.EMPTY, emptyList(), "this", ownerType, null)
+
+// GOOD: factory method
+JavaElementFactory.newThis(ownerType)
+```
+
+### Use `Flag` enum and modifier helpers instead of magic bitmasks
+
+```java
+// BAD: magic number
+(fieldType.getFlagsBitMap() & 0x0008L) != 0
+
+// GOOD: readable API
+fieldType.hasFlags(Flag.Static)
+method.hasModifier(J.Modifier.Type.Static)
+```
+
+## Language Scoping
+
+### Exclude non-target languages from Java-specific recipes
+
+Java-specific recipes will also run on Kotlin files unless explicitly excluded:
+
+```java
+@Override
+public TreeVisitor<?, ExecutionContext> getVisitor() {
+    return Preconditions.check(
+        Preconditions.not(new KotlinFileChecker<>()),
+        new MyJavaVisitor()
+    );
+}
+```
+
 ## Code Style
 
 - Explicit imports over wildcards (`java.util.List` not `java.util.*`)
@@ -120,3 +196,4 @@ Always test that the recipe correctly _preserves_ code that should not be change
 - Don't add `@NonNull` on parameters (non-null is the default)
 - Inline small single-use helper methods rather than creating many tiny private methods
 - Ternary for simple conditional returns
+- Pass pre-validated/cast values as parameters rather than re-checking inside helper methods
