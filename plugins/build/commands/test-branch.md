@@ -45,7 +45,13 @@ Run `git status --porcelain`. If there are local changes, the pre-commit hook al
 
 The failing commit is HEAD (git-test checks out each commit). Get it with `git log --oneline -1`. Append the iteration to the report. If this is the same commit that failed in the previous iteration, stop and display the report with "Stopped: same commit failed twice".
 
-If there are no local changes (Step 2 found nothing), invoke `/build:fix Fix the build error toward the end of: ${WORKDIR}/build.log`. This skips re-running precommit since the errors are already captured. Do not create commits — test-fix handles that.
+If there are no local changes (Step 2 found nothing), launch a **subagent** to fix the errors. Do NOT fix them yourself — delegate so the main thread stays focused on the loop:
+
+```
+Agent(prompt: "Run /build:fix Fix the build error toward the end of: ${WORKDIR}/build.log")
+```
+
+Wait for the subagent to complete, then proceed immediately to Step 3. Do not create commits — test-fix handles that.
 
 ### Step 3: Run test-fix
 
