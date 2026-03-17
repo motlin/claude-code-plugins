@@ -64,7 +64,7 @@ Use a 30-minute timeout. If the timeout expires, stop and display the report wit
 This stages changes, creates a fixup commit, rebases to squash it into the failing commit, then re-runs test-branch on all commits.
 
 - Exit code 0: all commits pass. Go to **Done**.
-- Non-zero: display the report, tell the user test-fix failed, and stop. The user can inspect `${WORKDIR}/test-fix.log` and re-invoke this command to continue.
+- Non-zero: **loop back to Step 1**. The re-test found more failures — continue the loop. Do NOT stop here.
 
 ## Done
 
