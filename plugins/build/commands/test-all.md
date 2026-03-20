@@ -4,6 +4,6 @@ description: Run tests on all commits and fix failures in a loop
 
 Run `${CLAUDE_PLUGIN_ROOT}/scripts/test-all`. Use a long timeout of at least 30 minutes.
 
-- If it fails, use the build-fixer-autosquash agent to fix failures.
+- If it fails, use the build:build-fixer-autosquash agent to fix failures.
 - Then run the command again. The command is smart and resumes from where it left off.
 - Repeat until all tests pass.

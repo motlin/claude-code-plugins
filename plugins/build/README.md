@@ -10,7 +10,7 @@ Test all commits in the current branch, automatically fixing failures in a loop 
 
 ### `/test-all`
 
-Run tests on all commits and fix failures in a loop using the `build-fixer-autosquash` agent.
+Run tests on all commits and fix failures in a loop using the `build:build-fixer-autosquash` agent.
 
 ### `/fix`
 
