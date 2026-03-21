@@ -1,0 +1,12 @@
+{
+  "name": "temporal-data",
+  "description": "Temporal database patterns for system-time versioned tables",
+  "version": "1.8.1",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Craig Motlin"
+  },
+  "skills": [
+    "./skills/temporal-data/SKILL.md"
+  ]
+}
