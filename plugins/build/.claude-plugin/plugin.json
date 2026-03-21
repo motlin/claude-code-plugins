@@ -16,6 +16,7 @@
   "commands": [
     "./commands/test-branch.md",
     "./commands/test-all.md",
-    "./commands/fix.md"
+    "./commands/fix.md",
+    "./commands/test-setup.md"
   ]
 }
