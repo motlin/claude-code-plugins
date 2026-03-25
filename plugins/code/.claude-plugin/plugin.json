@@ -12,12 +12,14 @@
   "skills": [
     "./skills/code-quality/SKILL.md",
     "./skills/comment-cleanup/SKILL.md",
-    "./skills/testing/SKILL.md",
-    "./skills/cli/SKILL.md"
+    "./skills/cli/SKILL.md",
+    "./skills/code-generation/SKILL.md"
   ],
   "commands": [
     "./commands/comments.md",
     "./commands/all-comments.md",
-    "./commands/emoji.md"
+    "./commands/emoji.md",
+    "./commands/formatter-off.md",
+    "./commands/strict-tests.md"
   ]
 }

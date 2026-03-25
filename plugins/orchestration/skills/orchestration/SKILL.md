@@ -10,7 +10,6 @@ Invoke these skills liberally - most tasks use multiple skills:
 | Skill                               | When to use                           |
 | ----------------------------------- | ------------------------------------- |
 | `@code:code-quality`                | Before editing code                   |
-| `@code:testing`                     | When writing or reviewing tests       |
 | `@code:cli`                         | When running shell commands           |
 | `@build:precommit`                  | Before running builds or tests        |
 | `@git:git-workflow`                 | For all git operations                |
