@@ -99,6 +99,48 @@ expect(rest).toStrictEqual({
 
 Prefer fixing the test data to be deterministic (freeze time, use fixed paths) over stripping. Only strip when the dynamic value comes from outside the test's control.
 
+**Never use `instanceof` or type checks inside assertion objects.** This destroys diagnostic value — a failure shows `false !== true` instead of the actual value:
+
+```ts
+// BAD: hides the actual value
+expect({ createdAt: result.createdAt instanceof Date }).toStrictEqual({
+  createdAt: true,
+});
+
+// GOOD: shows the actual value on failure
+expect(result.createdAt).toStrictEqual(new Date(1_704_067_200 * 1000));
+```
+
+If the value is truly non-deterministic, strip it and assert separately. If it IS deterministic (fixed test data), compute and assert the exact expected value.
+
+## Redundant guards
+
+Never assert length, size, or existence right before asserting the full value — the content assertion already implies it:
+
+```ts
+// BAD: toHaveLength is redundant
+expect(result).toHaveLength(2);
+expect(result[0].name).toBe("a");
+expect(result[1].name).toBe("b");
+
+// GOOD: one assertion covers length AND contents
+expect(result.map((r) => r.name)).toStrictEqual(["a", "b"]);
+```
+
+Same for `toBeDefined()` / `not.toBeNull()` before property access — if the value were nullish, the next line would throw anyway.
+
+## Native collection types
+
+Assert Sets and Maps directly — don't spread into arrays:
+
+```ts
+// BAD: pointless conversion
+expect([...result]).toStrictEqual(["a", "b"]);
+
+// GOOD: assert the actual type
+expect(result).toStrictEqual(new Set(["a", "b"]));
+```
+
 ## Rules
 
 - When the full expected value would be enormous (>50 lines), extract it into a `const` at the top of the test or a fixture file
