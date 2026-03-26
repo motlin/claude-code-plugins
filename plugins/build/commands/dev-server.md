@@ -3,7 +3,9 @@ description: Start the dev server and keep it running
 argument-hint: "[port]"
 ---
 
-Start the wip dev server and keep it running.
+Start the dev server for the current project and keep it running.
+
+All commands run in the current working directory — never hardcode or `cd` to a specific project path.
 
 ## Arguments
 
@@ -11,50 +13,55 @@ Port number: $ARGUMENTS
 
 If `$ARGUMENTS` is empty or not a number, determine the port by checking the project's config files (e.g., `vite.config.ts`, `app.config.ts`, `.env`, `package.json` scripts) for a configured dev server port.
 
+**Important:** Always use the determined port. If the port is occupied, kill the existing process — never switch to a different port. The user expects the server at a consistent URL.
+
 ## Instructions
 
-1. **Kill anything on the port**
+### Discover how to start the dev server
 
-   Check if the port is already in use. If so, kill the process occupying it:
+Look at the project's `justfile`, `package.json` scripts, `Makefile`, or similar to find the dev server command. Common patterns:
 
-   ```bash
-   lsof -ti :<port> | xargs kill -9 2>/dev/null || true
-   ```
+- `just dev`
+- `pnpm dev` / `npm run dev`
+- `make dev`
 
-2. **Build shared package first**
+If the project has dependencies that need building first (e.g., a monorepo shared package), identify and run those build steps before starting the server.
 
-   The web package depends on `@wip/shared`. Build it before starting the dev server:
+### Kill anything on the port
 
-   ```bash
-   pnpm --filter @wip/shared build
-   ```
+Check if the port is already in use. If so, kill the process occupying it:
 
-3. **Start the dev server in the background**
+```bash
+lsof -ti :<port> | xargs kill -9 2>/dev/null || true
+```
 
-   ```bash
-   cd /Users/craig/projects/wip && PORT=<port> just dev
-   ```
+### Run any prerequisite builds
 
-   Run this in the background using `run_in_background`.
+If the project requires building shared/dependency packages first, do so now.
 
-4. **Wait for the server to be ready**
+### Start the dev server in the background
 
-   Poll until the server responds:
+Run the discovered dev command with `PORT=<port>` (if the project uses a PORT env var), using `run_in_background`.
 
-   ```bash
-   for i in $(seq 1 30); do curl -sf http://localhost:<port>/ > /dev/null 2>&1 && echo "ready" && break; sleep 1; done
-   ```
+### Wait for the server to be ready
 
-5. **Report the URL**
+Poll until the server responds:
 
-   Tell the user the dev server is running at `http://localhost:<port>/`.
+```bash
+for i in $(seq 1 30); do curl -sf http://localhost:<port>/ > /dev/null 2>&1 && echo "ready" && break; sleep 1; done
+```
 
-6. **Start a watchdog loop**
+### Report the URL
 
-   Use `/loop 1m` to run a recurring check every 1 minute. The check should:
-   - Verify the server is responding: `curl -sf http://localhost:<port>/ > /dev/null 2>&1`
-   - If it's not responding:
-     1. Kill anything on the port: `lsof -ti :<port> | xargs kill -9 2>/dev/null || true`
-     2. Rebuild shared: `pnpm --filter @wip/shared build`
-     3. Restart: `PORT=<port> just dev` (in background)
-     4. Notify the user that the server was restarted
+Tell the user the dev server is running at `http://localhost:<port>/`.
+
+### Start a watchdog loop
+
+Use `/loop 1m` to run a recurring check every 1 minute. The check should:
+
+- Verify the server is responding: `curl -sf http://localhost:<port>/ > /dev/null 2>&1`
+- If it's not responding:
+  - Kill anything on the port: `lsof -ti :<port> | xargs kill -9 2>/dev/null || true`
+  - Re-run prerequisite builds if applicable
+  - Restart the dev server (in background)
+  - Notify the user that the server was restarted
