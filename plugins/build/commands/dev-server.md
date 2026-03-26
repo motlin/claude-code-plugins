@@ -1,3 +1,8 @@
+---
+description: Start the dev server and keep it running
+argument-hint: "[port]"
+---
+
 Start the wip dev server and keep it running.
 
 ## Arguments
