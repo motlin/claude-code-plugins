@@ -323,6 +323,12 @@ CREATE TABLE question (
 - `last_updated_by_id` is updated on each new version
 - These properties should appear on both the main table and the version table
 
+## Optimistic Locking
+
+APIs that perform edits require a version number as input and fail if the input version number doesn't match the current version. This prevents multiple users from accidentally overwriting each other's changes. When two users load the same entity, both see version N. The first user's edit succeeds and bumps the version to N+1. The second user's edit sends version N, which no longer matches, so the API rejects it with a conflict error.
+
+See [Liftwizard temporal documentation](https://liftwizard.io/docs/temporal-data/temporal-data-overview) for more details.
+
 ## Framework-Specific Patterns
 
 ### Klass DSL
