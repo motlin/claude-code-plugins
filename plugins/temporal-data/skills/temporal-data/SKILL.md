@@ -19,9 +19,10 @@ This skill covers **system time only**. For valid time and bitemporal patterns, 
 
 ## Core Principles
 
-- **Immutability**: All writes are append-only. Existing rows are never modified except to set `system_to` when closing a record.
+- **Immutability**: All writes into the data store are immutable and append-only, except for the `system_to` value.
 - **Contiguous timeline**: `system_from` of a new row equals `system_to` of the old row. This forms an unbroken chain of versions per entity.
 - **Far-future sentinel over NULL**: Use a far-future date (e.g. `9999-12-31 23:59:59`) instead of NULL for open-ended records. Enables NOT NULL constraints, composite primary keys, and uniform query syntax.
+- **Deduplication**: Before performing a phase-out/phase-in, compare the incoming data with the current row. If unchanged, leave the row untouched. This avoids creating adjacent rows with identical data for different time ranges, which would produce false changes in history queries and diffs.
 
 ## Schema Design
 
