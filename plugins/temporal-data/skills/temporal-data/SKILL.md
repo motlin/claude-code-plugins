@@ -255,9 +255,17 @@ WHERE system_from <= @target_timestamp
 
 This is a **destructive operation** that violates the immutability principle. Use only for disaster recovery.
 
-## Versioning
+## Composites
 
-When an entity is composed of multiple tables, editing ANY part of the composite bumps the version once. The version number applies to the entire composite, not individual tables.
+A composite is an entity composed of multiple tables. For example, a `Blueprint` composite might include `Blueprint`, `BlueprintTag`, and `ImgurImage` tables.
+
+Ownership direction matters. `BlueprintTag` is part of the `Blueprint` composite, but it is NOT part of the `Tag` composite. A tag is a standalone entity that exists independently; `BlueprintTag` is a join table owned by `Blueprint`.
+
+When any part of a composite is edited, the version number for the entire composite bumps once. A change to `BlueprintTag` bumps the `Blueprint` version, not the `Tag` version. The version number applies to the composite as a whole, not to individual tables within it.
+
+This ownership model determines which version table gets updated during writes and which set of tables participate in as-of-by-version queries.
+
+## Versioning
 
 A separate version table tracks version numbers with their own `system_from`/`system_to`:
 
@@ -271,17 +279,27 @@ CREATE TABLE question_version (
 );
 ```
 
-Version numbers enable as-of queries by version instead of timestamp:
+Version queries work in two steps:
+
+1. Look up the version number in the version table to get `system_from`
+2. Use that timestamp for as-of queries on all related tables in the composite
+
+The version table is the entry point for as-of-by-version queries. Without it, callers would need to know the exact timestamp for a given version.
 
 ```sql
--- Find the timestamp for version 1
+-- Step 1: Find the timestamp for version 1
 SELECT system_from FROM question_version
 WHERE question_id = ? AND number = 1;
 
--- Use that timestamp for as-of queries on all related tables
+-- Step 2: Use that timestamp for as-of queries on all related tables
 SELECT * FROM question
 WHERE id = ? AND system_from <= @version_timestamp AND system_to > @version_timestamp;
+
+SELECT * FROM question_tag
+WHERE question_id = ? AND system_from <= @version_timestamp AND system_to > @version_timestamp;
 ```
+
+Editing any table in the composite bumps the version once. The version number applies to the entire composite, not individual tables. See the Composites section above for ownership semantics.
 
 ## Auditing
 
