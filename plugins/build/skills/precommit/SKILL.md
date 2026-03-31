@@ -11,7 +11,7 @@ description: Running precommit checks and build validation. ALWAYS use after ANY
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/check-battery || { echo "⚡ Skipping precommit on battery power"; exit 0; }
-just precommit
+git test run HEAD --retest --verbose --verbose
 ```
 
 - If on battery power, skip the build and report: "⚡ **Skipped precommit checks (on battery power)**"
@@ -19,15 +19,14 @@ just precommit
 
 ## ⚙️ Running Precommit
 
-Run `just precommit` to validate code:
+Run `git test run HEAD --retest --verbose --verbose` to validate code:
 
 - Use a timeout of at least 10 minutes
-- Don't check if the justfile or recipe exists first
-- This command typically runs autoformatting, builds, tests, and other quality checks
+- This command runs the test configured via `git test add` (typically autoformatting, builds, tests, and other quality checks)
 
-## 📋 Handle Missing Recipe
+## 📋 Handle Missing Configuration
 
-If the command fails because the justfile doesn't exist or the 'precommit' recipe is not defined, clearly explain this situation. Indicate whether the justfile file is missing or whether just the `precommit` recipe is missing.
+If `git test` is not configured for this repository, clearly explain the situation and suggest running `/build:test-setup` to configure it.
 
 ## ❌ Handle Check Failures
 

@@ -14,16 +14,15 @@ If an argument is provided, it describes errors to fix — typically referencing
 Run this command to check if the machine is on battery power and to run or skip the build accordingly:
 
 ```bash
-[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && just precommit || echo "🔋 Skipping precommit on battery power"
+[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && git test run HEAD --retest --verbose --verbose || echo "🔋 Skipping precommit on battery power"
 ```
 
 - Use a timeout of at least 10 minutes
-- Don't check if the justfile or recipe exists first
-- This command typically runs autoformatting, builds, tests, and other quality checks
+- This command runs the test configured via `git test add` (typically autoformatting, builds, tests, and other quality checks)
 
-## 📋 Handle Missing Recipe
+## 📋 Handle Missing Configuration
 
-If the command fails because the justfile doesn't exist or the 'precommit' recipe is not defined, clearly explain this situation. Indicate whether the justfile file is missing or whether just the `precommit` recipe is missing.
+If `git test` is not configured for this repository, clearly explain the situation and suggest running `/build:test-setup` to configure it.
 
 ## ❌ Handle Check Failures
 
