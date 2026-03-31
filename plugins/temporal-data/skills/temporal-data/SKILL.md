@@ -230,6 +230,14 @@ For each imported record, compare it against the current row in the temporal tab
 
 This avoids creating unnecessary versions for unchanged data and provides clear categorization: added / updated / unchanged / deleted.
 
+## Multi-Table / Parent-Child
+
+Each temporal table must independently track its own `system_from`/`system_to` columns. You cannot derive a child table's `system_to` by joining on the parent's `system_from`, because deduplication means the parent row may not change when only child data changes (and vice versa).
+
+When several tables are edited within a single transaction, all `system_from`/`system_to` values use the same timestamp. This keeps the temporal timeline consistent across related tables and allows as-of queries at that timestamp to return a coherent snapshot.
+
+Unchanged data is copied from the old row to the new row. For very wide columns that don't change frequently, it may be more efficient to split them out into a separate table. This reduces row duplication overhead when only a small part of the entity changes.
+
 ## Temporal Rollback (Disaster Recovery)
 
 To roll back the database to a previous point in time, apply two operations per table:
