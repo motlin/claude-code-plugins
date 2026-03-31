@@ -169,19 +169,6 @@ SET system_to = '2024-06-15 14:30:00'
 WHERE id = 'node-1' AND system_to = '9999-12-31 23:59:59';
 ```
 
-### Lifespan Extension (Optimization)
-
-When synced data hasn't changed, extend the current record instead of creating a duplicate:
-
-```sql
--- If phased out by bulk operation but data matches, undo the phase-out
-UPDATE nodes
-SET system_to = '9999-12-31 23:59:59'
-WHERE id = 'node-1' AND system_to = '2024-06-15 14:30:00';
-```
-
-This reduces database bloat by avoiding duplicate records when data hasn't changed.
-
 ## Merge List Pattern (Three-Way Sync)
 
 **When syncing from an external source to a temporal cache, implement ALL THREE legs:**
@@ -190,14 +177,14 @@ This reduces database bloat by avoiding duplicate records when data hasn't chang
 External Source         Cache (temporal)
 +-------------+         +-------------+
 | A (updated) |         | A (old)     |  <- LEG 1: Update
-| B (same)    |         | B (same)    |  <- LEG 1: Extend lifespan
+| B (same)    |         | B (same)    |  <- LEG 1: Leave untouched
 | C (new)     |         | D (deleted) |  <- LEG 2: Insert C
 +-------------+         +-------------+  <- LEG 3: Phase out D
 ```
 
 ### Leg 1: Sync Existing (matching IDs in both source and cache)
 
-Compare data. If changed, phase out old version and insert new. If unchanged, extend lifespan.
+Compare data. If changed, phase out old version and insert new. If unchanged, leave untouched (do nothing).
 
 ### Leg 2: Add New (in source but not in cache)
 
