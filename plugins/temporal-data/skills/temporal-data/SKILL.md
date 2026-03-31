@@ -219,17 +219,16 @@ Before considering a sync function complete:
 
 ## Bulk Import Pattern
 
-For large imports, use a two-phase approach:
+For bulk imports from an external source, apply the same compare-before-cut logic as the Merge List Pattern:
 
-**Phase 1:** Bulk phase-out all current records from the source scope (single UPDATE).
+For each imported record, compare it against the current row in the temporal table:
 
-**Phase 2:** Process each imported record individually:
+- **Data changed** — phase out the old row and insert a new version
+- **Data unchanged** — do nothing (leave the existing row untouched)
+- **New record** (no current row) — insert it
+- **Missing from import** (current row has no match in the import) — phase out
 
-- If not phased out → new record, insert it
-- If phased out and data matches → extend lifespan (undo phase-out)
-- If phased out and data changed → insert new version
-
-This pattern provides clear categorization: added / updated / unchanged / deleted.
+This avoids creating unnecessary versions for unchanged data and provides clear categorization: added / updated / unchanged / deleted.
 
 ## Temporal Rollback (Disaster Recovery)
 
@@ -357,6 +356,6 @@ export const nodes = sqliteTable(
 - **Always use transactions** for temporal operations involving multiple statements
 - **Compare data before inserting** to avoid duplicate versions when data hasn't changed
 - **Index `(id, system_to)`** for current-record queries — this is the most important index
-- **Monitor database size** — temporal tables grow with every change; implement lifespan extension to minimize bloat
+- **Monitor database size** — temporal tables grow with every change; deduplicate unchanged data to minimize bloat
 - **Test as-of queries** to ensure correct temporal semantics — off-by-one at boundaries is a common bug
 - **Use prepared statements** for better performance in bulk operations
