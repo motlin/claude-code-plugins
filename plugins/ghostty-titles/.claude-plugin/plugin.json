@@ -1,7 +1,7 @@
 {
   "name": "ghostty-titles",
   "description": "Updates Ghostty tab title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "license": "Apache-2.0",
   "author": {
     "name": "Craig Motlin"
