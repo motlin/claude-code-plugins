@@ -7,11 +7,7 @@ description: Workflow guidelines for team members executing tasks
 
 ## Completion Pipeline
 
-After implementing a task, always run the full pipeline before marking the task complete or picking up a new one:
-
-1. `build:precommit-runner` agent
-2. `git:commit-handler` agent
-3. `git:rebaser` agent
+After implementing a task, run `/finish` before marking the task complete or picking up a new one.
 
 ## Never Leave Uncommitted Changes
 

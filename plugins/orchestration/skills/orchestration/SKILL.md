@@ -30,11 +30,4 @@ Invoke these skills liberally - most tasks use multiple skills:
 
 ## Workflow Orchestration
 
-When a code change is ready, and we are about to return control to the user, do these things in order:
-
-- Verify the build passes using the `@build:precommit-runner` agent
-- Commit to git using the `@git:commit-handler` agent
-- Run `/simplify` to review changed code for reuse, quality, and efficiency
-- Verify the build passes again using the `@build:precommit-runner` agent
-- Commit to git again using the `@git:commit-handler` agent
-- Rebase on top of the upstream branch with the `@git:rebaser` agent
+When a code change is ready and we are about to return control to the user, run `/finish` to execute the full completion pipeline.
