@@ -6,7 +6,18 @@ cat > /dev/null
 
 # Bypass: Claude creates this file to break a hook cycle or skip the pipeline
 if [[ -f .llm/skip-pipeline ]]; then
-    rm -f .llm/skip-pipeline
+    rm -f .llm/skip-pipeline .llm/stop-hook-attempts
+    exit 0
+fi
+
+# Allow stop after 3 failed attempts to avoid infinite hook loops
+COUNTER_FILE=".llm/stop-hook-attempts"
+MAX_ATTEMPTS=3
+count=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
+count=$((count + 1))
+echo "$count" > "$COUNTER_FILE"
+if [[ "$count" -ge "$MAX_ATTEMPTS" ]]; then
+    rm -f "$COUNTER_FILE"
     exit 0
 fi
 
@@ -24,4 +35,5 @@ if [[ "$result" == unknown* ]]; then
     exit 2
 fi
 
+rm -f "$COUNTER_FILE"
 exit 0
