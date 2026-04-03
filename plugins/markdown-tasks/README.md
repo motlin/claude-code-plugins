@@ -20,7 +20,7 @@ You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out th
 
 ## What Gets Installed
 
-- 7 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/count-tasks`, `/import-plan`)
+- 6 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/import-plan`)
 - 1 agent (`do-task`)
 - 1 skill (`tasks`) with bundled Python scripts
 
