@@ -29,7 +29,7 @@ if [[ ${#messages[@]} -gt 0 ]]; then
     for msg in "${messages[@]}"; do
         echo "  - $msg" >&2
     done
-    echo "Run /finish to execute the full completion pipeline before stopping." >&2
+    echo "Run /orchestration:finish to execute the full completion pipeline before stopping." >&2
     echo "To bypass, create .llm/skip-pipeline (e.g. to break a hook cycle)." >&2
     exit 2
 fi
