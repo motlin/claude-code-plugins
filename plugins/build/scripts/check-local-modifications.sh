@@ -29,8 +29,12 @@ if [[ ${#messages[@]} -gt 0 ]]; then
     for msg in "${messages[@]}"; do
         echo "  - $msg" >&2
     done
+    echo "ALWAYS commit your changes before stopping. Do not leave the working tree dirty." >&2
+    echo "If you skip this, the user must clean up manually, wasting their time." >&2
     echo "Run /orchestration:finish to execute the full completion pipeline before stopping." >&2
-    echo "To bypass, create .llm/skip-pipeline (e.g. to break a hook cycle)." >&2
+    echo >&2
+    echo "The .llm/skip-pipeline file is ONLY for breaking out of a retry loop." >&2
+    echo "Do not create .llm/skip-pipeline on the first attempt. Commit your changes first." >&2
     exit 2
 fi
 
