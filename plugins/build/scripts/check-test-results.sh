@@ -30,13 +30,15 @@ result=$(git test results HEAD 2>/dev/null || true)
 
 if [[ "$result" == unknown* ]]; then
     echo "Tests have not been run on HEAD." >&2
-    echo "ALWAYS run tests via \`git test run\`, not by running pre-commit or other tools directly." >&2
+    echo "ALWAYS run \`git test run\` before stopping. Do not skip this step." >&2
+    echo "\`git test run\` aggressively caches results per tree hash. If nothing changed, it finishes in under a second." >&2
+    echo "There is never a reason to skip it. Just run it." >&2
     echo "Running tests outside of \`git test\` does not record results and will trigger this hook again." >&2
     echo "If you skip tests, the user must run them manually, wasting their time." >&2
     echo "Run /orchestration:finish to execute the full completion pipeline before stopping." >&2
     echo >&2
     echo "The .llm/skip-test-check file is ONLY for breaking out of a retry loop." >&2
-    echo "Do not create .llm/skip-test-check on the first attempt. Run the tests first." >&2
+    echo "Do not create .llm/skip-test-check on the first attempt. Run \`git test run\` first." >&2
     exit 2
 fi
 
