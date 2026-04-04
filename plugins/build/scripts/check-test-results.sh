@@ -4,9 +4,9 @@ set -Eeuo pipefail
 # Consume stdin (hook protocol sends JSON, but we don't need it)
 cat > /dev/null
 
-# Bypass: Claude creates this file to break a hook cycle or skip the pipeline
-if [[ -f .llm/skip-pipeline ]]; then
-    rm -f .llm/skip-pipeline .llm/stop-hook-attempts
+# Bypass: Claude creates this file to break a hook cycle
+if [[ -f .llm/skip-test-check ]]; then
+    rm -f .llm/skip-test-check .llm/stop-hook-attempts
     exit 0
 fi
 
@@ -35,8 +35,8 @@ if [[ "$result" == unknown* ]]; then
     echo "If you skip tests, the user must run them manually, wasting their time." >&2
     echo "Run /orchestration:finish to execute the full completion pipeline before stopping." >&2
     echo >&2
-    echo "The .llm/skip-pipeline file is ONLY for breaking out of a retry loop." >&2
-    echo "Do not create .llm/skip-pipeline on the first attempt. Run the tests first." >&2
+    echo "The .llm/skip-test-check file is ONLY for breaking out of a retry loop." >&2
+    echo "Do not create .llm/skip-test-check on the first attempt. Run the tests first." >&2
     exit 2
 fi
 
