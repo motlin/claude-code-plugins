@@ -40,7 +40,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "cat >/dev/null; curl -sX POST http://localhost:8899/api/notify >/dev/null 2>&1 || true",
+						"command": "cat >/dev/null; curl -sX POST http://localhost:8899/api/notify --connect-timeout 1 --max-time 2 >/dev/null 2>&1 || true",
 						"timeout": 5000
 					}
 				]

@@ -21,6 +21,7 @@ for pair in "$@"; do
 done
 
 curl -sX POST http://localhost:8899/api/hook \
+	--connect-timeout 1 --max-time 2 \
 	-H 'Content-Type: application/json' \
 	-d "$(echo '{}' | jq -c --arg event "$event_name" "$filter")" \
 	>/dev/null 2>&1 || true
