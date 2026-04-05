@@ -17,6 +17,7 @@ lint:
 # Check shell script formatting with shfmt
 format:
     shfmt -d -i 4 -ci {{ shell_scripts }}
+    oxfmt --check
 
 # Run all pre-commit checks
 precommit: format lint test
