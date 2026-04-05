@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Consume stdin (hook protocol sends JSON, but we don't need it)
-cat > /dev/null
+cat >/dev/null
 
 # Bypass: Claude creates this file to break a hook cycle
 if [[ -f .llm/skip-modifications-check ]]; then

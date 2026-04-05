@@ -7,7 +7,7 @@ json=$(cat)
 icon="${1:-}"
 
 if [ "${LC_TERMINAL:-}" != "iTerm2" ]; then
-  exit 0
+    exit 0
 fi
 
 cwd=$(echo "$json" | jq --raw-output '.cwd')
@@ -19,15 +19,15 @@ dir_name=$(basename "$cwd")
 tty_device=""
 pid=$$
 while [ "$pid" -gt 1 ]; do
-  tty_device=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
-  if [ -n "$tty_device" ] && [ "$tty_device" != "??" ]; then
-    break
-  fi
-  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+    tty_device=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
+    if [ -n "$tty_device" ] && [ "$tty_device" != "??" ]; then
+        break
+    fi
+    pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
 done
 
 if [ -z "$tty_device" ] || [ "$tty_device" = "??" ]; then
-  exit 0
+    exit 0
 fi
 
-printf '\e]2;%s\a' "$icon $dir_name" > "/dev/$tty_device"
+printf '\e]2;%s\a' "$icon $dir_name" >"/dev/$tty_device"

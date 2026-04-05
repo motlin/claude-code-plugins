@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Consume stdin (hook protocol sends JSON, but we don't need it)
-cat > /dev/null
+cat >/dev/null
 
 # Bypass: Claude creates this file to break a hook cycle
 if [[ -f .llm/skip-test-check ]]; then
@@ -15,7 +15,7 @@ COUNTER_FILE=".llm/stop-hook-attempts"
 MAX_ATTEMPTS=3
 count=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
 count=$((count + 1))
-echo "$count" > "$COUNTER_FILE"
+echo "$count" >"$COUNTER_FILE"
 if [[ "$count" -ge "$MAX_ATTEMPTS" ]]; then
     rm -f "$COUNTER_FILE"
     exit 0
