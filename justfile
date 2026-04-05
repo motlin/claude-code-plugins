@@ -1,5 +1,7 @@
 set dotenv-filename := ".envrc"
 
+shell_scripts := "plugins/*/scripts/*.sh test/*.sh test/lib/*.sh install-local.sh"
+
 # `just --list--unsorted`
 default:
     @just --list --unsorted
@@ -8,8 +10,16 @@ default:
 test:
     ./test/run-tests.sh
 
-# Run all formatting tools for pre-commit
-precommit: test
+# Run shellcheck on all shell scripts
+lint:
+    shellcheck {{ shell_scripts }}
+
+# Check shell script formatting with shfmt
+format:
+    shfmt -d -i 4 -ci {{ shell_scripts }}
+
+# Run all pre-commit checks
+precommit: format lint test
 
 # 🚀 Create a new release with version bump, commit, tag, and push
 release VERSION:
