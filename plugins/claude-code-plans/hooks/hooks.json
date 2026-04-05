@@ -1,0 +1,81 @@
+{
+	"description": "Send session lifecycle events to the claude-code-plans dashboard on localhost:8899",
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionStart cwd=PWD model=CLAUDE_MODEL",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionEnd",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh Stop",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "ExitPlanMode",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "cat >/dev/null; curl -sX POST http://localhost:8899/api/notify >/dev/null 2>&1 || true",
+						"timeout": 5000
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh PostToolUse tool_name=CLAUDE_TOOL_NAME",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"TaskCompleted": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh TaskCompleted task_id=CLAUDE_TASK_ID task_subject=CLAUDE_TASK_SUBJECT",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"WorktreeCreate": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh WorktreeCreate name=CLAUDE_WORKTREE_NAME",
+						"timeout": 5000
+					}
+				]
+			}
+		]
+	}
+}
