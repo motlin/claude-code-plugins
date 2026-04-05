@@ -1,10 +1,6 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(gh api:*)"
-    ],
-    "ask": [
-      "Bash(gh pr create:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Bash(gh api:*)"],
+		"ask": ["Bash(gh pr create:*)"]
+	}
 }

@@ -85,8 +85,8 @@ If the ESC key doesn't interrupt Claude Code operations in JetBrains terminals:
 
 1. Go to **Settings → Tools → Terminal**
 2. Either:
-   - Uncheck "Move focus to the editor with Escape", or
-   - Click "Configure terminal keybindings" and delete the "Switch focus to Editor" shortcut
+    - Uncheck "Move focus to the editor with Escape", or
+    - Click "Configure terminal keybindings" and delete the "Switch focus to Editor" shortcut
 3. Apply the changes
 
 This allows the ESC key to properly interrupt Claude Code operations.

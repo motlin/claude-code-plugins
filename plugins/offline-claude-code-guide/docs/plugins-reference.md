@@ -35,7 +35,7 @@ Plugins can provide specialized subagents for specific tasks that Claude can inv
 ```markdown theme={null}
 ---
 description: What this agent specializes in
-capabilities: ["task1", "task2", "task3"]
+capabilities: ['task1', 'task2', 'task3']
 ---
 
 # Agent Name
@@ -103,19 +103,19 @@ Plugins can provide event handlers that respond to Claude Code events automatica
 
 ```json theme={null}
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format-code.sh"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/format-code.sh"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -150,20 +150,20 @@ Plugins can bundle Model Context Protocol (MCP) servers to connect Claude Code w
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "plugin-database": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
-      "args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"],
-      "env": {
-        "DB_PATH": "${CLAUDE_PLUGIN_ROOT}/data"
-      }
-    },
-    "plugin-api-client": {
-      "command": "npx",
-      "args": ["@company/mcp-server", "--plugin-mode"],
-      "cwd": "${CLAUDE_PLUGIN_ROOT}"
-    }
-  }
+	"mcpServers": {
+		"plugin-database": {
+			"command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
+			"args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"],
+			"env": {
+				"DB_PATH": "${CLAUDE_PLUGIN_ROOT}/data"
+			}
+		},
+		"plugin-api-client": {
+			"command": "npx",
+			"args": ["@company/mcp-server", "--plugin-mode"],
+			"cwd": "${CLAUDE_PLUGIN_ROOT}"
+		}
+	}
 }
 ```
 
@@ -184,22 +184,22 @@ The `plugin.json` file defines your plugin's metadata and configuration. This se
 
 ```json theme={null}
 {
-  "name": "plugin-name",
-  "version": "1.2.0",
-  "description": "Brief plugin description",
-  "author": {
-    "name": "Author Name",
-    "email": "author@example.com",
-    "url": "https://github.com/author"
-  },
-  "homepage": "https://docs.example.com/plugin",
-  "repository": "https://github.com/author/plugin",
-  "license": "MIT",
-  "keywords": ["keyword1", "keyword2"],
-  "commands": ["./custom/commands/special.md"],
-  "agents": "./custom/agents/",
-  "hooks": "./config/hooks.json",
-  "mcpServers": "./mcp-config.json"
+	"name": "plugin-name",
+	"version": "1.2.0",
+	"description": "Brief plugin description",
+	"author": {
+		"name": "Author Name",
+		"email": "author@example.com",
+		"url": "https://github.com/author"
+	},
+	"homepage": "https://docs.example.com/plugin",
+	"repository": "https://github.com/author/plugin",
+	"license": "MIT",
+	"keywords": ["keyword1", "keyword2"],
+	"commands": ["./custom/commands/special.md"],
+	"agents": "./custom/agents/",
+	"hooks": "./config/hooks.json",
+	"mcpServers": "./mcp-config.json"
 }
 ```
 
@@ -243,8 +243,8 @@ The `plugin.json` file defines your plugin's metadata and configuration. This se
 
 ```json theme={null}
 {
-  "commands": ["./specialized/deploy.md", "./utilities/batch-process.md"],
-  "agents": ["./custom-agents/reviewer.md", "./custom-agents/tester.md"]
+	"commands": ["./specialized/deploy.md", "./utilities/batch-process.md"],
+	"agents": ["./custom-agents/reviewer.md", "./custom-agents/tester.md"]
 }
 ```
 
@@ -254,18 +254,18 @@ The `plugin.json` file defines your plugin's metadata and configuration. This se
 
 ```json theme={null}
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/process.sh"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/process.sh"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 

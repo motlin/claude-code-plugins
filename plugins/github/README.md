@@ -11,11 +11,11 @@ GitHub Actions troubleshooting and CI/CD automation for Claude Code.
 ## Commands
 
 - `/gha` - Fix failing GitHub Actions for the current commit
-  - Fetches latest refs from origin
-  - Finds failing checks for HEAD commit
-  - Analyzes failure logs
-  - Fixes identified issues
-  - Creates fixup commit
+    - Fetches latest refs from origin
+    - Finds failing checks for HEAD commit
+    - Analyzes failure logs
+    - Fixes identified issues
+    - Creates fixup commit
 
 ## Usage
 

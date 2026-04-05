@@ -18,8 +18,8 @@ Find and implement the next incomplete task using Claude Code's built-in task to
 3. **Mark as in progress** — Call `TaskUpdate` to set status to `in_progress`.
 
 4. **Implement the task**
-   - Focus ONLY on this specific task
-   - Work through the implementation methodically
+    - Focus ONLY on this specific task
+    - Work through the implementation methodically
 
 5. **Complete the workflow** — Run `/finish` to execute the full completion pipeline.
 

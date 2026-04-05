@@ -225,18 +225,18 @@ WSL2 uses NAT networking by default, which can prevent IDE detection. You have t
 
 1. Find your WSL2 IP address:
 
-   ```bash theme={null}
-   wsl hostname -I
-   # Example output: 172.21.123.456
-   ```
+    ```bash theme={null}
+    wsl hostname -I
+    # Example output: 172.21.123.456
+    ```
 
 2. Open PowerShell as Administrator and create a firewall rule:
 
-   ```powershell theme={null}
-   New-NetFirewallRule -DisplayName "Allow WSL2 Internal Traffic" -Direction Inbound -Protocol TCP -Action Allow -RemoteAddress 172.21.0.0/16 -LocalAddress 172.21.0.0/16
-   ```
+    ```powershell theme={null}
+    New-NetFirewallRule -DisplayName "Allow WSL2 Internal Traffic" -Direction Inbound -Protocol TCP -Action Allow -RemoteAddress 172.21.0.0/16 -LocalAddress 172.21.0.0/16
+    ```
 
-   (Adjust the IP range based on your WSL2 subnet from step 1)
+    (Adjust the IP range based on your WSL2 subnet from step 1)
 
 3. Restart both your IDE and Claude Code
 
@@ -269,8 +269,8 @@ To fix this issue:
 
 1. Go to Settings → Tools → Terminal
 2. Either:
-   - Uncheck "Move focus to the editor with Escape", or
-   - Click "Configure terminal keybindings" and delete the "Switch focus to Editor" shortcut
+    - Uncheck "Move focus to the editor with Escape", or
+    - Click "Configure terminal keybindings" and delete the "Switch focus to Editor" shortcut
 3. Apply the changes
 
 This allows the ESC key to properly interrupt Claude Code operations.
@@ -296,7 +296,7 @@ Instead of properly tagged blocks like:
 ````markdown theme={null}
 ```javascript
 function example() {
-  return "hello";
+	return 'hello';
 }
 ```
 ````

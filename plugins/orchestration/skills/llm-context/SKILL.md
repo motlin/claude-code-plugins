@@ -18,7 +18,7 @@ Extra context for LLMs may be stored in the `.llm/` directory at the root of a g
 - If `.llm/todo.md` exists, it is the task list we are working on
 - The `@markdown-tasks:tasks` skill will handle task completion
 - As we work on an implementation, plans will change
-  - Feel free to edit the task list to keep it relevant and in sync with our plans
+    - Feel free to edit the task list to keep it relevant and in sync with our plans
 
 ## Read-only Context
 

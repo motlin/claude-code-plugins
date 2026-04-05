@@ -66,10 +66,10 @@ When Claude Code detects that your AWS credentials are expired (either locally b
 
 ```json theme={null}
 {
-  "awsAuthRefresh": "aws sso login --profile myprofile",
-  "env": {
-    "AWS_PROFILE": "myprofile"
-  }
+	"awsAuthRefresh": "aws sso login --profile myprofile",
+	"env": {
+		"AWS_PROFILE": "myprofile"
+	}
 }
 ```
 
@@ -81,11 +81,11 @@ When Claude Code detects that your AWS credentials are expired (either locally b
 
 ```json theme={null}
 {
-  "Credentials": {
-    "AccessKeyId": "value",
-    "SecretAccessKey": "value",
-    "SessionToken": "value"
-  }
+	"Credentials": {
+		"AccessKeyId": "value",
+		"SecretAccessKey": "value",
+		"SessionToken": "value"
+	}
 }
 ```
 
@@ -163,37 +163,30 @@ Create an IAM policy with the required permissions for Claude Code:
 
 ```json theme={null}
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowModelAndInferenceProfileAccess",
-      "Effect": "Allow",
-      "Action": [
-        "bedrock:InvokeModel",
-        "bedrock:InvokeModelWithResponseStream",
-        "bedrock:ListInferenceProfiles"
-      ],
-      "Resource": [
-        "arn:aws:bedrock:*:*:inference-profile/*",
-        "arn:aws:bedrock:*:*:application-inference-profile/*",
-        "arn:aws:bedrock:*:*:foundation-model/*"
-      ]
-    },
-    {
-      "Sid": "AllowMarketplaceSubscription",
-      "Effect": "Allow",
-      "Action": [
-        "aws-marketplace:ViewSubscriptions",
-        "aws-marketplace:Subscribe"
-      ],
-      "Resource": "*",
-      "Condition": {
-        "StringEquals": {
-          "aws:CalledViaLast": "bedrock.amazonaws.com"
-        }
-      }
-    }
-  ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowModelAndInferenceProfileAccess",
+			"Effect": "Allow",
+			"Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:ListInferenceProfiles"],
+			"Resource": [
+				"arn:aws:bedrock:*:*:inference-profile/*",
+				"arn:aws:bedrock:*:*:application-inference-profile/*",
+				"arn:aws:bedrock:*:*:foundation-model/*"
+			]
+		},
+		{
+			"Sid": "AllowMarketplaceSubscription",
+			"Effect": "Allow",
+			"Action": ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:CalledViaLast": "bedrock.amazonaws.com"
+				}
+			}
+		}
+	]
 }
 ```
 

@@ -36,32 +36,32 @@ Configure permissive permissions in `~/.claude/settings.json`:
 
 ```json
 {
-  "permissions": {
-    "allow": [
-      "Bash",
-      "Edit",
-      "MultiEdit",
-      "Read",
-      "WebSearch",
-      "Write",
-      "Skill(markdown-tasks:tasks)",
-      "WebFetch(domain:github.com)"
-    ],
-    "deny": [
-      "Bash(git add --all:*)",
-      "Bash(git add --force:*)",
-      "Bash(git add -A:*)",
-      "Bash(git add -f:*)",
-      "Bash(git commit -a:*)",
-      "Bash(git push:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git worktree remove --force:*)",
-      "Bash(rm -rf:*)",
-      "Edit(~/.claude/settings.json)",
-      "MultiEdit(~/.claude/settings.json)"
-    ],
-    "ask": []
-  }
+	"permissions": {
+		"allow": [
+			"Bash",
+			"Edit",
+			"MultiEdit",
+			"Read",
+			"WebSearch",
+			"Write",
+			"Skill(markdown-tasks:tasks)",
+			"WebFetch(domain:github.com)"
+		],
+		"deny": [
+			"Bash(git add --all:*)",
+			"Bash(git add --force:*)",
+			"Bash(git add -A:*)",
+			"Bash(git add -f:*)",
+			"Bash(git commit -a:*)",
+			"Bash(git push:*)",
+			"Bash(git reset --hard:*)",
+			"Bash(git worktree remove --force:*)",
+			"Bash(rm -rf:*)",
+			"Edit(~/.claude/settings.json)",
+			"MultiEdit(~/.claude/settings.json)"
+		],
+		"ask": []
+	}
 }
 ```
 
@@ -207,12 +207,12 @@ Each task in `.llm/todo.md` should be independently readable with full context:
 
 ```markdown
 - [ ] Add user authentication to API routes
-  - File: `src/routes/api.ts`
-  - Add middleware similar to `src/middleware/auth.ts`
-  - Implement JWT validation
-  - Return 401 for invalid tokens
-  - Depends on: User model in `src/models/user.ts`
-  - Expected: All `/api/*` routes require valid JWT
+    - File: `src/routes/api.ts`
+    - Add middleware similar to `src/middleware/auth.ts`
+    - Implement JWT validation
+    - Return 401 for invalid tokens
+    - Depends on: User model in `src/models/user.ts`
+    - Expected: All `/api/*` routes require valid JWT
 ```
 
 Indented lines provide context and are extracted by `task-get`.

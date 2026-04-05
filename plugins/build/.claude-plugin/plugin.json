@@ -1,23 +1,18 @@
 {
-  "name": "build",
-  "description": "Test and build automation tools that loop until all commits pass",
-  "version": "1.13.2",
-  "license": "Apache-2.0",
-  "author": {
-    "name": "Craig Motlin"
-  },
-  "agents": [
-    "./agents/precommit-runner.md",
-    "./agents/build-fixer-autosquash.md"
-  ],
-  "skills": [
-    "./skills/precommit/SKILL.md"
-  ],
-  "commands": [
-    "./commands/test-branch.md",
-    "./commands/test-all.md",
-    "./commands/fix.md",
-    "./commands/test-setup.md",
-    "./commands/dev-server.md"
-  ]
+	"name": "build",
+	"description": "Test and build automation tools that loop until all commits pass",
+	"version": "1.13.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"agents": ["./agents/precommit-runner.md", "./agents/build-fixer-autosquash.md"],
+	"skills": ["./skills/precommit/SKILL.md"],
+	"commands": [
+		"./commands/test-branch.md",
+		"./commands/test-all.md",
+		"./commands/fix.md",
+		"./commands/test-setup.md",
+		"./commands/dev-server.md"
+	]
 }

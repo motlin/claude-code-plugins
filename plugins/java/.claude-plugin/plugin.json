@@ -1,21 +1,16 @@
 {
-  "name": "java",
-  "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
-  "version": "1.13.2",
-  "license": "Apache-2.0",
-  "author": {
-    "name": "Craig Motlin"
-  },
-  "agents": [
-    "./agents/liquibase-lock-resolver.md"
-  ],
-  "commands": [
-    "./commands/openrewrite-imports.md",
-    "./commands/pom-ordering.md"
-  ],
-  "skills": [
-    "./skills/openrewrite/SKILL.md",
-    "./skills/openrewrite-recipes/SKILL.md",
-    "./skills/pom-ordering/SKILL.md"
-  ]
+	"name": "java",
+	"description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+	"version": "1.13.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"agents": ["./agents/liquibase-lock-resolver.md"],
+	"commands": ["./commands/openrewrite-imports.md", "./commands/pom-ordering.md"],
+	"skills": [
+		"./skills/openrewrite/SKILL.md",
+		"./skills/openrewrite-recipes/SKILL.md",
+		"./skills/pom-ordering/SKILL.md"
+	]
 }

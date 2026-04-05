@@ -127,9 +127,9 @@ When Claude Code attempts to access network resources outside the sandbox:
 1. The operation is blocked at the OS level
 2. You receive an immediate notification
 3. You can choose to:
-   - Deny the request
-   - Allow it once
-   - Update your sandbox configuration to permanently allow it
+    - Deny the request
+    - Allow it once
+    - Update your sandbox configuration to permanently allow it
 
 ## Security Limitations
 
@@ -156,12 +156,12 @@ For organizations requiring advanced network security, you can implement a custo
 
 ```json theme={null}
 {
-  "sandbox": {
-    "network": {
-      "httpProxyPort": 8080,
-      "socksProxyPort": 8081
-    }
-  }
+	"sandbox": {
+		"network": {
+			"httpProxyPort": 8080,
+			"socksProxyPort": 8081
+		}
+	}
 }
 ```
 

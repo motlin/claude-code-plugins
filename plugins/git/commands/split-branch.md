@@ -72,37 +72,37 @@ For each commit (in order from oldest to newest):
 
 1. Check if a branch with the target name already exists:
 
-   ```
-   git rev-parse --verify <semantic-branch-name> 2>/dev/null
-   ```
+    ```
+    git rev-parse --verify <semantic-branch-name> 2>/dev/null
+    ```
 
-   If it exists, compare the commit at that branch tip with the commit being cherry-picked:
-   - If `git rev-parse <semantic-branch-name>` equals `<commit-sha>`, **skip** this branch (it's already done)
-   - If different, append a numeric suffix to the branch name and continue
+    If it exists, compare the commit at that branch tip with the commit being cherry-picked:
+    - If `git rev-parse <semantic-branch-name>` equals `<commit-sha>`, **skip** this branch (it's already done)
+    - If different, append a numeric suffix to the branch name and continue
 
 2. Create a new branch from the base branch:
 
-   ```
-   git branch <semantic-branch-name> <base-branch>
-   ```
+    ```
+    git branch <semantic-branch-name> <base-branch>
+    ```
 
 3. Cherry-pick the single commit onto that branch:
 
-   ```
-   git checkout <semantic-branch-name>
-   git cherry-pick <commit-sha>
-   ```
+    ```
+    git checkout <semantic-branch-name>
+    git cherry-pick <commit-sha>
+    ```
 
 4. If cherry-pick fails due to conflicts:
-   - Inform the user which commit/branch had conflicts
-   - Leave the branch in the conflicted state
-   - Continue with remaining branches
-   - At the end, list all branches that need manual conflict resolution
+    - Inform the user which commit/branch had conflicts
+    - Leave the branch in the conflicted state
+    - Continue with remaining branches
+    - At the end, list all branches that need manual conflict resolution
 
 5. Return to the original branch:
-   ```
-   git checkout <original-branch>
-   ```
+    ```
+    git checkout <original-branch>
+    ```
 
 ### Step 4: Summary
 

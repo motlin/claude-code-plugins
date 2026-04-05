@@ -1,21 +1,21 @@
 {
-  "description": "Ensure builds are run and changes committed before session ends",
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-local-modifications.sh",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-test-results.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
+	"description": "Ensure builds are run and changes committed before session ends",
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-local-modifications.sh",
+						"timeout": 5
+					},
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-test-results.sh",
+						"timeout": 5
+					}
+				]
+			}
+		]
+	}
 }

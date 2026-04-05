@@ -1,10 +1,10 @@
 ---
 name: writing-instructions
 description: >-
-  MUST be loaded before creating, editing, or reviewing any SKILL.md, agent markdown, or
-  command markdown file. Contains formatting rules that prevent common mistakes like
-  numbered steps, which cause git churn. Also use when the user asks about instruction
-  formatting best practices, header structure, or how to avoid unnecessary diffs.
+    MUST be loaded before creating, editing, or reviewing any SKILL.md, agent markdown, or
+    command markdown file. Contains formatting rules that prevent common mistakes like
+    numbered steps, which cause git churn. Also use when the user asks about instruction
+    formatting best practices, header structure, or how to avoid unnecessary diffs.
 ---
 
 # Writing Instructions for Skills, Agents, and Commands

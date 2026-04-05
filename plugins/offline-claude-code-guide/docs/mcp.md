@@ -117,9 +117,9 @@ claude mcp remove github
   Tips:
 
 - Use the `--scope` flag to specify where the configuration is stored:
-  - `local` (default): Available only to you in the current project (was called `project` in older versions)
-  - `project`: Shared with everyone in the project via `.mcp.json` file
-  - `user`: Available to you across all projects (was called `global` in older versions)
+    - `local` (default): Available only to you in the current project (was called `project` in older versions)
+    - `project`: Shared with everyone in the project via `.mcp.json` file
+    - `user`: Available to you across all projects (was called `global` in older versions)
 - Set environment variables with `--env` flags (e.g., `--env KEY=value`)
 - Configure MCP server startup timeout using the MCP_TIMEOUT environment variable (e.g., `MCP_TIMEOUT=10000 claude` sets a 10-second timeout)
 - Claude Code will display a warning when MCP tool output exceeds 10,000 tokens. To increase this limit, set the `MAX_MCP_OUTPUT_TOKENS` environment variable (e.g., `MAX_MCP_OUTPUT_TOKENS=50000`)
@@ -154,13 +154,13 @@ In `.mcp.json` at plugin root:
 
 ```json theme={null}
 {
-  "database-tools": {
-    "command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
-    "args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"],
-    "env": {
-      "DB_URL": "${DB_URL}"
-    }
-  }
+	"database-tools": {
+		"command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
+		"args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"],
+		"env": {
+			"DB_URL": "${DB_URL}"
+		}
+	}
 }
 ```
 
@@ -168,13 +168,13 @@ Or inline in `plugin.json`:
 
 ```json theme={null}
 {
-  "name": "my-plugin",
-  "mcpServers": {
-    "plugin-api": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/servers/api-server",
-      "args": ["--port", "8080"]
-    }
-  }
+	"name": "my-plugin",
+	"mcpServers": {
+		"plugin-api": {
+			"command": "${CLAUDE_PLUGIN_ROOT}/servers/api-server",
+			"args": ["--port", "8080"]
+		}
+	}
 }
 ```
 
@@ -231,13 +231,13 @@ The resulting `.mcp.json` file follows a standardized format:
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "shared-server": {
-      "command": "/path/to/server",
-      "args": [],
-      "env": {}
-    }
-  }
+	"mcpServers": {
+		"shared-server": {
+			"command": "/path/to/server",
+			"args": [],
+			"env": {}
+		}
+	}
 }
 ```
 
@@ -286,15 +286,15 @@ Environment variables can be expanded in:
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "api-server": {
-      "type": "http",
-      "url": "${API_BASE_URL:-https://api.example.com}/mcp",
-      "headers": {
-        "Authorization": "Bearer ${API_KEY}"
-      }
-    }
-  }
+	"mcpServers": {
+		"api-server": {
+			"type": "http",
+			"url": "${API_BASE_URL:-https://api.example.com}/mcp",
+			"headers": {
+				"Authorization": "Bearer ${API_KEY}"
+			}
+		}
+	}
 }
 ```
 
@@ -473,14 +473,14 @@ You can use this in Claude Desktop by adding this configuration to claude_deskto
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "claude-code": {
-      "type": "stdio",
-      "command": "claude",
-      "args": ["mcp", "serve"],
-      "env": {}
-    }
-  }
+	"mcpServers": {
+		"claude-code": {
+			"type": "stdio",
+			"command": "claude",
+			"args": ["mcp", "serve"],
+			"env": {}
+		}
+	}
 }
 ```
 
@@ -497,14 +497,14 @@ Then use the full path in your configuration:
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "claude-code": {
-      "type": "stdio",
-      "command": "/full/path/to/claude",
-      "args": ["mcp", "serve"],
-      "env": {}
-    }
-  }
+	"mcpServers": {
+		"claude-code": {
+			"type": "stdio",
+			"command": "/full/path/to/claude",
+			"args": ["mcp", "serve"],
+			"env": {}
+		}
+	}
 }
 ```
 
@@ -648,24 +648,24 @@ The `managed-mcp.json` file uses the same format as a standard `.mcp.json` file:
 
 ```json theme={null}
 {
-  "mcpServers": {
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/"
-    },
-    "sentry": {
-      "type": "http",
-      "url": "https://mcp.sentry.dev/mcp"
-    },
-    "company-internal": {
-      "type": "stdio",
-      "command": "/usr/local/bin/company-mcp-server",
-      "args": ["--config", "/etc/company/mcp-config.json"],
-      "env": {
-        "COMPANY_API_URL": "https://internal.company.com"
-      }
-    }
-  }
+	"mcpServers": {
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/"
+		},
+		"sentry": {
+			"type": "http",
+			"url": "https://mcp.sentry.dev/mcp"
+		},
+		"company-internal": {
+			"type": "stdio",
+			"command": "/usr/local/bin/company-mcp-server",
+			"args": ["--config", "/etc/company/mcp-config.json"],
+			"env": {
+				"COMPANY_API_URL": "https://internal.company.com"
+			}
+		}
+	}
 }
 ```
 
@@ -679,12 +679,8 @@ In addition to providing enterprise-managed servers, administrators can control 
 
 ```json theme={null}
 {
-  "allowedMcpServers": [
-    { "serverName": "github" },
-    { "serverName": "sentry" },
-    { "serverName": "company-internal" }
-  ],
-  "deniedMcpServers": [{ "serverName": "filesystem" }]
+	"allowedMcpServers": [{"serverName": "github"}, {"serverName": "sentry"}, {"serverName": "company-internal"}],
+	"deniedMcpServers": [{"serverName": "filesystem"}]
 }
 ```
 

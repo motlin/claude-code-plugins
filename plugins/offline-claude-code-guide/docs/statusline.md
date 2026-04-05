@@ -14,11 +14,11 @@ You can either:
 
 ```json theme={null}
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh",
-    "padding": 0 // Optional: set to 0 to let status line go to edge
-  }
+	"statusLine": {
+		"type": "command",
+		"command": "~/.claude/statusline.sh",
+		"padding": 0 // Optional: set to 0 to let status line go to edge
+	}
 }
 ```
 
@@ -36,29 +36,29 @@ Your status line command receives structured data via stdin in JSON format:
 
 ```json theme={null}
 {
-  "hook_event_name": "Status",
-  "session_id": "abc123...",
-  "transcript_path": "/path/to/transcript.json",
-  "cwd": "/current/working/directory",
-  "model": {
-    "id": "claude-opus-4-1",
-    "display_name": "Opus"
-  },
-  "workspace": {
-    "current_dir": "/current/working/directory",
-    "project_dir": "/original/project/directory"
-  },
-  "version": "1.0.80",
-  "output_style": {
-    "name": "default"
-  },
-  "cost": {
-    "total_cost_usd": 0.01234,
-    "total_duration_ms": 45000,
-    "total_api_duration_ms": 2300,
-    "total_lines_added": 156,
-    "total_lines_removed": 23
-  }
+	"hook_event_name": "Status",
+	"session_id": "abc123...",
+	"transcript_path": "/path/to/transcript.json",
+	"cwd": "/current/working/directory",
+	"model": {
+		"id": "claude-opus-4-1",
+		"display_name": "Opus"
+	},
+	"workspace": {
+		"current_dir": "/current/working/directory",
+		"project_dir": "/original/project/directory"
+	},
+	"version": "1.0.80",
+	"output_style": {
+		"name": "default"
+	},
+	"cost": {
+		"total_cost_usd": 0.01234,
+		"total_duration_ms": 45000,
+		"total_api_duration_ms": 2300,
+		"total_lines_added": 156,
+		"total_lines_removed": 23
+	}
 }
 ```
 
@@ -135,31 +135,31 @@ print(f"[{model}] 📁 {current_dir}{git_branch}")
 ```javascript theme={null}
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // Read JSON from stdin
-let input = "";
-process.stdin.on("data", (chunk) => (input += chunk));
-process.stdin.on("end", () => {
-  const data = JSON.parse(input);
+let input = '';
+process.stdin.on('data', (chunk) => (input += chunk));
+process.stdin.on('end', () => {
+	const data = JSON.parse(input);
 
-  // Extract values
-  const model = data.model.display_name;
-  const currentDir = path.basename(data.workspace.current_dir);
+	// Extract values
+	const model = data.model.display_name;
+	const currentDir = path.basename(data.workspace.current_dir);
 
-  // Check for git branch
-  let gitBranch = "";
-  try {
-    const headContent = fs.readFileSync(".git/HEAD", "utf8").trim();
-    if (headContent.startsWith("ref: refs/heads/")) {
-      gitBranch = ` | 🌿 ${headContent.replace("ref: refs/heads/", "")}`;
-    }
-  } catch (e) {
-    // Not a git repo or can't read HEAD
-  }
+	// Check for git branch
+	let gitBranch = '';
+	try {
+		const headContent = fs.readFileSync('.git/HEAD', 'utf8').trim();
+		if (headContent.startsWith('ref: refs/heads/')) {
+			gitBranch = ` | 🌿 ${headContent.replace('ref: refs/heads/', '')}`;
+		}
+	} catch (e) {
+		// Not a git repo or can't read HEAD
+	}
 
-  console.log(`[${model}] 📁 ${currentDir}${gitBranch}`);
+	console.log(`[${model}] 📁 ${currentDir}${gitBranch}`);
 });
 ```
 

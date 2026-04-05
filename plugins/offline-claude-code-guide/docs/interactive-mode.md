@@ -106,11 +106,11 @@ Press `Ctrl+R` to interactively search through your command history:
 2. **Type query**: Enter text to search for in previous commands - the search term will be highlighted in matching results
 3. **Navigate matches**: Press `Ctrl+R` again to cycle through older matches
 4. **Accept match**:
-   - Press `Tab` or `Esc` to accept the current match and continue editing
-   - Press `Enter` to accept and execute the command immediately
+    - Press `Tab` or `Esc` to accept the current match and continue editing
+    - Press `Enter` to accept and execute the command immediately
 5. **Cancel search**:
-   - Press `Ctrl+C` to cancel and restore your original input
-   - Press `Backspace` on empty search to cancel
+    - Press `Ctrl+C` to cancel and restore your original input
+    - Press `Backspace` on empty search to cancel
 
 The search displays matching commands with the search term highlighted, making it easy to find and reuse previous inputs.
 

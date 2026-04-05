@@ -321,10 +321,10 @@ The Explore subagent is a fast, lightweight agent optimized for searching and an
 - **Model**: Uses Haiku for fast, low-latency searches
 - **Mode**: Strictly read-only - cannot create, modify, or delete files
 - **Tools available**:
-  - Glob - File pattern matching
-  - Grep - Content searching with regex
-  - Read - Reading file contents
-  - Bash - Read-only commands only (ls, git status, git log, git diff, find, cat, head, tail)
+    - Glob - File pattern matching
+    - Grep - Content searching with regex
+    - Read - Reading file contents
+    - Bash - Read-only commands only (ls, git status, git log, git diff, find, cat, head, tail)
 
 **When Claude uses it:**
 

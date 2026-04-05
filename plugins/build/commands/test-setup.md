@@ -23,9 +23,9 @@ Present the user with choices using `AskUserQuestion`. The options depend on wha
 **If justfile with `precommit` recipe exists:**
 
 - **Standard (Recommended)**: `just --global-justfile _check-local-modifications && (should-skip-commit || just precommit) && just --global-justfile _check-local-modifications`
-  - Wraps `just precommit` with clean-tree guards and skip logic
+    - Wraps `just precommit` with clean-tree guards and skip logic
 - **Without skip**: `just --global-justfile _check-local-modifications && just precommit && just --global-justfile _check-local-modifications`
-  - Same but always runs precommit, never skips
+    - Same but always runs precommit, never skips
 - **Precommit with args**: Ask the user what arguments to pass to `just precommit <args>`, then use: `just --global-justfile _check-local-modifications && just precommit <args> && just --global-justfile _check-local-modifications`
 
 **If no justfile or no `precommit` recipe:**

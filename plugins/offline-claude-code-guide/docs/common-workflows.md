@@ -280,9 +280,9 @@ Claude will analyze the current implementation and create a comprehensive plan. 
 ```json theme={null}
 // .claude/settings.json
 {
-  "permissions": {
-    "defaultMode": "plan"
-  }
+	"permissions": {
+		"defaultMode": "plan"
+	}
 }
 ```
 

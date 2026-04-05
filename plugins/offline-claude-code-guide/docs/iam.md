@@ -17,16 +17,16 @@ Setting up Claude Code requires access to Anthropic models. For teams, you can s
 
 1. Use your existing Claude Console account or create a new Claude Console account
 2. You can add users through either method below:
-   - Bulk invite users from within the Console (Console -> Settings -> Members -> Invite)
-   - [Set up SSO](https://support.claude.com/en/articles/10280258-setting-up-single-sign-on-on-the-api-console)
+    - Bulk invite users from within the Console (Console -> Settings -> Members -> Invite)
+    - [Set up SSO](https://support.claude.com/en/articles/10280258-setting-up-single-sign-on-on-the-api-console)
 3. When inviting users, they need one of the following roles:
-   - "Claude Code" role means users can only create Claude Code API keys
-   - "Developer" role means users can create any kind of API key
+    - "Claude Code" role means users can only create Claude Code API keys
+    - "Developer" role means users can create any kind of API key
 4. Each invited user needs to complete these steps:
-   - Accept the Console invite
-   - [Check system requirements](/en/setup#system-requirements)
-   - [Install Claude Code](/en/setup#installation)
-   - Login with Console account credentials
+    - Accept the Console invite
+    - [Check system requirements](/en/setup#system-requirements)
+    - [Install Claude Code](/en/setup#installation)
+    - Login with Console account credentials
 
 ### Cloud provider authentication
 
@@ -105,11 +105,11 @@ Some tools support more fine-grained permission controls:
 1. This tool uses **prefix matches**, not regex or glob patterns
 2. The wildcard `:*` only works at the end of a pattern to match any continuation
 3. Patterns like `Bash(curl http://github.com/:*)` can be bypassed in many ways:
-   - Options before URL: `curl -X GET http://github.com/...` won't match
-   - Different protocol: `curl https://github.com/...` won't match
-   - Redirects: `curl -L http://bit.ly/xyz` (redirects to github)
-   - Variables: `URL=http://github.com && curl $URL` won't match
-   - Extra spaces: `curl  http://github.com` won't match
+    - Options before URL: `curl -X GET http://github.com/...` won't match
+    - Different protocol: `curl https://github.com/...` won't match
+    - Redirects: `curl -L http://bit.ly/xyz` (redirects to github)
+    - Variables: `URL=http://github.com && curl $URL` won't match
+    - Extra spaces: `curl  http://github.com` won't match
 
 For more reliable URL filtering, consider:
 

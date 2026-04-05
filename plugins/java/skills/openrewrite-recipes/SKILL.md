@@ -272,7 +272,7 @@ Don't forget to add new recipes to relevant YAML files:
 
 ```yaml
 recipeList:
-  - org.openrewrite.staticanalysis.CollectionToArrayShouldHaveProperType
+    - org.openrewrite.staticanalysis.CollectionToArrayShouldHaveProperType
 ```
 
 Common collections:

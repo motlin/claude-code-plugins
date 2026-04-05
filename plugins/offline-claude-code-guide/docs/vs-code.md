@@ -39,7 +39,7 @@ Once installed, you can start using Claude Code through the VS Code interface:
 2. Prompt Claude Code in the same way you would in the terminal
 3. Watch as Claude analyzes your code and suggests changes
 4. Review and accept edits directly in the interface
-   - **Tip**: Drag the sidebar wider to see inline diffs, then click on them to expand for full details
+    - **Tip**: Drag the sidebar wider to see inline diffs, then click on them to expand for full details
 
 ### Using Third-Party Providers
 
@@ -81,8 +81,8 @@ The following features are not yet available in the VS Code extension:
 - **Checkpoints**: Save and restore conversation state at specific points
 - **Conversation rewinding**: The `/rewind` command is coming soon
 - **Advanced shortcuts**:
-  - `#` shortcut to add to memory (not supported)
-  - `!` shortcut to run bash commands directly (not supported)
+    - `#` shortcut to add to memory (not supported)
+    - `!` shortcut to run bash commands directly (not supported)
 - **Tab completion**: File path completion with tab key
 - **Model selection UI for older models**: To use older model versions like `claude-sonnet-4-20250514`, open VS Code settings for Claude Code (the `/General Config` command) and insert the model string directly into the 'Selected Model' field
 
@@ -127,12 +127,12 @@ If Claude Code is not responding to your prompts:
 
 - Ensure you're running Claude Code from VS Code's integrated terminal
 - Ensure the CLI for your IDE variant is installed:
-  - VS Code: `code` command should be available
-  - Cursor: `cursor` command should be available
-  - Windsurf: `windsurf` command should be available
-  - VSCodium: `codium` command should be available
+    - VS Code: `code` command should be available
+    - Cursor: `cursor` command should be available
+    - Windsurf: `windsurf` command should be available
+    - VSCodium: `codium` command should be available
 - If the command isn't installed:
-  1. Open command palette with `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
-  2. Search for "Shell Command: Install 'code' command in PATH" (or equivalent for your IDE)
+    1. Open command palette with `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
+    2. Search for "Shell Command: Install 'code' command in PATH" (or equivalent for your IDE)
 
 For additional help, see our [troubleshooting guide](/en/troubleshooting).

@@ -1,11 +1,11 @@
 {
-  "permissions": {
-    "deny": [
-      "Bash(git add --all:*)",
-      "Bash(git add -A:*)",
-      "Bash(git add --force:*)",
-      "Bash(git add -f:*)",
-      "Bash(git commit -a:*)"
-    ]
-  }
+	"permissions": {
+		"deny": [
+			"Bash(git add --all:*)",
+			"Bash(git add -A:*)",
+			"Bash(git add --force:*)",
+			"Bash(git add -f:*)",
+			"Bash(git commit -a:*)"
+		]
+	}
 }

@@ -34,8 +34,8 @@ Your role is to review code that is about to be committed and remove redundant a
 ## Workflow
 
 - Look at all comments in the uncommitted changes
-  - It's not enough to consider all changed files because we don't want to remove old comments
-  - Consider the whole diff/patch to make sure we're only removing new comments
+    - It's not enough to consider all changed files because we don't want to remove old comments
+    - Consider the whole diff/patch to make sure we're only removing new comments
 - Remove redundant comments without hesitation
 - Move end-of-line comments to their own lines
 

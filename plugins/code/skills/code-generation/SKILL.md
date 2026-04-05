@@ -45,9 +45,9 @@ Search for string concatenation blocks that contain `\n` literals but are NOT wr
 
 1. Search generator files for string concatenation containing `\n` that lacks `@formatter:off` guards
 2. For each violation:
-   - Add `// @formatter:off` before the block
-   - Collapse string concatenation so each `\n`-terminated segment is on one Java source line
-   - Add `// @formatter:on` after the block
+    - Add `// @formatter:off` before the block
+    - Collapse string concatenation so each `\n`-terminated segment is on one Java source line
+    - Add `// @formatter:on` after the block
 3. For `.collect()` lambdas that produce single-line templates (one `\n`), collapse the entire template string onto one line
 4. For multi-line templates, each `\n`-terminated segment gets its own line with `+` continuation
 5. Use the same indentation style as existing `@formatter:off` blocks in the file

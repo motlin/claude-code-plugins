@@ -92,20 +92,20 @@ Claude Code provides three flags for customizing the system prompt, each serving
 
 - **`--system-prompt`**: Use when you need complete control over Claude's system prompt. This removes all default Claude Code instructions, giving you a blank slate.
 
-  ```bash theme={null}
-  claude --system-prompt "You are a Python expert who only writes type-annotated code"
-  ```
+    ```bash theme={null}
+    claude --system-prompt "You are a Python expert who only writes type-annotated code"
+    ```
 
 - **`--system-prompt-file`**: Use when you want to load a custom prompt from a file, useful for team consistency or version-controlled prompt templates.
 
-  ```bash theme={null}
-  claude -p --system-prompt-file ./prompts/code-review.txt "Review this PR"
-  ```
+    ```bash theme={null}
+    claude -p --system-prompt-file ./prompts/code-review.txt "Review this PR"
+    ```
 
 - **`--append-system-prompt`**: Use when you want to add specific instructions while keeping Claude Code's default capabilities intact. This is the safest option for most use cases.
-  ```bash theme={null}
-  claude --append-system-prompt "Always use TypeScript and include JSDoc comments"
-  ```
+    ```bash theme={null}
+    claude --append-system-prompt "Always use TypeScript and include JSDoc comments"
+    ```
 
 <Note>
   `--system-prompt` and `--system-prompt-file` are mutually exclusive. You cannot use both flags simultaneously.

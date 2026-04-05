@@ -53,14 +53,14 @@ Example managed settings configuration:
 
 ```json theme={null}
 {
-  "env": {
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-    "OTEL_METRICS_EXPORTER": "otlp",
-    "OTEL_LOGS_EXPORTER": "otlp",
-    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.company.com:4317",
-    "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Bearer company-token"
-  }
+	"env": {
+		"CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+		"OTEL_METRICS_EXPORTER": "otlp",
+		"OTEL_LOGS_EXPORTER": "otlp",
+		"OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+		"OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector.company.com:4317",
+		"OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Bearer company-token"
+	}
 }
 ```
 
@@ -112,7 +112,7 @@ Add to your `.claude/settings.json`:
 
 ```json theme={null}
 {
-  "otelHeadersHelper": "/bin/generate_opentelemetry_headers.sh"
+	"otelHeadersHelper": "/bin/generate_opentelemetry_headers.sh"
 }
 ```
 
@@ -358,7 +358,7 @@ Logged when a tool completes execution.
 - `decision`: Either `"accept"` or `"reject"`
 - `source`: Decision source - `"config"`, `"user_permanent"`, `"user_temporary"`, `"user_abort"`, or `"user_reject"`
 - `tool_parameters`: JSON string containing tool-specific parameters (when available)
-  - For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `sandbox`
+    - For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `sandbox`
 
 #### API Request Event
 

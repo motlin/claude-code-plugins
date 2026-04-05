@@ -56,12 +56,12 @@ If the `/install-github-app` command fails or you prefer manual setup, please fo
 
 1. **Install the Claude GitHub app** to your repository: [https://github.com/apps/claude](https://github.com/apps/claude)
 
-   The Claude GitHub app requires the following repository permissions:
-   - **Contents**: Read & write (to modify repository files)
-   - **Issues**: Read & write (to respond to issues)
-   - **Pull requests**: Read & write (to create PRs and push changes)
+    The Claude GitHub app requires the following repository permissions:
+    - **Contents**: Read & write (to modify repository files)
+    - **Issues**: Read & write (to respond to issues)
+    - **Pull requests**: Read & write (to create PRs and push changes)
 
-   For more details on security and permissions, see the [security documentation](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md).
+    For more details on security and permissions, see the [security documentation](https://github.com/anthropics/claude-code-action/blob/main/docs/security.md).
 
 2. **Add ANTHROPIC_API_KEY** to your repository secrets ([Learn how to use secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions))
 3. **Copy the workflow file** from [examples/claude.yml](https://github.com/anthropics/claude-code-action/blob/main/examples/claude.yml) into your repository's `.github/workflows/`
@@ -109,12 +109,12 @@ All beta users must make these changes to their workflow files in order to upgra
 ```yaml theme={null}
 - uses: anthropics/claude-code-action@beta
   with:
-    mode: "tag"
-    direct_prompt: "Review this PR for security issues"
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    custom_instructions: "Follow our coding standards"
-    max_turns: "10"
-    model: "claude-sonnet-4-5-20250929"
+      mode: 'tag'
+      direct_prompt: 'Review this PR for security issues'
+      anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      custom_instructions: 'Follow our coding standards'
+      max_turns: '10'
+      model: 'claude-sonnet-4-5-20250929'
 ```
 
 **GA version (v1.0):**
@@ -122,12 +122,12 @@ All beta users must make these changes to their workflow files in order to upgra
 ```yaml theme={null}
 - uses: anthropics/claude-code-action@v1
   with:
-    prompt: "Review this PR for security issues"
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    claude_args: |
-      --system-prompt "Follow our coding standards"
-      --max-turns 10
-      --model claude-sonnet-4-5-20250929
+      prompt: 'Review this PR for security issues'
+      anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      claude_args: |
+          --system-prompt "Follow our coding standards"
+          --max-turns 10
+          --model claude-sonnet-4-5-20250929
 ```
 
 <Tip>
@@ -143,18 +143,18 @@ Claude Code GitHub Actions can help you with a variety of tasks. The [examples d
 ```yaml theme={null}
 name: Claude Code
 on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
+    issue_comment:
+        types: [created]
+    pull_request_review_comment:
+        types: [created]
 jobs:
-  claude:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # Responds to @claude mentions in comments
+    claude:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: anthropics/claude-code-action@v1
+              with:
+                  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+                  # Responds to @claude mentions in comments
 ```
 
 ### Using slash commands
@@ -162,17 +162,17 @@ jobs:
 ```yaml theme={null}
 name: Code Review
 on:
-  pull_request:
-    types: [opened, synchronize]
+    pull_request:
+        types: [opened, synchronize]
 jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "/review"
-          claude_args: "--max-turns 5"
+    review:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: anthropics/claude-code-action@v1
+              with:
+                  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+                  prompt: '/review'
+                  claude_args: '--max-turns 5'
 ```
 
 ### Custom automation with prompts
@@ -180,17 +180,17 @@ jobs:
 ```yaml theme={null}
 name: Daily Report
 on:
-  schedule:
-    - cron: "0 9 * * *"
+    schedule:
+        - cron: '0 9 * * *'
 jobs:
-  report:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "Generate a summary of yesterday's commits and open issues"
-          claude_args: "--model claude-opus-4-5-20251101"
+    report:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: anthropics/claude-code-action@v1
+              with:
+                  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+                  prompt: "Generate a summary of yesterday's commits and open issues"
+                  claude_args: '--model claude-opus-4-5-20251101'
 ```
 
 ### Common use cases
@@ -259,9 +259,9 @@ The Claude Code Action v1 simplifies configuration with unified parameters:
 ```yaml theme={null}
 - uses: anthropics/claude-code-action@v1
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    prompt: "Your instructions here" # Optional
-    claude_args: "--max-turns 5" # Optional CLI arguments
+      anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      prompt: 'Your instructions here' # Optional
+      claude_args: '--max-turns 5' # Optional CLI arguments
 ```
 
 Key features:
@@ -646,7 +646,7 @@ The Claude Code Action v1 uses a simplified configuration:
 The `claude_args` parameter accepts any Claude Code CLI arguments:
 
 ```yaml theme={null}
-claude_args: "--max-turns 5 --model claude-sonnet-4-5-20250929 --mcp-config /path/to/config.json"
+claude_args: '--max-turns 5 --model claude-sonnet-4-5-20250929 --mcp-config /path/to/config.json'
 ```
 
 Common arguments:

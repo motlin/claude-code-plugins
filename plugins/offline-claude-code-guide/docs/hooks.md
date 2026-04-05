@@ -21,51 +21,51 @@ Hooks are organized by matchers, where each matcher can have multiple hooks:
 
 ```json theme={null}
 {
-  "hooks": {
-    "EventName": [
-      {
-        "matcher": "ToolPattern",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "your-command-here"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"EventName": [
+			{
+				"matcher": "ToolPattern",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "your-command-here"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
 - **matcher**: Pattern to match tool names, case-sensitive (only applicable for
   `PreToolUse`, `PermissionRequest`, and `PostToolUse`)
-  - Simple strings match exactly: `Write` matches only the Write tool
-  - Supports regex: `Edit|Write` or `Notebook.*`
-  - Use `*` to match all tools. You can also use empty string (`""`) or leave
-    `matcher` blank.
+    - Simple strings match exactly: `Write` matches only the Write tool
+    - Supports regex: `Edit|Write` or `Notebook.*`
+    - Use `*` to match all tools. You can also use empty string (`""`) or leave
+      `matcher` blank.
 - **hooks**: Array of hooks to execute when the pattern matches
-  - `type`: Hook execution type - `"command"` for bash commands or `"prompt"` for LLM-based evaluation
-  - `command`: (For `type: "command"`) The bash command to execute (can use `$CLAUDE_PROJECT_DIR` environment variable)
-  - `prompt`: (For `type: "prompt"`) The prompt to send to the LLM for evaluation
-  - `timeout`: (Optional) How long a hook should run, in seconds, before canceling that specific hook
+    - `type`: Hook execution type - `"command"` for bash commands or `"prompt"` for LLM-based evaluation
+    - `command`: (For `type: "command"`) The bash command to execute (can use `$CLAUDE_PROJECT_DIR` environment variable)
+    - `prompt`: (For `type: "prompt"`) The prompt to send to the LLM for evaluation
+    - `timeout`: (Optional) How long a hook should run, in seconds, before canceling that specific hook
 
 For events like `UserPromptSubmit`, `Stop`, and `SubagentStop`
 that don't use matchers, you can omit the matcher field:
 
 ```json theme={null}
 {
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/path/to/prompt-validator.py"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "/path/to/prompt-validator.py"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -77,19 +77,19 @@ ensuring they work regardless of Claude's current directory:
 
 ```json theme={null}
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-style.sh"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-style.sh"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -108,21 +108,21 @@ ensuring they work regardless of Claude's current directory:
 
 ```json theme={null}
 {
-  "description": "Automatic code formatting",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
+	"description": "Automatic code formatting",
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+						"timeout": 30
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -158,18 +158,18 @@ Instead of executing a bash command, prompt-based hooks:
 
 ```json theme={null}
 {
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Evaluate if Claude should stop: $ARGUMENTS. Check if all tasks are complete."
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "prompt",
+						"prompt": "Evaluate if Claude should stop: $ARGUMENTS. Check if all tasks are complete."
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -177,8 +177,8 @@ Instead of executing a bash command, prompt-based hooks:
 
 - `type`: Must be `"prompt"`
 - `prompt`: The prompt text to send to the LLM
-  - Use `$ARGUMENTS` as a placeholder for the hook input JSON
-  - If `$ARGUMENTS` is not present, input JSON is appended to the prompt
+    - Use `$ARGUMENTS` as a placeholder for the hook input JSON
+    - If `$ARGUMENTS` is not present, input JSON is appended to the prompt
 - `timeout`: (Optional) Timeout in seconds (default: 30 seconds)
 
 ### Response schema
@@ -217,19 +217,19 @@ Prompt-based hooks work with any hook event, but are most useful for:
 
 ```json theme={null}
 {
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "You are evaluating whether Claude should stop working. Context: $ARGUMENTS\n\nAnalyze the conversation and determine if:\n1. All user-requested tasks are complete\n2. Any errors need to be addressed\n3. Follow-up work is needed\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"your explanation\"}",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "prompt",
+						"prompt": "You are evaluating whether Claude should stop working. Context: $ARGUMENTS\n\nAnalyze the conversation and determine if:\n1. All user-requested tasks are complete\n2. Any errors need to be addressed\n3. Follow-up work is needed\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"your explanation\"}",
+						"timeout": 30
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -237,18 +237,18 @@ Prompt-based hooks work with any hook event, but are most useful for:
 
 ```json theme={null}
 {
-  "hooks": {
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Evaluate if this subagent should stop. Input: $ARGUMENTS\n\nCheck if:\n- The subagent completed its assigned task\n- Any errors occurred that need fixing\n- Additional context gathering is needed\n\nReturn: {\"decision\": \"approve\" or \"block\", \"reason\": \"explanation\"}"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "prompt",
+						"prompt": "Evaluate if this subagent should stop. Input: $ARGUMENTS\n\nCheck if:\n- The subagent completed its assigned task\n- Any errors occurred that need fixing\n- Additional context gathering is needed\n\nReturn: {\"decision\": \"approve\" or \"block\", \"reason\": \"explanation\"}"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -322,28 +322,28 @@ You can use matchers to run different hooks for different notification types, or
 
 ```json theme={null}
 {
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "permission_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/path/to/permission-alert.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/path/to/idle-notification.sh"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"Notification": [
+			{
+				"matcher": "permission_prompt",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "/path/to/permission-alert.sh"
+					}
+				]
+			},
+			{
+				"matcher": "idle_prompt",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "/path/to/idle-notification.sh"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -466,17 +466,17 @@ The exact schema for `tool_input` depends on the tool.
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/...",
-  "permission_mode": "default",
-  "hook_event_name": "PreToolUse",
-  "tool_name": "Write",
-  "tool_input": {
-    "file_path": "/path/to/file.txt",
-    "content": "file content"
-  },
-  "tool_use_id": "toolu_01ABC123..."
+	"session_id": "abc123",
+	"transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"cwd": "/Users/...",
+	"permission_mode": "default",
+	"hook_event_name": "PreToolUse",
+	"tool_name": "Write",
+	"tool_input": {
+		"file_path": "/path/to/file.txt",
+		"content": "file content"
+	},
+	"tool_use_id": "toolu_01ABC123..."
 }
 ```
 
@@ -486,21 +486,21 @@ The exact schema for `tool_input` and `tool_response` depends on the tool.
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/...",
-  "permission_mode": "default",
-  "hook_event_name": "PostToolUse",
-  "tool_name": "Write",
-  "tool_input": {
-    "file_path": "/path/to/file.txt",
-    "content": "file content"
-  },
-  "tool_response": {
-    "filePath": "/path/to/file.txt",
-    "success": true
-  },
-  "tool_use_id": "toolu_01ABC123..."
+	"session_id": "abc123",
+	"transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"cwd": "/Users/...",
+	"permission_mode": "default",
+	"hook_event_name": "PostToolUse",
+	"tool_name": "Write",
+	"tool_input": {
+		"file_path": "/path/to/file.txt",
+		"content": "file content"
+	},
+	"tool_response": {
+		"filePath": "/path/to/file.txt",
+		"success": true
+	},
+	"tool_use_id": "toolu_01ABC123..."
 }
 ```
 
@@ -508,13 +508,13 @@ The exact schema for `tool_input` and `tool_response` depends on the tool.
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/...",
-  "permission_mode": "default",
-  "hook_event_name": "Notification",
-  "message": "Claude needs your permission to use Bash",
-  "notification_type": "permission_prompt"
+	"session_id": "abc123",
+	"transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"cwd": "/Users/...",
+	"permission_mode": "default",
+	"hook_event_name": "Notification",
+	"message": "Claude needs your permission to use Bash",
+	"notification_type": "permission_prompt"
 }
 ```
 
@@ -522,12 +522,12 @@ The exact schema for `tool_input` and `tool_response` depends on the tool.
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/...",
-  "permission_mode": "default",
-  "hook_event_name": "UserPromptSubmit",
-  "prompt": "Write a function to calculate the factorial of a number"
+	"session_id": "abc123",
+	"transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"cwd": "/Users/...",
+	"permission_mode": "default",
+	"hook_event_name": "UserPromptSubmit",
+	"prompt": "Write a function to calculate the factorial of a number"
 }
 ```
 
@@ -539,11 +539,11 @@ from running indefinitely.
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "permission_mode": "default",
-  "hook_event_name": "Stop",
-  "stop_hook_active": true
+	"session_id": "abc123",
+	"transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"permission_mode": "default",
+	"hook_event_name": "Stop",
+	"stop_hook_active": true
 }
 ```
 
@@ -554,12 +554,12 @@ For `manual`, `custom_instructions` comes from what the user passes into
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "permission_mode": "default",
-  "hook_event_name": "PreCompact",
-  "trigger": "manual",
-  "custom_instructions": ""
+	"session_id": "abc123",
+	"transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"permission_mode": "default",
+	"hook_event_name": "PreCompact",
+	"trigger": "manual",
+	"custom_instructions": ""
 }
 ```
 
@@ -567,11 +567,11 @@ For `manual`, `custom_instructions` comes from what the user passes into
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "permission_mode": "default",
-  "hook_event_name": "SessionStart",
-  "source": "startup"
+	"session_id": "abc123",
+	"transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"permission_mode": "default",
+	"hook_event_name": "SessionStart",
+	"source": "startup"
 }
 ```
 
@@ -579,12 +579,12 @@ For `manual`, `custom_instructions` comes from what the user passes into
 
 ```json theme={null}
 {
-  "session_id": "abc123",
-  "transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
-  "cwd": "/Users/...",
-  "permission_mode": "default",
-  "hook_event_name": "SessionEnd",
-  "reason": "exit"
+	"session_id": "abc123",
+	"transcript_path": "~/.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+	"cwd": "/Users/...",
+	"permission_mode": "default",
+	"hook_event_name": "SessionEnd",
+	"reason": "exit"
 }
 ```
 
@@ -645,11 +645,11 @@ All hook types can include these optional fields:
 
 ```json theme={null}
 {
-  "continue": true, // Whether Claude should continue after hook execution (default: true)
-  "stopReason": "string", // Message shown when continue is false
+	"continue": true, // Whether Claude should continue after hook execution (default: true)
+	"stopReason": "string", // Message shown when continue is false
 
-  "suppressOutput": true, // Hide stdout from transcript mode (default: false)
-  "systemMessage": "string" // Optional warning message shown to the user
+	"suppressOutput": true, // Hide stdout from transcript mode (default: false)
+	"systemMessage": "string" // Optional warning message shown to the user
 }
 ```
 
@@ -713,15 +713,15 @@ Additionally, hooks can modify tool inputs before execution using `updatedInput`
 
 ```json theme={null}
 {
-  "hookSpecificOutput": {
-    "hookEventName": "PermissionRequest",
-    "decision": {
-      "behavior": "allow",
-      "updatedInput": {
-        "command": "npm run lint"
-      }
-    }
-  }
+	"hookSpecificOutput": {
+		"hookEventName": "PermissionRequest",
+		"decision": {
+			"behavior": "allow",
+			"updatedInput": {
+				"command": "npm run lint"
+			}
+		}
+	}
 }
 ```
 
@@ -808,10 +808,10 @@ the transcript; `additionalContext` is added more discretely.
 
 ```json theme={null}
 {
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": "My additional context here"
-  }
+	"hookSpecificOutput": {
+		"hookEventName": "SessionStart",
+		"additionalContext": "My additional context here"
+	}
 }
 ```
 
@@ -989,28 +989,28 @@ You can target specific MCP tools or entire MCP servers:
 
 ```json theme={null}
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "mcp__memory__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Memory operation initiated' >> ~/mcp-operations.log"
-          }
-        ]
-      },
-      {
-        "matcher": "mcp__.*__write.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/user/scripts/validate-mcp-write.py"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "mcp__memory__.*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "echo 'Memory operation initiated' >> ~/mcp-operations.log"
+					}
+				]
+			},
+			{
+				"matcher": "mcp__.*__write.*",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "/home/user/scripts/validate-mcp-write.py"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
@@ -1063,18 +1063,18 @@ This prevents malicious hook modifications from affecting your current session.
 ## Hook Execution Details
 
 - **Timeout**: 60-second execution limit by default, configurable per command.
-  - A timeout for an individual command does not affect the other commands.
+    - A timeout for an individual command does not affect the other commands.
 - **Parallelization**: All matching hooks run in parallel
 - **Deduplication**: Multiple identical hook commands are deduplicated automatically
 - **Environment**: Runs in current directory with Claude Code's environment
-  - The `CLAUDE_PROJECT_DIR` environment variable is available and contains the
-    absolute path to the project root directory (where Claude Code was started)
-  - The `CLAUDE_CODE_REMOTE` environment variable indicates whether the hook is running in a remote (web) environment (`"true"`) or local CLI environment (not set or empty). Use this to run different logic based on execution context.
+    - The `CLAUDE_PROJECT_DIR` environment variable is available and contains the
+      absolute path to the project root directory (where Claude Code was started)
+    - The `CLAUDE_CODE_REMOTE` environment variable indicates whether the hook is running in a remote (web) environment (`"true"`) or local CLI environment (not set or empty). Use this to run different logic based on execution context.
 - **Input**: JSON via stdin
 - **Output**:
-  - PreToolUse/PermissionRequest/PostToolUse/Stop/SubagentStop: Progress shown in verbose mode (ctrl+o)
-  - Notification/SessionEnd: Logged to debug only (`--debug`)
-  - UserPromptSubmit/SessionStart: stdout added as context for Claude
+    - PreToolUse/PermissionRequest/PostToolUse/Stop/SubagentStop: Progress shown in verbose mode (ctrl+o)
+    - Notification/SessionEnd: Logged to debug only (`--debug`)
+    - UserPromptSubmit/SessionStart: stdout added as context for Claude
 
 ## Debugging
 

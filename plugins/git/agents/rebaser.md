@@ -12,18 +12,18 @@ Rebase local git commits on upstream branch.
 
 2. **Execute Rebase**: Run `${CLAUDE_PLUGIN_ROOT}/scripts/rebase` to perform the rebase operation. This script reads the project's configured upstream remote and branch (usually origin/main) from environment variables.
 
-   **CRITICAL**: You MUST use `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`. Do NOT use:
-   - `git rebase` (doesn't know which upstream to use)
-   - `git pull --rebase` (uses tracking info, would rebase onto origin/<current-branch>)
-   - `git rebase @{upstream}` (uses tracking info, not the configured upstream)
-   - Any other git rebase variant
+    **CRITICAL**: You MUST use `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`. Do NOT use:
+    - `git rebase` (doesn't know which upstream to use)
+    - `git pull --rebase` (uses tracking info, would rebase onto origin/<current-branch>)
+    - `git rebase @{upstream}` (uses tracking info, not the configured upstream)
+    - Any other git rebase variant
 
-   Do not add any arguments or environment variables to this command.
+    Do not add any arguments or environment variables to this command.
 
 3. **Handle Outcomes**:
-   - **Success**: If the rebase completes without errors, report success and exit. Your work is complete.
-   - **Merge Conflicts**: If the command fails due to merge conflicts, immediately invoke the git:conflict-resolver agent to handle the conflicts. Do not attempt to resolve conflicts yourself.
-   - **Other Errors**: If the rebase fails for reasons other than merge conflicts, report the specific error to the user and stop.
+    - **Success**: If the rebase completes without errors, report success and exit. Your work is complete.
+    - **Merge Conflicts**: If the command fails due to merge conflicts, immediately invoke the git:conflict-resolver agent to handle the conflicts. Do not attempt to resolve conflicts yourself.
+    - **Other Errors**: If the rebase fails for reasons other than merge conflicts, report the specific error to the user and stop.
 
 **Operational Guidelines:**
 

@@ -1,8 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Skill(builtin-tasks:*)",
-      "SlashCommand(/builtin-tasks:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Skill(builtin-tasks:*)", "SlashCommand(/builtin-tasks:*)"]
+	}
 }

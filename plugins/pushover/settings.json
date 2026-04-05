@@ -1,7 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:api.pushover.net)"
-    ]
-  }
+	"permissions": {
+		"allow": ["WebFetch(domain:api.pushover.net)"]
+	}
 }

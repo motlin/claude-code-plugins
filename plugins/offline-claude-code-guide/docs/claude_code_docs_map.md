@@ -45,16 +45,16 @@ This map uses a hierarchical structure:
 ### [common-workflows](./common-workflows.md)
 
 - Understand new codebases
-  - Get a quick codebase overview
-  - Find relevant code
+    - Get a quick codebase overview
+    - Find relevant code
 - Fix bugs efficiently
 - Refactor code
 - Use specialized subagents
 - Use Plan Mode for safe code analysis
-  - When to use Plan Mode
-  - How to use Plan Mode
-  - Example: Planning a complex refactor
-  - Configure Plan Mode as default
+    - When to use Plan Mode
+    - How to use Plan Mode
+    - Example: Planning a complex refactor
+    - Configure Plan Mode as default
 - Work with tests
 - Create pull requests
 - Handle documentation
@@ -64,15 +64,15 @@ This map uses a hierarchical structure:
 - Resume previous conversations
 - Run parallel Claude Code sessions with Git worktrees
 - Use Claude as a unix-style utility
-  - Add Claude to your verification process
-  - Pipe in, pipe out
-  - Control output format
+    - Add Claude to your verification process
+    - Pipe in, pipe out
+    - Control output format
 - Create custom slash commands
-  - Create project-specific commands
-  - Add command arguments with \$ARGUMENTS
-  - Create personal slash commands
+    - Create project-specific commands
+    - Add command arguments with \$ARGUMENTS
+    - Create personal slash commands
 - Ask Claude about its capabilities
-  - Example questions
+    - Example questions
 - Next steps
 
 ### [claude-code-on-the-web](./claude-code-on-the-web.md)
@@ -82,38 +82,38 @@ This map uses a hierarchical structure:
 - Getting started
 - How it works
 - Moving tasks between web and terminal
-  - From web to terminal
+    - From web to terminal
 - Cloud environment
-  - Default image
-    - Checking available tools
-    - Language-specific setups
-  - Environment configuration
-  - Dependency management
-    - Local vs remote execution
-    - Persisting environment variables
+    - Default image
+        - Checking available tools
+        - Language-specific setups
+    - Environment configuration
+    - Dependency management
+        - Local vs remote execution
+        - Persisting environment variables
 - Network access and security
-  - Network policy
-    - GitHub proxy
-    - Security proxy
-  - Access levels
-  - Default allowed domains
-    - Anthropic Services
-    - Version Control
-    - Container Registries
-    - Cloud Platforms
-    - Package Managers - JavaScript/Node
-    - Package Managers - Python
-    - Package Managers - Ruby
-    - Package Managers - Rust
-    - Package Managers - Go
-    - Package Managers - JVM
-    - Package Managers - Other Languages
-    - Linux Distributions
-    - Development Tools & Platforms
-    - Cloud Services & Monitoring
-    - Content Delivery & Mirrors
-    - Schema & Configuration
-  - Security best practices for customized network access
+    - Network policy
+        - GitHub proxy
+        - Security proxy
+    - Access levels
+    - Default allowed domains
+        - Anthropic Services
+        - Version Control
+        - Container Registries
+        - Cloud Platforms
+        - Package Managers - JavaScript/Node
+        - Package Managers - Python
+        - Package Managers - Ruby
+        - Package Managers - Rust
+        - Package Managers - Go
+        - Package Managers - JVM
+        - Package Managers - Other Languages
+        - Linux Distributions
+        - Development Tools & Platforms
+        - Cloud Services & Monitoring
+        - Content Delivery & Mirrors
+        - Schema & Configuration
+    - Security best practices for customized network access
 - Security and isolation
 - Pricing and rate limits
 - Limitations
@@ -128,97 +128,97 @@ This map uses a hierarchical structure:
 - Key benefits
 - Quick start
 - Subagent configuration
-  - File locations
-  - Plugin agents
-  - CLI-based configuration
-  - File format
-    - Configuration fields
-  - Model selection
-  - Available tools
+    - File locations
+    - Plugin agents
+    - CLI-based configuration
+    - File format
+        - Configuration fields
+    - Model selection
+    - Available tools
 - Managing subagents
-  - Using the /agents command (Recommended)
-  - Direct file management
+    - Using the /agents command (Recommended)
+    - Direct file management
 - Using subagents effectively
-  - Automatic delegation
-  - Explicit invocation
+    - Automatic delegation
+    - Explicit invocation
 - Built-in subagents
-  - Plan subagent
+    - Plan subagent
 - Example subagents
-  - Code reviewer
-  - Debugger
-  - Data scientist
+    - Code reviewer
+    - Debugger
+    - Data scientist
 - Best practices
 - Advanced usage
-  - Chaining subagents
-  - Dynamic subagent selection
-  - Resumable subagents
+    - Chaining subagents
+    - Dynamic subagent selection
+    - Resumable subagents
 - Performance considerations
 - Related documentation
 
 ### [plugins](./plugins.md)
 
 - Quickstart
-  - Prerequisites
-  - Create your first plugin
-- Hello Command
-  - Plugin structure overview
-  - Install and manage plugins
     - Prerequisites
-    - Add marketplaces
-    - Install plugins
-      - Via interactive menu (recommended for discovery)
-      - Via direct commands (for quick installation)
-    - Verify installation
-  - Set up team plugin workflows
-  - Develop more complex plugins
-    - Add Skills to your plugin
-    - Organize complex plugins
-    - Test your plugins locally
-    - Debug plugin issues
-    - Share your plugins
-  - Next steps
-    - For plugin users
-    - For plugin developers
-    - For team leads and administrators
-  - See also
+    - Create your first plugin
+- Hello Command
+    - Plugin structure overview
+    - Install and manage plugins
+        - Prerequisites
+        - Add marketplaces
+        - Install plugins
+            - Via interactive menu (recommended for discovery)
+            - Via direct commands (for quick installation)
+        - Verify installation
+    - Set up team plugin workflows
+    - Develop more complex plugins
+        - Add Skills to your plugin
+        - Organize complex plugins
+        - Test your plugins locally
+        - Debug plugin issues
+        - Share your plugins
+    - Next steps
+        - For plugin users
+        - For plugin developers
+        - For team leads and administrators
+    - See also
 
 ### [skills](./skills.md)
 
 - Prerequisites
 - What are Agent Skills?
 - Create a Skill
-  - Personal Skills
-  - Project Skills
-  - Plugin Skills
+    - Personal Skills
+    - Project Skills
+    - Plugin Skills
 - Write SKILL.md
 - Add supporting files
 - Restrict tool access with allowed-tools
 - View available Skills
 - Test a Skill
 - Debug a Skill
-  - Make description specific
-  - Verify file path
-  - Check YAML syntax
-  - View errors
+    - Make description specific
+    - Verify file path
+    - Check YAML syntax
+    - View errors
 - Share Skills with your team
-  - Step 1: Add Skill to your project
-  - Step 2: Commit to git
-  - Step 3: Team members get Skills automatically
+    - Step 1: Add Skill to your project
+    - Step 2: Commit to git
+    - Step 3: Team members get Skills automatically
 - Update a Skill
 - Remove a Skill
 - Best practices
-  - Keep Skills focused
-  - Write clear descriptions
-  - Test with your team
-  - Document Skill versions
+    - Keep Skills focused
+    - Write clear descriptions
+    - Test with your team
+    - Document Skill versions
 - Troubleshooting
-  - Claude doesn't use my Skill
-  - Skill has errors
-  - Multiple Skills conflict
+    - Claude doesn't use my Skill
+    - Skill has errors
+    - Multiple Skills conflict
 - Examples
-  - Simple Skill (single file)
-  - Skill with tool permissions
-  - Multi-file Skill
+    - Simple Skill (single file)
+    - Skill with tool permissions
+    - Multi-file Skill
 - Next steps
 
 ### [output-styles](./output-styles.md)
@@ -228,26 +228,26 @@ This map uses a hierarchical structure:
 - Change your output style
 - Create a custom output style
 - Comparisons to related features
-  - Output Styles vs. CLAUDE.md vs. --append-system-prompt
-  - Output Styles vs. [Agents](/en/sub-agents)
-  - Output Styles vs. [Custom Slash Commands](/en/slash-commands)
+    - Output Styles vs. CLAUDE.md vs. --append-system-prompt
+    - Output Styles vs. [Agents](/en/sub-agents)
+    - Output Styles vs. [Custom Slash Commands](/en/slash-commands)
 
 ### [hooks-guide](./hooks-guide.md)
 
 - Hook Events Overview
 - Quickstart
-  - Prerequisites
-  - Step 1: Open hooks configuration
-  - Step 2: Add a matcher
-  - Step 3: Add the hook
-  - Step 4: Save your configuration
-  - Step 5: Verify your hook
-  - Step 6: Test your hook
+    - Prerequisites
+    - Step 1: Open hooks configuration
+    - Step 2: Add a matcher
+    - Step 3: Add the hook
+    - Step 4: Save your configuration
+    - Step 5: Verify your hook
+    - Step 6: Test your hook
 - More Examples
-  - Code Formatting Hook
-  - Markdown Formatting Hook
-  - Custom Notification Hook
-  - File Protection Hook
+    - Code Formatting Hook
+    - Markdown Formatting Hook
+    - Custom Notification Hook
+    - File Protection Hook
 - Learn more
 
 ### [headless](./headless.md)
@@ -257,16 +257,16 @@ This map uses a hierarchical structure:
 - Configuration Options
 - Multi-turn conversations
 - Output Formats
-  - Text Output (Default)
-  - JSON Output
-  - Streaming JSON Output
+    - Text Output (Default)
+    - JSON Output
+    - Streaming JSON Output
 - Input Formats
-  - Text Input (Default)
-  - Streaming JSON Input
+    - Text Input (Default)
+    - Streaming JSON Input
 - Agent Integration Examples
-  - SRE Incident Response Bot
-  - Automated Security Review
-  - Multi-turn Legal Assistant
+    - SRE Incident Response Bot
+    - Automated Security Review
+    - Multi-turn Legal Assistant
 - Best Practices
 - Related Resources
 
@@ -274,38 +274,38 @@ This map uses a hierarchical structure:
 
 - Why use Claude Code GitHub Actions?
 - What can Claude do?
-  - Claude Code Action
+    - Claude Code Action
 - Setup
 - Quick setup
 - Manual setup
 - Upgrading from Beta
-  - Essential changes
-  - Breaking Changes Reference
-  - Before and After Example
+    - Essential changes
+    - Breaking Changes Reference
+    - Before and After Example
 - Example use cases
-  - Basic workflow
-  - Using slash commands
-  - Custom automation with prompts
-  - Common use cases
+    - Basic workflow
+    - Using slash commands
+    - Custom automation with prompts
+    - Common use cases
 - Best practices
-  - CLAUDE.md configuration
-  - Security considerations
-  - Optimizing performance
-  - CI costs
+    - CLAUDE.md configuration
+    - Security considerations
+    - Optimizing performance
+    - CI costs
 - Configuration examples
 - Using with AWS Bedrock & Google Vertex AI
-  - Prerequisites
-    - For Google Cloud Vertex AI:
-    - For AWS Bedrock:
+    - Prerequisites
+        - For Google Cloud Vertex AI:
+        - For AWS Bedrock:
 - Troubleshooting
-  - Claude not responding to @claude commands
-  - CI not running on Claude's commits
-  - Authentication errors
+    - Claude not responding to @claude commands
+    - CI not running on Claude's commits
+    - Authentication errors
 - Advanced configuration
-  - Action parameters
-    - Using claude_args
-  - Alternative integration methods
-  - Customizing Claude's behavior
+    - Action parameters
+        - Using claude_args
+    - Alternative integration methods
+    - Customizing Claude's behavior
 
 ### [gitlab-ci-cd](./gitlab-ci-cd.md)
 
@@ -313,76 +313,76 @@ This map uses a hierarchical structure:
 - How it works
 - What can Claude do?
 - Setup
-  - Quick setup
-  - Manual setup (recommended for production)
+    - Quick setup
+    - Manual setup (recommended for production)
 - Example use cases
-  - Turn issues into MRs
-  - Get implementation help
-  - Fix bugs quickly
+    - Turn issues into MRs
+    - Get implementation help
+    - Fix bugs quickly
 - Using with AWS Bedrock & Google Vertex AI
 - Configuration examples
-  - Basic .gitlab-ci.yml (Claude API)
-  - AWS Bedrock job example (OIDC)
-  - Google Vertex AI job example (Workload Identity Federation)
+    - Basic .gitlab-ci.yml (Claude API)
+    - AWS Bedrock job example (OIDC)
+    - Google Vertex AI job example (Workload Identity Federation)
 - Best practices
-  - CLAUDE.md configuration
-  - Security considerations
-  - Optimizing performance
-  - CI costs
+    - CLAUDE.md configuration
+    - Security considerations
+    - Optimizing performance
+    - CI costs
 - Security and governance
 - Troubleshooting
-  - Claude not responding to @claude commands
-  - Job can't write comments or open MRs
-  - Authentication errors
+    - Claude not responding to @claude commands
+    - Job can't write comments or open MRs
+    - Authentication errors
 - Advanced configuration
-  - Common parameters and variables
-  - Customizing Claude's behavior
+    - Common parameters and variables
+    - Customizing Claude's behavior
 
 ### [mcp](./mcp.md)
 
 - What you can do with MCP
 - Popular MCP servers
 - Installing MCP servers
-  - Option 1: Add a remote HTTP server
-  - Option 2: Add a remote SSE server
-  - Option 3: Add a local stdio server
-  - Managing your servers
-  - Plugin-provided MCP servers
+    - Option 1: Add a remote HTTP server
+    - Option 2: Add a remote SSE server
+    - Option 3: Add a local stdio server
+    - Managing your servers
+    - Plugin-provided MCP servers
 - MCP installation scopes
-  - Local scope
-  - Project scope
-  - User scope
-  - Choosing the right scope
-  - Scope hierarchy and precedence
-  - Environment variable expansion in `.mcp.json`
+    - Local scope
+    - Project scope
+    - User scope
+    - Choosing the right scope
+    - Scope hierarchy and precedence
+    - Environment variable expansion in `.mcp.json`
 - Practical examples
-  - Example: Monitor errors with Sentry
-  - Example: Connect to GitHub for code reviews
-  - Example: Query your PostgreSQL database
+    - Example: Monitor errors with Sentry
+    - Example: Connect to GitHub for code reviews
+    - Example: Query your PostgreSQL database
 - Authenticate with remote MCP servers
 - Add MCP servers from JSON configuration
 - Import MCP servers from Claude Desktop
 - Use Claude Code as an MCP server
 - MCP output limits and warnings
 - Use MCP resources
-  - Reference MCP resources
+    - Reference MCP resources
 - Use MCP prompts as slash commands
-  - Execute MCP prompts
+    - Execute MCP prompts
 - Enterprise MCP configuration
-  - Setting up enterprise MCP configuration
-  - Restricting MCP servers with allowlists and denylists
+    - Setting up enterprise MCP configuration
+    - Restricting MCP servers with allowlists and denylists
 
 ### [migration-guide](./migration-guide.md)
 
 - Overview
 - What's Changed
 - Migration Steps
-  - For TypeScript/JavaScript Projects
-  - For Python Projects
+    - For TypeScript/JavaScript Projects
+    - For Python Projects
 - Breaking changes
-  - Python: ClaudeCodeOptions renamed to ClaudeAgentOptions
-  - System prompt no longer default
-  - Settings Sources No Longer Loaded by Default
+    - Python: ClaudeCodeOptions renamed to ClaudeAgentOptions
+    - System prompt no longer default
+    - Settings Sources No Longer Loaded by Default
 - Why the Rename?
 - Getting Help
 - Next Steps
@@ -390,27 +390,27 @@ This map uses a hierarchical structure:
 ### [troubleshooting](./troubleshooting.md)
 
 - Common installation issues
-  - Windows installation issues: errors in WSL
-  - Linux and Mac installation issues: permission or command not found errors
-    - Recommended solution: Native Claude Code installation
-    - Alternative solution: Migrate to local installation
+    - Windows installation issues: errors in WSL
+    - Linux and Mac installation issues: permission or command not found errors
+        - Recommended solution: Native Claude Code installation
+        - Alternative solution: Migrate to local installation
 - Permissions and authentication
-  - Repeated permission prompts
-  - Authentication issues
+    - Repeated permission prompts
+    - Authentication issues
 - Performance and stability
-  - High CPU or memory usage
-  - Command hangs or freezes
-  - Search and discovery issues
-  - Slow or incomplete search results on WSL
+    - High CPU or memory usage
+    - Command hangs or freezes
+    - Search and discovery issues
+    - Slow or incomplete search results on WSL
 - IDE integration issues
-  - JetBrains IDE not detected on WSL2
-    - WSL2 networking modes
-  - Reporting Windows IDE integration issues (both native and WSL)
-  - ESC key not working in JetBrains (IntelliJ, PyCharm, etc.) terminals
+    - JetBrains IDE not detected on WSL2
+        - WSL2 networking modes
+    - Reporting Windows IDE integration issues (both native and WSL)
+    - ESC key not working in JetBrains (IntelliJ, PyCharm, etc.) terminals
 - Markdown formatting issues
-  - Missing language tags in code blocks
-  - Inconsistent spacing and formatting
-  - Best practices for markdown generation
+    - Missing language tags in code blocks
+    - Inconsistent spacing and formatting
+    - Best practices for markdown generation
 - Getting more help
 
 ## Deployment
@@ -421,36 +421,36 @@ This map uses a hierarchical structure:
 - Cloud providers
 - Corporate infrastructure
 - Configuration overview
-  - Using Bedrock with corporate proxy
-  - Using Bedrock with LLM Gateway
-  - Using Vertex AI with corporate proxy
-  - Using Vertex AI with LLM Gateway
-  - Authentication configuration
+    - Using Bedrock with corporate proxy
+    - Using Bedrock with LLM Gateway
+    - Using Vertex AI with corporate proxy
+    - Using Vertex AI with LLM Gateway
+    - Authentication configuration
 - Choosing the right deployment configuration
-  - Direct provider access
-  - Corporate proxy
-  - LLM Gateway
+    - Direct provider access
+    - Corporate proxy
+    - LLM Gateway
 - Debugging
 - Best practices for organizations
-  - 1. Invest in documentation and memory
-  - 2. Simplify deployment
-  - 3. Start with guided usage
-  - 4. Configure security policies
-  - 5. Leverage MCP for integrations
+    -   1. Invest in documentation and memory
+    -   2. Simplify deployment
+    -   3. Start with guided usage
+    -   4. Configure security policies
+    -   5. Leverage MCP for integrations
 - Next steps
 
 ### [amazon-bedrock](./amazon-bedrock.md)
 
 - Prerequisites
 - Setup
-  - 1. Submit use case details
-  - 2. Configure AWS credentials
-    - Advanced credential configuration
-      - Example configuration
-      - Configuration settings explained
-  - 3. Configure Claude Code
-  - 4. Model configuration
-  - 5. Output token configuration
+    -   1. Submit use case details
+    -   2. Configure AWS credentials
+        - Advanced credential configuration
+            - Example configuration
+            - Configuration settings explained
+    -   3. Configure Claude Code
+    -   4. Model configuration
+    -   5. Output token configuration
 - IAM configuration
 - Troubleshooting
 - Additional resources
@@ -460,11 +460,11 @@ This map uses a hierarchical structure:
 - Prerequisites
 - Region Configuration
 - Setup
-  - 1. Enable Vertex AI API
-  - 2. Request model access
-  - 3. Configure GCP credentials
-  - 4. Configure Claude Code
-  - 5. Model configuration
+    -   1. Enable Vertex AI API
+    -   2. Request model access
+    -   3. Configure GCP credentials
+    -   4. Configure Claude Code
+    -   5. Model configuration
 - IAM configuration
 - 1M token context window
 - Troubleshooting
@@ -473,8 +473,8 @@ This map uses a hierarchical structure:
 ### [network-config](./network-config.md)
 
 - Proxy configuration
-  - Environment variables
-  - Basic authentication
+    - Environment variables
+    - Basic authentication
 - Custom CA certificates
 - mTLS authentication
 - Network access requirements
@@ -483,17 +483,17 @@ This map uses a hierarchical structure:
 ### [llm-gateway](./llm-gateway.md)
 
 - LiteLLM configuration
-  - Prerequisites
-  - Basic LiteLLM setup
-    - Authentication methods
-      - Static API key
-      - Dynamic API key with helper
-    - Unified endpoint (recommended)
-    - Provider-specific pass-through endpoints (alternative)
-      - Claude API through LiteLLM
-      - Amazon Bedrock through LiteLLM
-      - Google Vertex AI through LiteLLM
-  - Model selection
+    - Prerequisites
+    - Basic LiteLLM setup
+        - Authentication methods
+            - Static API key
+            - Dynamic API key with helper
+        - Unified endpoint (recommended)
+        - Provider-specific pass-through endpoints (alternative)
+            - Claude API through LiteLLM
+            - Amazon Bedrock through LiteLLM
+            - Google Vertex AI through LiteLLM
+    - Model selection
 - Additional resources
 
 ### [devcontainer](./devcontainer.md)
@@ -504,9 +504,9 @@ This map uses a hierarchical structure:
 - Security features
 - Customization options
 - Example use cases
-  - Secure client work
-  - Team onboarding
-  - Consistent CI/CD environments
+    - Secure client work
+    - Team onboarding
+    - Consistent CI/CD environments
 - Related resources
 
 ### [sandboxing](./sandboxing.md)
@@ -514,20 +514,20 @@ This map uses a hierarchical structure:
 - Overview
 - Why sandboxing matters
 - How it works
-  - Filesystem isolation
-  - Network isolation
-  - OS-level enforcement
+    - Filesystem isolation
+    - Network isolation
+    - OS-level enforcement
 - Getting started
-  - Enable sandboxing
-  - Configure sandboxing
+    - Enable sandboxing
+    - Configure sandboxing
 - Security benefits
-  - Protection against prompt injection
-  - Reduced attack surface
-  - Transparent operation
+    - Protection against prompt injection
+    - Reduced attack surface
+    - Transparent operation
 - Security Limitations
 - Advanced usage
-  - Custom proxy configuration
-  - Integration with existing security tools
+    - Custom proxy configuration
+    - Integration with existing security tools
 - Best practices
 - Open source
 - Limitations
@@ -538,64 +538,64 @@ This map uses a hierarchical structure:
 ### [setup](./setup.md)
 
 - System requirements
-  - Additional dependencies
+    - Additional dependencies
 - Standard installation
 - Windows setup
 - Alternative installation methods
-  - Native installation options
-  - NPM installation
-  - Local installation
+    - Native installation options
+    - NPM installation
+    - Local installation
 - Running on AWS or GCP
 - Update Claude Code
-  - Auto updates
-  - Update manually
+    - Auto updates
+    - Update manually
 
 ### [iam](./iam.md)
 
 - Authentication methods
-  - Claude API authentication
-  - Cloud provider authentication
+    - Claude API authentication
+    - Cloud provider authentication
 - Access control and permissions
-  - Permission system
-  - Configuring permissions
-    - Permission modes
-    - Working directories
-    - Tool-specific permission rules
-  - Additional permission control with hooks
-  - Enterprise managed policy settings
-  - Settings precedence
+    - Permission system
+    - Configuring permissions
+        - Permission modes
+        - Working directories
+        - Tool-specific permission rules
+    - Additional permission control with hooks
+    - Enterprise managed policy settings
+    - Settings precedence
 - Credential management
 
 ### [security](./security.md)
 
 - How we approach security
-  - Security foundation
-  - Permission-based architecture
-  - Built-in protections
-  - User responsibility
+    - Security foundation
+    - Permission-based architecture
+    - Built-in protections
+    - User responsibility
 - Protect against prompt injection
-  - Core protections
-  - Privacy safeguards
-  - Additional safeguards
+    - Core protections
+    - Privacy safeguards
+    - Additional safeguards
 - MCP security
 - IDE security
 - Cloud execution security
 - Security best practices
-  - Working with sensitive code
-  - Team security
-  - Reporting security issues
+    - Working with sensitive code
+    - Team security
+    - Reporting security issues
 - Related resources
 
 ### [data-usage](./data-usage.md)
 
 - Data policies
-  - Data training policy
-  - Development Partner Program
-  - Feedback using the `/bug` command
-  - Session quality surveys
-  - Data retention
+    - Data training policy
+    - Development Partner Program
+    - Feedback using the `/bug` command
+    - Session quality surveys
+    - Data retention
 - Data flow and dependencies
-  - Cloud execution
+    - Cloud execution
 - Telemetry services
 - Default behaviors by API provider
 
@@ -604,40 +604,40 @@ This map uses a hierarchical structure:
 - Quick Start
 - Administrator Configuration
 - Configuration Details
-  - Common Configuration Variables
-  - Metrics Cardinality Control
-  - Dynamic Headers
-    - Settings Configuration
-    - Script Requirements
-    - Important Limitations
-  - Multi-Team Organization Support
-  - Example Configurations
+    - Common Configuration Variables
+    - Metrics Cardinality Control
+    - Dynamic Headers
+        - Settings Configuration
+        - Script Requirements
+        - Important Limitations
+    - Multi-Team Organization Support
+    - Example Configurations
 - Available Metrics and Events
-  - Standard Attributes
-  - Metrics
-  - Metric Details
-    - Session Counter
-    - Lines of Code Counter
-    - Pull Request Counter
-    - Commit Counter
-    - Cost Counter
-    - Token Counter
-    - Code Edit Tool Decision Counter
-    - Active Time Counter
-  - Events
-    - User Prompt Event
-    - Tool Result Event
-    - API Request Event
-    - API Error Event
-    - Tool Decision Event
+    - Standard Attributes
+    - Metrics
+    - Metric Details
+        - Session Counter
+        - Lines of Code Counter
+        - Pull Request Counter
+        - Commit Counter
+        - Cost Counter
+        - Token Counter
+        - Code Edit Tool Decision Counter
+        - Active Time Counter
+    - Events
+        - User Prompt Event
+        - Tool Result Event
+        - API Request Event
+        - API Error Event
+        - Tool Decision Event
 - Interpreting Metrics and Events Data
-  - Usage Monitoring
-  - Cost Monitoring
-  - Alerting and Segmentation
-  - Event Analysis
+    - Usage Monitoring
+    - Cost Monitoring
+    - Alerting and Segmentation
+    - Event Analysis
 - Backend Considerations
-  - For Metrics:
-  - For Events/Logs:
+    - For Metrics:
+    - For Events/Logs:
 - Service Information
 - ROI Measurement Resources
 - Security/Privacy Considerations
@@ -646,73 +646,73 @@ This map uses a hierarchical structure:
 ### [costs](./costs.md)
 
 - Track your costs
-  - Using the `/cost` command
-  - Additional tracking options
+    - Using the `/cost` command
+    - Additional tracking options
 - Managing costs for teams
-  - Rate limit recommendations
+    - Rate limit recommendations
 - Reduce token usage
 - Background token usage
 - Tracking version changes and updates
-  - Current version information
-  - Understanding changes in Claude Code behavior
-  - When cost reporting changes
+    - Current version information
+    - Understanding changes in Claude Code behavior
+    - When cost reporting changes
 
 ### [analytics](./analytics.md)
 
 - Access analytics
-  - Required roles
+    - Required roles
 - Available metrics
-  - Lines of code accepted
-  - Suggestion accept rate
-  - Activity
-  - Spend
-  - Team insights
+    - Lines of code accepted
+    - Suggestion accept rate
+    - Activity
+    - Spend
+    - Team insights
 - Using analytics effectively
-  - Monitor adoption
-  - Measure productivity
+    - Monitor adoption
+    - Measure productivity
 - Related resources
 
 ### [plugin-marketplaces](./plugin-marketplaces.md)
 
 - Overview
-  - Prerequisites
+    - Prerequisites
 - Add and use marketplaces
-  - Add GitHub marketplaces
-  - Add Git repositories
-  - Add local marketplaces for development
-  - Install plugins from marketplaces
-  - Verify marketplace installation
+    - Add GitHub marketplaces
+    - Add Git repositories
+    - Add local marketplaces for development
+    - Install plugins from marketplaces
+    - Verify marketplace installation
 - Configure team marketplaces
 - Create your own marketplace
-  - Prerequisites for marketplace creation
-  - Create the marketplace file
-  - Marketplace schema
-    - Required fields
-    - Optional metadata
-  - Plugin entries
-    - Optional plugin fields
-  - Plugin sources
-    - Relative paths
-    - GitHub repositories
-    - Git repositories
-    - Advanced plugin entries
+    - Prerequisites for marketplace creation
+    - Create the marketplace file
+    - Marketplace schema
+        - Required fields
+        - Optional metadata
+    - Plugin entries
+        - Optional plugin fields
+    - Plugin sources
+        - Relative paths
+        - GitHub repositories
+        - Git repositories
+        - Advanced plugin entries
 - Host and distribute marketplaces
-  - Host on GitHub (recommended)
-  - Host on other git services
-  - Use local marketplaces for development
+    - Host on GitHub (recommended)
+    - Host on other git services
+    - Use local marketplaces for development
 - Manage marketplace operations
-  - List known marketplaces
-  - Update marketplace metadata
-  - Remove a marketplace
+    - List known marketplaces
+    - Update marketplace metadata
+    - Remove a marketplace
 - Troubleshooting marketplaces
-  - Common marketplace issues
-    - Marketplace not loading
-    - Plugin installation failures
-  - Validation and testing
+    - Common marketplace issues
+        - Marketplace not loading
+        - Plugin installation failures
+    - Validation and testing
 - Next steps
-  - For marketplace users
-  - For marketplace creators
-  - For organizations
+    - For marketplace users
+    - For marketplace creators
+    - For organizations
 - See also
 
 ## Configuration
@@ -720,88 +720,88 @@ This map uses a hierarchical structure:
 ### [settings](./settings.md)
 
 - Settings files
-  - Available settings
-  - Permission settings
-  - Sandbox settings
-  - Settings precedence
-  - Key points about the configuration system
-  - System prompt availability
-  - Excluding sensitive files
+    - Available settings
+    - Permission settings
+    - Sandbox settings
+    - Settings precedence
+    - Key points about the configuration system
+    - System prompt availability
+    - Excluding sensitive files
 - Subagent configuration
 - Plugin configuration
-  - Plugin settings
-    - `enabledPlugins`
-    - `extraKnownMarketplaces`
-  - Managing plugins
+    - Plugin settings
+        - `enabledPlugins`
+        - `extraKnownMarketplaces`
+    - Managing plugins
 - Environment variables
 - Tools available to Claude
-  - Extending tools with hooks
+    - Extending tools with hooks
 - See also
 
 ### [vs-code](./vs-code.md)
 
 - VS Code Extension (Beta)
-  - Features
-  - Requirements
-  - Installation
-  - How It Works
-  - Using Third-Party Providers (Vertex and Bedrock)
-    - Environment Variables
-  - Not Yet Implemented
+    - Features
+    - Requirements
+    - Installation
+    - How It Works
+    - Using Third-Party Providers (Vertex and Bedrock)
+        - Environment Variables
+    - Not Yet Implemented
 - Security Considerations
 - Legacy CLI Integration
 - Troubleshooting
-  - Extension Not Installing
-  - Legacy Integration Not Working
+    - Extension Not Installing
+    - Legacy Integration Not Working
 
 ### [jetbrains](./jetbrains.md)
 
 - Supported IDEs
 - Features
 - Installation
-  - Marketplace Installation
-  - Auto-Installation
+    - Marketplace Installation
+    - Auto-Installation
 - Usage
-  - From Your IDE
-  - From External Terminals
+    - From Your IDE
+    - From External Terminals
 - Configuration
-  - Claude Code Settings
-  - Plugin Settings
-    - General Settings
-    - ESC Key Configuration
+    - Claude Code Settings
+    - Plugin Settings
+        - General Settings
+        - ESC Key Configuration
 - Special Configurations
-  - Remote Development
-  - WSL Configuration
+    - Remote Development
+    - WSL Configuration
 - Troubleshooting
-  - Plugin Not Working
-  - IDE Not Detected
-  - Command Not Found
+    - Plugin Not Working
+    - IDE Not Detected
+    - Command Not Found
 - Security Considerations
 
 ### [terminal-config](./terminal-config.md)
 
 - Themes and appearance
 - Line breaks
-  - Set up Shift+Enter (VS Code or iTerm2):
-  - Set up Option+Enter (VS Code, iTerm2 or macOS Terminal.app):
+    - Set up Shift+Enter (VS Code or iTerm2):
+    - Set up Option+Enter (VS Code, iTerm2 or macOS Terminal.app):
 - Notification setup
-  - iTerm 2 system notifications
-  - Custom notification hooks
+    - iTerm 2 system notifications
+    - Custom notification hooks
 - Handling large inputs
 - Vim Mode
 
 ### [model-config](./model-config.md)
 
 - Available models
-  - Model aliases
-  - Setting your model
+    - Model aliases
+    - Setting your model
 - Special model behavior
-  - `default` model setting
-  - `opusplan` model setting
-  - Extended context with \[1m]
+    - `default` model setting
+    - `opusplan` model setting
+    - Extended context with \[1m]
 - Checking your current model
 - Environment variables
-  - Prompt caching configuration
+    - Prompt caching configuration
 
 ### [memory](./memory.md)
 
@@ -820,11 +820,11 @@ This map uses a hierarchical structure:
 - How it Works
 - JSON Input Structure
 - Example Scripts
-  - Simple Status Line
-  - Git-Aware Status Line
-  - Python Example
-  - Node.js Example
-  - Helper Function Approach
+    - Simple Status Line
+    - Git-Aware Status Line
+    - Python Example
+    - Node.js Example
+    - Helper Function Approach
 - Tips
 - Troubleshooting
 
@@ -834,182 +834,182 @@ This map uses a hierarchical structure:
 
 - CLI commands
 - CLI flags
-  - Agents flag format
-  - System prompt flags
+    - Agents flag format
+    - System prompt flags
 - See also
 
 ### [interactive-mode](./interactive-mode.md)
 
 - Keyboard shortcuts
-  - General controls
-  - Multiline input
-  - Quick commands
+    - General controls
+    - Multiline input
+    - Quick commands
 - Vim editor mode
-  - Mode switching
-  - Navigation (NORMAL mode)
-  - Editing (NORMAL mode)
+    - Mode switching
+    - Navigation (NORMAL mode)
+    - Editing (NORMAL mode)
 - Command history
-  - Reverse search with Ctrl+R
+    - Reverse search with Ctrl+R
 - Background bash commands
-  - How backgrounding works
-  - Bash mode with `!` prefix
+    - How backgrounding works
+    - Bash mode with `!` prefix
 - See also
 
 ### [slash-commands](./slash-commands.md)
 
 - Built-in slash commands
 - Custom slash commands
-  - Syntax
-    - Parameters
-  - Command types
-    - Project commands
-    - Personal commands
-  - Features
-    - Namespacing
-    - Arguments
-      - All arguments with `$ARGUMENTS`
-      - Individual arguments with `$1`, `$2`, etc.
-    - Bash command execution
-    - File references
-    - Thinking mode
-  - Frontmatter
+    - Syntax
+        - Parameters
+    - Command types
+        - Project commands
+        - Personal commands
+    - Features
+        - Namespacing
+        - Arguments
+            - All arguments with `$ARGUMENTS`
+            - Individual arguments with `$1`, `$2`, etc.
+        - Bash command execution
+        - File references
+        - Thinking mode
+    - Frontmatter
 - Plugin commands
-  - How plugin commands work
-  - Plugin command structure
-  - Invocation patterns
+    - How plugin commands work
+    - Plugin command structure
+    - Invocation patterns
 - MCP slash commands
-  - Command format
-  - Features
-    - Dynamic discovery
-    - Arguments
-    - Naming conventions
-  - Managing MCP connections
-  - MCP permissions and wildcards
+    - Command format
+    - Features
+        - Dynamic discovery
+        - Arguments
+        - Naming conventions
+    - Managing MCP connections
+    - MCP permissions and wildcards
 - `SlashCommand` tool
-  - `SlashCommand` tool supported commands
-  - Disable `SlashCommand` tool
-  - Disable specific commands only
-  - `SlashCommand` permission rules
-  - Character budget limit
+    - `SlashCommand` tool supported commands
+    - Disable `SlashCommand` tool
+    - Disable specific commands only
+    - `SlashCommand` permission rules
+    - Character budget limit
 - Skills vs slash commands
-  - Use slash commands for
-  - Use Skills for
-  - Key differences
-  - Example comparison
-  - When to use each
+    - Use slash commands for
+    - Use Skills for
+    - Key differences
+    - Example comparison
+    - When to use each
 - See also
 
 ### [checkpointing](./checkpointing.md)
 
 - How checkpoints work
-  - Automatic tracking
-  - Rewinding changes
+    - Automatic tracking
+    - Rewinding changes
 - Common use cases
 - Limitations
-  - Bash command changes not tracked
-  - External changes not tracked
-  - Not a replacement for version control
+    - Bash command changes not tracked
+    - External changes not tracked
+    - Not a replacement for version control
 - See also
 
 ### [hooks](./hooks.md)
 
 - Configuration
-  - Structure
-  - Project-Specific Hook Scripts
-  - Plugin hooks
+    - Structure
+    - Project-Specific Hook Scripts
+    - Plugin hooks
 - Prompt-Based Hooks
-  - How prompt-based hooks work
-  - Configuration
-  - Response schema
-  - Supported hook events
-  - Example: Intelligent Stop hook
-  - Example: SubagentStop with custom logic
-  - Comparison with bash command hooks
-  - Best practices
+    - How prompt-based hooks work
+    - Configuration
+    - Response schema
+    - Supported hook events
+    - Example: Intelligent Stop hook
+    - Example: SubagentStop with custom logic
+    - Comparison with bash command hooks
+    - Best practices
 - Hook Events
-  - PreToolUse
-  - PermissionRequest
-  - PostToolUse
-  - Notification
-  - UserPromptSubmit
-  - Stop
-  - SubagentStop
-  - PreCompact
-  - SessionStart
-    - Persisting environment variables
-  - SessionEnd
+    - PreToolUse
+    - PermissionRequest
+    - PostToolUse
+    - Notification
+    - UserPromptSubmit
+    - Stop
+    - SubagentStop
+    - PreCompact
+    - SessionStart
+        - Persisting environment variables
+    - SessionEnd
 - Hook Input
-  - PreToolUse Input
-  - PermissionRequest
-  - PostToolUse Input
-  - Notification Input
-  - UserPromptSubmit Input
-  - Stop and SubagentStop Input
-  - PreCompact Input
-  - SessionStart Input
-  - SessionEnd Input
+    - PreToolUse Input
+    - PermissionRequest
+    - PostToolUse Input
+    - Notification Input
+    - UserPromptSubmit Input
+    - Stop and SubagentStop Input
+    - PreCompact Input
+    - SessionStart Input
+    - SessionEnd Input
 - Hook Output
-  - Simple: Exit Code
-    - Exit Code 2 Behavior
-  - Advanced: JSON Output
-    - Common JSON Fields
-    - `PreToolUse` Decision Control
-    - `PermissionRequest` Decision Control
-    - `PostToolUse` Decision Control
-    - `UserPromptSubmit` Decision Control
-    - `Stop`/`SubagentStop` Decision Control
-    - `SessionStart` Decision Control
-    - `SessionEnd` Decision Control
-    - Exit Code Example: Bash Command Validation
-    - JSON Output Example: UserPromptSubmit to Add Context and Validation
-    - JSON Output Example: PreToolUse with Approval
+    - Simple: Exit Code
+        - Exit Code 2 Behavior
+    - Advanced: JSON Output
+        - Common JSON Fields
+        - `PreToolUse` Decision Control
+        - `PermissionRequest` Decision Control
+        - `PostToolUse` Decision Control
+        - `UserPromptSubmit` Decision Control
+        - `Stop`/`SubagentStop` Decision Control
+        - `SessionStart` Decision Control
+        - `SessionEnd` Decision Control
+        - Exit Code Example: Bash Command Validation
+        - JSON Output Example: UserPromptSubmit to Add Context and Validation
+        - JSON Output Example: PreToolUse with Approval
 - Working with MCP Tools
-  - MCP Tool Naming
-  - Configuring Hooks for MCP Tools
+    - MCP Tool Naming
+    - Configuring Hooks for MCP Tools
 - Examples
 - Security Considerations
-  - Disclaimer
-  - Security Best Practices
-  - Configuration Safety
+    - Disclaimer
+    - Security Best Practices
+    - Configuration Safety
 - Hook Execution Details
 - Debugging
-  - Basic Troubleshooting
-  - Advanced Debugging
-  - Debug Output Example
+    - Basic Troubleshooting
+    - Advanced Debugging
+    - Debug Output Example
 
 ### [plugins-reference](./plugins-reference.md)
 
 - Plugin components reference
-  - Commands
-  - Agents
-  - Skills
-  - Hooks
-  - MCP servers
+    - Commands
+    - Agents
+    - Skills
+    - Hooks
+    - MCP servers
 - Plugin manifest schema
-  - Complete schema
-  - Required fields
-  - Metadata fields
-  - Component path fields
-  - Path behavior rules
-  - Environment variables
+    - Complete schema
+    - Required fields
+    - Metadata fields
+    - Component path fields
+    - Path behavior rules
+    - Environment variables
 - Plugin directory structure
-  - Standard plugin layout
-  - File locations reference
+    - Standard plugin layout
+    - File locations reference
 - Debugging and development tools
-  - Debugging commands
-  - Common issues
+    - Debugging commands
+    - Common issues
 - Distribution and versioning reference
-  - Version management
+    - Version management
 
 ## Resources
 
 ### [legal-and-compliance](./legal-and-compliance.md)
 
 - Legal agreements
-  - License
-  - Commercial agreements
+    - License
+    - Commercial agreements
 - Compliance
-  - Healthcare compliance (BAA)
+    - Healthcare compliance (BAA)
 - Security and trust
-  - Trust and safety
-  - Security vulnerability reporting
+    - Trust and safety
+    - Security vulnerability reporting

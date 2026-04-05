@@ -231,7 +231,7 @@ We strongly recommend investing in documentation so that Claude Code understands
 - **Organization-wide**: Deploy to system directories like `/Library/Application Support/ClaudeCode/CLAUDE.md` (macOS) for company-wide standards
 - **Repository-level**: Create `CLAUDE.md` files in repository roots containing project architecture, build commands, and contribution guidelines. Check these into source control so all users benefit
 
-  [Learn more](/en/memory).
+    [Learn more](/en/memory).
 
 ### 2. Simplify deployment
 

@@ -20,11 +20,11 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 1. Track attempt count and previously attempted tasks to prevent infinite loops
 2. Call `TaskList` to find the first pending, unblocked task
 3. If a task is found:
-   - Check if we have already attempted this task 1 time
-   - If yes, skip it and continue to the next task
-   - If no, launch the `builtin-tasks:do-task` agent to implement it
-   - **Do NOT add instructions to the agent prompt** — the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
-   - Do NOT mark the task as complete yourself — the `do-task` agent does this
+    - Check if we have already attempted this task 1 time
+    - If yes, skip it and continue to the next task
+    - If no, launch the `builtin-tasks:do-task` agent to implement it
+    - **Do NOT add instructions to the agent prompt** — the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
+    - Do NOT mark the task as complete yourself — the `do-task` agent does this
 4. Repeat until no incomplete tasks remain or the user's instructions are met
 5. When all tasks are completed, report the final status
 

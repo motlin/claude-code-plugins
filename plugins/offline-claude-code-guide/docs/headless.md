@@ -71,15 +71,15 @@ Response format:
 
 ```json theme={null}
 {
-  "type": "result",
-  "subtype": "success",
-  "total_cost_usd": 0.003,
-  "is_error": false,
-  "duration_ms": 1234,
-  "duration_api_ms": 800,
-  "num_turns": 6,
-  "result": "The response text here...",
-  "session_id": "abc123"
+	"type": "result",
+	"subtype": "success",
+	"total_cost_usd": 0.003,
+	"is_error": false,
+	"duration_ms": 1234,
+	"duration_api_ms": 800,
+	"num_turns": 6,
+	"result": "The response text here...",
+	"session_id": "abc123"
 }
 ```
 
@@ -171,30 +171,30 @@ claude -p --resume "$session_id" "Generate executive summary of risks"
 
 - **Use JSON output format** for programmatic parsing of responses:
 
-  ```bash theme={null}
-  # Parse JSON response with jq
-  result=$(claude -p "Generate code" --output-format json)
-  code=$(echo "$result" | jq -r '.result')
-  cost=$(echo "$result" | jq -r '.cost_usd')
-  ```
+    ```bash theme={null}
+    # Parse JSON response with jq
+    result=$(claude -p "Generate code" --output-format json)
+    code=$(echo "$result" | jq -r '.result')
+    cost=$(echo "$result" | jq -r '.cost_usd')
+    ```
 
 - **Handle errors gracefully** - check exit codes and stderr:
 
-  ```bash theme={null}
-  if ! claude -p "$prompt" 2>error.log; then
-      echo "Error occurred:" >&2
-      cat error.log >&2
-      exit 1
-  fi
-  ```
+    ```bash theme={null}
+    if ! claude -p "$prompt" 2>error.log; then
+        echo "Error occurred:" >&2
+        cat error.log >&2
+        exit 1
+    fi
+    ```
 
 - **Use session management** for maintaining context in multi-turn conversations
 
 - **Consider timeouts** for long-running operations:
 
-  ```bash theme={null}
-  timeout 300 claude -p "$complex_prompt" || echo "Timed out after 5 minutes"
-  ```
+    ```bash theme={null}
+    timeout 300 claude -p "$complex_prompt" || echo "Timed out after 5 minutes"
+    ```
 
 - **Respect rate limits** when making multiple requests by adding delays between calls
 

@@ -59,26 +59,23 @@ First fetch only `system_from`. If it matches the ETag, return 304 without readi
 ### HTTP handler
 
 ```typescript
-app.get("/api/blueprints/:id", async (req, res) => {
-  const current = await db.query.blueprints.findFirst({
-    where: and(
-      eq(blueprints.id, req.params.id),
-      eq(blueprints.systemTo, "9999-12-31 23:59:59"),
-    ),
-  });
+app.get('/api/blueprints/:id', async (req, res) => {
+	const current = await db.query.blueprints.findFirst({
+		where: and(eq(blueprints.id, req.params.id), eq(blueprints.systemTo, '9999-12-31 23:59:59')),
+	});
 
-  if (!current) {
-    return res.status(404).end();
-  }
+	if (!current) {
+		return res.status(404).end();
+	}
 
-  const etag = `"${current.systemFrom}"`;
+	const etag = `"${current.systemFrom}"`;
 
-  if (req.headers["if-none-match"] === etag) {
-    return res.status(304).end();
-  }
+	if (req.headers['if-none-match'] === etag) {
+		return res.status(304).end();
+	}
 
-  res.set("ETag", etag);
-  res.json(current);
+	res.set('ETag', etag);
+	res.json(current);
 });
 ```
 
@@ -88,28 +85,28 @@ Extract the ETag logic into reusable middleware for any temporal endpoint:
 
 ```typescript
 function temporalETag(getSystemFrom: (body: unknown) => string) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const originalJson = res.json.bind(res);
-    res.json = (body: unknown) => {
-      const systemFrom = getSystemFrom(body);
-      const etag = `"${systemFrom}"`;
-      res.set("ETag", etag);
+	return (req: Request, res: Response, next: NextFunction) => {
+		const originalJson = res.json.bind(res);
+		res.json = (body: unknown) => {
+			const systemFrom = getSystemFrom(body);
+			const etag = `"${systemFrom}"`;
+			res.set('ETag', etag);
 
-      if (req.headers["if-none-match"] === etag) {
-        return res.status(304).end();
-      }
+			if (req.headers['if-none-match'] === etag) {
+				return res.status(304).end();
+			}
 
-      return originalJson(body);
-    };
-    next();
-  };
+			return originalJson(body);
+		};
+		next();
+	};
 }
 
 // Usage
 app.get(
-  "/api/blueprints/:id",
-  temporalETag((body) => body.systemFrom),
-  blueprintHandler,
+	'/api/blueprints/:id',
+	temporalETag((body) => body.systemFrom),
+	blueprintHandler,
 );
 ```
 
@@ -123,28 +120,28 @@ Most HTTP clients handle ETags automatically when backed by a cache. For manual 
 const etagCache = new Map<string, string>();
 
 async function fetchBlueprint(id: string): Promise<Blueprint | null> {
-  const headers: Record<string, string> = {};
-  const cachedEtag = etagCache.get(id);
+	const headers: Record<string, string> = {};
+	const cachedEtag = etagCache.get(id);
 
-  if (cachedEtag) {
-    headers["If-None-Match"] = cachedEtag;
-  }
+	if (cachedEtag) {
+		headers['If-None-Match'] = cachedEtag;
+	}
 
-  const response = await fetch(`/api/blueprints/${id}`, { headers });
+	const response = await fetch(`/api/blueprints/${id}`, {headers});
 
-  if (response.status === 304) {
-    // Data unchanged — use cached version
-    return getCachedBlueprint(id);
-  }
+	if (response.status === 304) {
+		// Data unchanged — use cached version
+		return getCachedBlueprint(id);
+	}
 
-  const etag = response.headers.get("ETag");
-  if (etag) {
-    etagCache.set(id, etag);
-  }
+	const etag = response.headers.get('ETag');
+	if (etag) {
+		etagCache.set(id, etag);
+	}
 
-  const blueprint = await response.json();
-  setCachedBlueprint(id, blueprint);
-  return blueprint;
+	const blueprint = await response.json();
+	setCachedBlueprint(id, blueprint);
+	return blueprint;
 }
 ```
 
@@ -153,10 +150,10 @@ async function fetchBlueprint(id: string): Promise<Blueprint | null> {
 React Query doesn't natively support 304 responses, but you can integrate ETags in the query function:
 
 ```typescript
-const { data } = useQuery({
-  queryKey: ["blueprint", blueprintId],
-  queryFn: () => fetchBlueprint(blueprintId), // uses ETag logic above
-  staleTime: 5 * 60 * 1000,
+const {data} = useQuery({
+	queryKey: ['blueprint', blueprintId],
+	queryFn: () => fetchBlueprint(blueprintId), // uses ETag logic above
+	staleTime: 5 * 60 * 1000,
 });
 ```
 
@@ -188,7 +185,7 @@ If a client sends an `If-None-Match` for an item that has been phased out (delet
 
 ```typescript
 if (!current) {
-  return res.status(404).end(); // was deleted
+	return res.status(404).end(); // was deleted
 }
 ```
 

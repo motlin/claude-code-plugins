@@ -1,110 +1,110 @@
 {
-  "description": "Update tmux window title with Claude Code status indicators",
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
-            "timeout": 500
-          }
-        ]
-      },
-      {
-        "matcher": "^/rename ",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/rename-tmux-window.sh",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✓\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh",
-            "timeout": 500
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "permission_prompt|elicitation_dialog",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"?\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⌫\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
-            "timeout": 500
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh",
-            "timeout": 500
-          }
-        ]
-      }
-    ]
-  }
+	"description": "Update tmux window title with Claude Code status indicators",
+	"hooks": {
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"timeout": 500
+					}
+				]
+			},
+			{
+				"matcher": "^/rename ",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/rename-tmux-window.sh",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✓\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"SessionStart": [
+			{
+				"matcher": "startup",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh",
+						"timeout": 500
+					},
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"Notification": [
+			{
+				"matcher": "permission_prompt|elicitation_dialog",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"?\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"PreCompact": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⌫\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh",
+						"timeout": 500
+					}
+				]
+			}
+		]
+	}
 }

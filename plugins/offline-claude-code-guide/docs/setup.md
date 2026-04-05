@@ -88,9 +88,9 @@ Claude Code offers the following authentication options:
 
 - Requires [Git for Windows](https://git-scm.com/downloads/win)
 - For portable Git installations, specify the path to your `bash.exe`:
-  ```powershell theme={null}
-  $env:CLAUDE_CODE_GIT_BASH_PATH="C:\Program Files\Git\bin\bash.exe"
-  ```
+    ```powershell theme={null}
+    $env:CLAUDE_CODE_GIT_BASH_PATH="C:\Program Files\Git\bin\bash.exe"
+    ```
 
 ## Alternative installation methods
 
@@ -169,8 +169,8 @@ curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd 1.0.58 &&
 
 - SHA256 checksums for all platforms are published in the release manifests, currently located at `https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/{VERSION}/manifest.json` (example: replace `{VERSION}` with `2.0.30`)
 - Signed binaries are distributed for the following platforms:
-  - macOS: Signed by "Anthropic PBC" and notarized by Apple
-  - Windows: Signed by "Anthropic, PBC"
+    - macOS: Signed by "Anthropic PBC" and notarized by Apple
+    - Windows: Signed by "Anthropic, PBC"
 
 ### NPM installation
 

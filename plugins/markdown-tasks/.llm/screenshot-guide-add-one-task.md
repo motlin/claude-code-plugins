@@ -24,9 +24,9 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 - Show the newly added task with `[ ]` checkbox
 - Highlight or focus on the new entry
 - Example expected content:
-  ```markdown
-  - [ ] Implement user authentication
-  ```
+    ```markdown
+    - [ ] Implement user authentication
+    ```
 
 ### 2. Multi-line Task with Context
 
@@ -34,19 +34,19 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 
 - Demonstrate adding a task with detailed context
 - Run a command like:
-  ```
-  /add-one-task Fix authentication bug in login flow
-  ```
+    ```
+    /add-one-task Fix authentication bug in login flow
+    ```
 - Then ask Claude to add context lines, or demonstrate the natural flow where Claude adds context
 - Alternative: Show editing `.llm/todo.md` to add indented context lines manually
 - Expected result in todo.md:
-  ```markdown
-  - [ ] Fix authentication bug in login flow
-    - File: `src/auth/login.ts`
-    - Issue: JWT validation fails for refresh tokens
-    - Fix: Update token validation logic in validateToken()
-    - Expected: Refresh tokens should validate successfully
-  ```
+    ```markdown
+    - [ ] Fix authentication bug in login flow
+        - File: `src/auth/login.ts`
+        - Issue: JWT validation fails for refresh tokens
+        - Fix: Update token validation logic in validateToken()
+        - Expected: Refresh tokens should validate successfully
+    ```
 
 ### 3. Building Up a Task List
 
@@ -54,17 +54,17 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 
 - Run `/add-one-task` three or more times with different tasks
 - Show the progression:
-  ```
-  /add-one-task Implement user dashboard
-  /add-one-task Add dark mode toggle
-  /add-one-task Create settings page
-  ```
+    ```
+    /add-one-task Implement user dashboard
+    /add-one-task Add dark mode toggle
+    /add-one-task Create settings page
+    ```
 - Capture the final state of `.llm/todo.md` showing all tasks:
-  ```markdown
-  - [ ] Implement user dashboard
-  - [ ] Add dark mode toggle
-  - [ ] Create settings page
-  ```
+    ```markdown
+    - [ ] Implement user dashboard
+    - [ ] Add dark mode toggle
+    - [ ] Create settings page
+    ```
 
 ## Screenshot Organization
 

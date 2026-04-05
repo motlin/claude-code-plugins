@@ -83,20 +83,20 @@ Set up automatic marketplace installation for team projects by specifying requir
 
 ```json theme={null}
 {
-  "extraKnownMarketplaces": {
-    "team-tools": {
-      "source": {
-        "source": "github",
-        "repo": "your-org/claude-plugins"
-      }
-    },
-    "project-specific": {
-      "source": {
-        "source": "git",
-        "url": "https://git.company.com/project-plugins.git"
-      }
-    }
-  }
+	"extraKnownMarketplaces": {
+		"team-tools": {
+			"source": {
+				"source": "github",
+				"repo": "your-org/claude-plugins"
+			}
+		},
+		"project-specific": {
+			"source": {
+				"source": "git",
+				"url": "https://git.company.com/project-plugins.git"
+			}
+		}
+	}
 }
 ```
 
@@ -120,30 +120,30 @@ Create `.claude-plugin/marketplace.json` in your repository root:
 
 ```json theme={null}
 {
-  "name": "company-tools",
-  "owner": {
-    "name": "DevTools Team",
-    "email": "devtools@company.com"
-  },
-  "plugins": [
-    {
-      "name": "code-formatter",
-      "source": "./plugins/formatter",
-      "description": "Automatic code formatting on save",
-      "version": "2.1.0",
-      "author": {
-        "name": "DevTools Team"
-      }
-    },
-    {
-      "name": "deployment-tools",
-      "source": {
-        "source": "github",
-        "repo": "company/deploy-plugin"
-      },
-      "description": "Deployment automation tools"
-    }
-  ]
+	"name": "company-tools",
+	"owner": {
+		"name": "DevTools Team",
+		"email": "devtools@company.com"
+	},
+	"plugins": [
+		{
+			"name": "code-formatter",
+			"source": "./plugins/formatter",
+			"description": "Automatic code formatting on save",
+			"version": "2.1.0",
+			"author": {
+				"name": "DevTools Team"
+			}
+		},
+		{
+			"name": "deployment-tools",
+			"source": {
+				"source": "github",
+				"repo": "company/deploy-plugin"
+			},
+			"description": "Deployment automation tools"
+		}
+	]
 }
 ```
 
@@ -216,8 +216,8 @@ For plugins in the same repository:
 
 ```json theme={null}
 {
-  "name": "my-plugin",
-  "source": "./plugins/my-plugin"
+	"name": "my-plugin",
+	"source": "./plugins/my-plugin"
 }
 ```
 
@@ -225,11 +225,11 @@ For plugins in the same repository:
 
 ```json theme={null}
 {
-  "name": "github-plugin",
-  "source": {
-    "source": "github",
-    "repo": "owner/plugin-repo"
-  }
+	"name": "github-plugin",
+	"source": {
+		"source": "github",
+		"repo": "owner/plugin-repo"
+	}
 }
 ```
 
@@ -237,11 +237,11 @@ For plugins in the same repository:
 
 ```json theme={null}
 {
-  "name": "git-plugin",
-  "source": {
-    "source": "url",
-    "url": "https://gitlab.com/team/plugin.git"
-  }
+	"name": "git-plugin",
+	"source": {
+		"source": "url",
+		"url": "https://gitlab.com/team/plugin.git"
+	}
 }
 ```
 
@@ -251,48 +251,44 @@ Plugin entries can override default component locations and provide additional m
 
 ```json theme={null}
 {
-  "name": "enterprise-tools",
-  "source": {
-    "source": "github",
-    "repo": "company/enterprise-plugin"
-  },
-  "description": "Enterprise workflow automation tools",
-  "version": "2.1.0",
-  "author": {
-    "name": "Enterprise Team",
-    "email": "enterprise@company.com"
-  },
-  "homepage": "https://docs.company.com/plugins/enterprise-tools",
-  "repository": "https://github.com/company/enterprise-plugin",
-  "license": "MIT",
-  "keywords": ["enterprise", "workflow", "automation"],
-  "category": "productivity",
-  "commands": [
-    "./commands/core/",
-    "./commands/enterprise/",
-    "./commands/experimental/preview.md"
-  ],
-  "agents": ["./agents/security-reviewer.md", "./agents/compliance-checker.md"],
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "mcpServers": {
-    "enterprise-db": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
-      "args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"]
-    }
-  },
-  "strict": false
+	"name": "enterprise-tools",
+	"source": {
+		"source": "github",
+		"repo": "company/enterprise-plugin"
+	},
+	"description": "Enterprise workflow automation tools",
+	"version": "2.1.0",
+	"author": {
+		"name": "Enterprise Team",
+		"email": "enterprise@company.com"
+	},
+	"homepage": "https://docs.company.com/plugins/enterprise-tools",
+	"repository": "https://github.com/company/enterprise-plugin",
+	"license": "MIT",
+	"keywords": ["enterprise", "workflow", "automation"],
+	"category": "productivity",
+	"commands": ["./commands/core/", "./commands/enterprise/", "./commands/experimental/preview.md"],
+	"agents": ["./agents/security-reviewer.md", "./agents/compliance-checker.md"],
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh"
+					}
+				]
+			}
+		]
+	},
+	"mcpServers": {
+		"enterprise-db": {
+			"command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
+			"args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"]
+		}
+	},
+	"strict": false
 }
 ```
 

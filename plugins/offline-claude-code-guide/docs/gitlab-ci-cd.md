@@ -28,9 +28,9 @@ Claude Code uses GitLab CI/CD to run AI tasks in isolated jobs and commit result
 1. **Event-driven orchestration**: GitLab listens for your chosen triggers (for example, a comment that mentions `@claude` in an issue, MR, or review thread). The job collects context from the thread and repository, builds prompts from that input, and runs Claude Code.
 
 2. **Provider abstraction**: Use the provider that fits your environment:
-   - Claude API (SaaS)
-   - AWS Bedrock (IAM-based access, cross-region options)
-   - Google Vertex AI (GCP-native, Workload Identity Federation)
+    - Claude API (SaaS)
+    - AWS Bedrock (IAM-based access, cross-region options)
+    - Google Vertex AI (GCP-native, Workload Identity Federation)
 
 3. **Sandboxed execution**: Each interaction runs in a container with strict network and filesystem rules. Claude Code enforces workspace-scoped permissions to constrain writes. Every change flows through an MR so reviewers see the diff and approvals still apply.
 
@@ -53,42 +53,42 @@ Claude Code enables powerful CI/CD workflows that transform how you work with co
 The fastest way to get started is to add a minimal job to your `.gitlab-ci.yml` and set your API key as a masked variable.
 
 1. **Add a masked CI/CD variable**
-   - Go to **Settings** → **CI/CD** → **Variables**
-   - Add `ANTHROPIC_API_KEY` (masked, protected as needed)
+    - Go to **Settings** → **CI/CD** → **Variables**
+    - Add `ANTHROPIC_API_KEY` (masked, protected as needed)
 
 2. **Add a Claude job to `.gitlab-ci.yml`**
 
 ```yaml theme={null}
 stages:
-  - ai
+    - ai
 
 claude:
-  stage: ai
-  image: node:24-alpine3.21
-  # Adjust rules to fit how you want to trigger the job:
-  # - manual runs
-  # - merge request events
-  # - web/API triggers when a comment contains '@claude'
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_STRATEGY: fetch
-  before_script:
-    - apk update
-    - apk add --no-cache git curl bash
-    - npm install -g @anthropic-ai/claude-code
-  script:
-    # Optional: start a GitLab MCP server if your setup provides one
-    - /bin/gitlab-mcp-server || true
-    # Use AI_FLOW_* variables when invoking via web/API triggers with context payloads
-    - echo "$AI_FLOW_INPUT for $AI_FLOW_CONTEXT on $AI_FLOW_EVENT"
-    - >
-      claude
-      -p "${AI_FLOW_INPUT:-'Review this MR and implement the requested changes'}"
-      --permission-mode acceptEdits
-      --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
-      --debug
+    stage: ai
+    image: node:24-alpine3.21
+    # Adjust rules to fit how you want to trigger the job:
+    # - manual runs
+    # - merge request events
+    # - web/API triggers when a comment contains '@claude'
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web"'
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    variables:
+        GIT_STRATEGY: fetch
+    before_script:
+        - apk update
+        - apk add --no-cache git curl bash
+        - npm install -g @anthropic-ai/claude-code
+    script:
+        # Optional: start a GitLab MCP server if your setup provides one
+        - /bin/gitlab-mcp-server || true
+        # Use AI_FLOW_* variables when invoking via web/API triggers with context payloads
+        - echo "$AI_FLOW_INPUT for $AI_FLOW_CONTEXT on $AI_FLOW_EVENT"
+        - >
+            claude
+            -p "${AI_FLOW_INPUT:-'Review this MR and implement the requested changes'}"
+            --permission-mode acceptEdits
+            --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
+            --debug
 ```
 
 After adding the job and your `ANTHROPIC_API_KEY` variable, test by running the job manually from **CI/CD** → **Pipelines**, or trigger it from an MR to let Claude propose updates in a branch and open an MR if needed.
@@ -102,19 +102,19 @@ After adding the job and your `ANTHROPIC_API_KEY` variable, test by running the 
 If you prefer a more controlled setup or need enterprise providers:
 
 1. **Configure provider access**:
-   - **Claude API**: Create and store `ANTHROPIC_API_KEY` as a masked CI/CD variable
-   - **AWS Bedrock**: **Configure GitLab** → **AWS OIDC** and create an IAM role for Bedrock
-   - **Google Vertex AI**: **Configure Workload Identity Federation for GitLab** → **GCP**
+    - **Claude API**: Create and store `ANTHROPIC_API_KEY` as a masked CI/CD variable
+    - **AWS Bedrock**: **Configure GitLab** → **AWS OIDC** and create an IAM role for Bedrock
+    - **Google Vertex AI**: **Configure Workload Identity Federation for GitLab** → **GCP**
 
 2. **Add project credentials for GitLab API operations**:
-   - Use `CI_JOB_TOKEN` by default, or create a Project Access Token with `api` scope
-   - Store as `GITLAB_ACCESS_TOKEN` (masked) if using a PAT
+    - Use `CI_JOB_TOKEN` by default, or create a Project Access Token with `api` scope
+    - Store as `GITLAB_ACCESS_TOKEN` (masked) if using a PAT
 
 3. **Add the Claude job to `.gitlab-ci.yml`** (see examples below)
 
 4. **(Optional) Enable mention-driven triggers**:
-   - Add a project webhook for "Comments (notes)" to your event listener (if you use one)
-   - Have the listener call the pipeline trigger API with variables like `AI_FLOW_INPUT` and `AI_FLOW_CONTEXT` when a comment contains `@claude`
+    - Add a project webhook for "Comments (notes)" to your event listener (if you use one)
+    - Have the listener call the pipeline trigger API with variables like `AI_FLOW_INPUT` and `AI_FLOW_CONTEXT` when a comment contains `@claude`
 
 ## Example use cases
 
@@ -244,29 +244,29 @@ Below are ready-to-use snippets you can adapt to your pipeline.
 
 ```yaml theme={null}
 stages:
-  - ai
+    - ai
 
 claude:
-  stage: ai
-  image: node:24-alpine3.21
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_STRATEGY: fetch
-  before_script:
-    - apk update
-    - apk add --no-cache git curl bash
-    - npm install -g @anthropic-ai/claude-code
-  script:
-    - /bin/gitlab-mcp-server || true
-    - >
-      claude
-      -p "${AI_FLOW_INPUT:-'Summarize recent changes and suggest improvements'}"
-      --permission-mode acceptEdits
-      --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
-      --debug
-  # Claude Code will use ANTHROPIC_API_KEY from CI/CD variables
+    stage: ai
+    image: node:24-alpine3.21
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web"'
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    variables:
+        GIT_STRATEGY: fetch
+    before_script:
+        - apk update
+        - apk add --no-cache git curl bash
+        - npm install -g @anthropic-ai/claude-code
+    script:
+        - /bin/gitlab-mcp-server || true
+        - >
+            claude
+            -p "${AI_FLOW_INPUT:-'Summarize recent changes and suggest improvements'}"
+            --permission-mode acceptEdits
+            --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
+            --debug
+    # Claude Code will use ANTHROPIC_API_KEY from CI/CD variables
 ```
 
 ### AWS Bedrock job example (OIDC)
@@ -284,36 +284,36 @@ claude:
 
 ```yaml theme={null}
 claude-bedrock:
-  stage: ai
-  image: node:24-alpine3.21
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-  before_script:
-    - apk add --no-cache bash curl jq git python3 py3-pip
-    - pip install --no-cache-dir awscli
-    - npm install -g @anthropic-ai/claude-code
-    # Exchange GitLab OIDC token for AWS credentials
-    - export AWS_WEB_IDENTITY_TOKEN_FILE="${CI_JOB_JWT_FILE:-/tmp/oidc_token}"
-    - if [ -n "${CI_JOB_JWT_V2}" ]; then printf "%s" "$CI_JOB_JWT_V2" > "$AWS_WEB_IDENTITY_TOKEN_FILE"; fi
-    - >
-      aws sts assume-role-with-web-identity
-      --role-arn "$AWS_ROLE_TO_ASSUME"
-      --role-session-name "gitlab-claude-$(date +%s)"
-      --web-identity-token "file://$AWS_WEB_IDENTITY_TOKEN_FILE"
-      --duration-seconds 3600 > /tmp/aws_creds.json
-    - export AWS_ACCESS_KEY_ID="$(jq -r .Credentials.AccessKeyId /tmp/aws_creds.json)"
-    - export AWS_SECRET_ACCESS_KEY="$(jq -r .Credentials.SecretAccessKey /tmp/aws_creds.json)"
-    - export AWS_SESSION_TOKEN="$(jq -r .Credentials.SessionToken /tmp/aws_creds.json)"
-  script:
-    - /bin/gitlab-mcp-server || true
-    - >
-      claude
-      -p "${AI_FLOW_INPUT:-'Implement the requested changes and open an MR'}"
-      --permission-mode acceptEdits
-      --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
-      --debug
-  variables:
-    AWS_REGION: "us-west-2"
+    stage: ai
+    image: node:24-alpine3.21
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web"'
+    before_script:
+        - apk add --no-cache bash curl jq git python3 py3-pip
+        - pip install --no-cache-dir awscli
+        - npm install -g @anthropic-ai/claude-code
+        # Exchange GitLab OIDC token for AWS credentials
+        - export AWS_WEB_IDENTITY_TOKEN_FILE="${CI_JOB_JWT_FILE:-/tmp/oidc_token}"
+        - if [ -n "${CI_JOB_JWT_V2}" ]; then printf "%s" "$CI_JOB_JWT_V2" > "$AWS_WEB_IDENTITY_TOKEN_FILE"; fi
+        - >
+            aws sts assume-role-with-web-identity
+            --role-arn "$AWS_ROLE_TO_ASSUME"
+            --role-session-name "gitlab-claude-$(date +%s)"
+            --web-identity-token "file://$AWS_WEB_IDENTITY_TOKEN_FILE"
+            --duration-seconds 3600 > /tmp/aws_creds.json
+        - export AWS_ACCESS_KEY_ID="$(jq -r .Credentials.AccessKeyId /tmp/aws_creds.json)"
+        - export AWS_SECRET_ACCESS_KEY="$(jq -r .Credentials.SecretAccessKey /tmp/aws_creds.json)"
+        - export AWS_SESSION_TOKEN="$(jq -r .Credentials.SessionToken /tmp/aws_creds.json)"
+    script:
+        - /bin/gitlab-mcp-server || true
+        - >
+            claude
+            -p "${AI_FLOW_INPUT:-'Implement the requested changes and open an MR'}"
+            --permission-mode acceptEdits
+            --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
+            --debug
+    variables:
+        AWS_REGION: 'us-west-2'
 ```
 
 <Note>
@@ -336,37 +336,37 @@ claude-bedrock:
 
 ```yaml theme={null}
 claude-vertex:
-  stage: ai
-  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-  before_script:
-    - apt-get update && apt-get install -y git nodejs npm && apt-get clean
-    - npm install -g @anthropic-ai/claude-code
-    # Authenticate to Google Cloud via WIF (no downloaded keys)
-    - >
-      gcloud auth login --cred-file=<(cat <<EOF
-      {
-        "type": "external_account",
-        "audience": "${GCP_WORKLOAD_IDENTITY_PROVIDER}",
-        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
-        "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT}:generateAccessToken",
-        "token_url": "https://sts.googleapis.com/v1/token"
-      }
-      EOF
-      )
-    - gcloud config set project "$(gcloud projects list --format='value(projectId)' --filter="name:${CI_PROJECT_NAMESPACE}" | head -n1)" || true
-  script:
-    - /bin/gitlab-mcp-server || true
-    - >
-      CLOUD_ML_REGION="${CLOUD_ML_REGION:-us-east5}"
-      claude
-      -p "${AI_FLOW_INPUT:-'Review and update code as requested'}"
-      --permission-mode acceptEdits
-      --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
-      --debug
-  variables:
-    CLOUD_ML_REGION: "us-east5"
+    stage: ai
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web"'
+    before_script:
+        - apt-get update && apt-get install -y git nodejs npm && apt-get clean
+        - npm install -g @anthropic-ai/claude-code
+        # Authenticate to Google Cloud via WIF (no downloaded keys)
+        - >
+            gcloud auth login --cred-file=<(cat <<EOF
+            {
+              "type": "external_account",
+              "audience": "${GCP_WORKLOAD_IDENTITY_PROVIDER}",
+              "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+              "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_SERVICE_ACCOUNT}:generateAccessToken",
+              "token_url": "https://sts.googleapis.com/v1/token"
+            }
+            EOF
+            )
+        - gcloud config set project "$(gcloud projects list --format='value(projectId)' --filter="name:${CI_PROJECT_NAMESPACE}" | head -n1)" || true
+    script:
+        - /bin/gitlab-mcp-server || true
+        - >
+            CLOUD_ML_REGION="${CLOUD_ML_REGION:-us-east5}"
+            claude
+            -p "${AI_FLOW_INPUT:-'Review and update code as requested'}"
+            --permission-mode acceptEdits
+            --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab"
+            --debug
+    variables:
+        CLOUD_ML_REGION: 'us-east5'
 ```
 
 <Note>
@@ -400,18 +400,18 @@ Never commit API keys or cloud credentials to your repository! Always use GitLab
 When using Claude Code with GitLab CI/CD, be aware of associated costs:
 
 - **GitLab Runner time**:
-  - Claude runs on your GitLab runners and consumes compute minutes
-  - See your GitLab plan's runner billing for details
+    - Claude runs on your GitLab runners and consumes compute minutes
+    - See your GitLab plan's runner billing for details
 
 - **API costs**:
-  - Each Claude interaction consumes tokens based on prompt and response size
-  - Token usage varies by task complexity and codebase size
-  - See [Anthropic pricing](https://docs.claude.com/en/docs/about-claude/pricing) for details
+    - Each Claude interaction consumes tokens based on prompt and response size
+    - Token usage varies by task complexity and codebase size
+    - See [Anthropic pricing](https://docs.claude.com/en/docs/about-claude/pricing) for details
 
 - **Cost optimization tips**:
-  - Use specific `@claude` commands to reduce unnecessary turns
-  - Set appropriate `max_turns` and job timeout values
-  - Limit concurrency to control parallel runs
+    - Use specific `@claude` commands to reduce unnecessary turns
+    - Set appropriate `max_turns` and job timeout values
+    - Limit concurrency to control parallel runs
 
 ## Security and governance
 

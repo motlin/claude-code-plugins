@@ -61,17 +61,17 @@ The TPM per user decreases as team size grows because we expect fewer users to u
 ## Reduce token usage
 
 - **Compact conversations:**
-  - Claude uses auto-compact by default when context exceeds 95% capacity
-  - Toggle auto-compact: Run `/config` and navigate to "Auto-compact enabled"
-  - Use `/compact` manually when context gets large
-  - Add custom instructions: `/compact Focus on code samples and API usage`
-  - Customize compaction by adding to CLAUDE.md:
+    - Claude uses auto-compact by default when context exceeds 95% capacity
+    - Toggle auto-compact: Run `/config` and navigate to "Auto-compact enabled"
+    - Use `/compact` manually when context gets large
+    - Add custom instructions: `/compact Focus on code samples and API usage`
+    - Customize compaction by adding to CLAUDE.md:
 
-    ```markdown theme={null}
-    # Summary instructions
+        ```markdown theme={null}
+        # Summary instructions
 
-    When you are using compact, please focus on test output and code changes
-    ```
+        When you are using compact, please focus on test output and code changes
+        ```
 
 - **Write specific queries:** Avoid vague requests that trigger unnecessary scanning
 

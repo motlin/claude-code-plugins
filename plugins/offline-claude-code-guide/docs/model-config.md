@@ -8,10 +8,10 @@ For the `model` setting in Claude Code, you can configure either:
 
 - A **model alias**
 - A **model name**
-  - Anthropic API: A full **[model name](https://docs.claude.com/en/docs/about-claude/models/overview#model-names)**
-  - Bedrock: an inference profile ARN
-  - Foundry: a deployment name
-  - Vertex: a version name
+    - Anthropic API: A full **[model name](https://docs.claude.com/en/docs/about-claude/models/overview#model-names)**
+    - Bedrock: an inference profile ARN
+    - Foundry: a deployment name
+    - Vertex: a version name
 
 ### Model aliases
 

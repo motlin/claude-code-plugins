@@ -1,9 +1,9 @@
 ---
 description: Rewrite tests to use strict deep equality assertions
 arguments:
-  - name: target
-    description: File or directory containing tests to rewrite (optional)
-    required: false
+    - name: target
+      description: File or directory containing tests to rewrite (optional)
+      required: false
 ---
 
 Rewrite tests to use strict deep equality assertions everywhere.
@@ -45,13 +45,9 @@ Determine which test files to rewrite:
 
 ```ts
 // Before: three assertions that barely check anything
-const result = await Children.run([
-  "--json",
-  "--projects-dir",
-  "/tmp/fake-projects",
-]);
-expect(result).toHaveProperty("projects");
-expect(result).toHaveProperty("summary");
+const result = await Children.run(['--json', '--projects-dir', '/tmp/fake-projects']);
+expect(result).toHaveProperty('projects');
+expect(result).toHaveProperty('summary');
 expect(result.summary.total).toBe(2);
 
 // Step 1: replace with placeholder — do NOT guess the expected value
@@ -59,11 +55,11 @@ expect(result).toStrictEqual({});
 
 // Step 2: run the test, read the actual value from the error output, paste it in
 expect(result).toStrictEqual({
-  projects: [
-    { name: "project-a", path: "/tmp/fake-projects/project-a" },
-    { name: "project-b", path: "/tmp/fake-projects/project-b" },
-  ],
-  summary: { total: 2, active: 2 },
+	projects: [
+		{name: 'project-a', path: '/tmp/fake-projects/project-a'},
+		{name: 'project-b', path: '/tmp/fake-projects/project-b'},
+	],
+	summary: {total: 2, active: 2},
 });
 ```
 
@@ -89,11 +85,11 @@ expect(result.createdAt).toBeInstanceOf(Date);
 expect(result.tempDir).toMatch(/^\/tmp\//);
 
 // Strip them, then assert everything else strictly
-const { createdAt, tempDir, ...rest } = result;
+const {createdAt, tempDir, ...rest} = result;
 expect(rest).toStrictEqual({
-  title: "Q1 Report",
-  status: "complete",
-  items: [{ id: 1, name: "revenue" }],
+	title: 'Q1 Report',
+	status: 'complete',
+	items: [{id: 1, name: 'revenue'}],
 });
 ```
 
@@ -103,8 +99,8 @@ Prefer fixing the test data to be deterministic (freeze time, use fixed paths) o
 
 ```ts
 // BAD: hides the actual value
-expect({ createdAt: result.createdAt instanceof Date }).toStrictEqual({
-  createdAt: true,
+expect({createdAt: result.createdAt instanceof Date}).toStrictEqual({
+	createdAt: true,
 });
 
 // GOOD: shows the actual value on failure
@@ -120,11 +116,11 @@ Never assert length, size, or existence right before asserting the full value �
 ```ts
 // BAD: toHaveLength is redundant
 expect(result).toHaveLength(2);
-expect(result[0].name).toBe("a");
-expect(result[1].name).toBe("b");
+expect(result[0].name).toBe('a');
+expect(result[1].name).toBe('b');
 
 // GOOD: one assertion covers length AND contents
-expect(result.map((r) => r.name)).toStrictEqual(["a", "b"]);
+expect(result.map((r) => r.name)).toStrictEqual(['a', 'b']);
 ```
 
 Same for `toBeDefined()` / `not.toBeNull()` before property access — if the value were nullish, the next line would throw anyway.
@@ -135,10 +131,10 @@ Assert Sets and Maps directly — don't spread into arrays:
 
 ```ts
 // BAD: pointless conversion
-expect([...result]).toStrictEqual(["a", "b"]);
+expect([...result]).toStrictEqual(['a', 'b']);
 
 // GOOD: assert the actual type
-expect(result).toStrictEqual(new Set(["a", "b"]));
+expect(result).toStrictEqual(new Set(['a', 'b']));
 ```
 
 ## Rules

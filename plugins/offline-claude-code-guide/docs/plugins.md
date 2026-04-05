@@ -370,11 +370,11 @@ Now that you understand Claude Code's plugin system, here are suggested paths fo
 
 - **Create your first marketplace**: [Plugin marketplaces guide](/en/plugin-marketplaces)
 - **Advanced components**: Dive deeper into specific plugin components:
-  - [Slash commands](/en/slash-commands) - Command development details
-  - [Subagents](/en/sub-agents) - Agent configuration and capabilities
-  - [Agent Skills](/en/skills) - Extend Claude's capabilities
-  - [Hooks](/en/hooks) - Event handling and automation
-  - [MCP](/en/mcp) - External tool integration
+    - [Slash commands](/en/slash-commands) - Command development details
+    - [Subagents](/en/sub-agents) - Agent configuration and capabilities
+    - [Agent Skills](/en/skills) - Extend Claude's capabilities
+    - [Hooks](/en/hooks) - Event handling and automation
+    - [MCP](/en/mcp) - External tool integration
 - **Distribution strategies**: Package and share your plugins effectively
 - **Community contribution**: Consider contributing to community plugin collections
 

@@ -1,13 +1,10 @@
 {
-  "name": "temporal-data",
-  "description": "Temporal database patterns for system-time versioned tables",
-  "version": "1.13.2",
-  "license": "Apache-2.0",
-  "author": {
-    "name": "Craig Motlin"
-  },
-  "skills": [
-    "./skills/temporal-data/SKILL.md",
-    "./skills/temporal-caching/SKILL.md"
-  ]
+	"name": "temporal-data",
+	"description": "Temporal database patterns for system-time versioned tables",
+	"version": "1.13.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"skills": ["./skills/temporal-data/SKILL.md", "./skills/temporal-caching/SKILL.md"]
 }

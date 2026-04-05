@@ -1,15 +1,11 @@
 {
-  "name": "justfile",
-  "description": "Utilities for working with justfiles, including doc comment optimization",
-  "version": "1.13.2",
-  "license": "Apache-2.0",
-  "author": {
-    "name": "Craig Motlin"
-  },
-  "skills": [
-    "./skills/justfile-style/SKILL.md"
-  ],
-  "commands": [
-    "./commands/justfile-recipe-short-doc.md"
-  ]
+	"name": "justfile",
+	"description": "Utilities for working with justfiles, including doc comment optimization",
+	"version": "1.13.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"skills": ["./skills/justfile-style/SKILL.md"],
+	"commands": ["./commands/justfile-recipe-short-doc.md"]
 }

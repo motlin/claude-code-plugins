@@ -1,8 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Skill(build:*)",
-      "SlashCommand(/build:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Skill(build:*)", "SlashCommand(/build:*)"]
+	}
 }

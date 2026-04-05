@@ -1,8 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(just:*)",
-      "Skill(justfile:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Bash(just:*)", "Skill(justfile:*)"]
+	}
 }

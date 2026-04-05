@@ -19,13 +19,13 @@ For an LLM gateway to work with Claude Code, it must meet the following requirem
 The gateway must expose to clients at least one of the following API formats:
 
 1. **Anthropic Messages**: `/v1/messages`, `/v1/messages/count_tokens`
-   - Must forward request headers: `anthropic-beta`, `anthropic-version`
+    - Must forward request headers: `anthropic-beta`, `anthropic-version`
 
 2. **Bedrock InvokeModel**: `/invoke`, `/invoke-with-response-stream`
-   - Must preserve request body fields: `anthropic_beta`, `anthropic_version`
+    - Must preserve request body fields: `anthropic_beta`, `anthropic_version`
 
 3. **Vertex rawPredict**: `:rawPredict`, `:streamRawPredict`, `/count-tokens:rawPredict`
-   - Must forward request headers: `anthropic-beta`, `anthropic-version`
+    - Must forward request headers: `anthropic-beta`, `anthropic-version`
 
 Failure to forward headers or preserve body fields may result in reduced functionality or inability to use Claude Code features.
 
@@ -101,7 +101,7 @@ jwt encode \
 
 ```json theme={null}
 {
-  "apiKeyHelper": "~/bin/get-litellm-key.sh"
+	"apiKeyHelper": "~/bin/get-litellm-key.sh"
 }
 ```
 

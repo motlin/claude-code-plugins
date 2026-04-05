@@ -11,18 +11,18 @@ description: Remove obvious and redundant comments from uncommitted changes
 - Commented out code
 - Comments that describe edits like "added", "removed", or "changed" something
 - Obvious explanations
-  - Comments that are obvious because they're close to method names
+    - Comments that are obvious because they're close to method names
 
 ## Comments to Keep
 
 - TODO comments
 - Comments preventing empty blocks
-  - Empty catch blocks, empty else blocks
-  - `// deliberately empty`
+    - Empty catch blocks, empty else blocks
+    - `// deliberately empty`
 - Linter/formatter directives
-  - `// prettier-ignore`
-  - `// eslint-disable-next-line`
-  - `// @ts-ignore`
+    - `// prettier-ignore`
+    - `// eslint-disable-next-line`
+    - `// @ts-ignore`
 
 ## Comment Position
 

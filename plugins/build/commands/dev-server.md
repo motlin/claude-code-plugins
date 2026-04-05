@@ -1,6 +1,6 @@
 ---
 description: Start the dev server and keep it running
-argument-hint: "[port]"
+argument-hint: '[port]'
 ---
 
 Start the dev server for the current project and keep it running.
@@ -61,7 +61,7 @@ Use `/loop 1m` to run a recurring check every 1 minute. The check should:
 
 - Verify the server is responding: `curl -sf http://localhost:<port>/ > /dev/null 2>&1`
 - If it's not responding:
-  - Kill anything on the port: `lsof -ti :<port> | xargs kill -9 2>/dev/null || true`
-  - Re-run prerequisite builds if applicable
-  - Restart the dev server (in background)
-  - Notify the user that the server was restarted
+    - Kill anything on the port: `lsof -ti :<port> | xargs kill -9 2>/dev/null || true`
+    - Re-run prerequisite builds if applicable
+    - Restart the dev server (in background)
+    - Notify the user that the server was restarted

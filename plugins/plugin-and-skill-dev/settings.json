@@ -1,7 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Skill(plugin-and-skill-dev:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Skill(plugin-and-skill-dev:*)"]
+	}
 }

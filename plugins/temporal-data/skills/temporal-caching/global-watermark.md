@@ -74,8 +74,8 @@ Store the watermark durably — localStorage for browsers, a database row for ba
 
 ```typescript
 interface HighWatermarkData {
-  lastSystemFrom: string; // ISO timestamp
-  lastChecked: number; // Date.now() of last poll
+	lastSystemFrom: string; // ISO timestamp
+	lastChecked: number; // Date.now() of last poll
 }
 ```
 
@@ -83,16 +83,16 @@ interface HighWatermarkData {
 
 ```typescript
 async function pollForChanges(watermark: string): Promise<ChangeResult> {
-  const response = await fetch(`/api/blueprints?since=${watermark}&limit=100`);
-  const { data, _metadata } = await response.json();
+	const response = await fetch(`/api/blueprints?since=${watermark}&limit=100`);
+	const {data, _metadata} = await response.json();
 
-  if (data.length === 0) {
-    // Nothing changed — no cache invalidation needed
-    return { changed: false, newWatermark: watermark };
-  }
+	if (data.length === 0) {
+		// Nothing changed — no cache invalidation needed
+		return {changed: false, newWatermark: watermark};
+	}
 
-  // Advance the watermark
-  return { changed: true, data, newWatermark: _metadata.highWatermark };
+	// Advance the watermark
+	return {changed: true, data, newWatermark: _metadata.highWatermark};
 }
 ```
 
@@ -102,8 +102,8 @@ When new records arrive, invalidate or update the relevant client-side caches:
 
 ```typescript
 if (result.changed) {
-  saveWatermark(result.newWatermark);
-  queryClient.invalidateQueries({ queryKey: ["blueprints"] });
+	saveWatermark(result.newWatermark);
+	queryClient.invalidateQueries({queryKey: ['blueprints']});
 }
 ```
 
@@ -112,9 +112,7 @@ if (result.changed) {
 On first load, the client has no watermark. Fetch the full first page normally and seed the watermark from the results:
 
 ```typescript
-const maxSystemFrom = Math.max(
-  ...records.map((r) => new Date(r.systemFrom).getTime()),
-);
+const maxSystemFrom = Math.max(...records.map((r) => new Date(r.systemFrom).getTime()));
 saveWatermark(new Date(maxSystemFrom).toISOString());
 ```
 
@@ -126,10 +124,10 @@ saveWatermark(new Date(maxSystemFrom).toISOString());
 
 ```typescript
 const summariesQuery = query(
-  ref(db, "/blueprintSummaries/"),
-  orderByChild("lastUpdatedDate"),
-  startAt(highWatermark + 1),
-  limitToLast(100),
+	ref(db, '/blueprintSummaries/'),
+	orderByChild('lastUpdatedDate'),
+	startAt(highWatermark + 1),
+	limitToLast(100),
 );
 ```
 

@@ -12,19 +12,19 @@ Code through hierarchical settings:
 - **User settings** are defined in `~/.claude/settings.json` and apply to all
   projects.
 - **Project settings** are saved in your project directory:
-  - `.claude/settings.json` for settings that are checked into source control and shared with your team
-  - `.claude/settings.local.json` for settings that are not checked in, useful for personal preferences and experimentation. Claude Code will configure git to ignore `.claude/settings.local.json` when it is created.
+    - `.claude/settings.json` for settings that are checked into source control and shared with your team
+    - `.claude/settings.local.json` for settings that are not checked in, useful for personal preferences and experimentation. Claude Code will configure git to ignore `.claude/settings.local.json` when it is created.
 - For enterprise deployments of Claude Code, we also support **enterprise
   managed policy settings**. These take precedence over user and project
   settings. System administrators can deploy policies to:
-  - macOS: `/Library/Application Support/ClaudeCode/managed-settings.json`
-  - Linux and WSL: `/etc/claude-code/managed-settings.json`
-  - Windows: `C:\ProgramData\ClaudeCode\managed-settings.json`
+    - macOS: `/Library/Application Support/ClaudeCode/managed-settings.json`
+    - Linux and WSL: `/etc/claude-code/managed-settings.json`
+    - Windows: `C:\ProgramData\ClaudeCode\managed-settings.json`
 - Enterprise deployments can also configure **managed MCP servers** that override
   user-configured servers. See [Enterprise MCP configuration](/en/mcp#enterprise-mcp-configuration):
-  - macOS: `/Library/Application Support/ClaudeCode/managed-mcp.json`
-  - Linux and WSL: `/etc/claude-code/managed-mcp.json`
-  - Windows: `C:\ProgramData\ClaudeCode\managed-mcp.json`
+    - macOS: `/Library/Application Support/ClaudeCode/managed-mcp.json`
+    - Linux and WSL: `/etc/claude-code/managed-mcp.json`
+    - Windows: `C:\ProgramData\ClaudeCode\managed-mcp.json`
 
 ```JSON Example settings.json theme={null}
 {
@@ -113,18 +113,18 @@ Configure advanced sandboxing behavior. Sandboxing isolates bash commands from y
 
 ```json theme={null}
 {
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker"],
-    "network": {
-      "allowUnixSockets": ["/var/run/docker.sock"],
-      "allowLocalBinding": true
-    }
-  },
-  "permissions": {
-    "deny": ["Read(.envrc)", "Read(~/.aws/**)"]
-  }
+	"sandbox": {
+		"enabled": true,
+		"autoAllowBashIfSandboxed": true,
+		"excludedCommands": ["docker"],
+		"network": {
+			"allowUnixSockets": ["/var/run/docker.sock"],
+			"allowLocalBinding": true
+		}
+	},
+	"permissions": {
+		"deny": ["Read(.envrc)", "Read(~/.aws/**)"]
+	}
 }
 ```
 
@@ -144,20 +144,20 @@ Configure advanced sandboxing behavior. Sandboxing isolates bash commands from y
 Settings are applied in order of precedence (highest to lowest):
 
 1. **Enterprise managed policies** (`managed-settings.json`)
-   - Deployed by IT/DevOps
-   - Cannot be overridden
+    - Deployed by IT/DevOps
+    - Cannot be overridden
 
 2. **Command line arguments**
-   - Temporary overrides for a specific session
+    - Temporary overrides for a specific session
 
 3. **Local project settings** (`.claude/settings.local.json`)
-   - Personal project-specific settings
+    - Personal project-specific settings
 
 4. **Shared project settings** (`.claude/settings.json`)
-   - Team-shared project settings in source control
+    - Team-shared project settings in source control
 
 5. **User settings** (`~/.claude/settings.json`)
-   - Personal global settings
+    - Personal global settings
 
 This hierarchy ensures that enterprise security policies are always enforced while still allowing teams and individuals to customize their experience.
 
@@ -182,15 +182,15 @@ To prevent Claude Code from accessing files containing sensitive information (e.
 
 ```json theme={null}
 {
-  "permissions": {
-    "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)",
-      "Read(./config/credentials.json)",
-      "Read(./build)"
-    ]
-  }
+	"permissions": {
+		"deny": [
+			"Read(./.env)",
+			"Read(./.env.*)",
+			"Read(./secrets/**)",
+			"Read(./config/credentials.json)",
+			"Read(./build)"
+		]
+	}
 }
 ```
 
@@ -215,17 +215,17 @@ Plugin-related settings in `settings.json`:
 
 ```json theme={null}
 {
-  "enabledPlugins": {
-    "formatter@company-tools": true,
-    "deployer@company-tools": true,
-    "analyzer@security-plugins": false
-  },
-  "extraKnownMarketplaces": {
-    "company-tools": {
-      "source": "github",
-      "repo": "company/claude-plugins"
-    }
-  }
+	"enabledPlugins": {
+		"formatter@company-tools": true,
+		"deployer@company-tools": true,
+		"analyzer@security-plugins": false
+	},
+	"extraKnownMarketplaces": {
+		"company-tools": {
+			"source": "github",
+			"repo": "company/claude-plugins"
+		}
+	}
 }
 ```
 
@@ -243,11 +243,11 @@ Controls which plugins are enabled. Format: `"plugin-name@marketplace-name": tru
 
 ```json theme={null}
 {
-  "enabledPlugins": {
-    "code-formatter@team-tools": true,
-    "deployment-tools@team-tools": true,
-    "experimental-features@personal": false
-  }
+	"enabledPlugins": {
+		"code-formatter@team-tools": true,
+		"deployment-tools@team-tools": true,
+		"experimental-features@personal": false
+	}
 }
 ```
 
@@ -266,20 +266,20 @@ Defines additional marketplaces that should be made available for the repository
 
 ```json theme={null}
 {
-  "extraKnownMarketplaces": {
-    "company-tools": {
-      "source": {
-        "source": "github",
-        "repo": "company-org/claude-plugins"
-      }
-    },
-    "security-plugins": {
-      "source": {
-        "source": "git",
-        "url": "https://git.company.com/security/plugins.git"
-      }
-    }
-  }
+	"extraKnownMarketplaces": {
+		"company-tools": {
+			"source": {
+				"source": "github",
+				"repo": "company-org/claude-plugins"
+			}
+		},
+		"security-plugins": {
+			"source": {
+				"source": "git",
+				"url": "https://git.company.com/security/plugins.git"
+			}
+		}
+	}
 }
 ```
 

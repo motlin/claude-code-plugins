@@ -1,17 +1,17 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(mvn:*)",
-      "Bash(mvnd:*)",
-      "Skill(java:*)",
-      "WebFetch(domain:central.sonatype.org)",
-      "WebFetch(domain:docs.openrewrite.org)",
-      "WebFetch(domain:error-prone.picnic.tech)",
-      "WebFetch(domain:errorprone.info)",
-      "WebFetch(domain:javadoc.io)",
-      "WebFetch(domain:mvnrepository.com)",
-      "WebFetch(domain:repo.maven.apache.org)",
-      "WebFetch(domain:repo1.maven.org)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(mvn:*)",
+			"Bash(mvnd:*)",
+			"Skill(java:*)",
+			"WebFetch(domain:central.sonatype.org)",
+			"WebFetch(domain:docs.openrewrite.org)",
+			"WebFetch(domain:error-prone.picnic.tech)",
+			"WebFetch(domain:errorprone.info)",
+			"WebFetch(domain:javadoc.io)",
+			"WebFetch(domain:mvnrepository.com)",
+			"WebFetch(domain:repo.maven.apache.org)",
+			"WebFetch(domain:repo1.maven.org)"
+		]
+	}
 }

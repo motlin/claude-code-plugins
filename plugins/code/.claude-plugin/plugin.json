@@ -1,25 +1,23 @@
 {
-  "name": "code",
-  "description": "Code quality tools for comment cleanup and emoji enhancement",
-  "version": "1.13.2",
-  "license": "Apache-2.0",
-  "author": {
-    "name": "Craig Motlin"
-  },
-  "agents": [
-    "./agents/comment-cleaner.md"
-  ],
-  "skills": [
-    "./skills/code-quality/SKILL.md",
-    "./skills/comment-cleanup/SKILL.md",
-    "./skills/cli/SKILL.md",
-    "./skills/code-generation/SKILL.md"
-  ],
-  "commands": [
-    "./commands/comments.md",
-    "./commands/all-comments.md",
-    "./commands/emoji.md",
-    "./commands/formatter-off.md",
-    "./commands/strict-tests.md"
-  ]
+	"name": "code",
+	"description": "Code quality tools for comment cleanup and emoji enhancement",
+	"version": "1.13.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"agents": ["./agents/comment-cleaner.md"],
+	"skills": [
+		"./skills/code-quality/SKILL.md",
+		"./skills/comment-cleanup/SKILL.md",
+		"./skills/cli/SKILL.md",
+		"./skills/code-generation/SKILL.md"
+	],
+	"commands": [
+		"./commands/comments.md",
+		"./commands/all-comments.md",
+		"./commands/emoji.md",
+		"./commands/formatter-off.md",
+		"./commands/strict-tests.md"
+	]
 }

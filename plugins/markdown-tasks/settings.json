@@ -1,8 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Skill(markdown-tasks:*)",
-      "SlashCommand(/markdown-tasks:*)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Skill(markdown-tasks:*)", "SlashCommand(/markdown-tasks:*)"]
+	}
 }

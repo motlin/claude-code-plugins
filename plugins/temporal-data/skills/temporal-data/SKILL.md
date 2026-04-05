@@ -358,28 +358,20 @@ See [Liftwizard temporal documentation](https://liftwizard.io/docs/temporal-data
 ### Drizzle ORM (TypeScript/SQLite)
 
 ```typescript
-import {
-  sqliteTable,
-  text,
-  primaryKey,
-  uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import {sqliteTable, text, primaryKey, uniqueIndex} from 'drizzle-orm/sqlite-core';
 
 export const nodes = sqliteTable(
-  "nodes",
-  {
-    id: text("id").notNull(),
-    name: text("name"),
-    systemFrom: text("system_from").notNull(),
-    systemTo: text("system_to").notNull().default("9999-12-31 23:59:59"),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id, table.systemTo] }),
-    systemFromIdx: uniqueIndex("nodes_system_from_idx").on(
-      table.id,
-      table.systemFrom,
-    ),
-  }),
+	'nodes',
+	{
+		id: text('id').notNull(),
+		name: text('name'),
+		systemFrom: text('system_from').notNull(),
+		systemTo: text('system_to').notNull().default('9999-12-31 23:59:59'),
+	},
+	(table) => ({
+		pk: primaryKey({columns: [table.id, table.systemTo]}),
+		systemFromIdx: uniqueIndex('nodes_system_from_idx').on(table.id, table.systemFrom),
+	}),
 );
 ```
 

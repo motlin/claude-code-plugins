@@ -15,15 +15,15 @@ Find and implement the next incomplete task using Claude Code's built-in task to
 3. **Mark as in progress** — Call `TaskUpdate` to set status to `in_progress`.
 
 4. **Implement the task**
-   - Think hard about the plan
-   - Focus ONLY on implementing this specific task
-   - Ignore TODO/TASK comments in source code
-   - Work through the implementation methodically
-   - Run appropriate tests and validation
+    - Think hard about the plan
+    - Focus ONLY on implementing this specific task
+    - Ignore TODO/TASK comments in source code
+    - Work through the implementation methodically
+    - Run appropriate tests and validation
 
 5. **Complete the workflow**
-   - Verify the build passes using the `build:precommit-runner` agent
-   - Commit to git using the `git:commit-handler` agent
-   - Rebase on top of the upstream branch with the `git:rebaser` agent
+    - Verify the build passes using the `build:precommit-runner` agent
+    - Commit to git using the `git:commit-handler` agent
+    - Rebase on top of the upstream branch with the `git:rebaser` agent
 
 6. **Mark the task complete** — Call `TaskUpdate` to set status to `completed`.

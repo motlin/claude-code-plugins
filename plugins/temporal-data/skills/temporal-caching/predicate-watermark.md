@@ -76,9 +76,9 @@ Response includes `last_blueprint_updated`:
 
 ```json
 {
-  "id": "user-1",
-  "displayName": "Alice",
-  "lastBlueprintUpdated": "2024-06-15T14:30:00Z"
+	"id": "user-1",
+	"displayName": "Alice",
+	"lastBlueprintUpdated": "2024-06-15T14:30:00Z"
 }
 ```
 
@@ -86,25 +86,25 @@ Response includes `last_blueprint_updated`:
 
 ```typescript
 async function fetchUserBlueprints(userId: string): Promise<Blueprint[]> {
-  // Step 1: Fetch (or use cached) parent record
-  const user = await fetchUser(userId);
+	// Step 1: Fetch (or use cached) parent record
+	const user = await fetchUser(userId);
 
-  // Step 2: Compare against stored watermark
-  const cachedWatermark = getCachedWatermark(`user-blueprints-${userId}`);
+	// Step 2: Compare against stored watermark
+	const cachedWatermark = getCachedWatermark(`user-blueprints-${userId}`);
 
-  if (cachedWatermark === user.lastBlueprintUpdated) {
-    // Nothing changed — use cached blueprints
-    return getCachedBlueprints(userId);
-  }
+	if (cachedWatermark === user.lastBlueprintUpdated) {
+		// Nothing changed — use cached blueprints
+		return getCachedBlueprints(userId);
+	}
 
-  // Step 3: Fetch full collection
-  const blueprints = await fetch(`/api/users/${userId}/blueprints`);
+	// Step 3: Fetch full collection
+	const blueprints = await fetch(`/api/users/${userId}/blueprints`);
 
-  // Step 4: Update watermark
-  setCachedWatermark(`user-blueprints-${userId}`, user.lastBlueprintUpdated);
-  setCachedBlueprints(userId, blueprints);
+	// Step 4: Update watermark
+	setCachedWatermark(`user-blueprints-${userId}`, user.lastBlueprintUpdated);
+	setCachedBlueprints(userId, blueprints);
 
-  return blueprints;
+	return blueprints;
 }
 ```
 
@@ -124,17 +124,17 @@ If-None-Match: "2024-06-15T14:30:00Z"
 The server checks the user's `last_blueprint_updated` against the `If-None-Match` value. If they match, return 304 without querying the child table at all.
 
 ```typescript
-app.get("/api/users/:userId/blueprints", async (req, res) => {
-  const user = await getCurrentUser(req.params.userId);
-  const etag = `"${user.lastBlueprintUpdated}"`;
+app.get('/api/users/:userId/blueprints', async (req, res) => {
+	const user = await getCurrentUser(req.params.userId);
+	const etag = `"${user.lastBlueprintUpdated}"`;
 
-  if (req.headers["if-none-match"] === etag) {
-    return res.status(304).end();
-  }
+	if (req.headers['if-none-match'] === etag) {
+		return res.status(304).end();
+	}
 
-  const blueprints = await fetchBlueprints(req.params.userId);
-  res.set("ETag", etag);
-  res.json(blueprints);
+	const blueprints = await fetchBlueprints(req.params.userId);
+	res.set('ETag', etag);
+	res.json(blueprints);
 });
 ```
 

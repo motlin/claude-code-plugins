@@ -143,19 +143,19 @@ Configure automatic dependency installation using [SessionStart hooks](/en/hooks
 
 ```json theme={null}
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/install_pkgs.sh"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "startup",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/scripts/install_pkgs.sh"
+					}
+				]
+			}
+		]
+	}
 }
 ```
 

@@ -1,162 +1,162 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "motlin-claude-code-plugins",
-  "version": "1.13.2",
-  "description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
-  "license": "Apache-2.0",
-  "owner": {
-    "name": "Craig Motlin"
-  },
-  "plugins": [
-    {
-      "name": "markdown-tasks",
-      "description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/markdown-tasks",
-      "category": "productivity"
-    },
-    {
-      "name": "tmux-titles",
-      "description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/tmux-titles",
-      "category": "productivity"
-    },
-    {
-      "name": "iterm2-titles",
-      "description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/iterm2-titles",
-      "category": "productivity"
-    },
-    {
-      "name": "build",
-      "description": "Test and build automation tools that loop until all commits pass",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/build",
-      "category": "productivity"
-    },
-    {
-      "name": "builtin-tasks",
-      "description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/builtin-tasks",
-      "category": "productivity"
-    },
-    {
-      "name": "code",
-      "description": "Code quality tools for comment cleanup and emoji enhancement",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/code",
-      "category": "productivity"
-    },
-    {
-      "name": "ghostty-titles",
-      "description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/ghostty-titles",
-      "category": "productivity"
-    },
-    {
-      "name": "git",
-      "description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/git",
-      "category": "productivity"
-    },
-    {
-      "name": "github",
-      "description": "GitHub Actions troubleshooting and CI/CD automation",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/github",
-      "category": "productivity"
-    },
-    {
-      "name": "java",
-      "description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/java",
-      "category": "productivity"
-    },
-    {
-      "name": "justfile",
-      "description": "Utilities for working with justfiles, including doc comment optimization",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/justfile",
-      "category": "productivity"
-    },
-    {
-      "name": "orchestration",
-      "description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/orchestration",
-      "category": "productivity"
-    },
-    {
-      "name": "offline-claude-code-guide",
-      "description": "Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails due to network issues or proxy blocking",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/offline-claude-code-guide",
-      "category": "productivity"
-    },
-    {
-      "name": "pushover",
-      "description": "Send Pushover notifications when Claude Code needs your attention (permission prompts, questions)",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/pushover",
-      "category": "productivity"
-    },
-    {
-      "name": "worktree-setup",
-      "description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
-      "version": "1.13.2",
-      "author": {
-        "name": "Craig Motlin"
-      },
-      "source": "./plugins/worktree-setup",
-      "category": "productivity"
-    }
-  ]
+	"$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+	"name": "motlin-claude-code-plugins",
+	"version": "1.13.2",
+	"description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
+	"license": "Apache-2.0",
+	"owner": {
+		"name": "Craig Motlin"
+	},
+	"plugins": [
+		{
+			"name": "markdown-tasks",
+			"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/markdown-tasks",
+			"category": "productivity"
+		},
+		{
+			"name": "tmux-titles",
+			"description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/tmux-titles",
+			"category": "productivity"
+		},
+		{
+			"name": "iterm2-titles",
+			"description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/iterm2-titles",
+			"category": "productivity"
+		},
+		{
+			"name": "build",
+			"description": "Test and build automation tools that loop until all commits pass",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/build",
+			"category": "productivity"
+		},
+		{
+			"name": "builtin-tasks",
+			"description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/builtin-tasks",
+			"category": "productivity"
+		},
+		{
+			"name": "code",
+			"description": "Code quality tools for comment cleanup and emoji enhancement",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/code",
+			"category": "productivity"
+		},
+		{
+			"name": "ghostty-titles",
+			"description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/ghostty-titles",
+			"category": "productivity"
+		},
+		{
+			"name": "git",
+			"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/git",
+			"category": "productivity"
+		},
+		{
+			"name": "github",
+			"description": "GitHub Actions troubleshooting and CI/CD automation",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/github",
+			"category": "productivity"
+		},
+		{
+			"name": "java",
+			"description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/java",
+			"category": "productivity"
+		},
+		{
+			"name": "justfile",
+			"description": "Utilities for working with justfiles, including doc comment optimization",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/justfile",
+			"category": "productivity"
+		},
+		{
+			"name": "orchestration",
+			"description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/orchestration",
+			"category": "productivity"
+		},
+		{
+			"name": "offline-claude-code-guide",
+			"description": "Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails due to network issues or proxy blocking",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/offline-claude-code-guide",
+			"category": "productivity"
+		},
+		{
+			"name": "pushover",
+			"description": "Send Pushover notifications when Claude Code needs your attention (permission prompts, questions)",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/pushover",
+			"category": "productivity"
+		},
+		{
+			"name": "worktree-setup",
+			"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
+			"version": "1.13.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/worktree-setup",
+			"category": "productivity"
+		}
+	]
 }
