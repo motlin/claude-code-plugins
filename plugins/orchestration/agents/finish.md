@@ -1,6 +1,6 @@
 ---
 name: finish
-description: Run the full completion pipeline — build, commit, simplify, commit, build, rebase. Use after code changes are ready to finalize.
+description: Run the full completion pipeline — build, commit, simplify, commit, build, rebase. Use this agent before returning control to the user.
 model: inherit
 color: green
 permissionMode: acceptEdits
