@@ -3,6 +3,6 @@ description: Run the full completion pipeline — build, commit, simplify, commi
 argument-hint: <commit message>
 ---
 
-Run the `orchestration:finish` agent to execute the full completion pipeline.
+Run the `orchestration:finish` agent with this prompt:
 
-Pass the following commit message to the agent: $ARGUMENTS
+> Commit message: $ARGUMENTS
