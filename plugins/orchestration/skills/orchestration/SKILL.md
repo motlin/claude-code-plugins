@@ -30,4 +30,4 @@ Invoke these skills liberally - most tasks use multiple skills:
 
 ## Workflow Orchestration
 
-When a code change is ready and we are about to return control to the user, run `/finish` to execute the full completion pipeline.
+When a code change is ready and we are about to return control to the user, run `/orchestration:finish` to execute the full completion pipeline.

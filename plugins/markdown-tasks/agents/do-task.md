@@ -21,7 +21,7 @@ Find and implement the next incomplete task from the project task list.
     - Focus ONLY on this specific task
     - Work through the implementation methodically
 
-3. **Complete the workflow** — Run `/finish` to execute the full completion pipeline.
+3. **Complete the workflow** — Run `/orchestration:finish` to execute the full completion pipeline.
 
 4. **Mark the task complete** - Run:
     ```bash

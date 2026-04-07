@@ -21,6 +21,6 @@ Find and implement the next incomplete task using Claude Code's built-in task to
     - Focus ONLY on this specific task
     - Work through the implementation methodically
 
-5. **Complete the workflow** — Run `/finish` to execute the full completion pipeline.
+5. **Complete the workflow** — Run `/orchestration:finish` to execute the full completion pipeline.
 
 6. **Mark the task complete** — Call `TaskUpdate` to set status to `completed`.

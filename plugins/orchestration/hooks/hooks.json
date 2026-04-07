@@ -1,5 +1,5 @@
 {
-	"description": "Ensure builds are run and changes committed before session ends",
+	"description": "Ensure the full completion pipeline runs before session ends",
 	"hooks": {
 		"Stop": [
 			{

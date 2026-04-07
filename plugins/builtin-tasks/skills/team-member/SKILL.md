@@ -7,7 +7,7 @@ description: Workflow guidelines for team members executing tasks
 
 ## Completion Pipeline
 
-After implementing a task, run `/finish` before marking the task complete or picking up a new one.
+After implementing a task, run `/orchestration:finish` before marking the task complete or picking up a new one.
 
 ## Never Leave Uncommitted Changes
 
