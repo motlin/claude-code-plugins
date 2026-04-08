@@ -10,6 +10,10 @@ if [[ -f .llm/skip-finish-check ]]; then
     exit 0
 fi
 
+if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    exit 0
+fi
+
 reasons=()
 
 if ! git diff --ignore-submodules --quiet 2>/dev/null; then
