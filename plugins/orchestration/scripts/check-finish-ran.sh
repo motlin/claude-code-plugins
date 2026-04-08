@@ -46,18 +46,11 @@ if [[ "$count" -ge "$MAX_ATTEMPTS" ]]; then
     exit 0
 fi
 
-echo "❌ The finish pipeline has not run. Evidence:" >&2
+echo "❌ Evidence:" >&2
 for reason in "${reasons[@]}"; do
     echo "  - $reason" >&2
 done
 echo >&2
-echo "Run the orchestration:finish agent now." >&2
-echo "It handles building, committing, simplifying, and rebasing — the full completion pipeline." >&2
-echo "Do not attempt individual steps yourself. The finish agent exists so nothing gets missed." >&2
-echo >&2
-echo "The build runs linters, formatters, and tests on every commit — including for docs and markdown." >&2
-echo "There is no type of change that can skip the build. Even a one-line doc edit gets linted and formatted." >&2
-echo >&2
-echo "The .llm/skip-finish-check file is ONLY for breaking out of a retry loop." >&2
-echo "Do not create .llm/skip-finish-check on the first attempt. Run the finish agent first." >&2
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cat "$SCRIPT_DIR/finish-not-run.md" >&2
 exit 2
