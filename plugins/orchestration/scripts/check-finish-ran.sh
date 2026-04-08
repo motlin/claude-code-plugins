@@ -4,6 +4,12 @@ set -Eeuo pipefail
 # Consume stdin (hook protocol sends JSON, but we don't need it)
 cat >/dev/null
 
+# Bypass: Claude creates this file to break a hook cycle
+if [[ -f .llm/skip-finish-check ]]; then
+    rm -f .llm/skip-finish-check .llm/stop-hook-attempts
+    exit 0
+fi
+
 reasons=()
 
 if ! git diff --ignore-submodules --quiet 2>/dev/null; then
@@ -51,4 +57,7 @@ echo "Do not attempt individual steps yourself. The finish agent exists so nothi
 echo >&2
 echo "The build runs linters, formatters, and tests on every commit — including for docs and markdown." >&2
 echo "There is no type of change that can skip the build. Even a one-line doc edit gets linted and formatted." >&2
+echo >&2
+echo "The .llm/skip-finish-check file is ONLY for breaking out of a retry loop." >&2
+echo "Do not create .llm/skip-finish-check on the first attempt. Run the finish agent first." >&2
 exit 2
