@@ -1,4 +1,4 @@
-The finish pipeline has not run. Run the orchestration:finish agent now.
+The finish pipeline has not run. Spawn the orchestration:finish agent now.
 
 It handles building, committing, simplifying, and rebasing — the full completion pipeline. Do not attempt individual steps yourself. The finish agent exists so nothing gets missed.
 

@@ -50,11 +50,7 @@ if [[ "$count" -ge "$MAX_ATTEMPTS" ]]; then
     exit 0
 fi
 
-echo "❌ Evidence:" >&2
-for reason in "${reasons[@]}"; do
-    echo "  - $reason" >&2
-done
-echo >&2
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cat "$SCRIPT_DIR/finish-not-run.md" >&2
+reason_list=$(printf " %s" "${reasons[@]}")
+echo "❌${reason_list} Read $SCRIPT_DIR/finish-not-run.md" >&2
 exit 2
