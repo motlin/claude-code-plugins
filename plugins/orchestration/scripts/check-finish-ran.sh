@@ -29,9 +29,12 @@ if git status --porcelain --ignore-submodules 2>/dev/null | grep -q '^??'; then
 fi
 
 if command -v git-test &>/dev/null; then
-    result=$(git test results HEAD 2>/dev/null || true)
-    if [[ "$result" == unknown* ]]; then
-        reasons+=("No git test results found for HEAD.")
+    CHECK_BATTERY="$(cd "$(dirname "$0")/../../build/scripts" && pwd)/check-battery"
+    if "$CHECK_BATTERY"; then
+        result=$(git test results HEAD 2>/dev/null || true)
+        if [[ "$result" == unknown* ]]; then
+            reasons+=("No git test results found for HEAD.")
+        fi
     fi
 fi
 
