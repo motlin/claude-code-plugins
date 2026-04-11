@@ -149,6 +149,16 @@
 			"category": "productivity"
 		},
 		{
+			"name": "toprank",
+			"description": "SEO analysis, Google Ads management, keyword research, content optimization, and schema markup tools powered by Google Search Console and Google Ads APIs",
+			"version": "0.10.0",
+			"author": {
+				"name": "nowork-studio"
+			},
+			"source": "./plugins/toprank",
+			"category": "productivity"
+		},
+		{
 			"name": "worktree-setup",
 			"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
 			"version": "1.14.3",

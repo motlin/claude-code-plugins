@@ -1,0 +1,20 @@
+{
+  "name": "toprank",
+  "version": "0.10.0",
+  "description": "SEO analysis, Google Ads management, keyword research, content optimization, and schema markup tools powered by Google Search Console and Google Ads APIs.",
+  "author": {
+    "name": "nowork-studio"
+  },
+  "skills": [
+    "./google-ads/ads",
+    "./google-ads/ads-audit",
+    "./google-ads/ads-copy",
+    "./seo/seo-analysis",
+    "./seo/content-writer",
+    "./seo/keyword-research",
+    "./seo/meta-tags-optimizer",
+    "./seo/schema-markup-generator",
+    "./seo/setup-cms",
+    "./gemini"
+  ]
+}
