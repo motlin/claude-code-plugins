@@ -9,6 +9,7 @@
 	"skills": [
 		"./skills/orchestration/SKILL.md",
 		"./skills/llm-context/SKILL.md",
-		"./skills/conversation-style/SKILL.md"
+		"./skills/conversation-style/SKILL.md",
+		"./skills/finish/SKILL.md"
 	]
 }
