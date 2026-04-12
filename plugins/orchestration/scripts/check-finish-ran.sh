@@ -42,6 +42,11 @@ if [[ ${#reasons[@]} -eq 0 ]]; then
     exit 0
 fi
 
+# Ensure .llm/ is gitignored so our state files don't pollute the repo
+if ! git check-ignore -q .llm/ 2>/dev/null; then
+    echo ".llm/" >>"$(git rev-parse --git-dir)/info/exclude"
+fi
+
 # Allow stop after 3 failed attempts to avoid infinite hook loops
 COUNTER_FILE=".llm/stop-hook-attempts"
 MAX_ATTEMPTS=3
