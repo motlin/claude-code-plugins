@@ -47,6 +47,7 @@ COUNTER_FILE=".llm/stop-hook-attempts"
 MAX_ATTEMPTS=3
 count=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
 count=$((count + 1))
+mkdir -p "$(dirname "$COUNTER_FILE")"
 echo "$count" >"$COUNTER_FILE"
 if [[ "$count" -ge "$MAX_ATTEMPTS" ]]; then
     rm -f "$COUNTER_FILE"
