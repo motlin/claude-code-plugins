@@ -8,9 +8,5 @@
 	},
 	"agents": ["./agents/liquibase-lock-resolver.md"],
 	"commands": ["./commands/openrewrite-imports.md", "./commands/pom-ordering.md"],
-	"skills": [
-		"./skills/openrewrite/SKILL.md",
-		"./skills/openrewrite-recipes/SKILL.md",
-		"./skills/pom-ordering/SKILL.md"
-	]
+	"skills": ["./skills/openrewrite", "./skills/openrewrite-recipes", "./skills/pom-ordering"]
 }

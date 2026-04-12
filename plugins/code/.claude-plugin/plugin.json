@@ -7,12 +7,7 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/comment-cleaner.md"],
-	"skills": [
-		"./skills/code-quality/SKILL.md",
-		"./skills/comment-cleanup/SKILL.md",
-		"./skills/cli/SKILL.md",
-		"./skills/code-generation/SKILL.md"
-	],
+	"skills": ["./skills/code-quality", "./skills/comment-cleanup", "./skills/cli", "./skills/code-generation"],
 	"commands": [
 		"./commands/comments.md",
 		"./commands/all-comments.md",

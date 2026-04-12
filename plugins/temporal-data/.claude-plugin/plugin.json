@@ -6,5 +6,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": ["./skills/temporal-data/SKILL.md", "./skills/temporal-caching/SKILL.md"]
+	"skills": ["./skills/temporal-data", "./skills/temporal-caching"]
 }

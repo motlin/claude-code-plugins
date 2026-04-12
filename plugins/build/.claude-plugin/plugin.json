@@ -7,7 +7,7 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/precommit-runner.md", "./agents/build-fixer-autosquash.md"],
-	"skills": ["./skills/precommit/SKILL.md"],
+	"skills": ["./skills/precommit"],
 	"commands": [
 		"./commands/test-branch.md",
 		"./commands/test-all.md",

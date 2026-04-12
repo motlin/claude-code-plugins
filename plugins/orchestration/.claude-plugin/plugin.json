@@ -6,10 +6,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": [
-		"./skills/orchestration/SKILL.md",
-		"./skills/llm-context/SKILL.md",
-		"./skills/conversation-style/SKILL.md",
-		"./skills/finish/SKILL.md"
-	]
+	"skills": ["./skills/orchestration", "./skills/llm-context", "./skills/conversation-style", "./skills/finish"]
 }

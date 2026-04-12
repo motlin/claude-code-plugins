@@ -1,7 +1,6 @@
 ---
 name: finish
 description: This skill should be used after completing any task, before returning control to the user. Always run this skill — it handles the case where there's nothing to do.
-context: fork
 ---
 
 Run the full completion pipeline. Every step is mandatory. Do not skip any step for any reason.

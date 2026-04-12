@@ -7,7 +7,7 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/commit-handler.md", "./agents/rebaser.md", "./agents/conflict-resolver.md"],
-	"skills": ["./skills/git-workflow/SKILL.md"],
+	"skills": ["./skills/git-workflow"],
 	"commands": [
 		"./commands/worktree.md",
 		"./commands/commit.md",

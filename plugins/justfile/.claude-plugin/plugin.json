@@ -6,6 +6,6 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": ["./skills/justfile-style/SKILL.md"],
+	"skills": ["./skills/justfile-style"],
 	"commands": ["./commands/justfile-recipe-short-doc.md"]
 }
