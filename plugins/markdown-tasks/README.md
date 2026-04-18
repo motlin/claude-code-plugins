@@ -1,10 +1,8 @@
 # markdown-tasks Plugin
 
-Keep your tasks in a simple markdown file (`todo.md`) and let Claude Code implement them automatically.
+Task management using a markdown checklist at `.llm/todo.md`. Subagents implement tasks one at a time, each starting with a fresh context window. This keeps Claude Code busy for hours without running out of context.
 
-## Naming
-
-This plugin uses "task" terminology (e.g., `/do-one-task`, `/add-one-task`) instead of "todo" to avoid conflicts with Claude Code's built-in `/todos` command.
+For parallel execution with teams, see [builtin-tasks](../builtin-tasks/README.md).
 
 ## Quick Start
 
