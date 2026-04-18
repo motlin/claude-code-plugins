@@ -1,0 +1,8 @@
+{
+	"name": "stop-phrase-guard",
+	"description": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
+	"version": "1.14.6",
+	"author": {
+		"name": "Craig Motlin"
+	}
+}

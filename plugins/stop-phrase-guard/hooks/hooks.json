@@ -1,0 +1,16 @@
+{
+	"description": "Block Stop events whose last assistant message contains ownership-dodging or session-quitting phrases",
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/stop-phrase-guard.sh",
+						"timeout": 5
+					}
+				]
+			}
+		]
+	}
+}
