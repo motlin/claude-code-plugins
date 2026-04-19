@@ -19,9 +19,11 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 
 1. Track attempt count and previously attempted tasks to prevent infinite loops
 2. Extract the first incomplete task from `.llm/todo.md`:
+
     ```bash
     python ${CLAUDE_PLUGIN_ROOT}/scripts/task_get.py .llm/todo.md
     ```
+
 3. If a task is found:
     - Check if we have already attempted this task 1 time
     - If yes, mark it as blocked (with `- [!]`) and continue to next task
@@ -30,6 +32,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
     - Do NOT mark the task as complete yourself - the `do-task` agent does this
 4. Repeat until no incomplete tasks remain or the user's instructions are met
 5. When all tasks are completed, archive the task list:
+
     ```bash
     python ${CLAUDE_PLUGIN_ROOT}/scripts/task_archive.py .llm/todo.md
     ```

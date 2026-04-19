@@ -24,6 +24,7 @@ Find and implement the next incomplete task from the project task list.
 3. **Complete the workflow** — Run `/orchestration:finish` to execute the full completion pipeline.
 
 4. **Mark the task complete** - Run:
+
     ```bash
     python scripts/task_complete.py .llm/todo.md
     ```

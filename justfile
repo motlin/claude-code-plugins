@@ -10,9 +10,11 @@ default:
 test:
     ./test/run-tests.sh
 
-# Run shellcheck on all shell scripts
+# Run shellcheck, markdownlint, and yamllint
 lint:
     shellcheck {{ shell_scripts }}
+    markdownlint-cli2
+    yamllint --strict .
 
 # Check shell script formatting with shfmt
 format:
@@ -21,6 +23,7 @@ format:
 
 # Run all pre-commit checks
 precommit: format lint test
+    pre-commit run --all-files
 
 # 🚀 Create a new release with version bump, commit, tag, and push
 release VERSION:

@@ -16,6 +16,7 @@ Search the codebase for all TODO comments and add them to `.llm/todo.md`. Each T
     - Full TODO comment text
 3. Strip comment markers (`//`, `#`, `/* */`) from the TODO text
 4. Add each TODO as a new task entry to `.llm/todo.md`:
+
     ```markdown
     - [ ] Implement TODO from src/api/client.ts:87: Extract commonality in getRootNodes and getChildNodes
     - [ ] Implement TODO from test/utils.test.ts:103: Use deep object equality rather than loose assertions

@@ -27,6 +27,7 @@ Find and implement the next incomplete task from the project task list.
     - Rebase on top of the upstream branch with the `git:rebaser` agent
 
 4. **Mark the task complete** - Run:
+
     ```bash
     python ${CLAUDE_PLUGIN_ROOT}/scripts/task_complete.py .llm/todo.md
     ```
