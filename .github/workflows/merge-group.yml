@@ -1,0 +1,56 @@
+# Jobs that run on merge_group, meaning they must pass before changes land. They also run on pull_request.
+
+on:
+    pull_request:
+    merge_group:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    pre-commit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: jdx/mise-action@v4
+              with:
+                  cache: true
+            - run: pre-commit run --all-files
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: jdx/mise-action@v4
+              with:
+                  cache: true
+            - run: just lint
+
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: jdx/mise-action@v4
+              with:
+                  cache: true
+            - run: just format
+
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: jdx/mise-action@v4
+              with:
+                  cache: true
+            - run: just test
+
+    all-checks:
+        name: All checks
+        if: ${{ !cancelled() }}
+        needs: [pre-commit, lint, format, test]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: re-actors/alls-green@release/v1
+              with:
+                  jobs: ${{ toJSON(needs) }}

@@ -4,6 +4,7 @@ repos:
       hooks:
           - id: check-yaml
           - id: check-json
+          - id: check-toml
           - id: end-of-file-fixer
             exclude: "^\\.idea/"
           - id: trailing-whitespace
@@ -25,3 +26,17 @@ repos:
             entry: oxfmt
             language: system
             types_or: [yaml, markdown, json]
+
+          - id: markdownlint
+            name: markdownlint
+            entry: markdownlint-cli2
+            language: system
+            types: [markdown]
+            exclude: "^(\\.llm/|\\.remember/|plugins/.+/\\.llm/|plugins/offline-claude-code-guide/docs/)"
+
+          - id: yamllint
+            name: yamllint
+            entry: yamllint --strict
+            language: system
+            types: [yaml]
+            exclude: "^(\\.serena/|\\.llm/|\\.remember/)"

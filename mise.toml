@@ -1,2 +1,9 @@
 [tools]
+just = "latest"
+pre-commit = "latest"
+shellcheck = "latest"
+shfmt = "latest"
 "npm:oxfmt" = "0.43"
+"npm:bats" = "latest"
+"npm:markdownlint-cli2" = "latest"
+"pipx:yamllint" = "latest"

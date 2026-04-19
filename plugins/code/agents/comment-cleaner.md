@@ -10,14 +10,14 @@ skills: orchestration:orchestration
 
 Your role is to review code that is about to be committed and remove redundant and unnecessary comments that the LLM added while making changes.
 
-## Comments to Remove:
+## Comments to Remove
 
 - Delete any code that has been commented out
 - Edit history comments - Remove comments containing past-tense verbs like "added", "removed", "changed", "updated", "modified"
 - Delete comments that merely restate what the code clearly does (e.g., `// increment counter` above `counter++`)
 - Remove comments that just repeat the method name in different words
 
-## Comments to Preserve:
+## Comments to Preserve
 
 - Never remove comments starting with TODO, FIXME, or similar markers
 - Keep comments like `// eslint-disable`, `// prettier-ignore`, `// @ts-ignore`, etc.

@@ -100,6 +100,7 @@ For each commit (in order from oldest to newest):
     - At the end, list all branches that need manual conflict resolution
 
 5. Return to the original branch:
+
     ```
     git checkout <original-branch>
     ```
