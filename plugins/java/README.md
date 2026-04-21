@@ -4,9 +4,9 @@ Java and Maven tools for OpenRewrite import ordering and POM dependency manageme
 
 ## Commands
 
-### `/openrewrite-imports`
+### `/openrewrite-analyze-recipes`
 
-Fix OpenRewrite import ordering test failures by understanding how OpenRewrite manages imports and updating test expectations accordingly.
+Dry-run all configured OpenRewrite recipes, rank them by violation count, and optionally run a selected recipe in isolation.
 
 ### `/pom-ordering`
 

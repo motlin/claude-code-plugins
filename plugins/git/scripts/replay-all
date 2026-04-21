@@ -23,9 +23,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Fetch upstream
 "$SCRIPT_DIR/fetch"
 
-current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
-current_branch_replayed=false
-
 # Get branches that are not ancestors of upstream/main
 mapfile -t branches < <(git for-each-ref --format='%(refname:short)' refs/heads/ --sort -committerdate --no-contains "${upstream_remote}/${upstream_branch}")
 total=${#branches[@]}
@@ -57,11 +54,4 @@ do
         git replay --onto "${upstream_remote}/${upstream_branch}" "${upstream_remote}/${upstream_branch}".."$branch"
     fi
 
-    if [ "$branch" = "$current_branch" ]; then
-        current_branch_replayed=true
-    fi
 done
-
-if [ "$current_branch_replayed" = true ]; then
-    git checkout "$current_branch"
-fi

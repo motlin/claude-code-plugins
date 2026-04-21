@@ -7,6 +7,6 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/liquibase-lock-resolver.md"],
-	"commands": ["./commands/openrewrite-imports.md", "./commands/pom-ordering.md"],
+	"commands": ["./commands/openrewrite-analyze-recipes.md", "./commands/pom-ordering.md"],
 	"skills": ["./skills/openrewrite", "./skills/openrewrite-recipes", "./skills/pom-ordering"]
 }
