@@ -18,3 +18,14 @@ This skill provides guidelines for git operations including commits, conflict re
 ## Rebasing
 
 **ALWAYS** delegate to the `git:rebaser` agent to rebase the current branch on upstream.
+
+## Prefer Modern Git Commands
+
+Use newer git commands instead of their legacy equivalents whenever possible:
+
+- `git switch` instead of `git checkout` for switching branches
+- `git switch -c` instead of `git checkout -b` for creating branches
+- `git restore` instead of `git checkout --` for restoring files
+- `git restore --staged` instead of `git reset HEAD` for unstaging files
+- `git history reword` instead of interactive rebase or amending for editing commit messages
+- `git history split` instead of interactive rebase for splitting commits
