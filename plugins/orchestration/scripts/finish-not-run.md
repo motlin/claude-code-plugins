@@ -1,6 +1,6 @@
-The finish pipeline has not run. Run `/orchestration:finish` now.
+The finish pipeline has not run. Spawn the `orchestration:finish` agent now.
 
-It handles building, committing, simplifying, and rebasing — the full completion pipeline. Do not attempt individual steps yourself. The finish agent exists so nothing gets missed.
+It handles building, committing, simplifying, and rebasing — the full completion pipeline. Do not attempt individual steps yourself. Do not run pipeline steps inline. The finish agent exists so nothing gets missed.
 
 The build runs linters, formatters, and tests on every commit — including for docs and markdown. There is no type of change that can skip the build. Even a one-line doc edit gets linted and formatted. If you skip the finish agent, the user must run it manually, wasting their time.
 
