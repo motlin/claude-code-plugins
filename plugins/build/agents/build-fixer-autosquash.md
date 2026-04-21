@@ -20,7 +20,7 @@ Your responsibility is to orchestrate other agents to fix broken builds and main
     - Use the `@git:commit-handler` agent to create fixup commits with `--fixup` flag targeting the appropriate commit
 
 - **Rebase Strategy**:
-    - First, rebase the working branch onto the fixup commit: `git rebase --onto HEAD HEAD^ <branch>`
+    - First, replay the working branch onto the fixup commit: `git replay --onto HEAD HEAD^..<branch>`
     - Then, perform autosquash rebase non-interactively: `GIT_SEQUENCE_EDITOR=true git rebase --autosquash ${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}`
     - If rebase conflicts occur, use the `@git:conflict-resolver` agent to handle them
 

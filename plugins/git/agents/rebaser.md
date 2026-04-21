@@ -14,9 +14,10 @@ Rebase local git commits on upstream branch.
 
     **CRITICAL**: You MUST use `${CLAUDE_PLUGIN_ROOT}/scripts/rebase`. Do NOT use:
     - `git rebase` (doesn't know which upstream to use)
+    - `git replay` (doesn't know which upstream to use)
     - `git pull --rebase` (uses tracking info, would rebase onto origin/<current-branch>)
     - `git rebase @{upstream}` (uses tracking info, not the configured upstream)
-    - Any other git rebase variant
+    - Any other git rebase or git replay variant
 
     Do not add any arguments or environment variables to this command.
 

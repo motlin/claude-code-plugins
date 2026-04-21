@@ -45,8 +45,8 @@ if [ -n "$ERRORS" ]; then
 fi
 
 BRANCH=$(cat JUSTFILE_BRANCH)
-echo "Rebasing the last branch used with test-fix: $BRANCH"
-git rebase --quiet --onto HEAD HEAD^ "$BRANCH"
+echo "Replaying the last branch used with test-fix: $BRANCH"
+git replay --onto HEAD HEAD^.."$BRANCH"
 git checkout --quiet "$BRANCH"
 
 echo "Squashing changes."

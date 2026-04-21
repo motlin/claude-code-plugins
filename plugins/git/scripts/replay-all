@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Replay all branches onto upstream/main or matching up-to-date origin branch
+# Usage: replay-all
+#
+# Non-interactive alternative to `rebase-all` that uses `git replay` instead of
+# `git rebase`. No branch checkout needed since `git replay` only updates refs.
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to replay onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to replay onto (default: main)
+#   OFFLINE         - Skip fetching if true (default: false)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check for local modifications
+"$SCRIPT_DIR/check-local-modifications"
+
+# Fetch upstream
+"$SCRIPT_DIR/fetch"
+
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+current_branch_replayed=false
+
+# Get branches that are not ancestors of upstream/main
+mapfile -t branches < <(git for-each-ref --format='%(refname:short)' refs/heads/ --sort -committerdate --no-contains "${upstream_remote}/${upstream_branch}")
+total=${#branches[@]}
+current=0
+
+for branch in "${branches[@]}"
+do
+    current=$((current + 1))
+
+    # Skip branches included in other branches
+    included_count=$(git branch --contains "$branch" | wc -l)
+    if [ "$included_count" -gt 1 ]; then
+        echo "[${current}/${total}] Skipping branch $branch as it is included in other branches"
+        continue
+    fi
+
+    replay_message="[${current}/${total}] Replaying branch $branch onto"
+
+    if git rev-parse --verify "origin/$branch" &>/dev/null; then
+        if git merge-base --is-ancestor "${upstream_remote}/${upstream_branch}" "origin/$branch"; then
+            echo "$replay_message origin/$branch (because origin/$branch exists and is up-to-date with ${upstream_remote}/${upstream_branch})"
+            git replay --onto "origin/$branch" "origin/$branch".."$branch"
+        else
+            echo "$replay_message ${upstream_remote}/${upstream_branch} (because origin/$branch exists but is not an ancestor)"
+            git replay --onto "${upstream_remote}/${upstream_branch}" "${upstream_remote}/${upstream_branch}".."$branch"
+        fi
+    else
+        echo "$replay_message ${upstream_remote}/${upstream_branch} (because origin/$branch does not exist)"
+        git replay --onto "${upstream_remote}/${upstream_branch}" "${upstream_remote}/${upstream_branch}".."$branch"
+    fi
+
+    if [ "$branch" = "$current_branch" ]; then
+        current_branch_replayed=true
+    fi
+done
+
+if [ "$current_branch_replayed" = true ]; then
+    git checkout "$current_branch"
+fi

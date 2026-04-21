@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Replay current branch onto upstream/main using git replay
+# Usage: replay
+#
+# Non-interactive alternative to `rebase` that uses `git replay` instead of
+# `git rebase`. Does not support --autosquash or --interactive.
+#
+# Environment variables:
+#   UPSTREAM_REMOTE - Remote to replay onto (default: upstream)
+#   UPSTREAM_BRANCH - Branch to replay onto (default: main)
+#   OFFLINE         - Skip fetching if true (default: false)
+
+set -Eeuo pipefail
+
+upstream_remote="${UPSTREAM_REMOTE:-upstream}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check for local modifications
+"$SCRIPT_DIR/check-local-modifications"
+
+# Fetch upstream
+"$SCRIPT_DIR/fetch"
+
+echo "Running: git replay --onto ${upstream_remote}/${upstream_branch} ${upstream_remote}/${upstream_branch}..HEAD"
+git replay --onto "${upstream_remote}/${upstream_branch}" "${upstream_remote}/${upstream_branch}"..HEAD
+git reset --hard
