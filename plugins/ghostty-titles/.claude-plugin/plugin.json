@@ -1,6 +1,6 @@
 {
 	"name": "ghostty-titles",
-	"description": "Updates Ghostty tab title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+	"description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 	"version": "1.15.0",
 	"license": "Apache-2.0",
 	"author": {
