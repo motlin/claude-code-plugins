@@ -6,5 +6,6 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
+	"agents": ["./agents/finish.md"],
 	"skills": ["./skills/orchestration", "./skills/llm-context", "./skills/conversation-style", "./skills/finish"]
 }
