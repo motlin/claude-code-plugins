@@ -1,7 +1,7 @@
 {
 	"name": "claude-code-plans",
 	"description": "Send session lifecycle events to the claude-code-plans dashboard",
-	"version": "1.15.0",
+	"version": "1.16.0",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"

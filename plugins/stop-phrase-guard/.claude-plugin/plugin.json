@@ -1,7 +1,7 @@
 {
 	"name": "stop-phrase-guard",
 	"description": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
-	"version": "1.15.0",
+	"version": "1.16.0",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
