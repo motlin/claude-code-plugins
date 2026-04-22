@@ -63,6 +63,40 @@ expect(result).toStrictEqual({
 });
 ```
 
+### Individual property assertions become one object assertion
+
+Even when each assertion is already strict, splitting them across properties loses the structural picture and makes failures harder to diagnose:
+
+```ts
+// Before: correct but fragmented — each line is fine on its own
+const result = processOrder(input);
+expect(result.id).toBe('order-42');
+expect(result.status).toBe('confirmed');
+expect(result.total).toBe(119.99);
+expect(result.currency).toBe('USD');
+expect(result.items).toStrictEqual([
+	{sku: 'A1', qty: 2},
+	{sku: 'B3', qty: 1},
+]);
+expect(result.shipping.method).toBe('express');
+expect(result.shipping.estimatedDays).toBe(3);
+expect(result.tags).toStrictEqual([]);
+
+// After: one assertion captures the complete value
+expect(result).toStrictEqual({
+	id: 'order-42',
+	status: 'confirmed',
+	total: 119.99,
+	currency: 'USD',
+	items: [
+		{sku: 'A1', qty: 2},
+		{sku: 'B3', qty: 1},
+	],
+	shipping: {method: 'express', estimatedDays: 3},
+	tags: [],
+});
+```
+
 Apply the same pattern for every assertion type in the ranking. Also tighten these:
 
 - `toThrow()` or `toThrow(/partial/)` → `toThrow(new SpecificError("exact message"))`

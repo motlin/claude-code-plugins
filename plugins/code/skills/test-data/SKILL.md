@@ -66,7 +66,7 @@ Don't use real usernames, home directories, or system paths. Use generic placeho
 
 ```
 # Bad — contains a real username and home directory
-path: "/Users/craig/.config/app/settings.json"
+path: "/Users/jsmith/.config/app/settings.json"
 
 # Good
 path: "/tmp/test/settings.json"
