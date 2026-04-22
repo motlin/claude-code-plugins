@@ -7,12 +7,18 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/comment-cleaner.md"],
-	"skills": ["./skills/code-quality", "./skills/comment-cleanup", "./skills/cli", "./skills/code-generation"],
+	"skills": [
+		"./skills/code-quality",
+		"./skills/comment-cleanup",
+		"./skills/cli",
+		"./skills/code-generation",
+		"./skills/test-data"
+	],
 	"commands": [
 		"./commands/comments.md",
 		"./commands/all-comments.md",
 		"./commands/emoji.md",
 		"./commands/formatter-off.md",
-		"./commands/strict-tests.md"
+		"./commands/test-assertions.md"
 	]
 }
