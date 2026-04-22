@@ -6,10 +6,10 @@ SCRIPT_DIR="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MARKETPLACE_NAME="motlin-claude-code-plugins"
 
 echo "📦 Removing old claude-code-plugins marketplace (if present)..."
-claude plugin marketplace remove claude-code-plugins || true
+claude plugin marketplace remove claude-code-plugins 2>/dev/null || true
 
 echo "📦 Removing existing ${MARKETPLACE_NAME} (if present)..."
-claude plugin marketplace remove "$MARKETPLACE_NAME" || true
+claude plugin marketplace remove "$MARKETPLACE_NAME" 2>/dev/null || true
 
 echo "📥 Adding ${MARKETPLACE_NAME} from local directory..."
 claude plugin marketplace add "$SCRIPT_DIR"
