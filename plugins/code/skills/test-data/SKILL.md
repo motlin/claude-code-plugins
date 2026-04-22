@@ -7,7 +7,7 @@ description: Test data guidelines. Use when writing, reviewing, or modifying tes
 
 ## Test data must be self-evidently fake
 
-Literal values in tests should be immediately recognizable as fabricated. A reader should never wonder whether a value was copied from production, recorded from a real session, or intentionally chosen.
+Literal values in tests should be immediately recognizable as fabricated. A reader should never wonder whether a value was copied from production.
 
 ### Timestamps
 
@@ -21,8 +21,6 @@ Use memorable boundary dates, not specific-looking times that could be real:
 1999-12-31T00:00:00.000Z
 2000-01-01T00:00:00.000Z
 ```
-
-Midnight on a round date signals intent. A random-looking time in the middle of a Tuesday signals copy-paste from somewhere.
 
 ### Names and identifiers
 
