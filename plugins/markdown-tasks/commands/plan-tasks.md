@@ -33,18 +33,6 @@ Each task is extracted and executed in isolation. The `task_get.py` script extra
     - Choose a concise, meaningful name (e.g., `2025-12-04-thread-safety-tests.md`)
     - Include the archived `.llm/plans/` absolute path in each task
 
-## Branch Name
-
-Before adding tasks, determine the branch name to include in each task:
-
-- **Continuation of existing work**: If `.llm/todo.md` already has tasks for the same work stream, use the current local branch name.
-- **New work stream**: Choose a new branch name and specify it should be created from the upstream tracking branch. Determine the upstream branch in preference order: `upstream/main` > `upstream/master` > `origin/main` > `origin/master` (first that exists). Check with `git remote` and `git branch -r`.
-
-Include the branch as an indented context line in each task:
-
-- New work: `Branch: create \`feature/thread-safety-tests\` from \`upstream/main\``
-- Continuation: `Branch: \`feature/thread-safety-tests\` (existing)`
-
 ## When to Use
 
 Use this command at the **end of a planning conversation** when you have discussed requirements, approaches, and implementation details but have not started coding yet. This captures the conversation context into actionable tasks in `.llm/todo.md`.
