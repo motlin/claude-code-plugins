@@ -32,12 +32,12 @@ Determine which test files to rewrite:
 
 ## Process
 
-1. Identify the target test file(s) using the scope rules above
-2. For each test, identify every assertion
-3. Replace weak assertions with a placeholder like `expect(result).toStrictEqual({})` — do NOT guess the expected value from reading the implementation
-4. Run the test and let the error message reveal the actual value
-5. Copy the actual value from the error output into the assertion
-6. Run the test again to confirm it passes
+- Identify the target test file(s) using the scope rules above
+- For each test, identify every assertion
+- Replace weak assertions with a placeholder like `expect(result).toStrictEqual({})` — do NOT guess the expected value from reading the implementation
+- Run the test and let the error message reveal the actual value
+- Copy the actual value from the error output into the assertion
+- Run the test again to confirm it passes
 
 ## What to rewrite
 

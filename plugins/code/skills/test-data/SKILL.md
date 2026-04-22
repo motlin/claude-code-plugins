@@ -1,6 +1,6 @@
 ---
 name: test-data
-description: Test data guidelines. Use when writing, reviewing, or modifying test code that contains literal values like timestamps, names, IDs, paths, or URLs.
+description: This skill should be used when writing, reviewing, or modifying test code that contains literal values like timestamps, names, IDs, paths, or URLs.
 ---
 
 # Test Data Guidelines
