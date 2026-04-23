@@ -71,3 +71,23 @@ After installing, add to your `~/.claude/CLAUDE.md`:
 
 Always use the @orchestration:orchestration skill for core guidelines and workflow automation.
 ```
+
+## Dependencies
+
+The finish pipeline delegates to agents from other plugins:
+
+- **[build](../build/README.md)** — `precommit-runner` agent
+- **[git](../git/README.md)** — `commit-handler`, `rebaser`, and `conflict-resolver` agents
+- **[code-simplifier](https://github.com/anthropics/claude-code-plugins)** — `code-simplifier:code-simplifier` subagent
+
+Install these plugins alongside orchestration for the full pipeline.
+
+## Installation
+
+```bash
+claude plugin marketplace add motlin/claude-code-plugins
+claude plugin install orchestration@motlin-claude-code-plugins
+claude plugin install build@motlin-claude-code-plugins
+claude plugin install git@motlin-claude-code-plugins
+claude plugin install code@motlin-claude-code-plugins
+```
