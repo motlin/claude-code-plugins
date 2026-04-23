@@ -1,6 +1,6 @@
 # stop-phrase-guard Plugin
 
-A `Stop` hook that scans the assistant's last message for ownership-dodging and session-quitting phrases and forces the assistant to keep working instead of stopping.
+A `Stop` hook that scans the assistant's last message for ownership-dodging and session-quitting phrases. When a violation is detected, it writes an informational warning to stderr so the user can see it. The hook does not block the assistant from stopping.
 
 See [`scripts/stop-phrase-guard.sh`](scripts/stop-phrase-guard.sh) for the full pattern list and corrections.
 

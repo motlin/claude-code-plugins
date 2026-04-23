@@ -15,7 +15,7 @@ Collection of plugins for Claude Code that enhance terminal integration and task
 - **[java](plugins/java/README.md)** - Java and Maven tools for OpenRewrite import ordering and POM dependency management
 - **[justfile](plugins/justfile/README.md)** - Utilities for working with justfiles, including doc comment optimization
 - **[offline-claude-code-guide](plugins/offline-claude-code-guide/README.md)** - Offline fallback for Claude Code documentation when the built-in claude-code-guide subagent fails
-- **[stop-phrase-guard](plugins/stop-phrase-guard/README.md)** - `Stop` hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working
+- **[stop-phrase-guard](plugins/stop-phrase-guard/README.md)** - `Stop` hook that catches ownership-dodging and session-quitting phrases and writes an informational warning to stderr
 
 ## Installation
 
