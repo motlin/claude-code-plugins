@@ -64,27 +64,19 @@ Each task is extracted and executed in isolation. The `task_get.py` script extra
 4. Include the full picture - source of inspiration, files involved, patterns to follow
 5. Use full absolute paths, exact class/function names, and specific implementation details
 
-## Create Final-Pass Tasks
+## Create Verification Task
 
-After all plan-step tasks are created, add three additional tasks using the same `task_add.py` script. Each task follows the same standalone context rules as plan-step tasks (plan path, self-contained description).
+After all plan-step tasks are created, add one additional task using the same `task_add.py` script. It follows the same standalone context rules as plan-step tasks (plan path, self-contained description).
 
-**Task 1: Verify full plan implementation**
+**Verify full plan implementation**
 
 Read the entire archived plan file and compare against the implemented code. Check that every requirement, edge case, and detail from the plan has been addressed. Flag anything missed.
 
 Include the archived plan path so the implementing agent can read and verify against it.
 
-**Task 2: Run /simplify on recent commits**
-
-Run `/simplify` to review the code changes from this work stream for reuse opportunities, quality, and efficiency. Scope: all commits on the current branch since it diverged from upstream.
-
-**Task 3: Run /code-review on recent commits**
-
-Run `/code-review` to review the code changes from this work stream. Fix any important findings. Scope: all commits on the current branch since it diverged from upstream.
-
 ## Confirm
 
 Tell the user:
 
-- How many tasks were created, broken down by type (e.g., "Created 8 tasks (5 plan steps + 3 final-pass tasks)")
+- How many tasks were created (e.g., "Created 6 tasks (5 plan steps + 1 verification)")
 - Where the plan was archived

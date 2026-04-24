@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Stop hook: catches ownership-dodging and session-quitting phrases that
-# indicate lazy or avoidant behavior. When triggered, writes an informational
-# warning to stderr so the user can see the violation, but does not block.
+# indicate lazy or avoidant behavior. When triggered, blocks the assistant
+# from stopping and forces it to continue working.
 #
 # Credits:
 #   - benvanik's original stop-phrase-guard.sh
@@ -17,8 +17,11 @@ set -Eeuo pipefail
 
 json=$(cat)
 
-stop_hook_active=$(echo "$json" | jq --raw-output '.stop_hook_active // false')
-if [[ "$stop_hook_active" == "true" ]]; then
+# Prevent infinite loops: if the hook already fired once this turn, let
+# the assistant stop. The correction from the first firing is enough.
+hook_active=$(echo "$json" | jq --raw-output '.stop_hook_active // false')
+
+if [[ "$hook_active" == "true" ]]; then
     exit 0
 fi
 
@@ -82,7 +85,10 @@ for entry in "${VIOLATIONS[@]}"; do
     correction="${entry#*|}"
 
     if echo "$message" | grep -iq "$pattern"; then
-        echo "⚠️  STOP HOOK VIOLATION: $correction" >&2
+        jq --null-input --arg reason "STOP HOOK VIOLATION: $correction" '{
+            decision: "block",
+            reason: $reason
+        }'
         exit 0
     fi
 done

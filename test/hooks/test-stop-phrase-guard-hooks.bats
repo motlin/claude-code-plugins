@@ -44,8 +44,8 @@ setup() {
   [ -z "$output" ]
 }
 
-@test "stop-phrase-guard allows stop when stop_hook_active is true and message is clean" {
-  input=$(jq --null-input '{stop_hook_active: true, last_assistant_message: "Task complete. All tests pass."}')
+@test "stop-phrase-guard allows stop when stop_hook_active is true" {
+  input=$(jq --null-input '{stop_hook_active: true, last_assistant_message: "This is a pre-existing failure."}')
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
@@ -58,31 +58,37 @@ setup() {
   [ -z "$output" ]
 }
 
-@test "stop-phrase-guard warns on ownership-dodging phrase" {
+@test "stop-phrase-guard blocks on ownership-dodging phrase" {
   input=$(jq --null-input '{stop_hook_active: false, last_assistant_message: "That test failure is pre-existing."}')
-  run bash -c "echo '$input' | '$SCRIPT' 2>&1"
+  run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "STOP HOOK VIOLATION" ]]
-  [[ "$output" =~ "NOTHING IS PRE-EXISTING" ]]
+  decision=$(echo "$output" | jq --raw-output '.decision')
+  [ "$decision" = "block" ]
+  reason=$(echo "$output" | jq --raw-output '.reason')
+  [[ "$reason" =~ "STOP HOOK VIOLATION" ]]
+  [[ "$reason" =~ "NOTHING IS PRE-EXISTING" ]]
 }
 
-@test "stop-phrase-guard warns on session-length quitting phrase" {
+@test "stop-phrase-guard blocks on session-length quitting phrase" {
   input=$(jq --null-input '{stop_hook_active: false, last_assistant_message: "This seems like a good stopping point."}')
-  run bash -c "echo '$input' | '$SCRIPT' 2>&1"
+  run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "STOP HOOK VIOLATION" ]]
+  decision=$(echo "$output" | jq --raw-output '.decision')
+  [ "$decision" = "block" ]
 }
 
-@test "stop-phrase-guard warns on permission-seeking phrase" {
+@test "stop-phrase-guard blocks on permission-seeking phrase" {
   input=$(jq --null-input '{stop_hook_active: false, last_assistant_message: "Would you like me to continue?"}')
-  run bash -c "echo '$input' | '$SCRIPT' 2>&1"
+  run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "STOP HOOK VIOLATION" ]]
+  decision=$(echo "$output" | jq --raw-output '.decision')
+  [ "$decision" = "block" ]
 }
 
 @test "stop-phrase-guard matching is case-insensitive" {
   input=$(jq --null-input '{stop_hook_active: false, last_assistant_message: "PRE-EXISTING bug, skipping."}')
-  run bash -c "echo '$input' | '$SCRIPT' 2>&1"
+  run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "STOP HOOK VIOLATION" ]]
+  decision=$(echo "$output" | jq --raw-output '.decision')
+  [ "$decision" = "block" ]
 }
