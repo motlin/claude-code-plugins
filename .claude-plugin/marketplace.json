@@ -217,6 +217,16 @@
 			},
 			"source": "./plugins/bash-audit-log",
 			"category": "productivity"
+		},
+		{
+			"name": "bash-guards",
+			"description": "Block dangerous bash commands before they execute",
+			"version": "1.16.3",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/bash-guards",
+			"category": "productivity"
 		}
 	]
 }

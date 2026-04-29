@@ -1,0 +1,17 @@
+{
+	"description": "Block dangerous bash commands like recursive rm",
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-bash.sh",
+						"timeout": 500
+					}
+				]
+			}
+		]
+	}
+}
