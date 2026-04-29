@@ -1,0 +1,17 @@
+{
+	"description": "Log every bash command with an ISO timestamp to ~/.claude/bash-commands.log",
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/log-command.sh",
+						"timeout": 500
+					}
+				]
+			}
+		]
+	}
+}

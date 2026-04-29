@@ -207,6 +207,16 @@
 			},
 			"source": "./plugins/stop-phrase-guard",
 			"category": "productivity"
+		},
+		{
+			"name": "bash-audit-log",
+			"description": "Log every bash command with an ISO timestamp to ~/.claude/bash-commands.log",
+			"version": "1.16.3",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/bash-audit-log",
+			"category": "productivity"
 		}
 	]
 }
