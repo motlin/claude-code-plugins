@@ -34,12 +34,11 @@ if [[ "$command" =~ git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--git-dir=[^[:s
         "Run 'git status' to see changed files, then add them individually with 'git add <path>'"
 fi
 
-# Check for force push to main/master
-if [[ "$command" =~ git[[:space:]]+push[[:space:]]+.*--force.*[[:space:]]+(origin[[:space:]]+)?(main|master) ]] ||
-    [[ "$command" =~ git[[:space:]]+push[[:space:]]+-f[[:space:]]+.*[[:space:]]+(origin[[:space:]]+)?(main|master) ]]; then
+# Check for any push to main/master (regular or force)
+if [[ "$command" =~ git[[:space:]]+push.*[[:space:]](main|master)([[:space:]]|$) ]]; then
     deny \
-        "Force pushing to main/master is extremely dangerous and can cause data loss for collaborators." \
-        "If you really need to force push, do it to a feature branch instead, or ask the user to confirm this destructive action"
+        "Pushing to main/master is not allowed. Use feature branches and pull requests." \
+        "Create a feature branch and push there instead. Use pull requests to merge into main/master."
 fi
 
 # Check for force push without --force-with-lease (on any branch)

@@ -35,15 +35,13 @@ setup() {
 @test "git-guards allows normal git commands" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git status\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 @test "git-guards allows empty command" {
   run bash -c "echo '{\"tool_input\":{}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 # --- git add -A / --all ---
@@ -51,22 +49,21 @@ setup() {
 @test "git-guards denies git add -A" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git add -A\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
 
 @test "git-guards denies git add --all" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git add --all\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
 
 @test "git-guards allows git add with specific files" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git add foo.txt bar.txt\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 # --- push to main/master ---
@@ -75,16 +72,16 @@ setup() {
   input='{"tool_input":{"command":"git push origin main"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
-  [[ "$output" =~ "feature branches" ]]
+  [[ "$output" =~ "feature branch" ]]
 }
 
 @test "git-guards denies push to master" {
   input='{"tool_input":{"command":"git push origin master"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
 
@@ -92,7 +89,7 @@ setup() {
   input='{"tool_input":{"command":"git push --force origin main"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
 
@@ -100,16 +97,14 @@ setup() {
   input='{"tool_input":{"command":"git push origin feature-branch"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 @test "git-guards allows push with -u to feature branch" {
   input='{"tool_input":{"command":"git push -u origin my-feature"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 # --- force push without --force-with-lease ---
@@ -118,7 +113,7 @@ setup() {
   input='{"tool_input":{"command":"git push --force origin feature"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
   [[ "$output" =~ "force-with-lease" ]]
 }
@@ -127,7 +122,7 @@ setup() {
   input='{"tool_input":{"command":"git push -f origin feature"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
   [[ "$output" =~ "force-with-lease" ]]
 }
@@ -136,8 +131,7 @@ setup() {
   input='{"tool_input":{"command":"git push --force-with-lease origin feature"}}'
   run bash -c "echo '$input' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
-  [ "$decision" = "allow" ]
+  [ -z "$output" ]
 }
 
 # --- git reset --hard ---
@@ -145,7 +139,7 @@ setup() {
 @test "git-guards denies git reset --hard" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git reset --hard HEAD~1\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
 
@@ -154,6 +148,6 @@ setup() {
 @test "git-guards denies git clean -fd" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"git clean -fd\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
-  decision=$(echo "$output" | jq --raw-output '.decision')
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
