@@ -139,16 +139,6 @@
 			"category": "productivity"
 		},
 		{
-			"name": "pushover",
-			"description": "Send Pushover notifications when Claude Code needs your attention (permission prompts, questions)",
-			"version": "1.17.0",
-			"author": {
-				"name": "Craig Motlin"
-			},
-			"source": "./plugins/pushover",
-			"category": "productivity"
-		},
-		{
 			"name": "worktree-setup",
 			"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
 			"version": "1.17.0",
