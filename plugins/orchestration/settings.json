@@ -1,5 +1,6 @@
 {
 	"permissions": {
-		"allow": ["Skill(orchestration:*)"]
+		"allow": ["Skill(orchestration:*)"],
+		"ask": ["Edit(CLAUDE.md)", "Write(CLAUDE.md)"]
 	}
 }

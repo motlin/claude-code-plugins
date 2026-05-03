@@ -1,0 +1,9 @@
+{
+	"name": "dangerous-command-guards",
+	"description": "Deny or require confirmation for destructive and privileged commands",
+	"version": "1.17.1",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	}
+}

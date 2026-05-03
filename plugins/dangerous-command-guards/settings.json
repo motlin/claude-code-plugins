@@ -1,0 +1,13 @@
+{
+	"permissions": {
+		"deny": ["Bash(dd:*)", "Bash(mkfs:*)"],
+		"ask": [
+			"Bash(op:*)",
+			"Bash(open:*)",
+			"Bash(sudo:*)",
+			"Bash(trash -fr:*)",
+			"Bash(trash -r:*)",
+			"Bash(trash -rf:*)"
+		]
+	}
+}

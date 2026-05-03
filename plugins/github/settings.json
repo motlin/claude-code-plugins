@@ -1,6 +1,13 @@
 {
 	"permissions": {
-		"allow": ["Bash(gh api:*)"],
-		"ask": ["Bash(gh pr create:*)"]
+		"allow": [
+			"Bash(gh api:*)",
+			"WebFetch(domain:api.github.com)",
+			"WebFetch(domain:docs.github.com)",
+			"WebFetch(domain:github.com)",
+			"WebFetch(domain:patch-diff.githubusercontent.com)",
+			"WebFetch(domain:raw.githubusercontent.com)"
+		],
+		"ask": ["Bash(/opt/homebrew/bin/gh:*)", "Bash(gh api*repos*/pulls:*)", "Bash(gh pr create:*)"]
 	}
 }

@@ -217,6 +217,46 @@
 			},
 			"source": "./plugins/bash-guards",
 			"category": "productivity"
+		},
+		{
+			"name": "permissive-tools",
+			"description": "Blanket-allow core tools and common unix utilities without permission prompts",
+			"version": "1.17.1",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/permissive-tools",
+			"category": "productivity"
+		},
+		{
+			"name": "credential-guards",
+			"description": "Deny reading credential and secret files to prevent accidental exposure",
+			"version": "1.17.1",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/credential-guards",
+			"category": "productivity"
+		},
+		{
+			"name": "dangerous-command-guards",
+			"description": "Deny or require confirmation for destructive and privileged commands",
+			"version": "1.17.1",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/dangerous-command-guards",
+			"category": "productivity"
+		},
+		{
+			"name": "privacy",
+			"description": "Disable all telemetry, error reporting, and non-essential model calls",
+			"version": "1.17.1",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/privacy",
+			"category": "productivity"
 		}
 	]
 }

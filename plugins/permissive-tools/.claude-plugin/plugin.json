@@ -1,0 +1,9 @@
+{
+	"name": "permissive-tools",
+	"description": "Blanket-allow core tools and common unix utilities without permission prompts",
+	"version": "1.17.1",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	}
+}

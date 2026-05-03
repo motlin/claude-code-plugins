@@ -4,14 +4,26 @@
 			"Bash(mvn:*)",
 			"Bash(mvnd:*)",
 			"Skill(java:*)",
+			"WebFetch(domain:adoptium.net)",
+			"WebFetch(domain:central.sonatype.com)",
 			"WebFetch(domain:central.sonatype.org)",
+			"WebFetch(domain:developer.jboss.org)",
 			"WebFetch(domain:docs.openrewrite.org)",
+			"WebFetch(domain:eclipse.dev)",
 			"WebFetch(domain:error-prone.picnic.tech)",
 			"WebFetch(domain:errorprone.info)",
+			"WebFetch(domain:issues.apache.org)",
 			"WebFetch(domain:javadoc.io)",
+			"WebFetch(domain:junit-pioneer.org)",
+			"WebFetch(domain:mavenplugins.github.io)",
 			"WebFetch(domain:mvnrepository.com)",
+			"WebFetch(domain:plugins.jetbrains.com)",
 			"WebFetch(domain:repo.maven.apache.org)",
-			"WebFetch(domain:repo1.maven.org)"
+			"WebFetch(domain:repo1.maven.org)",
+			"WebFetch(domain:www.apache.org)",
+			"WebFetch(domain:www.dropwizard.io)",
+			"WebFetch(domain:www.eclipse.org)",
+			"WebFetch(domain:www.javadoc.io)"
 		]
 	}
 }

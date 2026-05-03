@@ -1,0 +1,26 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash",
+			"Edit",
+			"Read",
+			"Search",
+			"WebSearch",
+			"Write",
+			"Bash(cat:*)",
+			"Bash(chmod:*)",
+			"Bash(cp:*)",
+			"Bash(curl:*)",
+			"Bash(echo:*)",
+			"Bash(find:*)",
+			"Bash(grep:*)",
+			"Bash(head:*)",
+			"Bash(jq:*)",
+			"Bash(ln:*)",
+			"Bash(ls:*)",
+			"Bash(mkdir:*)",
+			"Bash(rm:*)",
+			"Bash(sqlite3:*)"
+		]
+	}
+}

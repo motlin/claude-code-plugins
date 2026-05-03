@@ -1,0 +1,9 @@
+{
+	"name": "privacy",
+	"description": "Disable all telemetry, error reporting, and non-essential model calls",
+	"version": "1.17.1",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	}
+}
