@@ -20,7 +20,8 @@
 			"Bash(ls:*)",
 			"Bash(mkdir:*)",
 			"Bash(rm:*)",
-			"Bash(sqlite3:*)"
+			"Bash(sqlite3:*)",
+			"Bash(trash:*)"
 		]
 	}
 }
