@@ -15,7 +15,3 @@ Leave the repo clean. If something is dirty, fix it.
 "The skip-test-check file is appropriate here since there are genuinely no changes."
 
 - Creating the skip file to avoid running the finish pipeline is never appropriate on the first attempt.
-
-"No git test results found for HEAD, but I didn't make any changes."
-
-- Someone forgot to run the finish pipeline earlier. Run it now. Previous sessions' mistakes are yours to fix.

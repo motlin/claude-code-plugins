@@ -1,0 +1,16 @@
+{
+	"description": "Warn about uncommitted changes when Claude Code stops",
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-dirty-tree.sh",
+						"timeout": 5
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"description": "Warn about missing git test results when Claude Code stops",
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-test-results.sh",
+						"timeout": 5
+					}
+				]
+			}
+		]
+	}
+}

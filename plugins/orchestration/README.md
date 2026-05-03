@@ -26,18 +26,12 @@ Every step is mandatory. Even documentation-only changes go through the full pip
 
 **Step 6: Precommit again** — Runs the precommit agent one more time to verify that the simplify changes pass all checks.
 
-## The Stop Hook
+## Stop Hooks (in other plugins)
 
-A `Stop` hook runs `check-finish-ran.sh` every time Claude Code tries to end a session. The script checks for:
+The dirty-tree and test-result checks that trigger the finish pipeline live in the plugins that own those concerns:
 
-- Unstaged changes in the working tree
-- Staged but uncommitted changes
-- Untracked files
-- Missing `git test` results for HEAD
-
-If any of these are true, the hook fails with exit code 2 and tells Claude Code to read `finish-not-run.md`, which instructs it to run `/orchestration:finish`. This creates a retry loop — Claude Code can't end the session until the repo is clean.
-
-The hook allows up to 3 retry attempts before giving up, to avoid infinite loops. A `.llm/skip-finish-check` file can break the loop in edge cases, but the finish skill won't create it on the first attempt.
+- **[git](../git/README.md)** — `Stop` hook warns about unstaged changes, staged uncommitted changes, and untracked files
+- **[build](../build/README.md)** — `Stop` hook warns about missing `git test` results for HEAD (skipped on battery power)
 
 ## Skills
 
