@@ -20,7 +20,7 @@ Every step is mandatory. Even documentation-only changes go through the full pip
 
 **Step 3: Rebase** — Runs the `git:rebaser` agent. Fetches the upstream branch and rebases on top of it. If there are merge conflicts, delegates to the `git:conflict-resolver` agent.
 
-**Step 4: Simplify** — Spawns the `code-simplifier:code-simplifier` subagent, which reviews the diff for reuse, quality, and efficiency.
+**Step 4: Simplify** — Delegates to the `code-simplifier:code-simplifier` agent, which reviews the diff for reuse, quality, and efficiency.
 
 **Step 5: Fixup commit** — Stages any changes from the simplify step and creates a `git commit --fixup=HEAD` so the simplification gets folded into the original commit on the next rebase.
 
@@ -72,7 +72,7 @@ The finish pipeline delegates to agents from other plugins:
 
 - **[build](../build/README.md)** — `precommit-runner` agent
 - **[git](../git/README.md)** — `commit-handler`, `rebaser`, and `conflict-resolver` agents
-- **[code-simplifier](https://github.com/anthropics/claude-code-plugins)** — `code-simplifier:code-simplifier` subagent
+- **[code-simplifier](https://github.com/anthropics/claude-code-plugins)** — `code-simplifier:code-simplifier` agent
 
 Install these plugins alongside orchestration for the full pipeline.
 
