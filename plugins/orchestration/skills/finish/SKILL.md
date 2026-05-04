@@ -3,4 +3,11 @@ name: finish
 description: This skill should be used after completing any task, before returning control to the user. Always run this skill — it handles the case where there's nothing to do.
 ---
 
-Spawn the `orchestration:finish` agent. Pass only the commit message as the prompt — no preamble, no instructions. Do not run any pipeline steps inline.
+The caller's prompt is the commit message. Run every step below in order. Every step is mandatory.
+
+- Use the `@build:precommit-runner` agent — runs `git test run` for build/formatters/linters. Never skip — cached successes pass instantly.
+- Use the `@git:commit-handler` agent — pass the caller's prompt as the commit message.
+- Use the `@git:rebaser` agent — fetch latest and rebase on upstream.
+- Use the `@code-simplifier:code-simplifier` agent — review the diff for reuse, quality, and efficiency.
+- If the simplifier made changes, run `git add -u && git commit --fixup=HEAD`. If working tree is clean, skip.
+- Use the `@build:precommit-runner` agent again. Same rules — never skip.
