@@ -1,9 +1,0 @@
-{
-	"name": "credential-guards",
-	"description": "Deny reading credential and secret files to prevent accidental exposure",
-	"version": "1.18.1",
-	"license": "Apache-2.0",
-	"author": {
-		"name": "Craig Motlin"
-	}
-}

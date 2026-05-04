@@ -1,8 +1,5 @@
 {
 	"env": {
 		"CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
-	},
-	"permissions": {
-		"allow": ["WebFetch(domain:ghostty.org)"]
 	}
 }
