@@ -14,6 +14,10 @@ Check Maven POM file dependency ordering using the pom-ordering skill.
 
 ## Skills
 
+### `maven-cli`
+
+Maven CLI invocation patterns: when `-am` is required, why `-o` (offline) hides bugs in multi-worktree setups, and how to verify compile/test cleanly without trusting stale `~/.m2` artifacts.
+
 ### `openrewrite-recipes`
 
 Create new OpenRewrite recipes for Java codebases, including recipe YAML configuration, unit tests, and integration with the existing rewrite module.
