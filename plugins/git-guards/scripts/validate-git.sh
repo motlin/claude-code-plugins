@@ -43,8 +43,8 @@ fi
 
 # Check for force push without --force-with-lease (on any branch)
 if { [[ "$command" =~ git[[:space:]]+push.*--force ]] ||
-     [[ "$command" =~ git[[:space:]]+push.*[[:space:]]-[a-zA-Z]*f([[:space:]]|$) ]]; } &&
-   ! [[ "$command" =~ --force-with-lease ]]; then
+    [[ "$command" =~ git[[:space:]]+push.*[[:space:]]-[a-zA-Z]*f([[:space:]]|$) ]]; } &&
+    ! [[ "$command" =~ --force-with-lease ]]; then
     deny \
         "Force pushing without --force-with-lease can overwrite others' work." \
         "Use --force-with-lease instead of --force to safely force push."
