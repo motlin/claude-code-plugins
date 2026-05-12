@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "git",
 	"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
 	"version": "1.18.5",

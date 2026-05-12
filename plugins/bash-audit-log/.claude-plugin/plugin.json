@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "bash-audit-log",
 	"description": "Log every bash command with an ISO timestamp",
 	"version": "1.18.5",

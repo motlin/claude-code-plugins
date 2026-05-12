@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "claude-code-plans",
 	"description": "Send session lifecycle events to the claude-code-plans dashboard",
 	"version": "1.18.5",

@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "markdown-tasks",
 	"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
 	"version": "1.18.5",

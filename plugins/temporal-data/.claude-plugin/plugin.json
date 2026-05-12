@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "temporal-data",
 	"description": "Temporal database patterns for system-time versioned tables",
 	"version": "1.18.5",

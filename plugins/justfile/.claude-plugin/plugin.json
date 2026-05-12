@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "justfile",
 	"description": "Utilities for working with justfiles, including doc comment optimization",
 	"version": "1.18.5",

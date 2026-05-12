@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "github",
 	"description": "GitHub Actions troubleshooting and CI/CD automation",
 	"version": "1.18.5",

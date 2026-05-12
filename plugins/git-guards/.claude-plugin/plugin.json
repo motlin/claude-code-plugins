@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "git-guards",
 	"description": "Block dangerous git commands before they execute",
 	"version": "1.18.5",

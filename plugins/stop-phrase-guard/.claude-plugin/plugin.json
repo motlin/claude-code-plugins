@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "stop-phrase-guard",
 	"description": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
 	"version": "1.18.5",

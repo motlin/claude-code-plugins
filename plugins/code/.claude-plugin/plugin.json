@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "code",
 	"description": "Code quality tools for comment cleanup and emoji enhancement",
 	"version": "1.18.5",

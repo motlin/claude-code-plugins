@@ -1,4 +1,5 @@
 {
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "build",
 	"description": "Test and build automation tools that loop until all commits pass",
 	"version": "1.18.5",
