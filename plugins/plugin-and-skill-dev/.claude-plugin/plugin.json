@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "plugin-and-skill-dev",
 	"description": "Development guidelines for writing stable, maintainable skills, agents, and commands",
-	"version": "1.18.5",
+	"version": "1.19.0",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
