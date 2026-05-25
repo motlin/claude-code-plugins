@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "temporal-data",
 	"description": "Temporal database patterns for system-time versioned tables",
-	"version": "1.19.1",
+	"version": "1.19.2",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"

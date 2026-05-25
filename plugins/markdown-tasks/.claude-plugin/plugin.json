@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "markdown-tasks",
 	"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
-	"version": "1.19.1",
+	"version": "1.19.2",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
