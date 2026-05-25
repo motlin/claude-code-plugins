@@ -1,11 +1,11 @@
 ---
 argument-hint: [extra instructions, e.g. "all branches"]
-description: Reword non-conforming commit messages with git history reword
+description: Rewrite every in-scope commit message (subject AND body) to a single line with git history reword
 ---
 
-Reword commit messages that don't match the format defined in the `git-workflow` skill.
+Rewrite **every** commit message in scope to a single line that follows the `git-workflow` skill. Do not triage. Do not skip commits whose subjects already look fine — if the user invoked this command, every commit needs a fresh message.
 
-ALWAYS use the `code:cli` and `git-workflow` skills. The rules in `git-workflow` are what to check against.
+ALWAYS use the `code:cli` and `git-workflow` skills. The rules in `git-workflow` are what to write toward.
 
 ## Constraints
 
@@ -25,26 +25,44 @@ For "all branches", collect commits reachable from each local branch but not fro
 
 If the set is empty, say so and stop.
 
-## Checking each commit
+## Reading each commit
 
-Re-read `git-workflow` and check each subject against its rules. Don't reimplement those rules here — they live in one place on purpose.
+Read the **full message** — subject and body — for every commit. A body is itself a violation of the single-line rule, so you have to see it to fix it.
 
-For each non-conforming commit, draft a replacement that:
+Stream every full message in scope with this command:
 
-- Preserves intent (read `git show <sha>` if the subject alone is ambiguous).
-- Follows every rule from `git-workflow`.
+```sh
+git log --format='%H%n%B%n--END-COMMIT--' <range>
+```
+
+For one commit at a time:
+
+```sh
+git show --no-patch --format=%B <sha>
+```
+
+If a message's intent isn't clear from the text, run `git show <sha>` to see the diff.
+
+## Drafting
+
+For **every** commit in scope, draft a replacement single-line message that:
+
+- Follows every rule from `git-workflow` (one line, present-tense verb, length range, trailing period, no praise adjectives).
+- Distills the full prior message (subject + body) into one line — never copy the body verbatim, never preserve paragraphs.
 - Incorporates the user's extra guidance, if any.
+
+Do not categorize commits as "already conforming." Every commit gets a proposed rewrite.
 
 ## Confirming
 
-Show before/after for each proposed rewrite:
+Show before/after for every commit. When the prior message has a body, indicate that in the BEFORE so the user can see what's being collapsed:
 
 ```
-<short-sha>  BEFORE: <current subject>
-             AFTER:  <proposed subject>
+<short-sha>  BEFORE: <current subject>  [+ N-line body]
+             AFTER:  <proposed single-line message>
 ```
 
-Mention the count of already-conforming commits without listing them. Then AskUserQuestion:
+Then AskUserQuestion:
 
 - "Apply all rewrites" (recommended)
 - "Apply a subset" (ask which SHAs)
@@ -53,7 +71,11 @@ Mention the count of already-conforming commits without listing them. Then AskUs
 
 ## Applying
 
-Run `git history reword <sha>` for each approved commit, oldest first.
+Run `git history reword <sha>` for each approved commit, oldest first, with a `GIT_EDITOR` that overwrites the message file so the body is dropped (not just the subject):
+
+```sh
+MSG="<new single-line message>" GIT_EDITOR='sh -c "printf %s\\n \"$MSG\" > \"$1\"" --' git history reword <sha>
+```
 
 If any invocation fails, stop, report the SHA and error, and leave the rest alone. Don't fall back to `rebase -i` or `--amend`.
 
@@ -61,6 +83,6 @@ If any invocation fails, stop, report the SHA and error, and leave the rest alon
 
 Wrap up with:
 
-- Commits inspected, commits that already conformed, commits rewritten (with before/after).
+- Commits inspected, commits rewritten (with before/after).
 - For "all branches": which branches now point at rewritten history.
 - A note that pushed branches will need a force-push to update the remote. Don't push.
