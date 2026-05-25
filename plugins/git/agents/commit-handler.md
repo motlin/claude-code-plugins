@@ -10,7 +10,8 @@ ALWAYS use the `code:cli` skill.
 ## Context
 
 - Current git status: !`git status`
-- Current git diff (staged and unstaged changes): !`git diff HEAD`
+- Current git diff (staged changes): !`git diff --cached`
+- Current git diff (unstaged changes): !`git diff`
 - Current branch: !`git branch --show-current`
 - Recent commits: !`git log --oneline -10`
 
