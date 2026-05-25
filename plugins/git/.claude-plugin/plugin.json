@@ -16,6 +16,7 @@
 		"./commands/conflicts.md",
 		"./commands/rebase-all.md",
 		"./commands/clean-worktrees.md",
-		"./commands/split-branch.md"
+		"./commands/split-branch.md",
+		"./commands/reword-commits.md"
 	]
 }
