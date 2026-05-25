@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Git workflow best practices for commits, rebasing, conflict resolution, and branch management. Use when working with git operations, creating commits, resolving conflicts, or managing branches.
+description: Commit message format and git workflow rules. ALWAYS use this skill for every git commit — no exceptions — and whenever rewording an existing commit message.
 ---
 
 # Git Workflow Best Practices
@@ -10,6 +10,17 @@ This skill provides guidelines for git operations including commits, conflict re
 ## Commit Guidelines
 
 **ALWAYS** delegate to the `git:commit-handler` agent for all commit operations. Never run `git commit` directly.
+
+### Commit Message Format
+
+Every commit message is a **single line** — no body, no bullet list, no blank-line-separated paragraphs. It must:
+
+- Start with a present-tense verb (Add, Fix, Replace, Remove, Update, …)
+- Be 60-120 characters
+- End with a period
+- Avoid praise adjectives (comprehensive, robust, essential, best practices)
+
+A task description or prompt is **intent, not the message**. When the prompt is long or multi-line, distill it to one line — never copy it verbatim into the commit message. This rule applies to writing new commits and to rewording existing ones with `git history reword`.
 
 ## Conflict Resolution
 
