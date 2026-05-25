@@ -22,14 +22,10 @@ ALWAYS use the `code:cli` skill.
     - Only stage files that were explicitly modified for the current task
 
 2. **Commit Message Creation**
-    - 🐛 If the user pasted a compiler or linter error, create a `fixup` commit using `git commit --fixup <sha>`
-    - Otherwise commit messages should:
-        - Start with a present-tense verb (Fix, Add, Implement, etc.)
-        - Be concise (60-120 characters)
-        - Be a single line
-        - End with a period.
-        - Borrow language from the original prompt
-        - Avoid praise adjectives (comprehensive, robust, essential, best practices)
+    - 🐛 If the user pasted a compiler or linter error, create a `fixup` commit using `git commit --fixup <sha>` and skip the rest of this step.
+    - ⚠️ The message is a **single line** — no body, no bullet list, no blank-line-separated paragraphs. Follow the **Commit Message Format** in the `git:git-workflow` skill (the source of truth): present-tense verb first, 60-120 characters, ends with a period.
+    - ⚠️ The prompt you were handed is the **intent**, not the message text. It is often a long, multi-line task description. Distill it to one line — never copy a multi-line prompt verbatim and never expand the message into a body.
+    - Borrow language from the prompt, but avoid praise adjectives (comprehensive, robust, essential, best practices).
     - Echo exactly this: Running: `git commit --message "<message>"`
     - 🚀 Run git commit without confirming again with the user.
 

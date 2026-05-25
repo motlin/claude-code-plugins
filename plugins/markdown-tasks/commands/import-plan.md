@@ -9,9 +9,10 @@ Convert a structured plan file from Claude Code's plan mode into individual task
 
 ## Locate the Plan File
 
-- If `$ARGUMENTS` is provided and non-empty, use it as the plan file path
-- Otherwise, list `~/.claude/plans/` sorted by modification time (newest first) and use the most recent `.md` file
-- If no plan file is found, tell the user and stop
+- If `$ARGUMENTS` is provided, use it as the plan file path.
+- Otherwise, use the plan file you remember writing or editing earlier in this conversation.
+- If no plan was written in this conversation, pick the most recently modified `.md` file in `~/.claude/plans/`, then confirm with the user via `AskUserQuestion` that it's the right plan — concurrent Claude sessions may be writing other plans into the same directory.
+- If `~/.claude/plans/` has no `.md` files, tell the user and stop.
 
 Read the plan file to understand its structure and steps.
 
