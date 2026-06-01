@@ -9,12 +9,12 @@ argument-hint: [error context]
 
 If an argument is provided, it describes errors to fix — typically referencing a build log file. Skip running precommit entirely. Read the referenced log file (last 200 lines, stripping ANSI codes), identify the errors, and fix them directly. Do not run precommit afterward; the caller handles verification.
 
-## 🔋 Battery Check and Running Precommit
+## ⚙️ Running Precommit
 
-Run this command to check if the machine is on battery power and to run or skip the build accordingly:
+Run this command to validate code. This always runs the build, even on battery power — `/build:fix` is an explicit request to fix the build:
 
 ```bash
-[ "$(pmset -g batt | head -n1 | cut -d "'" -f2)" != "Battery Power" ] && git test run HEAD --retest --verbose --verbose || echo "🔋 Skipping precommit on battery power"
+git test run HEAD --retest --verbose --verbose
 ```
 
 - Use a timeout of at least 10 minutes
@@ -37,7 +37,6 @@ When precommit fails (due to: type checking errors, test failures, linting issue
 
 Your final message must start with one of:
 
-- "🔋 Skipped precommit checks (on battery power)" - if skipped due to battery
 - "✅ Precommit checks passed" - if ran successfully
 - "✅ Precommit checks passed (after fixing [brief description])" - if fixed issues
 - "✅ Fixed errors from provided context ([brief description])" - if fixed errors from argument context without running precommit
