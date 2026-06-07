@@ -75,9 +75,19 @@ Read the entire archived plan file and compare against the implemented code. Che
 
 Include the archived plan path so the implementing agent can read and verify against it.
 
+## Create Archive Task
+
+After the verification task, add one final task using the same `task_add.py` script. It follows the same standalone context rules (plan path, self-contained description).
+
+**Archive the completed plan**
+
+Move the plan file into the done directory so future sessions don't mistake it for open work: create `.llm/plans/done/` if it does not exist, then `mv <absolute-path-to-archived-plan> .llm/plans/done/`. Only move it if the verification task confirmed the plan is fully implemented — if verification flagged gaps, leave the plan in `.llm/plans/` and note what's missing.
+
+Include the absolute path of the archived plan in the task description.
+
 ## Confirm
 
 Tell the user:
 
-- How many tasks were created (e.g., "Created 6 tasks (5 plan steps + 1 verification)")
+- How many tasks were created (e.g., "Created 7 tasks (5 plan steps + 1 verification + 1 archive)")
 - Where the plan was archived
