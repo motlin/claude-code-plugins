@@ -4,7 +4,7 @@ Core workflow orchestration for Claude Code. The main feature is the **finish pi
 
 ## The Finish Pipeline
 
-The `/orchestration:finish` skill runs a six-step pipeline after every task:
+The `/orchestration:finish` skill spawns the `orchestration:finish` agent, which runs a six-step pipeline after every task:
 
 ```
 precommit → commit → rebase → simplify → fixup commit → precommit again

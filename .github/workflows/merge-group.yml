@@ -16,6 +16,9 @@ jobs:
             - uses: jdx/mise-action@v4
               with:
                   cache: true
+                  # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
+                  # (pip --uploaded-prior-to needs pip >= 26.0). Unpin once fixed upstream.
+                  version: 2026.6.1
             - run: pre-commit run --all-files
 
     lint:
@@ -25,6 +28,9 @@ jobs:
             - uses: jdx/mise-action@v4
               with:
                   cache: true
+                  # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
+                  # (pip --uploaded-prior-to needs pip >= 26.0). Unpin once fixed upstream.
+                  version: 2026.6.1
             - run: just lint
 
     format:
@@ -34,6 +40,9 @@ jobs:
             - uses: jdx/mise-action@v4
               with:
                   cache: true
+                  # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
+                  # (pip --uploaded-prior-to needs pip >= 26.0). Unpin once fixed upstream.
+                  version: 2026.6.1
             - run: just format
 
     test:
@@ -43,6 +52,11 @@ jobs:
             - uses: jdx/mise-action@v4
               with:
                   cache: true
+                  # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
+                  # (pip --uploaded-prior-to needs pip >= 26.0). Unpin once fixed upstream.
+                  version: 2026.6.1
+            # The bats suite runs `claude plugin validate`, which needs the claude CLI.
+            - run: npm install --global @anthropic-ai/claude-code
             - run: just test
 
     all-checks:
