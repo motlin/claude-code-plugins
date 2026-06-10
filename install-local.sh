@@ -27,4 +27,24 @@ jq -r '.plugins[].name' "$MARKETPLACE_JSON" | while read -r plugin; do
     fi
 done
 
+echo "🔌 Enabling plugins..."
+plugin_states="$(claude plugin list --json 2>/dev/null)"
+jq -r '.plugins[].name' "$MARKETPLACE_JSON" | while read -r plugin; do
+    plugin_id="${plugin}@${MARKETPLACE_NAME}"
+    enabled="$(jq -r --arg id "$plugin_id" '.[] | select(.id == $id) | .enabled' <<<"$plugin_states")"
+    case "$enabled" in
+        true)
+            echo "  - ${plugin_id} already enabled, skipping."
+            ;;
+        false)
+            echo "  - enabling ${plugin_id}..."
+            claude plugin enable "$plugin_id"
+            ;;
+        *)
+            echo "  ❌ ${plugin_id} not found after install — something went wrong." >&2
+            exit 1
+            ;;
+    esac
+done
+
 echo "✅ Installation complete!"
