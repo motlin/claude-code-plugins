@@ -83,7 +83,7 @@ def verify_gitignored(filename):
         )
 
 
-def mark_first_task(filename, mark_type):
+def mark_first_task(filename, marker):
     try:
         if not os.path.exists(filename):
             print(f"No tasks found (file doesn't exist)", file=sys.stderr)
@@ -94,25 +94,20 @@ def mark_first_task(filename, mark_type):
 
         modified = False
         task_lines = []
-        found_task = False
 
         for i, line in enumerate(lines):
             if re.match(r"^- \[ \]", line):
-                if mark_type == "progress":
-                    lines[i] = re.sub(r"^- \[ \]", "- [>]", line)
-                else:
-                    lines[i] = re.sub(r"^- \[ \]", "- [x]", line)
+                lines[i] = f"- [{marker}]" + line[len("- [ ]") :]
 
                 task_lines.append(lines[i])
                 modified = True
-                found_task = True
 
                 j = i + 1
                 while j < len(lines):
                     next_line = lines[j]
                     if re.match(r"^[\s\t]+", next_line) and next_line.strip():
                         task_lines.append(next_line)
-                    elif re.match(r"^- \[[x>\s]\]", next_line):
+                    elif re.match(r"^- \[.\]", next_line):
                         break
                     elif re.match(r"^#", next_line):
                         break
@@ -147,23 +142,22 @@ def mark_first_task(filename, mark_type):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Mark first incomplete task as done or in-progress"
+        description="Mark the first incomplete task with a marker character"
     )
     parser.add_argument("filename", help="File containing tasks")
     parser.add_argument(
-        "--progress",
-        action="store_true",
-        help="Mark as in-progress [>] instead of done [x]",
-    )
-    parser.add_argument(
-        "--done", action="store_true", help="Mark as done [x] (default)"
+        "--marker",
+        default="x",
+        help="Marker char inside the checkbox (default: x)",
     )
 
     args = parser.parse_args()
 
-    if args.progress and args.done:
-        print("Error: Cannot specify both --progress and --done", file=sys.stderr)
+    if len(args.marker) != 1 or args.marker.isspace():
+        print(
+            "Error: --marker must be exactly one non-space character",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    mark_type = "progress" if args.progress else "done"
-    mark_first_task(args.filename, mark_type)
+    mark_first_task(args.filename, args.marker)

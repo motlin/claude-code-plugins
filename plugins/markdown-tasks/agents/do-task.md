@@ -26,5 +26,5 @@ Find and implement the next incomplete task from the project task list.
 4. **Mark the task complete** - Run:
 
     ```bash
-    python scripts/task_complete.py .llm/todo.md
+    python scripts/task_mark.py .llm/todo.md
     ```

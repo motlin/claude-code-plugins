@@ -26,7 +26,7 @@ def extract_first_task(filename):
             elif in_task:
                 if re.match(r"^[\s\t]+", line) and line.strip():
                     task_lines.append(line)
-                elif re.match(r"^- \[[x>]\]", line):
+                elif re.match(r"^- \[[^ ]\]", line):
                     break
                 elif re.match(r"^#", line):
                     break

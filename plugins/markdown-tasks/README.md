@@ -165,7 +165,7 @@ Tasks use markdown checkboxes with different states:
 
 The plugin includes Python scripts in `plugins/markdown-tasks/scripts/`:
 
-- `task_get.py` and `task_complete.py` - Extract and mark individual tasks
+- `task_get.py` and `task_mark.py` - Extract and mark individual tasks
 - `task_add.py` - Add new tasks to the list
 - `task_archive.py` - Archive completed task lists
 
@@ -193,12 +193,13 @@ Extracts exactly one task with its context.
 plugins/markdown-tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
 ```
 
-### `task_complete.py`
+### `task_mark.py`
 
-Marks the first incomplete task as done.
+Marks the first incomplete task with a marker character (default `x`).
 
 ```bash
-plugins/markdown-tasks/scripts/task_complete.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/scripts/task_mark.py $(git rev-parse --show-toplevel)/.llm/todo.md
+plugins/markdown-tasks/scripts/task_mark.py $(git rev-parse --show-toplevel)/.llm/todo.md --marker='!'
 ```
 
 ## Task Format

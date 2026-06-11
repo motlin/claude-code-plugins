@@ -26,7 +26,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 
 3. If a task is found:
     - Check if we have already attempted this task 1 time
-    - If yes, mark it as blocked (with `- [!]`) and continue to next task
+    - If yes, mark it as blocked and continue to next task: `python ${CLAUDE_PLUGIN_ROOT}/scripts/task_mark.py .llm/todo.md --marker='!'`
     - If no, launch the `markdown-tasks:do-task` agent to implement it
     - **Do NOT add instructions to the agent prompt** - the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
     - Do NOT mark the task as complete yourself - the `do-task` agent does this
@@ -40,7 +40,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 ## Notes
 
 - Each task is handled completely by the `do-task` agent before moving to the next
-- The `do-task` agent marks tasks as complete - do NOT call `task_complete.py` yourself
+- The `do-task` agent marks tasks as complete - do NOT call `task_mark.py` yourself
 - Each task gets its own commit for clear history
 - After each agent returns, check the task list again to see if more tasks remain
 

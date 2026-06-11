@@ -35,15 +35,16 @@ Creates the `.llm/` directory and `todo.md` file if they do not exist, and appen
 
 **Exit codes**: 0 (success), 1 (error)
 
-### task_complete.py - Mark Task Done
+### task_mark.py - Mark Task
 
-Mark the first incomplete task as done:
+Mark the first incomplete task with a marker character:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/task_complete.py .llm/todo.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_mark.py .llm/todo.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_mark.py .llm/todo.md --marker='!'
 ```
 
-Changes the first `[ ]` to `[x]`.
+Changes the first `[ ]` to `[x]` by default. Pass `--marker` with any single non-space character (e.g. `!`, `>`, `-`) to use a different marker.
 
 **Exit codes**: 0 (success), 1 (no incomplete tasks or error)
 
