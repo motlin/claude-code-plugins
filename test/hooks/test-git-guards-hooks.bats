@@ -107,6 +107,76 @@ setup() {
   [ -z "$output" ]
 }
 
+# --- implicit pushes to main/master (no refspec in the command) ---
+
+make_repo_on_branch() {
+  local branch="$1"
+  local repo="$BATS_TEST_TMPDIR/repo"
+  git init --quiet --initial-branch="$branch" "$repo"
+  echo "$repo"
+}
+
+@test "git-guards denies bare git push when current branch is main" {
+  repo=$(make_repo_on_branch main)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies git -C <path> push when that repo is on main" {
+  repo=$(make_repo_on_branch main)
+  input="{\"cwd\":\"$BATS_TEST_TMPDIR\",\"tool_input\":{\"command\":\"git -C $repo push\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies git push origin HEAD when current branch is master" {
+  repo=$(make_repo_on_branch master)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push origin HEAD\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies bare git push with redirection when on main" {
+  repo=$(make_repo_on_branch main)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push 2>&1 | tail -3\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards allows bare git push when current branch is a feature branch" {
+  repo=$(make_repo_on_branch my-feature)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git-guards allows explicit push of a feature branch while on main" {
+  repo=$(make_repo_on_branch main)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push origin my-feature\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git-guards denies push of refspec targeting main while on a feature branch" {
+  repo=$(make_repo_on_branch my-feature)
+  input="{\"cwd\":\"$repo\",\"tool_input\":{\"command\":\"git push origin my-feature:main\"}}"
+  run bash -c "echo '$input' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
 # --- force push without --force-with-lease ---
 
 @test "git-guards denies --force on feature branch" {

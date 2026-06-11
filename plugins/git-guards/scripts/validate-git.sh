@@ -3,6 +3,7 @@ set -euo pipefail
 
 input=$(cat)
 command=$(echo "$input" | jq -r '.tool_input.command // empty')
+cwd=$(echo "$input" | jq -r '.cwd // empty')
 
 deny() {
     local reason="$1"
@@ -39,6 +40,56 @@ if [[ "$command" =~ git[[:space:]]+push.*[[:space:]](main|master)([[:space:]]|$)
     deny \
         "Pushing to main/master is not allowed. Use feature branches and pull requests." \
         "Create a feature branch and push there instead. Use pull requests to merge into main/master."
+fi
+
+# Check for pushes that reach main/master without naming it: bare `git push`,
+# `git push origin HEAD`, `git -C <dir> push`, and refspecs like `feature:main`.
+# The text-only check above misses these because the command never says "main".
+if [[ "$command" =~ git[[:space:]]+(-C[[:space:]]+([^[:space:]]+)[[:space:]]+)?push([[:space:]]|$) ]]; then
+    git_c_dir="${BASH_REMATCH[2]}"
+
+    # Take everything after "push", truncated at shell operators
+    push_args="${command#*push}"
+    push_args="${push_args%%|*}"
+    push_args="${push_args%%;*}"
+    push_args="${push_args%%&&*}"
+
+    # The refspec is the second positional arg (after the remote), skipping
+    # flags and redirections
+    refspec=""
+    positional_count=0
+    for word in $push_args; do
+        case "$word" in
+            -*) continue ;;
+            *'>'*) continue ;;
+            *)
+                positional_count=$((positional_count + 1))
+                if [[ "$positional_count" -eq 2 ]]; then
+                    refspec="$word"
+                fi
+                ;;
+        esac
+    done
+
+    # Refspec whose destination is main/master (e.g. my-feature:main)
+    if [[ "$refspec" =~ :(main|master)$ ]]; then
+        deny \
+            "Pushing to main/master is not allowed. Use feature branches and pull requests." \
+            "Create a feature branch and push there instead. Use pull requests to merge into main/master."
+    fi
+
+    # No refspec (or HEAD): the push targets the current branch
+    if [[ -z "$refspec" || "$refspec" == "HEAD" ]]; then
+        git_args=()
+        if [[ -n "$cwd" ]]; then git_args+=(-C "$cwd"); fi
+        if [[ -n "$git_c_dir" ]]; then git_args+=(-C "$git_c_dir"); fi
+        branch=$(git ${git_args[@]+"${git_args[@]}"} symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+        if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+            deny \
+                "This push targets the current branch, which is $branch. Pushing to main/master is not allowed. Use feature branches and pull requests." \
+                "Create a feature branch and push there instead. Use pull requests to merge into main/master."
+        fi
+    fi
 fi
 
 # Check for force push without --force-with-lease (on any branch)
