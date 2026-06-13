@@ -1,0 +1,22 @@
+{
+	"name": "tmux-titles",
+	"version": "1.20.0",
+	"description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/tmux-titles",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "tmux", "titles"],
+	"interface": {
+		"displayName": "Tmux Titles",
+		"shortDescription": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+		"longDescription": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Use the tmux-titles plugin."],
+		"brandColor": "#3B82F6"
+	}
+}

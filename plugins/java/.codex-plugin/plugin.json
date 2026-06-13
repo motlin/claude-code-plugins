@@ -1,0 +1,23 @@
+{
+	"name": "java",
+	"version": "1.20.0",
+	"description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/java",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "java"],
+	"interface": {
+		"displayName": "Java",
+		"shortDescription": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+		"longDescription": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the java plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

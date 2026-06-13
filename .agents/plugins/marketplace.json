@@ -1,0 +1,248 @@
+{
+	"name": "motlin-claude-code-plugins",
+	"interface": {
+		"displayName": "Motlin Claude Code Plugins"
+	},
+	"plugins": [
+		{
+			"name": "markdown-tasks",
+			"source": {
+				"source": "local",
+				"path": "./plugins/markdown-tasks"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "tmux-titles",
+			"source": {
+				"source": "local",
+				"path": "./plugins/tmux-titles"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "iterm2-titles",
+			"source": {
+				"source": "local",
+				"path": "./plugins/iterm2-titles"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "build",
+			"source": {
+				"source": "local",
+				"path": "./plugins/build"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "builtin-tasks",
+			"source": {
+				"source": "local",
+				"path": "./plugins/builtin-tasks"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "code",
+			"source": {
+				"source": "local",
+				"path": "./plugins/code"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "ghostty-titles",
+			"source": {
+				"source": "local",
+				"path": "./plugins/ghostty-titles"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "git",
+			"source": {
+				"source": "local",
+				"path": "./plugins/git"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "github",
+			"source": {
+				"source": "local",
+				"path": "./plugins/github"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "java",
+			"source": {
+				"source": "local",
+				"path": "./plugins/java"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "justfile",
+			"source": {
+				"source": "local",
+				"path": "./plugins/justfile"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "orchestration",
+			"source": {
+				"source": "local",
+				"path": "./plugins/orchestration"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "worktree-setup",
+			"source": {
+				"source": "local",
+				"path": "./plugins/worktree-setup"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "claude-code-plans",
+			"source": {
+				"source": "local",
+				"path": "./plugins/claude-code-plans"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "git-guards",
+			"source": {
+				"source": "local",
+				"path": "./plugins/git-guards"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "plugin-and-skill-dev",
+			"source": {
+				"source": "local",
+				"path": "./plugins/plugin-and-skill-dev"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "temporal-data",
+			"source": {
+				"source": "local",
+				"path": "./plugins/temporal-data"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "stop-phrase-guard",
+			"source": {
+				"source": "local",
+				"path": "./plugins/stop-phrase-guard"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "bash-audit-log",
+			"source": {
+				"source": "local",
+				"path": "./plugins/bash-audit-log"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
+			"name": "bash-guards",
+			"source": {
+				"source": "local",
+				"path": "./plugins/bash-guards"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		}
+	]
+}

@@ -1,0 +1,22 @@
+{
+	"name": "iterm2-titles",
+	"version": "1.20.0",
+	"description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/iterm2-titles",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "iterm2", "titles"],
+	"interface": {
+		"displayName": "Iterm2 Titles",
+		"shortDescription": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+		"longDescription": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Use the iterm2-titles plugin."],
+		"brandColor": "#3B82F6"
+	}
+}

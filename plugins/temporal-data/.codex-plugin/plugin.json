@@ -1,0 +1,23 @@
+{
+	"name": "temporal-data",
+	"version": "1.20.0",
+	"description": "Temporal database patterns for system-time versioned tables",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/temporal-data",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "temporal", "data"],
+	"interface": {
+		"displayName": "Temporal Data",
+		"shortDescription": "Temporal database patterns for system-time versioned tables",
+		"longDescription": "Temporal database patterns for system-time versioned tables",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the temporal-data plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

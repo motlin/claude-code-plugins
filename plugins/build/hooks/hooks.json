@@ -6,7 +6,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-test-results.sh",
+						"command": "if [ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ]; then \"${CLAUDE_PLUGIN_ROOT}/scripts/check-test-results.sh\"; fi",
 						"timeout": 5
 					}
 				]

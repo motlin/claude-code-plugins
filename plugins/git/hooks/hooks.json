@@ -6,7 +6,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-dirty-tree.sh",
+						"command": "if [ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ]; then \"${CLAUDE_PLUGIN_ROOT}/scripts/check-dirty-tree.sh\"; fi",
 						"timeout": 5
 					}
 				]

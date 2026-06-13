@@ -1,0 +1,23 @@
+{
+	"name": "git",
+	"version": "1.20.0",
+	"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/git",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "git"],
+	"interface": {
+		"displayName": "Git",
+		"shortDescription": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
+		"longDescription": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the git plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

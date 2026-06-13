@@ -1,0 +1,23 @@
+{
+	"name": "orchestration",
+	"version": "1.20.0",
+	"description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/orchestration",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "orchestration"],
+	"interface": {
+		"displayName": "Orchestration",
+		"shortDescription": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
+		"longDescription": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the orchestration plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

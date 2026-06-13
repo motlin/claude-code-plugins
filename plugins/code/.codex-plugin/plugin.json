@@ -1,0 +1,23 @@
+{
+	"name": "code",
+	"version": "1.20.0",
+	"description": "Code quality tools for comment cleanup and emoji enhancement",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/code",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "code"],
+	"interface": {
+		"displayName": "Code",
+		"shortDescription": "Code quality tools for comment cleanup and emoji enhancement",
+		"longDescription": "Code quality tools for comment cleanup and emoji enhancement",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the code plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

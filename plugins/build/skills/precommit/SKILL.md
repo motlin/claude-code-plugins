@@ -7,10 +7,15 @@ description: Running precommit checks and build validation. ALWAYS use after ANY
 
 ## 🔋 Battery Check
 
-**CRITICAL**: Before running any build or test commands, check if the machine is on battery power:
+**CRITICAL**: Before running any build or test commands, check if the machine is on battery power.
+
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this `skills/precommit/SKILL.md` file.
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/scripts/check-battery || { echo "⚡ Skipping precommit on battery power"; exit 0; }
+<plugin-root>/scripts/check-battery || { echo "⚡ Skipping precommit on battery power"; exit 0; }
 git test run HEAD --retest --verbose --verbose
 ```
 
@@ -29,7 +34,7 @@ Run `git test run HEAD --retest --verbose --verbose` to validate code:
 
 ## 📋 Handle Missing Configuration
 
-If `git test` is not configured for this repository, clearly explain the situation and suggest running `/build:test-setup` to configure it.
+If `git test` is not configured for this repository, clearly explain the situation and suggest using the `build-test-setup` skill to configure it.
 
 ## ❌ Handle Check Failures
 
@@ -48,10 +53,10 @@ Your final message MUST start with one of:
 - "✅ **Precommit checks passed**" - if ran successfully
 - "✅ **Precommit checks passed** (after fixing [brief description])" - if fixed issues
 
-## Agents
+## Related Workflows
 
-| Task                    | Use                                  |
-| ----------------------- | ------------------------------------ |
-| Run precommit and fix   | `build:precommit-runner` agent       |
-| Test all branch commits | `/build:test-branch` command         |
-| Test and autosquash     | `build:build-fixer-autosquash` agent |
+| Task                    | Use                       |
+| ----------------------- | ------------------------- |
+| Run precommit and fix   | `build-fix` skill         |
+| Test all branch commits | `build-test-branch` skill |
+| Test and autosquash     | `build-test-all` skill    |

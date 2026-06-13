@@ -1,0 +1,23 @@
+{
+	"name": "plugin-and-skill-dev",
+	"version": "1.20.0",
+	"description": "Development guidelines for writing stable, maintainable skills, agents, and commands",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/plugin-and-skill-dev",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "plugin", "and", "skill", "dev"],
+	"interface": {
+		"displayName": "Plugin And Skill Dev",
+		"shortDescription": "Development guidelines for writing stable, maintainable skills, agents, and commands",
+		"longDescription": "Development guidelines for writing stable, maintainable skills, agents, and commands",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the plugin-and-skill-dev plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

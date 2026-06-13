@@ -1,0 +1,23 @@
+{
+	"name": "builtin-tasks",
+	"version": "1.20.0",
+	"description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/builtin-tasks",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "builtin", "tasks"],
+	"interface": {
+		"displayName": "Builtin Tasks",
+		"shortDescription": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+		"longDescription": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the builtin-tasks plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
