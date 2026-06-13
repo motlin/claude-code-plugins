@@ -4,7 +4,15 @@ set -Eeuo pipefail
 
 SCRIPT_DIR="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MARKETPLACE_JSON="$SCRIPT_DIR/.claude-plugin/marketplace.json"
-MARKETPLACE_NAME="$(jq -r .name "$MARKETPLACE_JSON")"
+MARKETPLACE_NAME="$(jq -er .name "$MARKETPLACE_JSON")"
+
+function plugin_names() {
+    jq -r '.plugins[].name' "$MARKETPLACE_JSON"
+}
+
+function installed_plugins_json() {
+    claude plugin list --json 2>/dev/null || echo '[]'
+}
 
 if claude plugin marketplace list --json 2>/dev/null |
     jq -e --arg n "$MARKETPLACE_NAME" '.[] | select(.name == $n)' >/dev/null; then
@@ -14,22 +22,22 @@ else
     claude plugin marketplace add "$SCRIPT_DIR"
 fi
 
-installed_ids="$(claude plugin list --json 2>/dev/null | jq -r '.[].id')"
+installed_ids_json="$(installed_plugins_json)"
 
 echo "🔧 Installing plugins..."
-jq -r '.plugins[].name' "$MARKETPLACE_JSON" | while read -r plugin; do
+while read -r plugin; do
     plugin_id="${plugin}@${MARKETPLACE_NAME}"
-    if grep -Fxq "$plugin_id" <<<"$installed_ids"; then
+    if jq -e --arg id "$plugin_id" 'any(.[]; .id == $id)' <<<"$installed_ids_json" >/dev/null; then
         echo "  - ${plugin_id} already installed, skipping."
     else
         echo "  - installing ${plugin_id}..."
         claude plugin install "$plugin_id"
     fi
-done
+done < <(plugin_names)
 
 echo "🔌 Enabling plugins..."
-plugin_states="$(claude plugin list --json 2>/dev/null)"
-jq -r '.plugins[].name' "$MARKETPLACE_JSON" | while read -r plugin; do
+plugin_states="$(installed_plugins_json)"
+while read -r plugin; do
     plugin_id="${plugin}@${MARKETPLACE_NAME}"
     enabled="$(jq -r --arg id "$plugin_id" '.[] | select(.id == $id) | .enabled' <<<"$plugin_states")"
     case "$enabled" in
@@ -45,6 +53,6 @@ jq -r '.plugins[].name' "$MARKETPLACE_JSON" | while read -r plugin; do
             exit 1
             ;;
     esac
-done
+done < <(plugin_names)
 
 echo "✅ Installation complete!"
