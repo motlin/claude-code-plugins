@@ -25,15 +25,20 @@ Read the plan file to understand its structure and steps.
 
 ## Create Tasks
 
-For each step in the plan, add a task using:
+Compose every task first — all plan-step tasks plus the verification and archive tasks below — then add them all in a **single** bash command that chains one `task_add.py` call per task with `&&`:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Task description
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "First task description
   Context line 1
-  Context line 2"
+  Context line 2" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Second task description
+  Context line 1" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Third task description"
 ```
 
-Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
+Running the whole batch as one command keeps the window in which `.llm/todo.md` is being written extremely short, so when two sessions import plans at the same time their tasks are far less likely to interleave. Never add tasks across separate commands — collect them and run a single chained command.
+
+Each `task_add.py` call creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
 
 **Exit codes**: 0 (success), 1 (error)
 
@@ -67,7 +72,7 @@ Each task is extracted and executed in isolation. The `task_get.py` script extra
 
 ## Create Verification Task
 
-After all plan-step tasks are created, add one additional task using the same `task_add.py` script. It follows the same standalone context rules as plan-step tasks (plan path, self-contained description).
+Include one additional `task_add.py` call in the same chained command, after all plan-step tasks. It follows the same standalone context rules as plan-step tasks (plan path, self-contained description).
 
 **Verify full plan implementation**
 
@@ -77,7 +82,7 @@ Include the archived plan path so the implementing agent can read and verify aga
 
 ## Create Archive Task
 
-After the verification task, add one final task using the same `task_add.py` script. It follows the same standalone context rules (plan path, self-contained description).
+Include one final `task_add.py` call in the same chained command, after the verification task. It follows the same standalone context rules (plan path, self-contained description).
 
 **Archive the completed plan**
 

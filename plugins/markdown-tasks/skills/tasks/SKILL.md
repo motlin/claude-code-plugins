@@ -31,6 +31,17 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Task description
   Context line 2"
 ```
 
+When adding more than one task, chain the calls into a single bash command with `&&` rather than running a separate command per task:
+
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "First task
+  Context line 1" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Second task" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Third task"
+```
+
+Running the whole batch as one command keeps the write window to `.llm/todo.md` extremely short, so concurrent sessions writing to the same file are far less likely to interleave their tasks.
+
 Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
 
 **Exit codes**: 0 (success), 1 (error)

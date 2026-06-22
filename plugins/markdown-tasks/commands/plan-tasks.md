@@ -41,6 +41,17 @@ Use this command at the **end of a planning conversation** when you have discuss
 
 The input is the current conversation where planning and requirements have been discussed. Transform the plans, ideas, and requirements from the discussion into self-contained tasks in a markdown checklist format, appended to `.llm/todo.md`.
 
+Add every task in a single bash command that chains one `task_add.py` call per task with `&&`:
+
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "First task
+  Context line 1" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Second task" && \
+python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Third task"
+```
+
+Running the whole batch as one command keeps the write window to `.llm/todo.md` extremely short, so concurrent sessions writing to the same file are far less likely to interleave their tasks. Never add tasks across separate commands.
+
 ## Task Writing Guidelines
 
 Each task should be written so it can be read independently from `- [ ]` to the next `- [ ]` and contain:
