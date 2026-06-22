@@ -1,4 +1,11 @@
 {
 	"globs": ["**/*.md"],
-	"ignores": ["node_modules", ".llm", ".remember", "plugins/offline-claude-code-guide/docs", "plugins/*/.llm"],
+	"ignores": [
+		"node_modules",
+		".claude",
+		".llm",
+		".remember",
+		"plugins/offline-claude-code-guide/docs",
+		"plugins/*/.llm",
+	],
 }
