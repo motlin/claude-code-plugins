@@ -72,3 +72,38 @@ setup() {
   run bash -c "echo '{\"tool_input\":{\"command\":\"rm --recursive /tmp/foo\"}}' | '$SCRIPT'"
   [ "$status" -eq 2 ]
 }
+
+@test "bash-guards denies rm with flags after the operand" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"rm /tmp/foo -rf\"}}' | '$SCRIPT'"
+  [ "$status" -eq 2 ]
+}
+
+@test "bash-guards denies rm with multiple operands then flag" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"rm foo bar -r\"}}' | '$SCRIPT'"
+  [ "$status" -eq 2 ]
+}
+
+@test "bash-guards denies path-invoked rm -rf" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"/bin/rm -rf /tmp/foo\"}}' | '$SCRIPT'"
+  [ "$status" -eq 2 ]
+}
+
+@test "bash-guards denies rm after xargs" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"find . -type d | xargs rm -rf\"}}' | '$SCRIPT'"
+  [ "$status" -eq 2 ]
+}
+
+@test "bash-guards allows a command ending in rm with recursive flag" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"charm -rf\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+}
+
+@test "bash-guards allows confirm -r" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"confirm -r thing\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+}
+
+@test "bash-guards allows non-recursive rm followed by another recursive command" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"rm foo.txt && ls -R\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+}
