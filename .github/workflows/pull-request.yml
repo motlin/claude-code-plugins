@@ -15,7 +15,7 @@ jobs:
     forbid-merge-commits:
         runs-on: ubuntu-latest
         steps:
-            - uses: motlin/forbid-merge-commits-action@main
+            - uses: motlin/forbid-merge-commits-action@49483ed78d3c59ae66e338ad12edd34c6dac7fdf # v1.0.8
 
     automerge-dependabot:
         if: github.event.pull_request.user.login == 'dependabot[bot]'
@@ -24,7 +24,7 @@ jobs:
             pull-requests: write
             contents: write
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
             - name: Enable auto-merge for Dependabot PR
               run: gh pr merge --rebase --auto "${{ github.event.pull_request.number }}"
@@ -37,13 +37,13 @@ jobs:
             contents: write
             pull-requests: write
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
               with:
                   ref: ${{ github.event.pull_request.head.ref }}
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - uses: jdx/mise-action@v4
+            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
               with:
                   cache: true
                   # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs

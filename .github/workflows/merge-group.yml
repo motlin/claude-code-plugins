@@ -15,8 +15,8 @@ jobs:
     pre-commit:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: jdx/mise-action@v4
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
               with:
                   cache: true
                   # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
@@ -27,8 +27,8 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: jdx/mise-action@v4
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
               with:
                   cache: true
                   # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
@@ -39,8 +39,8 @@ jobs:
     format:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: jdx/mise-action@v4
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
               with:
                   cache: true
                   # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
@@ -51,8 +51,8 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: jdx/mise-action@v4
+            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
               with:
                   cache: true
                   # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
@@ -68,6 +68,6 @@ jobs:
         needs: [pre-commit, lint, format, test]
         runs-on: ubuntu-latest
         steps:
-            - uses: re-actors/alls-green@release/v1
+            - uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # release/v1
               with:
                   jobs: ${{ toJSON(needs) }}
