@@ -17,6 +17,11 @@ GitHub Actions troubleshooting and CI/CD automation for Claude Code.
     - Fixes identified issues
     - Creates fixup commit
 
+## Skills
+
+- **github-actions-fix** - Debug and fix failing GitHub Actions checks for the current commit
+- **create-pull-request** - Open a PR the preferred way: title pulled from the commit message, empty body, `--web` when a browser is available
+
 ## Usage
 
 When you have a failing GitHub Actions run on your current commit:
