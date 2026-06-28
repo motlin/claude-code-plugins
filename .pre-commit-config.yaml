@@ -23,7 +23,7 @@ repos:
       hooks:
           - id: oxfmt
             name: oxfmt
-            entry: oxfmt
+            entry: mise exec -- oxfmt
             language: system
             types_or: [yaml, markdown, json]
 
