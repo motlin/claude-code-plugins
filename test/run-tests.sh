@@ -4,5 +4,5 @@ set -Eeuo pipefail
 
 script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-bats "$script_dir/hooks"/*.bats
-bats "$script_dir/scripts"/*.bats
+mise exec -- bats "$script_dir/hooks"/*.bats
+mise exec -- bats "$script_dir/scripts"/*.bats
