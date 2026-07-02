@@ -21,10 +21,7 @@ Find and implement the next incomplete task from the project task list.
     - Work through the implementation methodically
     - Run appropriate tests and validation
 
-3. **Complete the workflow**
-    - Verify the build passes using the `build:precommit-runner` agent
-    - Commit to git using the `git:commit-handler` agent
-    - Rebase on top of the upstream branch with the `git:rebaser` agent
+3. **Complete the workflow** — Run `/orchestration:finish` to execute the full completion pipeline (commit, then precommit, rebase, and simplify). It commits before running `git test run HEAD`, which refuses to run on a dirty tree.
 
 4. **Mark the task complete** - Run:
 

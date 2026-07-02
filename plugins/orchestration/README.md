@@ -7,16 +7,16 @@ Core workflow orchestration for Claude Code. The main feature is the **finish pi
 The `/orchestration:finish` skill spawns the `orchestration:finish` agent, which runs a six-step pipeline after every task:
 
 ```
-precommit → commit → rebase → simplify → fixup commit → precommit again
+commit → precommit → rebase → simplify → fixup commit → precommit again
 ```
 
 Every step is mandatory. Even documentation-only changes go through the full pipeline because the precommit step includes markdown formatters.
 
 ### The Steps
 
-**Step 1: Precommit** — Runs the `build:precommit-runner` agent, which executes `git test run`. This runs whatever build command is configured for the repo (typically formatting, linting, and tests). Results are cached per commit, so re-running on an already-passing commit is instant.
+**Step 1: Commit** — Runs the `git:commit-handler` agent. Stages files individually (never `git add .`), generates a commit message starting with a present-tense verb, and runs the commit. If pre-commit hooks modify files, it re-stages and retries. Commit runs first because `git test run HEAD` refuses to run on a dirty tree and tests the committed HEAD, not the working tree.
 
-**Step 2: Commit** — Runs the `git:commit-handler` agent. Stages files individually (never `git add .`), generates a commit message starting with a present-tense verb, and runs the commit. If pre-commit hooks modify files, it re-stages and retries.
+**Step 2: Precommit** — Runs the `build:precommit-runner` agent, which executes `git test run HEAD` on the now-clean tree. This runs whatever build command is configured for the repo (typically formatting, linting, and tests). Results are cached per commit, so re-running on an already-passing commit is instant.
 
 **Step 3: Rebase** — Runs the `git:rebaser` agent. Fetches the upstream branch and rebases on top of it. If there are merge conflicts, delegates to the `git:conflict-resolver` agent.
 

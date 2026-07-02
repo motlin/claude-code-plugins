@@ -33,8 +33,9 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
     - If no, launch the `markdown-tasks:do-task` agent to implement it
     - **Do NOT add instructions to the agent prompt** - the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
     - Do NOT mark the task as complete yourself - the `do-task` agent does this
-6. Repeat until no incomplete tasks remain or the user's instructions are met
-7. When `task_get.py` returns no result (every item is marked done `[x]`, blocked `[!]`, or skipped), archive the task list:
+6. **Verify HEAD tests good before the next task.** After the `do-task` agent returns, run `git test run HEAD --retest --verbose --verbose` (cached, so near-instant on an already-passing commit). If it does not return good (non-zero exit, or `git test results HEAD` reports `bad`/`unknown`), stop the loop and report — do not stack the next task on a broken base.
+7. Repeat until no incomplete tasks remain or the user's instructions are met
+8. When `task_get.py` returns no result (every item is marked done `[x]`, blocked `[!]`, or skipped), archive the task list:
 
     ```bash
     python ${CLAUDE_PLUGIN_ROOT}/scripts/task_archive.py .llm/todo.md

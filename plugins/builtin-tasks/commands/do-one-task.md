@@ -21,9 +21,6 @@ Find and implement the next incomplete task using Claude Code's built-in task to
     - Work through the implementation methodically
     - Run appropriate tests and validation
 
-5. **Complete the workflow**
-    - Verify the build passes using the `build:precommit-runner` agent
-    - Commit to git using the `git:commit-handler` agent
-    - Rebase on top of the upstream branch with the `git:rebaser` agent
+5. **Complete the workflow** — Run `/orchestration:finish` to execute the full completion pipeline (commit, then precommit, rebase, and simplify). It commits before running `git test run HEAD`, which refuses to run on a dirty tree.
 
 6. **Mark the task complete** — Call `TaskUpdate` to set status to `completed`.
