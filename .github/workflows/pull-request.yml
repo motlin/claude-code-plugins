@@ -43,6 +43,7 @@ jobs:
               with:
                   ref: ${{ github.event.pull_request.head.ref }}
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  persist-credentials: false
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
@@ -67,10 +68,12 @@ jobs:
 
                     git add --all
                     git commit --message "Apply pre-commit fixes."
-                    git push --force origin $FIX_BRANCH
+                    git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git" "$FIX_BRANCH"
 
                     echo "pre-commit fixes have been pushed to the $FIX_BRANCH branch."
                     exit 1
                   else
                     echo "No changes needed by pre-commit"
                   fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
