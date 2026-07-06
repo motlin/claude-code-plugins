@@ -1,5 +1,4 @@
 {
-	"description": "Block dangerous git commands that could cause data loss or pick up unrelated changes",
 	"hooks": {
 		"PreToolUse": [
 			{

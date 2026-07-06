@@ -1,5 +1,4 @@
 {
-	"description": "Block Stop events whose last assistant message contains ownership-dodging or session-quitting phrases",
 	"hooks": {
 		"Stop": [
 			{

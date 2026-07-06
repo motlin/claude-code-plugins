@@ -1,5 +1,4 @@
 {
-	"description": "Warn about missing git test results when Claude Code stops",
 	"hooks": {
 		"Stop": [
 			{

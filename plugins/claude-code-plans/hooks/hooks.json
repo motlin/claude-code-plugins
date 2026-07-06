@@ -1,5 +1,4 @@
 {
-	"description": "Send session lifecycle events to the claude-code-plans dashboard on localhost:8899",
 	"hooks": {
 		"SessionStart": [
 			{

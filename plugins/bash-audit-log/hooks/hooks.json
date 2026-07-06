@@ -1,5 +1,4 @@
 {
-	"description": "Log every bash command with an ISO timestamp to ~/.claude/bash-commands.log",
 	"hooks": {
 		"PostToolUse": [
 			{

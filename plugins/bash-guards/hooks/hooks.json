@@ -1,5 +1,4 @@
 {
-	"description": "Block dangerous bash commands like recursive rm",
 	"hooks": {
 		"PreToolUse": [
 			{

@@ -51,6 +51,14 @@ validate_hooks_json() {
         return 1
     fi
 
+    local root_keys
+    root_keys=$(jq --raw-output 'keys | .[]' "$hooks_file" 2>/dev/null)
+
+    if [ "$root_keys" != "hooks" ]; then
+        echo "Unexpected root keys in $hooks_file: $root_keys"
+        return 1
+    fi
+
     local hooks
     hooks=$(jq --raw-output '.hooks | keys[]' "$hooks_file" 2>/dev/null || echo "")
 

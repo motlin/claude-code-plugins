@@ -1,5 +1,4 @@
 {
-	"description": "Warn about uncommitted changes when Claude Code stops",
 	"hooks": {
 		"Stop": [
 			{
