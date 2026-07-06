@@ -42,6 +42,7 @@ When precommit fails (due to: type checking errors, test failures, linting issue
 
 - Analyze the error output to understand what failed
 - Fix the specific failures
+- Commit the fixes before retrying: `git add -u && git commit --fixup=HEAD`. `git test run HEAD` refuses to run on a dirty tree, so the fixes must be committed first and the fixup keeps them foldable into the original commit on the next rebase.
 - Run the precommit command again
 - Continue the fix-and-retry cycle until precommit completes successfully with exit code 0
 

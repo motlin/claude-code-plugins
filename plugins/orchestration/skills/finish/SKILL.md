@@ -15,11 +15,14 @@ When the caller must not commit (for example `/build:fix`, which leaves changes 
 
 ## Standard Mode
 
-- Run precommit checks with the `precommit` skill when available.
-- Commit with the `git-commit` skill when there are changes to commit.
-- Rebase with the `git-rebase` skill after committing when appropriate.
-- If additional cleanup changes are made, create a fixup commit for `HEAD`.
-- Run precommit checks again when changes were made.
+Run every applicable step below in order. Commit before precommit because `git test run HEAD` refuses to run on a dirty tree and tests the committed `HEAD`, not the working tree.
+
+- Commit first with the `git-commit` skill when there are changes to commit. Pass the caller's prompt as the commit intent; distill it into a single-line commit message instead of copying it verbatim.
+- Run precommit checks with the `precommit` skill. It runs `git test run HEAD` on the now-clean tree and cached successes pass quickly.
+- Rebase with the `git-rebase` skill after committing.
+- Review the committed diff for reuse, quality, and efficiency. Make cleanup changes when warranted.
+- If cleanup changes were made, create a fixup commit for `HEAD`.
+- Run precommit checks again. Same rule: use `git test run HEAD` through the `precommit` skill.
 
 ## No-Commit Mode
 
