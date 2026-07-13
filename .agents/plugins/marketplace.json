@@ -243,6 +243,18 @@
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
+		},
+		{
+			"name": "investigation-report",
+			"source": {
+				"source": "local",
+				"path": "./plugins/investigation-report"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
 		}
 	]
 }

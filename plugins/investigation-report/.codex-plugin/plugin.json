@@ -1,0 +1,23 @@
+{
+	"name": "investigation-report",
+	"version": "1.23.0",
+	"description": "Explain command-line investigations as self-contained HTML reports with real commands, output, and reasoning",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/investigation-report",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "investigation", "report"],
+	"interface": {
+		"displayName": "Investigation Report",
+		"shortDescription": "Turn command-line investigations into self-contained HTML reports",
+		"longDescription": "Explain command-line investigations as self-contained HTML reports with real commands, output, and reasoning",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the investigation-report plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
