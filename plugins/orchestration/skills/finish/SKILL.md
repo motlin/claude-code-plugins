@@ -11,8 +11,6 @@ In Claude Code, this may spawn the `orchestration:finish` agent. In Codex, run t
 
 Use the caller's prompt as the commit intent.
 
-When the caller must not commit (for example `/build:fix`, which leaves changes uncommitted), include `no-commit` in the prompt.
-
 ## Standard Mode
 
 Run every applicable step below in order. Commit before precommit because `git test run HEAD` refuses to run on a dirty tree and tests the committed `HEAD`, not the working tree.
@@ -23,11 +21,3 @@ Run every applicable step below in order. Commit before precommit because `git t
 - Review the committed diff for reuse, quality, and efficiency. Make cleanup changes when warranted.
 - If cleanup changes were made, create a fixup commit for `HEAD`.
 - Run precommit checks again. Same rule: use `git test run HEAD` through the `precommit` skill.
-
-## No-Commit Mode
-
-When the prompt contains `no-commit`:
-
-- Do not commit, stage, or rebase.
-- Run validation when practical.
-- Leave changes for the caller.

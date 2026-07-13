@@ -1,15 +1,19 @@
 ---
 name: build-fix
-description: Run git-test precommit checks and fix failures without committing. Use when asked to fix build, test, lint, typecheck, or precommit failures.
+description: Commit changes, run git-test precommit checks, and fix failures. Use when asked to fix build, test, lint, typecheck, or precommit failures.
 ---
 
 # Build Fix
 
-Run precommit and fix any failures. Do not commit changes.
+Commit the changes under test, run precommit, and fix any failures.
 
 ## Existing Error Context
 
-If the user provides an error log or path, read the referenced context first. If it is a log file, inspect the last 200 lines and strip ANSI codes when needed. Fix those errors directly and do not run precommit afterward unless the user asks; the caller handles verification.
+If the user provides an error log or path, read the referenced context first. If it is a log file, inspect the last 200 lines and strip ANSI codes when needed. Fix those errors directly, then continue through the commit and verification workflow.
+
+## Commit Changes
+
+Use the `git-commit` skill to commit all changes in scope before running precommit. `git test run HEAD` validates a commit and refuses to run on a dirty tree.
 
 ## Run Precommit
 
@@ -29,6 +33,7 @@ When checks fail:
 
 - Analyze the error output.
 - Fix the specific failures.
+- Commit the fixes with a fixup commit for `HEAD` before retrying.
 - Re-run precommit.
 - Continue until precommit succeeds.
 
@@ -38,6 +43,3 @@ Start the final response with one of:
 
 - `Precommit checks passed`
 - `Precommit checks passed (after fixing <brief description>)`
-- `Fixed errors from provided context (<brief description>)`
-
-Do not commit the changes.

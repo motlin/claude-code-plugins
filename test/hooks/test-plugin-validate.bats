@@ -24,12 +24,17 @@ setup() {
   fi
 }
 
-@test "codex plugin versions match their claude plugin versions" {
+@test "codex plugin versions share their claude plugin base versions" {
   for codex_manifest in "$PROJECT_ROOT"/plugins/*/.codex-plugin/plugin.json; do
     plugin_root="${codex_manifest%/.codex-plugin/plugin.json}"
     claude_manifest="$plugin_root/.claude-plugin/plugin.json"
     codex_version="$(jq --raw-output '.version' "$codex_manifest")"
     claude_version="$(jq --raw-output '.version' "$claude_manifest")"
-    [ "$codex_version" = "$claude_version" ]
+    if [ "$codex_version" = "$claude_version" ]; then
+      continue
+    fi
+    cachebuster="${codex_version#"$claude_version+codex."}"
+    [ "$codex_version" = "$claude_version+codex.$cachebuster" ]
+    [ -n "$cachebuster" ]
   done
 }

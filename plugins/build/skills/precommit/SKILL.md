@@ -28,7 +28,8 @@ Run `git test run HEAD --retest --verbose --verbose` to validate code:
 
 - Use a timeout of at least 10 minutes
 - This command runs the test configured via `git test add` (typically autoformatting, builds, tests, and other quality checks)
-- If `git test run` refuses because the worktree has unstaged, staged, or uncommitted changes, do not substitute `just precommit` or another direct build command. Commit the changes under test first, then rerun `git test run HEAD --retest --verbose --verbose` so the result is cached against a commit.
+- Before invoking `git test run`, commit unstaged, staged, or uncommitted changes with the `git-commit` skill. Do not wait for `git test run` to refuse the dirty tree.
+- Do not substitute `just precommit` or another direct build command. Run `git test run HEAD --retest --verbose --verbose` on the committed tree so the result is cached against the commit.
 - Prefer an eager validation commit over avoiding `git test run`. The caller can reset, squash, or fix up the commit later, but skipping `git test run` loses the cache benefit this workflow depends on.
 - In sandboxed environments, request escalation for `git test run`; it refreshes the index and writes `.git/index.lock` before the configured command starts.
 
