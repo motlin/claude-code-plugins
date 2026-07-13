@@ -23,3 +23,13 @@ setup() {
     return 1
   fi
 }
+
+@test "codex plugin versions match their claude plugin versions" {
+  for codex_manifest in "$PROJECT_ROOT"/plugins/*/.codex-plugin/plugin.json; do
+    plugin_root="${codex_manifest%/.codex-plugin/plugin.json}"
+    claude_manifest="$plugin_root/.claude-plugin/plugin.json"
+    codex_version="$(jq --raw-output '.version' "$codex_manifest")"
+    claude_version="$(jq --raw-output '.version' "$claude_manifest")"
+    [ "$codex_version" = "$claude_version" ]
+  done
+}

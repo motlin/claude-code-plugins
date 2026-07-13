@@ -1,6 +1,6 @@
 {
 	"name": "bash-audit-log",
-	"version": "1.20.0",
+	"version": "1.23.0",
 	"description": "Log every bash command with an ISO timestamp",
 	"author": {
 		"name": "Craig Motlin"

@@ -1,6 +1,6 @@
 {
 	"name": "ghostty-titles",
-	"version": "1.20.0",
+	"version": "1.23.0",
 	"description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 	"author": {
 		"name": "Craig Motlin"
