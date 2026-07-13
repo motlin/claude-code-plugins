@@ -39,10 +39,10 @@ python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
 When adding more than one task, chain the calls into a single bash command with `&&` rather than running a separate command per task:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "First task
+python <plugin-root>/scripts/task_add.py .llm/todo.md "First task
   Context line 1" && \
-python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Second task" && \
-python ${CLAUDE_PLUGIN_ROOT}/scripts/task_add.py .llm/todo.md "Third task"
+python <plugin-root>/scripts/task_add.py .llm/todo.md "Second task" && \
+python <plugin-root>/scripts/task_add.py .llm/todo.md "Third task"
 ```
 
 Running the whole batch as one command keeps the write window to `.llm/todo.md` extremely short, so concurrent sessions writing to the same file are far less likely to interleave their tasks.
