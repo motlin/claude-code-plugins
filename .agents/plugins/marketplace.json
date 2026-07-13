@@ -179,7 +179,7 @@
 				"path": "./plugins/git-guards"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
@@ -215,7 +215,7 @@
 				"path": "./plugins/stop-phrase-guard"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
@@ -239,7 +239,7 @@
 				"path": "./plugins/bash-guards"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"

@@ -58,6 +58,27 @@ setup() {
   [ -z "$output" ]
 }
 
+@test "stop-phrase-guard returns a Codex Stop continuation response" {
+  input=$(jq --null-input \
+    --arg cwd "$PROJECT_ROOT" \
+    '{
+      session_id: "session-1",
+      transcript_path: null,
+      cwd: $cwd,
+      hook_event_name: "Stop",
+      model: "gpt-5",
+      turn_id: "turn-1",
+      permission_mode: "default",
+      stop_hook_active: false,
+      last_assistant_message: "This is a good place to stop."
+    }')
+
+  run "$SCRIPT" <<<"$input"
+  [ "$status" -eq 0 ]
+  [ "$(jq --raw-output '.decision' <<<"$output")" = "block" ]
+  [[ "$(jq --raw-output '.reason' <<<"$output")" =~ "continue working" ]]
+}
+
 @test "stop-phrase-guard blocks on ownership-dodging phrase" {
   input=$(jq --null-input '{stop_hook_active: false, last_assistant_message: "That test failure is pre-existing."}')
   run bash -c "echo '$input' | '$SCRIPT'"

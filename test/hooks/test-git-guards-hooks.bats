@@ -44,6 +44,30 @@ setup() {
   [ -z "$output" ]
 }
 
+@test "git-guards returns a Codex PreToolUse deny response" {
+  input=$(jq --null-input \
+    --arg cwd "$PROJECT_ROOT" \
+    '{
+      session_id: "session-1",
+      transcript_path: null,
+      cwd: $cwd,
+      hook_event_name: "PreToolUse",
+      model: "gpt-5",
+      turn_id: "turn-1",
+      permission_mode: "default",
+      tool_name: "Bash",
+      tool_use_id: "tool-1",
+      tool_input: {command: "git reset --hard HEAD~1"}
+    }')
+
+  run "$SCRIPT" <<<"$input"
+  [ "$status" -eq 0 ]
+  [ "$(jq --raw-output '.hookSpecificOutput.hookEventName' <<<"$output")" = "PreToolUse" ]
+  [ "$(jq --raw-output '.hookSpecificOutput.permissionDecision' <<<"$output")" = "deny" ]
+  [ -n "$(jq --raw-output '.hookSpecificOutput.permissionDecisionReason' <<<"$output")" ]
+  [ -n "$(jq --raw-output '.systemMessage' <<<"$output")" ]
+}
+
 # --- git add -A / --all ---
 
 @test "git-guards denies git add -A" {

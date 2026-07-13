@@ -42,6 +42,27 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "bash-guards blocks Codex-shaped PreToolUse input with exit 2" {
+  input=$(jq --null-input \
+    --arg cwd "$PROJECT_ROOT" \
+    '{
+      session_id: "session-1",
+      transcript_path: null,
+      cwd: $cwd,
+      hook_event_name: "PreToolUse",
+      model: "gpt-5",
+      turn_id: "turn-1",
+      permission_mode: "default",
+      tool_name: "Bash",
+      tool_use_id: "tool-1",
+      tool_input: {command: "rm -rf generated"}
+    }')
+
+  run "$SCRIPT" <<<"$input"
+  [ "$status" -eq 2 ]
+  [[ "$output" =~ "Use 'trash'" ]]
+}
+
 @test "bash-guards allows non-recursive rm" {
   run bash -c "echo '{\"tool_input\":{\"command\":\"rm foo.txt\"}}' | '$SCRIPT'"
   [ "$status" -eq 0 ]
