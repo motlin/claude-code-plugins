@@ -23,7 +23,7 @@
 				"path": "./plugins/tmux-titles"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
@@ -35,7 +35,7 @@
 				"path": "./plugins/iterm2-titles"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
@@ -83,7 +83,7 @@
 				"path": "./plugins/ghostty-titles"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"

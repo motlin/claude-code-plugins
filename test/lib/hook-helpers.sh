@@ -23,6 +23,23 @@ create_test_json() {
     echo "$json"
 }
 
+create_codex_test_json() {
+    local cwd="${1:-/test/directory}"
+    local tool_name="${2:-Bash}"
+
+    jq --null-input \
+        --arg cwd "$cwd" \
+        --arg tool_name "$tool_name" \
+        '{
+      session_id: "codex-test-session",
+      transcript_path: "/test/transcript.jsonl",
+      cwd: $cwd,
+      hook_event_name: "PreToolUse",
+      tool_name: $tool_name,
+      tool_input: {command: "git status"}
+    }'
+}
+
 run_hook_script() {
     local script_path="$1"
     local input_json="$2"

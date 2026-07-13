@@ -33,18 +33,6 @@
 				]
 			}
 		],
-		"Notification": [
-			{
-				"matcher": "permission_prompt|elicitation_dialog",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-title.sh \"?\"",
-						"timeout": 500
-					}
-				]
-			}
-		],
 		"PreCompact": [
 			{
 				"hooks": [

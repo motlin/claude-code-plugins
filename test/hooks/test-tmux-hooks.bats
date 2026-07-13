@@ -12,6 +12,30 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "update-for-tool-hook.sh accepts Codex hook fields" {
+  mock_bin="$BATS_TEST_TMPDIR/tmux-bin"
+  mkdir -p "$mock_bin"
+  cat >"$mock_bin/tmux" <<'EOF'
+#!/bin/bash
+if [ "$1" = "display-message" ]; then
+  echo '@test-session:@test-window'
+else
+  printf '%s\n' "$*" >"$TMUX_TEST_LOG"
+fi
+EOF
+  chmod +x "$mock_bin/tmux"
+  test_json=$(create_codex_test_json "/home/user/projects/codex-app" "Bash")
+  run env \
+    PATH="$mock_bin:$PATH" \
+    TMUX="test" \
+    TMUX_PANE="%0" \
+    TMUX_TEST_LOG="$BATS_TEST_TMPDIR/tmux.log" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/update-for-tool-hook.sh'"
+  [ "$status" -eq 0 ]
+  [ "$(cat "$BATS_TEST_TMPDIR/tmux.log")" = \
+    'set-option -wq -t @test-session:@test-window @claude_indicator $' ]
+}
+
 @test "update-for-tool-hook.sh exits early when TMUX_PANE not set" {
   export TMUX="test"
   unset TMUX_PANE || true

@@ -49,6 +49,18 @@
 				]
 			}
 		],
+		"Notification": [
+			{
+				"matcher": "permission_prompt|elicitation_dialog",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"?\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
 		"PreCompact": [
 			{
 				"hooks": [
@@ -77,6 +89,17 @@
 					{
 						"type": "command",
 						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"timeout": 500
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh",
 						"timeout": 500
 					}
 				]

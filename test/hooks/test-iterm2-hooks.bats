@@ -12,6 +12,20 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "update-for-tool-hook.sh accepts Codex hook fields" {
+  mock_bin="$BATS_TEST_TMPDIR/iterm-bin"
+  mkdir -p "$mock_bin"
+  cat >"$mock_bin/ps" <<'EOF'
+#!/bin/bash
+echo null
+EOF
+  chmod +x "$mock_bin/ps"
+  test_json=$(create_codex_test_json "/home/user/projects/codex-app" "Bash")
+  run env PATH="$mock_bin:$PATH" LC_TERMINAL="iTerm2" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-for-tool-hook.sh'"
+  [ "$status" -eq 0 ]
+}
+
 @test "update-for-tool-hook.sh exits early when LC_TERMINAL is not iTerm2" {
   export LC_TERMINAL="xterm"
   test_json=$(create_test_json "/tmp/test" "Bash")
