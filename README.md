@@ -29,8 +29,7 @@ plugins marked `AVAILABLE` in `.agents/plugins/marketplace.json`.
 | `investigation-report`                                   | Available   | Available     |
 | `builtin-tasks`                                          | Available   | Not available |
 | [worktree-setup](plugins/worktree-setup/README.md)       | Available   | Not available |
-| `claude-code-plans`                                      | Available   | Not available |
-| [bash-audit-log](plugins/bash-audit-log/README.md)       | Available   | Not available |
+| `claude-code-plans`                                      | Available   | Available     |
 
 The intentionally unavailable Codex entries remain visible in the Codex marketplace metadata so
 the two marketplaces stay in one-to-one parity:
@@ -38,10 +37,9 @@ the two marketplaces stay in one-to-one parity:
 - `builtin-tasks` still exposes Claude-specific commands and agents rather than Codex skill
   entrypoints.
 - `worktree-setup` depends on Claude Code's `WorktreeCreate` hook, which Codex does not support.
-- `claude-code-plans` depends on Claude lifecycle events and payload fields that Codex does not
-  support, including `SessionEnd`, `TaskCompleted`, and `WorktreeCreate`.
-- `bash-audit-log` still targets Claude's Bash tool payload and `~/.claude/bash-commands.log`; it
-  needs a Codex-specific logging contract before it can be enabled safely.
+
+`claude-code-plans` sends `SessionStart`, `PostToolUse`, and `Stop` from Codex. Claude Code also
+sends `SessionEnd`, `TaskCompleted`, and `WorktreeCreate`.
 
 ## Claude Code Installation
 

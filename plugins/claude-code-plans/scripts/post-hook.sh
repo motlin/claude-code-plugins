@@ -2,28 +2,29 @@
 
 set -Eeuo pipefail
 
-# Consume stdin (hook protocol sends JSON, but we don't need it)
-cat >/dev/null
+json="$(cat)"
+event_name="${1:?Usage: post-hook.sh <event_name>}"
 
-# Usage: post-hook.sh <event_name> [key=ENV_VAR ...]
-# Always sends session_id and hook_event_name.
-# Extra key=ENV_VAR pairs add fields from environment variables.
-
-event_name="${1:?Usage: post-hook.sh <event_name> [key=ENV_VAR ...]}"
-shift
-
-# jq filter — $ENV and $event are jq context variables, not shell variables.
-# shellcheck disable=SC2016
-filter='.session_id = ($ENV.CLAUDE_SESSION_ID // "") | .hook_event_name = $event'
-
-for pair in "$@"; do
-    key="${pair%%=*}"
-    env_var="${pair#*=}"
-    filter="$filter | .$key = (\$ENV.$env_var // \"\")"
-done
+payload="$(printf '%s' "$json" | jq --compact-output --arg event "$event_name" '
+    {
+        session_id: (.session_id // ""),
+        hook_event_name: $event
+    } +
+    if $event == "SessionStart" then {
+        cwd: (.cwd // ""),
+        model: (.model // "")
+    } elif $event == "PostToolUse" then {
+        tool_name: (.tool_name // "")
+    } elif $event == "TaskCompleted" then {
+        task_id: (.task_id // ""),
+        task_subject: (.task_subject // "")
+    } elif $event == "WorktreeCreate" then {
+        name: (.name // "")
+    } else {} end
+')"
 
 curl -sX POST http://localhost:8899/api/hook \
     --connect-timeout 1 --max-time 2 \
     -H 'Content-Type: application/json' \
-    -d "$(echo '{}' | jq -c --arg event "$event_name" "$filter")" \
+    -d "$payload" \
     >/dev/null 2>&1 || true

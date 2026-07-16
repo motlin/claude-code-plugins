@@ -198,16 +198,6 @@
 			"category": "productivity"
 		},
 		{
-			"name": "bash-audit-log",
-			"description": "Log every bash command with an ISO timestamp to ~/.claude/bash-commands.log",
-			"version": "1.23.0",
-			"author": {
-				"name": "Craig Motlin"
-			},
-			"source": "./plugins/bash-audit-log",
-			"category": "productivity"
-		},
-		{
 			"name": "bash-guards",
 			"description": "Block dangerous bash commands before they execute",
 			"version": "1.23.0",

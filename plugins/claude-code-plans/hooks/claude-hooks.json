@@ -1,0 +1,80 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionStart",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"SessionEnd": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionEnd",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh Stop",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "ExitPlanMode",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "cat >/dev/null; curl -sX POST http://localhost:8899/api/notify --connect-timeout 1 --max-time 2 >/dev/null 2>&1 || true",
+						"timeout": 5000
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh PostToolUse",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"TaskCompleted": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh TaskCompleted",
+						"timeout": 5000
+					}
+				]
+			}
+		],
+		"WorktreeCreate": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh WorktreeCreate",
+						"timeout": 5000
+					}
+				]
+			}
+		]
+	}
+}

@@ -167,7 +167,7 @@
 				"path": "./plugins/claude-code-plans"
 			},
 			"policy": {
-				"installation": "NOT_AVAILABLE",
+				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
@@ -216,18 +216,6 @@
 			},
 			"policy": {
 				"installation": "AVAILABLE",
-				"authentication": "ON_INSTALL"
-			},
-			"category": "Productivity"
-		},
-		{
-			"name": "bash-audit-log",
-			"source": {
-				"source": "local",
-				"path": "./plugins/bash-audit-log"
-			},
-			"policy": {
-				"installation": "NOT_AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
