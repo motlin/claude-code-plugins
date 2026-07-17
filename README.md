@@ -41,6 +41,34 @@ the two marketplaces stay in one-to-one parity:
 `claude-code-plans` sends `SessionStart`, `PostToolUse`, and `Stop` from Codex. Claude Code also
 sends `SessionEnd`, `TaskCompleted`, and `WorktreeCreate`.
 
+## Open Agent Skills
+
+The skills in this repository follow the [Agent Skills specification](https://agentskills.io/) and
+can be discovered or installed with Vercel's open [`skills`](https://github.com/vercel-labs/skills)
+CLI independently of the Claude Code and Codex plugin marketplaces.
+
+List every skill published from the default branch:
+
+```bash
+npx skills add motlin/claude-code-plugins --list
+```
+
+List skills from a local checkout, including unmerged branch work:
+
+```bash
+npx skills add . --list
+```
+
+Install one skill for Codex or Claude Code:
+
+```bash
+npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent codex
+npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-code
+```
+
+The `skills` CLI installs skill instructions and bundled resources. Use the product-specific plugin
+marketplaces below when hooks, commands, agents, or other plugin capabilities are also required.
+
 ## Claude Code Installation
 
 Add the marketplace from GitHub:

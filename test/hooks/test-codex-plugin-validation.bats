@@ -109,6 +109,25 @@ setup() {
   fi
 }
 
+@test "Agent Skill names match their parent directories" {
+  mismatches=()
+
+  while IFS= read -r skill_file; do
+    skill_root="${skill_file%/SKILL.md}"
+    directory_name="${skill_root##*/}"
+    skill_name="$(sed -n 's/^name: //p' "$skill_file" | head -1)"
+    if [ "$skill_name" != "$directory_name" ]; then
+      mismatches+=("$skill_file: name=$skill_name directory=$directory_name")
+    fi
+  done < <(find "$PROJECT_ROOT/plugins" -name SKILL.md -type f -print)
+
+  if [ "${#mismatches[@]}" -ne 0 ]; then
+    printf 'Agent Skill name mismatches:\n'
+    printf '  %s\n' "${mismatches[@]}"
+    return 1
+  fi
+}
+
 @test "every available Codex plugin exposes usable skills or supported hooks" {
   marketplace="$PROJECT_ROOT/.agents/plugins/marketplace.json"
   unusable=()
