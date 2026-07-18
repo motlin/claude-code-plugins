@@ -1,6 +1,6 @@
 {
 	"name": "git",
-	"version": "1.23.0",
+	"version": "1.23.0+codex.20260717133857",
 	"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
 	"author": {
 		"name": "Craig Motlin"

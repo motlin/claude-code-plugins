@@ -1,6 +1,6 @@
 {
 	"name": "markdown-tasks",
-	"version": "1.23.0",
+	"version": "1.23.0+codex.20260717122412",
 	"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
 	"author": {
 		"name": "Craig Motlin"
