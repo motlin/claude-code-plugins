@@ -1,18 +1,13 @@
 ---
 name: wip
 description: >-
-    Run on /wip, or whenever the user wants a whole-repo git cleanup sweep across many worktrees and
-    half-finished branches rather than an operation on one named branch or worktree. The trigger
-    signal is breadth or chaining: tidying every leftover worktree AND every drifted branch together,
-    or stringing several cleanup steps into one pass — remove stale worktrees, rebase all branches
-    onto main, then re-test and push. Use it even for requests that look like plain git you could do
-    by hand ("rebase all my branches and get them tested and pushed", "clean up branches and
-    worktrees, rebase, test, push") — the skill exists to run them gated, never --force, and to
-    handle the worktree/rebase/test edge cases. Typical asks: "clean up my worktrees and branches",
-    "tidy up this repo before my next feature", "do the full wip cleanup pass", "remove the dead
-    worktrees and rebase everything onto main", "settle my WIP". Defer to the single-operation git
-    skills only when the user targets one specific branch or one specific worktree. Wraps
-    git:clean-worktrees and build:test-all.
+    Run on /wip or for a whole-repository cleanup spanning multiple worktrees and branches. Trigger
+    when the request combines operations such as removing stale worktrees, rebasing all branches,
+    retesting, and pushing, including "clean up my worktrees and branches", "rebase all my branches
+    and get them tested and pushed", or "settle my WIP". The workflow gates destructive and
+    outward-facing actions, never uses --force, and handles worktree, rebase, and test edge cases.
+    Defer to single-operation git skills when the user targets one specific branch or worktree.
+    Wraps git:clean-worktrees and build:test-all.
 ---
 
 # /wip — work-in-progress cleanup pipeline
