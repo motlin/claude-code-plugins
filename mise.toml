@@ -1,5 +1,5 @@
 [tools]
-just = "latest"
+just = "1.56.0"
 pre-commit = "latest"
 shellcheck = "latest"
 shfmt = "latest"
