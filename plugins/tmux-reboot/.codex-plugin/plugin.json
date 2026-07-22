@@ -1,0 +1,23 @@
+{
+	"name": "tmux-reboot",
+	"version": "1.23.0",
+	"description": "Snapshot the running tmux/claude/codex agents before a reboot and resume the exact sessions afterward, complementing tmux-resurrect which restores windows but not the agents inside them.",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/tmux-reboot",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "tmux", "resume", "reboot", "resurrect"],
+	"interface": {
+		"displayName": "Tmux Reboot",
+		"shortDescription": "Snapshot and resume tmux claude/codex agents across a reboot.",
+		"longDescription": "Snapshot the running tmux/claude/codex agents before a reboot and resume the exact sessions afterward, complementing tmux-resurrect which restores windows but not the agents inside them.",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Snapshot my tmux sessions so I can resume after a reboot."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
