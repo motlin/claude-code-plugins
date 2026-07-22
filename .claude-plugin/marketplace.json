@@ -28,6 +28,16 @@
 			"category": "productivity"
 		},
 		{
+			"name": "tmux-resume",
+			"description": "Captures Claude Code session IDs from tmux scrollback before a reboot and resumes them after tmux restores the windows",
+			"version": "1.23.0",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/tmux-resume",
+			"category": "productivity"
+		},
+		{
 			"name": "iterm2-titles",
 			"description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 			"version": "1.23.0",
