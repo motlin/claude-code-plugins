@@ -1,0 +1,23 @@
+{
+	"name": "ratchet",
+	"version": "1.23.0",
+	"description": "Keeps existing lint and test debt from growing and promotes zero-count rules into full enforcement",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/ratchet",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "ratchet", "lint", "test"],
+	"interface": {
+		"displayName": "Ratchet",
+		"shortDescription": "Keep lint and test debt from growing toward full enforcement",
+		"longDescription": "Keeps existing lint and test debt from growing and promotes zero-count rules into full enforcement",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Check the configured strictness ratchets."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
