@@ -38,7 +38,8 @@ plugins/tmux-resume/scripts/resume.sh
 
 The `/resume` slash command is a convenience when one Claude session is already open; that session
 can fan the relaunch out to the other restored panes. Resume skips a pane if it was not restored, its
-working directory differs from the captured directory, or Claude is already running there.
+working directory differs from the captured directory, Claude is already running there, or another
+foreground command is active instead of the shell prompt.
 
 ## Limits
 

@@ -82,16 +82,35 @@ while IFS= read -r entry; do
         continue
     fi
 
-    if ! pane_pid=$(tmux display-message -p -t "$target" '#{pane_pid}'); then
+    pane_format=$'#{pane_pid}\t#{pane_current_command}'
+    if ! pane_details=$(tmux display-message -p -t "$target" "$pane_format"); then
         printf 'WARN: %s disappeared before relaunch; skipping Claude session %s.\n' \
             "$target" "$session_id" >&2
         ((skipped += 1))
         continue
     fi
+    IFS=$'\t' read -r pane_pid pane_current_command <<<"$pane_details"
 
     if has_claude_descendant "$pane_pid"; then
         printf 'WARN: %s already has Claude running; skipping Claude session %s.\n' \
             "$target" "$session_id" >&2
+        ((skipped += 1))
+        continue
+    fi
+
+    if ! pane_shell=$(ps -p "$pane_pid" -o comm=); then
+        printf 'WARN: %s shell process disappeared; skipping Claude session %s.\n' \
+            "$target" "$session_id" >&2
+        ((skipped += 1))
+        continue
+    fi
+    pane_shell=${pane_shell##*/}
+    pane_shell=${pane_shell#-}
+    pane_current_command=${pane_current_command##*/}
+    pane_current_command=${pane_current_command#-}
+    if [ "$pane_current_command" != "$pane_shell" ]; then
+        printf 'WARN: %s is running %s instead of waiting at a shell prompt; skipping Claude session %s.\n' \
+            "$target" "$pane_current_command" "$session_id" >&2
         ((skipped += 1))
         continue
     fi
