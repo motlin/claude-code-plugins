@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"tool": "markdownlint",
+	"adapterVersion": 1,
+	"coverage": {
+		"lastAcceptedFileCount": 125,
+		"allowEmpty": false
+	},
+	"rules": {}
+}

@@ -1,6 +1,6 @@
 set dotenv-filename := ".envrc"
 
-shell_scripts := "plugins/*/scripts/*.sh test/*.sh test/lib/*.sh install-local.sh"
+shell_scripts := "plugins/*/scripts/*.sh plugins/*/adapters/*.sh test/*.sh test/lib/*.sh install-local.sh"
 
 codex_marketplace := "motlin-claude-code-plugins"
 
@@ -23,8 +23,24 @@ format:
     shfmt -d -i 4 -ci {{ shell_scripts }}
     mise exec -- oxfmt --check
 
+# Check every configured ratchet, or one named adapter
+ratchet TOOL="":
+    @if [ -n "{{TOOL}}" ]; then plugins/ratchet/scripts/ratchet.sh check "{{TOOL}}"; else plugins/ratchet/scripts/ratchet.sh check; fi
+
+# Accept guarded positive decreases for one adapter
+ratchet-accept TOOL:
+    plugins/ratchet/scripts/ratchet.sh accept "{{TOOL}}"
+
+# Accept a guarded file coverage change for one adapter
+ratchet-accept-coverage TOOL:
+    plugins/ratchet/scripts/ratchet.sh accept-coverage "{{TOOL}}"
+
+# Promote a zero-count rule into durable enforcement
+ratchet-promote TOOL RULE:
+    plugins/ratchet/scripts/ratchet.sh promote "{{TOOL}}" "{{RULE}}"
+
 # Run all pre-commit checks
-precommit: format lint test
+precommit: ratchet format lint test
     pre-commit run --all-files
 
 # Refresh one Codex plugin from the local marketplace and clear its cached copy

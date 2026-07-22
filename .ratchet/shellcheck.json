@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"tool": "shellcheck",
+	"adapterVersion": 1,
+	"coverage": {
+		"lastAcceptedFileCount": 29,
+		"allowEmpty": false
+	},
+	"rules": {}
+}

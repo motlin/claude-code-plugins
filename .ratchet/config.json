@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"timeoutSeconds": 120,
+	"adapters": {
+		"markdownlint": {
+			"command": ["plugins/ratchet/adapters/markdownlint.sh"]
+		},
+		"shellcheck": {
+			"command": ["plugins/ratchet/adapters/shellcheck.sh"]
+		},
+		"yamllint": {
+			"command": ["plugins/ratchet/adapters/yamllint.sh"]
+		}
+	}
+}

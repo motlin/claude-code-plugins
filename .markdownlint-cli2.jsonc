@@ -1,5 +1,6 @@
 {
 	"globs": ["**/*.md"],
+	"outputFormatters": [["./plugins/ratchet/adapters/markdownlint-json-formatter.mjs"]],
 	"ignores": [
 		"node_modules",
 		".claude",
