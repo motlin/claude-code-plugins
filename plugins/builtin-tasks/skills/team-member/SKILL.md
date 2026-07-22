@@ -1,5 +1,5 @@
 ---
-name: builtin-tasks-team-member
+name: team-member
 description: Workflow guidelines for team members executing tasks
 ---
 

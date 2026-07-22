@@ -1,5 +1,5 @@
 ---
-name: builtin-tasks-team-lead
+name: team-lead
 description: Coordination guidelines for leading a team of task-executing agents
 ---
 

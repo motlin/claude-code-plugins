@@ -65,6 +65,23 @@ setup() {
   fi
 }
 
+@test "repository skills conform to the Agent Skills specification" {
+  failed=()
+
+  while IFS= read -r skill_file; do
+    skill_root="${skill_file%/SKILL.md}"
+    if ! output="$(agentskills validate "$skill_root" 2>&1)"; then
+      failed+=("$skill_root: $output")
+    fi
+  done < <(find "$PROJECT_ROOT/plugins" -path '*/skills/*/SKILL.md' -type f -print)
+
+  if [ "${#failed[@]}" -ne 0 ]; then
+    printf 'invalid Agent Skills:\n'
+    printf '  %s\n' "${failed[@]}"
+    return 1
+  fi
+}
+
 @test "Codex-bundled skill script references resolve inside their plugins" {
   missing=()
 

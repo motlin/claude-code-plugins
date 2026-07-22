@@ -1,5 +1,5 @@
 ---
-name: markdown-tasks
+name: tasks
 description: Work with markdown-based task lists in .llm/todo.md files. Use when managing tasks, working with todo lists, extracting incomplete tasks, marking tasks complete, or implementing tasks from a task list.
 ---
 
