@@ -3,7 +3,7 @@
 	"tool": "shellcheck",
 	"adapterVersion": 1,
 	"coverage": {
-		"lastAcceptedFileCount": 29,
+		"lastAcceptedFileCount": 41,
 		"allowEmpty": false
 	},
 	"rules": {}

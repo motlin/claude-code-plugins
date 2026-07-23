@@ -32,7 +32,7 @@ repos:
             entry: markdownlint-cli2
             language: system
             types: [markdown]
-            exclude: "^(\\.llm/|\\.remember/|plugins/.+/\\.llm/|plugins/offline-claude-code-guide/docs/)"
+            exclude: "^(\\.llm/|\\.remember/|plugins/offline-claude-code-guide/docs/)"
 
           - id: yamllint
             name: yamllint

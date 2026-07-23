@@ -1,6 +1,7 @@
 set dotenv-filename := ".envrc"
 
-shell_scripts := "plugins/*/scripts/*.sh plugins/*/adapters/*.sh test/*.sh test/lib/*.sh install-local.sh"
+formatted_shell_scripts := "plugins/*/scripts/*.sh plugins/*/adapters/*.sh test/*.sh test/lib/*.sh install-local.sh"
+shellcheck_scripts := `plugins/ratchet/adapters/shellcheck.sh files`
 
 codex_marketplace := "motlin-claude-code-plugins"
 
@@ -14,13 +15,13 @@ test:
 
 # Run shellcheck, markdownlint, and yamllint
 lint:
-    shellcheck {{ shell_scripts }}
+    shellcheck {{ shellcheck_scripts }}
     markdownlint-cli2
     yamllint --strict .
 
 # Check shell script formatting with shfmt
 format:
-    shfmt -d -i 4 -ci {{ shell_scripts }}
+    shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
     mise exec -- oxfmt --check
 
 # Check every configured ratchet, or one named adapter

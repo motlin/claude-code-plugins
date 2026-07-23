@@ -174,6 +174,21 @@ run_ratchet() {
   [ "$output" = '{"schemaVersion":1,"tool":"yamllint","adapterVersion":1,"run":{"exitKind":"clean","reportFormat":"yamllint-parsable-v1","coverageProof":"explicit-argv","coverageEqual":true},"counts":{}}' ]
 }
 
+@test "shellcheck discovers extensionless Bash scripts by shebang" {
+  discovery_repository="$BATS_TEST_TMPDIR/shellcheck-discovery"
+  mkdir -p "$discovery_repository"
+  git -C "$discovery_repository" init --quiet
+  printf '#!/usr/bin/env bash\n' >"$discovery_repository/extensionless-script"
+  printf '#!/bin/bash\n' >"$discovery_repository/script.sh"
+  printf '#!/usr/bin/env bats\n' >"$discovery_repository/script.bats"
+  printf '#!/usr/bin/env python3\n' >"$discovery_repository/script.py"
+
+  run bash -c 'command cd "$1" && python "$2" shellcheck files' _ "$discovery_repository" "$PROJECT_ROOT/plugins/ratchet/adapters/lint_adapter.py"
+
+  [ "$status" -eq 0 ]
+  [ "$output" = "extensionless-script script.sh" ]
+}
+
 @test "lint adapters promote rules in durable tool configurations" {
   promotion_repository="$BATS_TEST_TMPDIR/promotion-repository"
   mkdir -p "$promotion_repository"

@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -161,9 +162,7 @@ def emit_status(rule, enforced, source):
 
 
 def shellcheck_scan():
-    files = discover(
-        ["plugins/*/scripts/*.sh", "plugins/*/adapters/*.sh", "test/*.sh", "test/lib/*.sh", "install-local.sh"]
-    )
+    files = shellcheck_files()
     completed = run(["shellcheck", "--format=json", "--", *files])
     if completed.returncode not in {0, 1}:
         raise RuntimeError(
@@ -181,6 +180,17 @@ def shellcheck_scan():
             raise RuntimeError("shellcheck JSON finding has no numeric code")
         counts[f"SC{finding['code']}"] += 1
     emit_scan(completed.returncode, "findings" if findings else "clean", "shellcheck-json-v1", files, counts)
+
+
+def shellcheck_files():
+    shell_shebangs = {b"#!/bin/bash", b"#!/bin/sh", b"#!/usr/bin/env bash"}
+    files = []
+    for path in discover(["*"]):
+        with (REPOSITORY_ROOT / path).open("rb") as file:
+            first_line = file.readline().rstrip(b"\r\n")
+        if first_line in shell_shebangs:
+            files.append(path)
+    return files
 
 
 def shellcheck_disabled_rules(path):
@@ -222,7 +232,7 @@ def shellcheck_status(rule):
 def markdownlint_scan():
     files = discover(
         ["*.md", "**/*.md"],
-        ("node_modules", ".claude", ".llm", ".remember", "plugins/offline-claude-code-guide/docs"),
+        ("node_modules", ".claude", ".remember", "plugins/offline-claude-code-guide/docs"),
     )
     ratchet_directory = REPOSITORY_ROOT / ".ratchet"
     descriptor, report_name = tempfile.mkstemp(prefix=".markdownlint-report.", suffix=".json", dir=ratchet_directory)
@@ -426,6 +436,9 @@ def main():
         return fail(f"unknown tool: {TOOL}")
     if OPERATION == "scan" and RULE is None:
         globals()[f"{TOOL}_scan"]()
+        return 0
+    if TOOL == "shellcheck" and OPERATION == "files" and RULE is None:
+        print(shlex.join(shellcheck_files()))
         return 0
     if OPERATION == "promote" and RULE is not None:
         globals()[f"{TOOL}_promote"](RULE)
