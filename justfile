@@ -1,7 +1,7 @@
 set dotenv-filename := ".envrc"
 
-formatted_shell_scripts := "plugins/*/scripts/*.sh plugins/*/adapters/*.sh test/*.sh test/lib/*.sh install-local.sh"
-shellcheck_scripts := `plugins/ratchet/adapters/shellcheck.sh files`
+formatted_shell_scripts := "plugins/*/scripts/*.sh test/*.sh test/lib/*.sh install-local.sh"
+shellcheck_scripts := `plugins/build/scripts/list-shell-files`
 
 codex_marketplace := "motlin-claude-code-plugins"
 
@@ -15,7 +15,7 @@ test:
 
 # Run shellcheck, markdownlint, and yamllint
 lint:
-    shellcheck {{ shellcheck_scripts }}
+    shellcheck --external-sources {{ shellcheck_scripts }}
     markdownlint-cli2
     yamllint --strict .
 
@@ -24,24 +24,8 @@ format:
     shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
     mise exec -- oxfmt --check
 
-# Check every configured ratchet, or one named adapter
-ratchet TOOL="":
-    @if [ -n "{{TOOL}}" ]; then plugins/ratchet/scripts/ratchet.sh check "{{TOOL}}"; else plugins/ratchet/scripts/ratchet.sh check; fi
-
-# Accept guarded positive decreases for one adapter
-ratchet-accept TOOL:
-    plugins/ratchet/scripts/ratchet.sh accept "{{TOOL}}"
-
-# Accept a guarded file coverage change for one adapter
-ratchet-accept-coverage TOOL:
-    plugins/ratchet/scripts/ratchet.sh accept-coverage "{{TOOL}}"
-
-# Promote a zero-count rule into durable enforcement
-ratchet-promote TOOL RULE:
-    plugins/ratchet/scripts/ratchet.sh promote "{{TOOL}}" "{{RULE}}"
-
 # Run all pre-commit checks
-precommit: ratchet format lint test
+precommit: format lint test
     pre-commit run --all-files
 
 # Refresh one Codex plugin from the local marketplace and clear its cached copy

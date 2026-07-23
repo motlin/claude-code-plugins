@@ -37,12 +37,10 @@ EOF
 }
 
 @test "update-for-tool-hook.sh exits early when TMUX_PANE not set" {
-  export TMUX="test"
-  unset TMUX_PANE || true
   test_json=$(create_test_json "/tmp/test" "Bash")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/update-for-tool-hook.sh'"
+  run env -u TMUX_PANE TMUX="test" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/update-for-tool-hook.sh'"
   [ "$status" -eq 0 ]
-  unset TMUX
 }
 
 @test "update-tmux-title.sh exits early when TMUX not set" {
@@ -53,12 +51,10 @@ EOF
 }
 
 @test "update-tmux-title.sh exits early when TMUX_PANE not set" {
-  export TMUX="test"
-  unset TMUX_PANE || true
   test_json=$(create_test_json "/tmp/test")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/update-tmux-title.sh' '✻'"
+  run env -u TMUX_PANE TMUX="test" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/update-tmux-title.sh' '✻'"
   [ "$status" -eq 0 ]
-  unset TMUX
 }
 
 @test "update-for-tool-hook.sh recognizes Bash tool icon" {
@@ -154,22 +150,18 @@ EOF
 }
 
 @test "rename-tmux-window.sh exits early when TMUX_PANE not set" {
-  export TMUX="test"
-  unset TMUX_PANE || true
   test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "/rename my-project"}')
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
+  run env -u TMUX_PANE TMUX="test" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
   [ "$status" -eq 0 ]
-  unset TMUX
 }
 
 @test "rename-tmux-window.sh exits early for non-rename prompt" {
-  export TMUX="test"
-  export TMUX_PANE="%0"
   test_json=$(create_test_json "/tmp/test" "TestTool" '{"prompt": "fix the bug"}')
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
+  run env TMUX="test" TMUX_PANE="%0" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/rename-tmux-window.sh'"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
-  unset TMUX TMUX_PANE
 }
 
 @test "rename-tmux-window.sh extracts name from prompt" {

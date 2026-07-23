@@ -18,10 +18,10 @@ setup() {
 @test "git-guards hook commands point to existing scripts" {
   all_exist=0
   commands=$(get_hook_commands "$PROJECT_ROOT/plugins/git-guards/hooks/hooks.json" "PreToolUse")
-  for cmd in $commands; do
-    resolved_cmd=$(echo "$cmd" | sed "s|\${CLAUDE_PLUGIN_ROOT}|$PROJECT_ROOT/plugins/git-guards|g")
-    if [ ! -f "$resolved_cmd" ]; then
-      echo "Script not found: $resolved_cmd"
+  for command in $commands; do
+    resolved_command="${command//\$\{CLAUDE_PLUGIN_ROOT\}/$PROJECT_ROOT/plugins/git-guards}"
+    if [ ! -f "$resolved_command" ]; then
+      echo "Script not found: $resolved_command"
       all_exist=1
     fi
   done

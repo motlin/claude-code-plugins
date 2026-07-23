@@ -2,7 +2,7 @@
 
 setup() {
   PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
-  # shellcheck source=../lib/codex-plugin-helpers.sh
+  # shellcheck source=test/lib/codex-plugin-helpers.sh
   source "$PROJECT_ROOT/test/lib/codex-plugin-helpers.sh"
 }
 

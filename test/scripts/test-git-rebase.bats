@@ -30,6 +30,7 @@ setup() {
 }
 
 @test "rebase does not open the sequence editor" {
+    # shellcheck disable=SC2016
     run env OFFLINE=true UPSTREAM_REMOTE=origin UPSTREAM_BRANCH=main \
         GIT_SEQUENCE_EDITOR="$SEQUENCE_EDITOR" \
         bash -c 'command cd "$1"

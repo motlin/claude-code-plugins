@@ -46,8 +46,9 @@
 	},
 
 	// MD010/no-hard-tabs : Hard tabs : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md010.md
-	// Disabled: this repo intentionally uses tabs in many code blocks (e.g. command examples, tool config snippets). The code_blocks:false option does not take effect in markdownlint-cli2 v0.22 when a language is specified.
-	"MD010": false,
+	"MD010": {
+		"code_blocks": false,
+	},
 
 	// MD011/no-reversed-links : Reversed link syntax : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md011.md
 	"MD011": true,
@@ -56,6 +57,7 @@
 	"MD012": false,
 
 	// MD013/line-length : Line length : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md013.md
+	// Disabled: instruction prose often carries exact commands, schemas, and prompt clauses whose forced wrapping reduces readability.
 	"MD013": false,
 
 	// MD014/commands-show-output : Dollar signs used before commands without showing output : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md014.md
@@ -141,8 +143,7 @@
 	"MD033": false,
 
 	// MD034/no-bare-urls : Bare URL used : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md034.md
-	// Disabled: documentation routinely references URLs as plain text to keep them greppable and copy-pasteable.
-	"MD034": false,
+	"MD034": true,
 
 	// MD035/hr-style : Horizontal rule style : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md035.md
 	"MD035": {
@@ -165,16 +166,18 @@
 	"MD039": true,
 
 	// MD040/fenced-code-language : Fenced code blocks should have a language specified : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md040.md
-	// Disabled: many fenced blocks in this repo contain generic CLI output, tree listings, or verbatim transcripts for which no language highlighter applies.
+	// Disabled: generic CLI output, tree listings, and verbatim transcripts have no accurate syntax-highlighting language.
 	"MD040": false,
 
 	// MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md041.md
+	// Disabled: agent, command, and skill instruction files begin with required YAML frontmatter rather than a Markdown heading.
 	"MD041": false,
 
 	// MD042/no-empty-links : No empty links : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md042.md
 	"MD042": true,
 
 	// MD043/required-headings : Required heading structure : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md043.md
+	// Disabled: README, command, agent, and skill files do not share one required heading structure.
 	"MD043": false,
 
 	// MD044/proper-names : Proper names should have the correct capitalization : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md044.md

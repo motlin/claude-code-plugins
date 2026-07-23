@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+while IFS= read -r -d '' path; do
+    [ -f "$path" ] || continue
+    first_line=""
+    IFS= read -r first_line <"$path" || true
+    case "$first_line" in
+        "#!/bin/bash" | "#!/bin/sh" | "#!/usr/bin/env bash" | "#!/usr/bin/env bats")
+            printf '%q ' "$path"
+            ;;
+    esac
+done < <(git ls-files --cached --others --exclude-standard -z)
+printf '\n'

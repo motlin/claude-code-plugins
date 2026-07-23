@@ -24,7 +24,6 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 - Show the newly added task with `[ ]` checkbox
 - Highlight or focus on the new entry
 - Example expected content:
-
     ```markdown
     - [ ] Implement user authentication
     ```
@@ -35,15 +34,12 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 
 - Demonstrate adding a task with detailed context
 - Run a command like:
-
     ```
     /add-one-task Fix authentication bug in login flow
     ```
-
 - Then ask Claude to add context lines, or demonstrate the natural flow where Claude adds context
 - Alternative: Show editing `.llm/todo.md` to add indented context lines manually
 - Expected result in todo.md:
-
     ```markdown
     - [ ] Fix authentication bug in login flow
         - File: `src/auth/login.ts`
@@ -58,15 +54,12 @@ This guide helps you capture screenshots demonstrating the `/add-one-task` comma
 
 - Run `/add-one-task` three or more times with different tasks
 - Show the progression:
-
     ```
     /add-one-task Implement user dashboard
     /add-one-task Add dark mode toggle
     /add-one-task Create settings page
     ```
-
 - Capture the final state of `.llm/todo.md` showing all tasks:
-
     ```markdown
     - [ ] Implement user dashboard
     - [ ] Add dark mode toggle

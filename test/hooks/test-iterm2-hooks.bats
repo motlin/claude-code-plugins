@@ -27,11 +27,10 @@ EOF
 }
 
 @test "update-for-tool-hook.sh exits early when LC_TERMINAL is not iTerm2" {
-  export LC_TERMINAL="xterm"
   test_json=$(create_test_json "/tmp/test" "Bash")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-for-tool-hook.sh'"
+  run env LC_TERMINAL="xterm" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-for-tool-hook.sh'"
   [ "$status" -eq 0 ]
-  unset LC_TERMINAL
 }
 
 @test "update-iterm-title.sh exits early when LC_TERMINAL not set" {
@@ -42,11 +41,10 @@ EOF
 }
 
 @test "update-iterm-title.sh exits early when LC_TERMINAL is not iTerm2" {
-  export LC_TERMINAL="xterm"
   test_json=$(create_test_json "/tmp/test" "Bash")
-  run bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-title.sh' '\$'"
+  run env LC_TERMINAL="xterm" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-title.sh' '\$'"
   [ "$status" -eq 0 ]
-  unset LC_TERMINAL
 }
 
 @test "update-for-tool-hook.sh recognizes Bash tool icon" {

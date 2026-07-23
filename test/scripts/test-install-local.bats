@@ -53,7 +53,8 @@ EOF
 
     [ "$status" -eq 0 ]
     grep -Fqx "claude plugin marketplace list --json" "$COMMAND_LOG"
-    ! grep -q '^codex ' "$COMMAND_LOG"
+    run grep -q '^codex ' "$COMMAND_LOG"
+    [ "$status" -eq 1 ]
 }
 
 @test "Codex mode installs only available plugins and refreshes installed cache entries" {
