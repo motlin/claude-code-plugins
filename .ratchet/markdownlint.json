@@ -3,7 +3,7 @@
 	"tool": "markdownlint",
 	"adapterVersion": 1,
 	"coverage": {
-		"lastAcceptedFileCount": 124,
+		"lastAcceptedFileCount": 123,
 		"allowEmpty": false
 	},
 	"rules": {}
