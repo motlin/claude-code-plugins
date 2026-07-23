@@ -18,6 +18,15 @@ HOME = os.path.expanduser("~")
 CLAUDE_PROJECTS = os.path.join(HOME, ".claude", "projects")
 CODEX_SESSIONS = os.path.join(HOME, ".codex", "sessions")
 
+# Long-running foreground commands worth re-running after a reboot. These carry no
+# resumable session state (unlike claude/codex), so restoring one just re-executes the
+# command line — best-effort. Bare shells with no such child stay "idle shell".
+FOREGROUND_ALLOW = {
+    "just", "npm", "pnpm", "yarn", "bun", "vite", "next", "node", "deno",
+    "cargo", "make", "gradle", "mvn", "tail", "watch", "watchexec",
+    "python", "python3", "uvicorn", "flask", "rails", "ng", "turbo",
+}
+
 
 def sh(args):
     return subprocess.run(args, capture_output=True, text=True).stdout
@@ -50,6 +59,19 @@ def find_tool(pid, kids, cmd):
         if "codex" in c and base in ("codex", "node"):
             return ("codex", c)
         r = find_tool(k, kids, cmd)
+        if r:
+            return r
+    return None
+
+
+def find_command(pid, kids, cmd):
+    """Depth-first: return the cmdline of the first allowlisted long-running child, or None."""
+    for k in kids.get(pid, []):
+        c = cmd.get(k, "")
+        base = c.split()[0].split("/")[-1] if c else ""
+        if base in FOREGROUND_ALLOW:
+            return c
+        r = find_command(k, kids, cmd)
         if r:
             return r
     return None
@@ -110,7 +132,11 @@ def main():
         seen_win.add(win)
         tool = find_tool(int(ppid), kids, cmd)
         if not tool:
-            rows.append((win, name, cwd, "-", "idle shell", ""))
+            c = find_command(int(ppid), kids, cmd)
+            if c:
+                rows.append((win, name, cwd, "command", c, "best-effort; re-runs command"))
+            else:
+                rows.append((win, name, cwd, "-", "idle shell", ""))
             continue
         kind, _ = tool
         if kind == "claude":

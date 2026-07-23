@@ -31,7 +31,7 @@ def parse(state_file):
             if len(cells) < 4:
                 continue
             win, name, tool, cmd = cells[0], cells[1], cells[2], cells[3]
-            if tool in ("claude", "codex") and cmd.startswith("`") and cmd.endswith("`"):
+            if tool in ("claude", "codex", "command") and cmd.startswith("`") and cmd.endswith("`"):
                 rows.append((win, cmd.strip("`")))
     return rows
 

@@ -7,7 +7,10 @@ description: Snapshot running tmux claude/codex agents immediately before a rebo
 
 Capture the current tmux session state to a snapshot file, so `/tmux-reboot:restore` can bring the
 agents back after tmux-resurrect restores the windows, panes, and working directories. The running
-`claude` and `codex` processes do not survive the reboot and must be resumed separately.
+`claude` and `codex` processes do not survive the reboot and must be resumed separately. Panes
+running a long-lived foreground command (dev servers and watchers like `just dev`, `npm run dev`,
+`vite`, `cargo watch`) are also captured as `command` rows — these carry no session state, so
+restoring one just re-runs the command line (best-effort).
 
 Run:
 
@@ -29,6 +32,9 @@ user when they affect the generated table:
 - When no transcript matches, the snapshot records `claude --continue` or `codex resume --last`.
   Point out these fallback rows so the user knows to verify them after restoration.
 - The script ignores mirrored tmux group sessions and snapshots only the attached session.
+- `command` rows re-run their command line, not a saved session. Editors, REPLs, and shells with
+  in-memory state (`vim`, `psql`, `ssh`) are intentionally not captured — only allowlisted
+  long-running commands are. Point these rows out as best-effort restores.
 
 Regenerate immediately before rebooting so the session ids are current. Keep refresh manual unless
 the user asks to automate it with cron or launchd.
