@@ -1,6 +1,6 @@
 {
 	"name": "tmux-reboot",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Snapshot the running tmux/claude/codex agents before a reboot and resume the exact sessions afterward, complementing tmux-resurrect which restores windows but not the agents inside them.",
 	"author": {
 		"name": "Craig Motlin"

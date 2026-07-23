@@ -1,6 +1,6 @@
 {
 	"name": "investigation-report",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Explain command-line investigations as self-contained HTML reports with real commands, output, and reasoning",
 	"author": {
 		"name": "Craig Motlin"

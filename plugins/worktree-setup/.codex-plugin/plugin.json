@@ -1,6 +1,6 @@
 {
 	"name": "worktree-setup",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
 	"author": {
 		"name": "Craig Motlin"

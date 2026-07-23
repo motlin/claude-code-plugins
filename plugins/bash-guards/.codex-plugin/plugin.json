@@ -1,6 +1,6 @@
 {
 	"name": "bash-guards",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Block dangerous bash commands before they execute",
 	"author": {
 		"name": "Craig Motlin"

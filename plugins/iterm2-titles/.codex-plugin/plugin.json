@@ -1,6 +1,6 @@
 {
 	"name": "iterm2-titles",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Updates iTerm2 window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 	"author": {
 		"name": "Craig Motlin"

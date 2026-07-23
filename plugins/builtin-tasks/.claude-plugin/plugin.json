@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "builtin-tasks",
 	"description": "Task orchestration using Claude Code's built-in task tools with slash commands for importing plans and executing tasks individually, sequentially, or with a team",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"

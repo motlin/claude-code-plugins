@@ -1,6 +1,6 @@
 {
 	"name": "temporal-data",
-	"version": "1.23.0",
+	"version": "1.24.0",
 	"description": "Temporal database patterns for system-time versioned tables",
 	"author": {
 		"name": "Craig Motlin"
