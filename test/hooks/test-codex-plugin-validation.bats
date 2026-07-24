@@ -46,20 +46,30 @@ setup() {
     '.plugins[] | [.name, .source.source, .source.path] | @tsv' "$marketplace")
 }
 
-@test "current plugin-creator validator accepts every Codex plugin" {
-  validator="$(codex_plugin_validator)"
-  [ -f "$validator" ]
-
+@test "every Codex plugin manifest satisfies the ingestion contract" {
   failed=()
   for manifest in "$PROJECT_ROOT"/plugins/*/.codex-plugin/plugin.json; do
     plugin_root="${manifest%/.codex-plugin/plugin.json}"
-    if ! output="$(python3 "$validator" "$plugin_root" 2>&1)"; then
-      failed+=("$plugin_root: $output")
+
+    errors="$(codex_manifest_contract_errors "$manifest")"
+    if [ -n "$errors" ]; then
+      while IFS= read -r error; do
+        failed+=("$plugin_root: $error")
+      done <<<"$errors"
     fi
+
+    [ -d "$plugin_root/skills" ] || continue
+    while IFS= read -r skill_file; do
+      invocation="$(sed -n 's/^disable-model-invocation: *//p' "$skill_file" | head -1)"
+      invocation="${invocation//$'\r'/}"
+      if [ "$invocation" = "true" ]; then
+        failed+=("$skill_file: disable-model-invocation must not be true for Codex")
+      fi
+    done < <(find "$plugin_root/skills" -name SKILL.md -type f -print)
   done
 
   if [ "${#failed[@]}" -ne 0 ]; then
-    printf 'failed Codex plugins:\n'
+    printf 'Codex manifest contract violations:\n'
     printf '  %s\n' "${failed[@]}"
     return 1
   fi
