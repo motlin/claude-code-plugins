@@ -255,6 +255,18 @@
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
+		},
+		{
+			"name": "recap",
+			"source": {
+				"source": "local",
+				"path": "./plugins/recap"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
 		}
 	]
 }

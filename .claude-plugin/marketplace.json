@@ -226,6 +226,16 @@
 			},
 			"source": "./plugins/tmux-reboot",
 			"category": "productivity"
+		},
+		{
+			"name": "recap",
+			"description": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
+			"version": "1.24.0",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/recap",
+			"category": "productivity"
 		}
 	]
 }

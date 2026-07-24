@@ -25,6 +25,7 @@ plugins marked `AVAILABLE` in `.agents/plugins/marketplace.json`.
 | `plugin-and-skill-dev`                                   | Available   | Available     |
 | `temporal-data`                                          | Available   | Available     |
 | [stop-phrase-guard](plugins/stop-phrase-guard/README.md) | Available   | Available     |
+| [recap](plugins/recap/README.md)                         | Available   | Available     |
 | `bash-guards`                                            | Available   | Available     |
 | `investigation-report`                                   | Available   | Available     |
 | `builtin-tasks`                                          | Available   | Not available |

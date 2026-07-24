@@ -15,6 +15,7 @@ Invoke these skills liberally - most tasks use multiple skills:
 | `git-workflow`       | For all git operations                |
 | `conversation-style` | For response guidelines               |
 | `llm-context`        | When working with `.llm/` directories |
+| `recap`              | Before ending a turn                  |
 
 ## Git Commits
 

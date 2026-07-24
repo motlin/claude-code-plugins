@@ -1,0 +1,22 @@
+{
+	"name": "recap",
+	"version": "1.24.0",
+	"description": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/recap",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "recap", "stop", "summary"],
+	"interface": {
+		"displayName": "Recap",
+		"shortDescription": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
+		"longDescription": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Use the recap plugin."],
+		"brandColor": "#3B82F6"
+	}
+}
