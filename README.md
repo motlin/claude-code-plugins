@@ -1,132 +1,118 @@
 # Claude Code and Codex Plugins
 
-This marketplace packages task queues, terminal status hooks, and development workflows for Claude
-Code and Codex. Install a complete plugin when you need its hooks, commands, agents, and skills;
-install an individual [Agent Skill](https://agentskills.io/) when its instructions are sufficient.
-
-## Choose a Task Workflow
-
-The repository includes two task plugins with different sources of truth:
-
-| Plugin                                             | Task state                       | Claude Code | Codex     | Best fit                                                     |
-| -------------------------------------------------- | -------------------------------- | ----------- | --------- | ------------------------------------------------------------ |
-| [builtin-tasks](plugins/builtin-tasks/README.md)   | Claude Code's built-in task list | Available   | —         | Claude-only queues, dependencies, and parallel team runs     |
-| [markdown-tasks](plugins/markdown-tasks/README.md) | `.llm/todo.md` checkboxes        | Available   | Available | Visible, repository-local queues and sequential task commits |
-
-Both plugins can import plans, collect source comments, and give each implementation task its own
-commit. Choose `builtin-tasks` when Claude Code's task and team tools should own the queue. Choose
-`markdown-tasks` when the queue should be a plain file or the workflow must also run in Codex.
-
-## Choose a Terminal Title Plugin
-
-The title plugins turn hook events into a compact activity indicator. Install the one that owns the
-surface you want to update:
-
-| Plugin                                             | Display target                  | Extra setup                                   |
-| -------------------------------------------------- | ------------------------------- | --------------------------------------------- |
-| [tmux-titles](plugins/tmux-titles/README.md)       | tmux window status              | Add `@claude_indicator` to tmux status format |
-| [iterm2-titles](plugins/iterm2-titles/README.md)   | iTerm2 window title             | Optional shell or AutoLaunch cleanup          |
-| [ghostty-titles](plugins/ghostty-titles/README.md) | Ghostty tab title through OSC 0 | None beyond `jq`                              |
-
-All three are available to Claude Code and Codex. Their shared manifests cover prompt, tool,
-compaction, stop, and session-start activity. Claude Code loads an additional hook manifest for
-events that are not shared by both products.
+This repository distributes focused plugins for agent workflows, development tools, terminal
+feedback, and safety checks. Install a plugin through the Claude Code or Codex marketplace when
+you need its full package of skills, hooks, commands, or agents.
 
 ## Plugin Catalog
 
-The compatibility columns below follow the current Claude Code and Codex marketplace manifests.
-An em dash means the plugin remains in the Codex catalog for marketplace parity but its
-installation policy is `NOT_AVAILABLE`.
+The catalog follows the checked-in marketplace and plugin manifests. `✅` means the marketplace
+allows installation for that product; `—` means it does not.
 
-| Plugin                                                         | Purpose                                              | Claude Code | Codex     |
-| -------------------------------------------------------------- | ---------------------------------------------------- | ----------- | --------- |
-| [markdown-tasks](plugins/markdown-tasks/README.md)             | Markdown-backed task planning and execution          | Available   | Available |
-| [tmux-titles](plugins/tmux-titles/README.md)                   | tmux activity indicators and window naming           | Available   | Available |
-| [iterm2-titles](plugins/iterm2-titles/README.md)               | iTerm2 activity titles                               | Available   | Available |
-| [build](plugins/build/README.md)                               | Build, test, and precommit automation                | Available   | Available |
-| [builtin-tasks](plugins/builtin-tasks/README.md)               | Claude Code built-in task orchestration              | Available   | —         |
-| [code](plugins/code/README.md)                                 | Code-quality and test-writing guidance               | Available   | Available |
-| [ghostty-titles](plugins/ghostty-titles/README.md)             | Ghostty activity titles                              | Available   | Available |
-| [git](plugins/git/README.md)                                   | Commit, rebase, conflict, branch, and worktree flows | Available   | Available |
-| [github](plugins/github/README.md)                             | GitHub Actions diagnosis and pull-request workflows  | Available   | Available |
-| [java](plugins/java/README.md)                                 | Maven and OpenRewrite workflows                      | Available   | Available |
-| [justfile](plugins/justfile/README.md)                         | Justfile authoring utilities                         | Available   | Available |
-| [orchestration](plugins/orchestration/README.md)               | Shared execution and finish conventions              | Available   | Available |
-| [worktree-setup](plugins/worktree-setup/README.md)             | Claude worktree initialization hooks                 | Available   | —         |
-| [claude-code-plans](plugins/claude-code-plans/)                | Session events for the claude-code-plans dashboard   | Available   | Available |
-| [git-guards](plugins/git-guards/)                              | Guards against destructive Git commands              | Available   | Available |
-| [plugin-and-skill-dev](plugins/plugin-and-skill-dev/README.md) | Plugin instruction-writing guidance                  | Available   | Available |
-| [temporal-data](plugins/temporal-data/)                        | System-time temporal database patterns               | Available   | Available |
-| [stop-phrase-guard](plugins/stop-phrase-guard/README.md)       | Guard against premature session termination          | Available   | Available |
-| [bash-guards](plugins/bash-guards/README.md)                   | Guards against destructive shell commands            | Available   | Available |
-| [investigation-report](plugins/investigation-report/)          | Self-contained HTML investigation reports            | Available   | Available |
-| [tmux-reboot](plugins/tmux-reboot/)                            | Agent session snapshots around tmux restarts         | Available   | Available |
-| [recap](plugins/recap/README.md)                               | End-of-turn request and link recaps                  | Available   | Available |
+### Plan and Run Work
 
-`builtin-tasks` depends on Claude Code's task, agent, and team tools.
-`worktree-setup` depends on Claude Code's `WorktreeCreate` hook. Those capabilities have no Codex
-equivalent in this repository, so the corresponding Codex entries are intentionally unavailable.
+| Plugin                                             | Use it to                                                         | Claude Code | Codex |
+| -------------------------------------------------- | ----------------------------------------------------------------- | ----------- | ----- |
+| [builtin-tasks](plugins/builtin-tasks/README.md)   | Run task queues with Claude Code's task, dependency, and team API | ✅          | —     |
+| [markdown-tasks](plugins/markdown-tasks/README.md) | Manage a visible task queue in `.llm/todo.md`                     | ✅          | ✅    |
 
-## Install for Claude Code
+### Build and Maintain Code
 
-Register the GitHub marketplace once:
+| Plugin                                             | Use it to                                                        | Claude Code | Codex |
+| -------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
+| [build](plugins/build/README.md)                   | Run precommit checks and test commits or branches                | ✅          | ✅    |
+| [code](plugins/code/README.md)                     | Apply code-quality, comment, CLI, and test-writing conventions   | ✅          | ✅    |
+| [git](plugins/git/README.md)                       | Commit, rebase, resolve conflicts, and manage branches/worktrees | ✅          | ✅    |
+| [github](plugins/github/README.md)                 | Diagnose GitHub Actions failures                                 | ✅          | ✅    |
+| [justfile](plugins/justfile/README.md)             | Write and tighten Justfile recipe documentation                  | ✅          | ✅    |
+| [worktree-setup](plugins/worktree-setup/README.md) | Prepare files and tools in Claude Code agent worktrees           | ✅          | —     |
+
+### Guide Agents and Authors
+
+| Plugin                                                                                    | Use it to                                                       | Claude Code | Codex |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------- | ----- |
+| [investigation-report](plugins/investigation-report/skills/investigation-report/SKILL.md) | Turn terminal investigations into explanatory HTML reports      | ✅          | ✅    |
+| [orchestration](plugins/orchestration/README.md)                                          | Coordinate shared conversation, testing, and finish conventions | ✅          | ✅    |
+| [plugin-and-skill-dev](plugins/plugin-and-skill-dev/README.md)                            | Write durable skills, agents, and commands                      | ✅          | ✅    |
+| [recap](plugins/recap/README.md)                                                          | End responses with the request recap and most relevant link     | ✅          | ✅    |
+
+### Protect the Session
+
+| Plugin                                                   | Use it to                                               | Claude Code | Codex |
+| -------------------------------------------------------- | ------------------------------------------------------- | ----------- | ----- |
+| [bash-guards](plugins/bash-guards/README.md)             | Reject destructive shell commands before execution      | ✅          | ✅    |
+| [git-guards](plugins/git-guards/)                        | Reject destructive Git commands before execution        | ✅          | ✅    |
+| [stop-phrase-guard](plugins/stop-phrase-guard/README.md) | Keep the agent working after premature stopping phrases | ✅          | ✅    |
+
+### Track Sessions and Terminal Activity
+
+| Plugin                                             | Use it to                                                       | Claude Code | Codex |
+| -------------------------------------------------- | --------------------------------------------------------------- | ----------- | ----- |
+| [claude-code-plans](plugins/claude-code-plans/)    | Publish session lifecycle events to a claude-code-plans service | ✅          | ✅    |
+| [ghostty-titles](plugins/ghostty-titles/README.md) | Show agent activity in a Ghostty tab title                      | ✅          | ✅    |
+| [iterm2-titles](plugins/iterm2-titles/README.md)   | Show agent activity in an iTerm2 window title                   | ✅          | ✅    |
+| [tmux-reboot](plugins/tmux-reboot/)                | Snapshot and restore agent sessions across tmux restarts        | ✅          | ✅    |
+| [tmux-titles](plugins/tmux-titles/README.md)       | Show agent activity in the tmux window status                   | ✅          | ✅    |
+
+### Work with Specialized Technologies
+
+| Plugin                                                               | Use it to                                                 | Claude Code | Codex |
+| -------------------------------------------------------------------- | --------------------------------------------------------- | ----------- | ----- |
+| [java](plugins/java/README.md)                                       | Work with Maven, OpenRewrite, Liquibase, and POM ordering | ✅          | ✅    |
+| [temporal-data](plugins/temporal-data/skills/temporal-data/SKILL.md) | Design and cache system-time temporal data                | ✅          | ✅    |
+
+## Install Plugins
+
+### Claude Code
+
+Register this repository once, then install the plugin you want:
 
 ```bash
 claude plugin marketplace add motlin/claude-code-plugins
-```
-
-Install a plugin by its catalog name:
-
-```bash
 claude plugin install markdown-tasks@motlin-claude-code-plugins
 ```
 
-From a local clone, install all Claude Code plugins with:
+To install the Claude Code variants from a local checkout:
 
 ```bash
 ./install-local.sh claude
 ```
 
-Running `./install-local.sh` without an argument selects the same Claude Code mode.
+Running `./install-local.sh` without an argument also selects Claude Code.
 
-## Install for Codex
+### Codex
 
-Register the Codex marketplace, then add an available plugin:
+Add the marketplace, then install a plugin marked `✅` in the Codex column:
 
 ```bash
 codex plugin marketplace add motlin/claude-code-plugins
 codex plugin add markdown-tasks@motlin-claude-code-plugins
 ```
 
-Install every compatible plugin from a local checkout with:
+To install all compatible Codex plugins from a local checkout:
 
 ```bash
 ./install-local.sh codex
 ```
 
-Use `./install-local.sh all` to install both product variants. During plugin development, refresh
-one installed Codex plugin from the checkout and start a new conversation:
+Use `./install-local.sh all` to install both product variants. When developing a plugin locally,
+refresh its Codex installation before starting a new conversation:
 
 ```bash
 just codex-reinstall markdown-tasks
 ```
 
-## Install Individual Skills
+## Install Skills Without a Plugin
 
-The open [`skills`](https://github.com/vercel-labs/skills) CLI can discover skills directly from
-the repository:
+The open [`skills`](https://github.com/vercel-labs/skills) CLI can list the Agent Skills in this
+repository and install one for a specific agent:
 
 ```bash
 npx skills add motlin/claude-code-plugins --list
-npx skills add . --list
-```
-
-Install a named skill for one agent:
-
-```bash
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent codex
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-code
 ```
 
-This route installs skill instructions and their bundled resources. Use the product marketplace
-when a workflow also requires hooks, slash commands, or custom agents.
+From a local checkout, replace the repository name with `.`. This route installs skill
+instructions and bundled resources only; use a product marketplace when the plugin also relies on
+hooks, commands, or custom agents.
