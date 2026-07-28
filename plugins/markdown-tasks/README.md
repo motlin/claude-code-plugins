@@ -2,6 +2,10 @@
 
 Keep your tasks in a simple markdown file (`todo.md`) and let Claude Code implement them automatically.
 
+This plugin uses `.llm/todo.md` as a persistent, repository-local queue and works with both Claude
+Code and Codex. If you want Claude Code to use its built-in task list and team tools instead, see
+[builtin-tasks](../builtin-tasks/README.md).
+
 ## Naming
 
 This plugin uses "task" terminology (e.g., `/do-one-task`, `/add-one-task`) instead of "todo" to avoid conflicts with Claude Code's built-in `/todos` command.
