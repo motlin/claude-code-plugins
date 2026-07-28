@@ -26,7 +26,7 @@ lint: install
 # Check shell script formatting with shfmt
 format: install
     shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
-    mise exec -- oxfmt --check
+    oxfmt --check
 
 # Run configured pre-commit hooks on every tracked file
 pre-commit: install

@@ -24,7 +24,7 @@ repos:
       hooks:
           - id: oxfmt
             name: oxfmt
-            entry: mise exec -- oxfmt --no-error-on-unmatched-pattern
+            entry: oxfmt --no-error-on-unmatched-pattern
             language: system
 
           - id: markdownlint
