@@ -24,9 +24,8 @@ repos:
       hooks:
           - id: oxfmt
             name: oxfmt
-            entry: mise exec -- oxfmt
+            entry: mise exec -- oxfmt --no-error-on-unmatched-pattern
             language: system
-            types_or: [yaml, markdown, json]
 
           - id: markdownlint
             name: markdownlint
