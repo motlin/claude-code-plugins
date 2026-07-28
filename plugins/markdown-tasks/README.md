@@ -1,273 +1,118 @@
 # markdown-tasks Plugin
 
-Keep your tasks in a simple markdown file (`todo.md`) and let Claude Code implement them automatically.
+`markdown-tasks` manages a repository-local queue in `.llm/todo.md`. Tasks are ordinary Markdown
+checkboxes, while bundled scripts give agents a narrow view of one item at a time. The plugin works
+with Claude Code and Codex.
 
-This plugin uses `.llm/todo.md` as a persistent, repository-local queue and works with both Claude
-Code and Codex. If you want Claude Code to use its built-in task list and team tools instead, see
-[builtin-tasks](../builtin-tasks/README.md).
+Choose this plugin when you want inspectable task state, a queue scoped to the current checkout, or
+the same task model in both products. Choose [builtin-tasks](../builtin-tasks/README.md) when Claude
+Code's built-in dependency tracking and team execution should own the queue.
 
-## Naming
+## Install
 
-This plugin uses "task" terminology (e.g., `/do-one-task`, `/add-one-task`) instead of "todo" to avoid conflicts with Claude Code's built-in `/todos` command.
-
-## Quick Start
-
-Most common workflows:
-
-```bash
-/add-one-task <description>  # Add a single task to the list
-/do-all-tasks                # Implement all tasks in .llm/todo.md
-/sweep-todos                 # Find TODO comments and add them to the list
-```
-
-You can also manually edit `.llm/todo.md` directly or ask Claude to flesh out the task list.
-
-## What Gets Installed
-
-- 6 slash commands (`/plan-tasks`, `/do-one-task`, `/add-one-task`, `/do-all-tasks`, `/sweep-todos`, `/import-plan`)
-- 1 agent (`do-task`)
-- 1 skill (`tasks`) with bundled Python scripts
-
-No additional setup required - the skill's scripts are automatically available when the plugin is installed.
-
-## Permissions Configuration
-
-To enable Claude Code to run uninterrupted for as long as possible, configure it to skip permission prompts. Proceed with caution.
-
-### Option 1: Permissive Settings (Recommended)
-
-Configure permissive permissions in `~/.claude/settings.json`:
-
-```json
-{
-	"permissions": {
-		"allow": [
-			"Bash",
-			"Edit",
-			"MultiEdit",
-			"Read",
-			"WebSearch",
-			"Write",
-			"Skill(markdown-tasks:tasks)",
-			"WebFetch(domain:github.com)"
-		],
-		"deny": [
-			"Bash(git add --all:*)",
-			"Bash(git add --force:*)",
-			"Bash(git add -A:*)",
-			"Bash(git add -f:*)",
-			"Bash(git commit -a:*)",
-			"Bash(git push:*)",
-			"Bash(git reset --hard:*)",
-			"Bash(git worktree remove --force:*)",
-			"Bash(rm -rf:*)",
-			"Edit(~/.claude/settings.json)",
-			"MultiEdit(~/.claude/settings.json)"
-		],
-		"ask": []
-	}
-}
-```
-
-### Option 2: CLI Flag
-
-For per-session control:
-
-```bash
-claude --dangerously-skip-permissions /todo
-```
-
-## Commands
-
-### `/add-one-task` - Add Single Task
-
-Adds a single task to `.llm/todo.md`.
-
-```bash
-/add-one-task Implement user authentication with OAuth
-```
-
-### `/do-all-tasks` - Process All Tasks
-
-Works through all incomplete tasks sequentially using the `do-task` agent.
-
-```bash
-/do-all-tasks
-```
-
-Each task is implemented in complete isolation:
-
-- The `do-task` agent reads only the single task description and its context
-- No information about other tasks pollutes the agent's context
-- Prevents confusion between similar tasks or accidentally implementing the wrong feature
-- Each task gets its own commit
-
-When a task fails, it's marked as blocked (`[!]`) and `/do-all-tasks` skips it and continues with the next task. You can manually change `[!]` back to `[ ]` in `.llm/todo.md` to retry the task later.
-
-### `/sweep-todos` - Harvest Code TODOs
-
-Finds all TODO comments in codebase and adds them to `.llm/todo.md`.
-
-```bash
-/sweep-todos
-```
-
-Example output showing discovered TODOs:
-
-```markdown
-### TODOs from Codebase (found by /sweep-todos)
-
-- [ ] Implement TODO from src/utils/validators.js:42: Add email format validation
-- [ ] Implement TODO from src/components/UserForm.tsx:78: Add phone number field with country code selector
-- [ ] Implement TODO from src/api/auth.ts:156: Implement rate limiting for login attempts
-- [ ] Implement TODO from tests/integration/payment.test.ts:23: Add test coverage for refund scenarios
-- [ ] Implement TODO from src/services/cache.ts:91: Add explicit generics support for type safety
-```
-
-### `/do-one-task` - Work on Next Task
-
-Finds and implements exactly one incomplete task.
-
-```bash
-/do-one-task
-```
-
-Workflow:
-
-1. Extracts first `[ ]` task
-2. Implements the task
-3. Runs build pipeline (precommit-runner, commit-handler, rebaser)
-4. Marks task as `[x]`
-
-Uses the `do-task` agent internally.
-
-#### `do-task` Agent
-
-Implements a single task with full build pipeline and marks it complete.
-
-Used internally by `/do-one-task` and `/do-all-tasks` commands.
-
-### `/plan-tasks` - Capture Conversation Planning
-
-Captures conversation planning and requirements into actionable tasks. Use at the **end of a planning discussion** before starting implementation.
-
-```bash
-/plan-tasks
-```
-
-Transforms discussion context into granular, self-contained tasks in `.llm/todo.md`.
-
-## Task States
-
-Tasks use markdown checkboxes with different states:
-
-- `[ ]` - Ready to work on
-- `[x]` - Completed and committed
-- `[!]` - Blocked after failed attempt
-
-## Scripts
-
-The plugin includes Python scripts in `plugins/markdown-tasks/scripts/`:
-
-- `task_get.py` and `task_mark.py` - Extract and mark individual tasks
-- `task_add.py` - Add new tasks to the list
-- `task_archive.py` - Archive completed task lists
-
-These tools prevent context pollution by ensuring agents only see the specific task they're working on, not the entire task list.
-
-### Benefits
-
-When implementing tasks, agents receive only:
-
-- The single task description
-- Its context lines
-- Nothing about other unrelated tasks
-
-This focused context prevents context rot:
-
-- Confusion between similar tasks
-- Accidentally implementing the wrong feature
-- LLM attention being split across multiple objectives
-
-### `task_get.py`
-
-Extracts exactly one task with its context.
-
-```bash
-plugins/markdown-tasks/scripts/task_get.py $(git rev-parse --show-toplevel)/.llm/todo.md
-```
-
-### `task_mark.py`
-
-Marks the first incomplete task with a marker character (default `x`).
-
-```bash
-plugins/markdown-tasks/scripts/task_mark.py $(git rev-parse --show-toplevel)/.llm/todo.md
-plugins/markdown-tasks/scripts/task_mark.py $(git rev-parse --show-toplevel)/.llm/todo.md --marker='!'
-```
-
-## Task Format
-
-Each task in `.llm/todo.md` should be independently readable with full context:
-
-```markdown
-- [ ] Add user authentication to API routes
-    - File: `src/routes/api.ts`
-    - Add middleware similar to `src/middleware/auth.ts`
-    - Implement JWT validation
-    - Return 401 for invalid tokens
-    - Depends on: User model in `src/models/user.ts`
-    - Expected: All `/api/*` routes require valid JWT
-```
-
-Indented lines provide context and are extracted by `task-get`.
-
-## Workflow Examples
-
-### Basic Single Task
-
-```bash
-# Add a task
-/add-one-task Add dark mode toggle to settings
-
-# Implement it
-/do-one-task
-
-# Task is now marked [x] and committed
-```
-
-### Process All Tasks
-
-```bash
-# Add multiple tasks
-/add-one-task Implement user dashboard with charts
-/add-one-task Add authentication
-/add-one-task Create settings page
-
-# Implement all tasks
-/do-all-tasks
-```
-
-### Code Review with TODOs
-
-```bash
-# During code review, leave TODO comments in the code
-#   // TODO: Add rate limiting to login endpoint
-#   // TODO: Implement password reset functionality
-#   // TODO: Add session timeout handling
-
-# Sweep all TODOs into .llm/todo.md
-/sweep-todos
-
-# Review the collected tasks in .llm/todo.md and add context if needed
-
-# Implement all tasks
-/do-all-tasks
-```
-
-## Installation
+### Claude Code
 
 ```bash
 claude plugin marketplace add motlin/claude-code-plugins
 claude plugin install markdown-tasks@motlin-claude-code-plugins
 ```
+
+### Codex
+
+```bash
+codex plugin marketplace add motlin/claude-code-plugins
+codex plugin add markdown-tasks@motlin-claude-code-plugins
+```
+
+The helper scripts run with Python. Task implementation also uses this repository's finish workflow,
+so install `orchestration`, `build`, `git`, and `code` from the same marketplace and configure
+`git-test` in repositories where tasks will be executed.
+
+Keep `.llm/` out of version control when the queue is local agent context. Each Git worktree then
+has an independent task file.
+
+## Choose a Workflow
+
+Claude Code exposes slash commands and Codex exposes corresponding skills:
+
+| Goal                           | Claude Code command                  | Codex skill                             |
+| ------------------------------ | ------------------------------------ | --------------------------------------- |
+| Add one task                   | `/markdown-tasks:add-one-task`       | `$markdown-tasks:markdown-add-task`     |
+| Capture the current planning   | `/markdown-tasks:plan-tasks`         | `$markdown-tasks:markdown-plan-tasks`   |
+| Import a plan file             | `/markdown-tasks:import-plan <path>` | `$markdown-tasks:markdown-import-plan`  |
+| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`        | `$markdown-tasks:markdown-sweep-todos`  |
+| Implement the next task        | `/markdown-tasks:do-one-task`        | `$markdown-tasks:markdown-do-one-task`  |
+| Process every incomplete task  | `/markdown-tasks:do-all-tasks`       | `$markdown-tasks:markdown-do-all-tasks` |
+
+The `markdown-tasks:tasks` skill supplies the low-level task format and script conventions used by
+the workflow skills. It is not normally the entry point for a queue operation.
+
+## Task File
+
+The scripts create `.llm/todo.md` on the first add operation. A task begins with one of these
+markers:
+
+- `[ ]` is ready.
+- `[x]` completed validation and was committed.
+- `[!]` failed during a batch attempt and is skipped.
+
+Indent context beneath the checkbox so extraction returns the whole task:
+
+```markdown
+- [ ] Require authentication on API routes.
+      Update `/workspace/project/src/routes/api.ts`.
+      Reuse `validateJwt` from `/workspace/project/src/auth/tokens.ts`.
+      Return 401 before invoking a protected route when validation fails.
+```
+
+Every item should stand alone. Include absolute paths, named code elements, dependencies, examples
+to follow, and the expected result. Workers receive the first incomplete task and its indented
+context, not the rest of the queue.
+
+The bundled scripts are the supported way for agents to change the task file:
+
+| Script            | Operation                                             |
+| ----------------- | ----------------------------------------------------- |
+| `task_add.py`     | Append a self-contained `[ ]` task                    |
+| `task_get.py`     | Print the first incomplete task and its context       |
+| `task_mark.py`    | Mark the first incomplete task `[x]` or another state |
+| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`    |
+
+## Populate the Queue
+
+`add-one-task` expands one description into a self-contained item. `plan-tasks` converts the
+requirements already discussed in the conversation into a batch and writes that batch in one
+operation.
+
+`import-plan` takes a stored plan, places it under `.llm/plans/`, and creates tasks for its steps.
+The generated queue also contains a whole-plan verification task and a final task that archives the
+plan under `.llm/plans/done/`.
+
+`sweep-todos` searches for `TODO` comments and adds their paths, line numbers, and text to the
+queue. It captures work; it does not remove comments or implement them.
+
+## Execute the Queue
+
+`do-one-task` extracts one `[ ]` item, implements only that item, runs task-specific validation,
+and invokes the finish pipeline. The task is marked `[x]` only after its commit and validation
+succeed.
+
+`do-all-tasks` is a sequential coordinator. It starts one fresh worker per task, requires one clean
+task commit, and checks `HEAD` before extracting the next item. A failed worker leaves no commit;
+the coordinator marks that task `[!]` and continues. Ambiguous task state or an unverified commit
+stops the run instead of stacking more work.
+
+When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. To retry a
+blocked item later, change its marker from `[!]` back to `[ ]` before starting another run.
+
+## Boundaries
+
+- The first `[ ]` item is the next item; the format has no built-in dependency graph or priority
+  field.
+- Batch execution is sequential because every worker shares the same checkout and task file.
+- The task list is not committed automatically. Its persistence and visibility follow how the
+  repository treats `.llm/`.
+- Plan and comment workflows create queue entries but do not guarantee that their source material
+  is complete or deduplicated.
+- Implementation depends on the finish pipeline and stops when the committed `HEAD` cannot be
+  verified.

@@ -1,133 +1,132 @@
 # Claude Code and Codex Plugins
 
-Collection of plugins for Claude Code and Codex that enhance terminal integration, task management,
-and development workflows.
+This marketplace packages task queues, terminal status hooks, and development workflows for Claude
+Code and Codex. Install a complete plugin when you need its hooks, commands, agents, and skills;
+install an individual [Agent Skill](https://agentskills.io/) when its instructions are sufficient.
 
-## Plugin Compatibility
+## Choose a Task Workflow
 
-Claude Code installs plugins from `.claude-plugin/marketplace.json`. Codex installs the translated
-plugins marked `AVAILABLE` in `.agents/plugins/marketplace.json`.
+The repository includes two task plugins with different sources of truth:
 
-| Plugin                                                   | Claude Code | Codex         |
-| -------------------------------------------------------- | ----------- | ------------- |
-| [orchestration](plugins/orchestration/README.md)         | Available   | Available     |
-| [markdown-tasks](plugins/markdown-tasks/README.md)       | Available   | Available     |
-| [tmux-titles](plugins/tmux-titles/README.md)             | Available   | Available     |
-| [iterm2-titles](plugins/iterm2-titles/README.md)         | Available   | Available     |
-| `ghostty-titles`                                         | Available   | Available     |
-| [build](plugins/build/README.md)                         | Available   | Available     |
-| [code](plugins/code/README.md)                           | Available   | Available     |
-| [git](plugins/git/README.md)                             | Available   | Available     |
-| [github](plugins/github/README.md)                       | Available   | Available     |
-| [java](plugins/java/README.md)                           | Available   | Available     |
-| [justfile](plugins/justfile/README.md)                   | Available   | Available     |
-| `git-guards`                                             | Available   | Available     |
-| `plugin-and-skill-dev`                                   | Available   | Available     |
-| `temporal-data`                                          | Available   | Available     |
-| [stop-phrase-guard](plugins/stop-phrase-guard/README.md) | Available   | Available     |
-| [recap](plugins/recap/README.md)                         | Available   | Available     |
-| `bash-guards`                                            | Available   | Available     |
-| `investigation-report`                                   | Available   | Available     |
-| `builtin-tasks`                                          | Available   | Not available |
-| [worktree-setup](plugins/worktree-setup/README.md)       | Available   | Not available |
-| `claude-code-plans`                                      | Available   | Available     |
+| Plugin                                             | Task state                       | Claude Code | Codex     | Best fit                                                     |
+| -------------------------------------------------- | -------------------------------- | ----------- | --------- | ------------------------------------------------------------ |
+| [builtin-tasks](plugins/builtin-tasks/README.md)   | Claude Code's built-in task list | Available   | —         | Claude-only queues, dependencies, and parallel team runs     |
+| [markdown-tasks](plugins/markdown-tasks/README.md) | `.llm/todo.md` checkboxes        | Available   | Available | Visible, repository-local queues and sequential task commits |
 
-The intentionally unavailable Codex entries remain visible in the Codex marketplace metadata so
-the two marketplaces stay in one-to-one parity:
+Both plugins can import plans, collect source comments, and give each implementation task its own
+commit. Choose `builtin-tasks` when Claude Code's task and team tools should own the queue. Choose
+`markdown-tasks` when the queue should be a plain file or the workflow must also run in Codex.
 
-- `builtin-tasks` still exposes Claude-specific commands and agents rather than Codex skill
-  entrypoints.
-- `worktree-setup` depends on Claude Code's `WorktreeCreate` hook, which Codex does not support.
+## Choose a Terminal Title Plugin
 
-`claude-code-plans` sends `SessionStart`, `PostToolUse`, and `Stop` from Codex. Claude Code also
-sends `SessionEnd`, `TaskCompleted`, and `WorktreeCreate`.
+The title plugins turn hook events into a compact activity indicator. Install the one that owns the
+surface you want to update:
 
-## Open Agent Skills
+| Plugin                                             | Display target                  | Extra setup                                   |
+| -------------------------------------------------- | ------------------------------- | --------------------------------------------- |
+| [tmux-titles](plugins/tmux-titles/README.md)       | tmux window status              | Add `@claude_indicator` to tmux status format |
+| [iterm2-titles](plugins/iterm2-titles/README.md)   | iTerm2 window title             | Optional shell or AutoLaunch cleanup          |
+| [ghostty-titles](plugins/ghostty-titles/README.md) | Ghostty tab title through OSC 0 | None beyond `jq`                              |
 
-The skills in this repository follow the [Agent Skills specification](https://agentskills.io/) and
-can be discovered or installed with Vercel's open [`skills`](https://github.com/vercel-labs/skills)
-CLI independently of the Claude Code and Codex plugin marketplaces.
+All three are available to Claude Code and Codex. Their shared manifests cover prompt, tool,
+compaction, stop, and session-start activity. Claude Code loads an additional hook manifest for
+events that are not shared by both products.
 
-List every skill published from the default branch:
+## Plugin Catalog
+
+The compatibility columns below follow the current Claude Code and Codex marketplace manifests.
+An em dash means the plugin remains in the Codex catalog for marketplace parity but its
+installation policy is `NOT_AVAILABLE`.
+
+| Plugin                                                         | Purpose                                              | Claude Code | Codex     |
+| -------------------------------------------------------------- | ---------------------------------------------------- | ----------- | --------- |
+| [markdown-tasks](plugins/markdown-tasks/README.md)             | Markdown-backed task planning and execution          | Available   | Available |
+| [tmux-titles](plugins/tmux-titles/README.md)                   | tmux activity indicators and window naming           | Available   | Available |
+| [iterm2-titles](plugins/iterm2-titles/README.md)               | iTerm2 activity titles                               | Available   | Available |
+| [build](plugins/build/README.md)                               | Build, test, and precommit automation                | Available   | Available |
+| [builtin-tasks](plugins/builtin-tasks/README.md)               | Claude Code built-in task orchestration              | Available   | —         |
+| [code](plugins/code/README.md)                                 | Code-quality and test-writing guidance               | Available   | Available |
+| [ghostty-titles](plugins/ghostty-titles/README.md)             | Ghostty activity titles                              | Available   | Available |
+| [git](plugins/git/README.md)                                   | Commit, rebase, conflict, branch, and worktree flows | Available   | Available |
+| [github](plugins/github/README.md)                             | GitHub Actions diagnosis and pull-request workflows  | Available   | Available |
+| [java](plugins/java/README.md)                                 | Maven and OpenRewrite workflows                      | Available   | Available |
+| [justfile](plugins/justfile/README.md)                         | Justfile authoring utilities                         | Available   | Available |
+| [orchestration](plugins/orchestration/README.md)               | Shared execution and finish conventions              | Available   | Available |
+| [worktree-setup](plugins/worktree-setup/README.md)             | Claude worktree initialization hooks                 | Available   | —         |
+| [claude-code-plans](plugins/claude-code-plans/)                | Session events for the claude-code-plans dashboard   | Available   | Available |
+| [git-guards](plugins/git-guards/)                              | Guards against destructive Git commands              | Available   | Available |
+| [plugin-and-skill-dev](plugins/plugin-and-skill-dev/README.md) | Plugin instruction-writing guidance                  | Available   | Available |
+| [temporal-data](plugins/temporal-data/)                        | System-time temporal database patterns               | Available   | Available |
+| [stop-phrase-guard](plugins/stop-phrase-guard/README.md)       | Guard against premature session termination          | Available   | Available |
+| [bash-guards](plugins/bash-guards/README.md)                   | Guards against destructive shell commands            | Available   | Available |
+| [investigation-report](plugins/investigation-report/)          | Self-contained HTML investigation reports            | Available   | Available |
+| [tmux-reboot](plugins/tmux-reboot/)                            | Agent session snapshots around tmux restarts         | Available   | Available |
+| [recap](plugins/recap/README.md)                               | End-of-turn request and link recaps                  | Available   | Available |
+
+`builtin-tasks` depends on Claude Code's task, agent, and team tools.
+`worktree-setup` depends on Claude Code's `WorktreeCreate` hook. Those capabilities have no Codex
+equivalent in this repository, so the corresponding Codex entries are intentionally unavailable.
+
+## Install for Claude Code
+
+Register the GitHub marketplace once:
+
+```bash
+claude plugin marketplace add motlin/claude-code-plugins
+```
+
+Install a plugin by its catalog name:
+
+```bash
+claude plugin install markdown-tasks@motlin-claude-code-plugins
+```
+
+From a local clone, install all Claude Code plugins with:
+
+```bash
+./install-local.sh claude
+```
+
+Running `./install-local.sh` without an argument selects the same Claude Code mode.
+
+## Install for Codex
+
+Register the Codex marketplace, then add an available plugin:
+
+```bash
+codex plugin marketplace add motlin/claude-code-plugins
+codex plugin add markdown-tasks@motlin-claude-code-plugins
+```
+
+Install every compatible plugin from a local checkout with:
+
+```bash
+./install-local.sh codex
+```
+
+Use `./install-local.sh all` to install both product variants. During plugin development, refresh
+one installed Codex plugin from the checkout and start a new conversation:
+
+```bash
+just codex-reinstall markdown-tasks
+```
+
+## Install Individual Skills
+
+The open [`skills`](https://github.com/vercel-labs/skills) CLI can discover skills directly from
+the repository:
 
 ```bash
 npx skills add motlin/claude-code-plugins --list
-```
-
-List skills from a local checkout, including unmerged branch work:
-
-```bash
 npx skills add . --list
 ```
 
-Install one skill for Codex or Claude Code:
+Install a named skill for one agent:
 
 ```bash
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent codex
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-code
 ```
 
-The `skills` CLI installs skill instructions and bundled resources. Use the product-specific plugin
-marketplaces below when hooks, commands, agents, or other plugin capabilities are also required.
-
-## Claude Code Installation
-
-Add the marketplace from GitHub:
-
-```bash
-claude plugin marketplace add motlin/claude-code-plugins
-```
-
-For local development or use behind a firewall, clone the repository and run:
-
-```bash
-./install-local.sh
-```
-
-The no-argument invocation remains equivalent to `./install-local.sh claude`. Install an individual
-plugin from the registered marketplace with:
-
-```bash
-claude plugin install markdown-tasks@motlin-claude-code-plugins
-```
-
-## Codex Installation
-
-Add the marketplace from GitHub:
-
-```bash
-codex plugin marketplace add motlin/claude-code-plugins
-```
-
-Then install any available plugin:
-
-```bash
-codex plugin add markdown-tasks@motlin-claude-code-plugins
-```
-
-For local development, clone the repository and install every Codex-compatible plugin from the
-local marketplace:
-
-```bash
-./install-local.sh codex
-```
-
-Use `./install-local.sh all` to install both product variants. Codex mode re-registers a marketplace
-of the same name when it points elsewhere and reinstalls already-installed local plugins so the
-Codex cache reflects the checked-out source.
-
-After changing one local Codex plugin, use the focused cache-aware refresh instead of reinstalling
-the full marketplace:
-
-```bash
-just codex-reinstall markdown-tasks
-```
-
-Start a new Codex conversation after reinstalling so skill discovery uses the refreshed plugin.
-
-## Terminal Title Hooks
-
-The `tmux-titles`, `iterm2-titles`, and `ghostty-titles` plugins preserve the richer Claude event
-set in `hooks/claude-hooks.json`; their Claude manifests load that file explicitly. Codex discovers
-`hooks/hooks.json` by convention, and those default manifests contain only events supported by both
-products. The hook scripts accept each product's tool-name and working-directory payload fields.
+This route installs skill instructions and their bundled resources. Use the product marketplace
+when a workflow also requires hooks, slash commands, or custom agents.
