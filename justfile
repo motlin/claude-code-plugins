@@ -9,24 +9,31 @@ codex_marketplace := "motlin-claude-code-plugins"
 default:
     @just --list --unsorted
 
+# Install pinned tools
+install:
+    mise install
+
 # ✓ Run automated tests for plugin hooks
-test:
+test: install
     ./test/run-tests.sh
 
 # Run shellcheck, markdownlint, and yamllint
-lint:
+lint: install
     shellcheck --external-sources {{ shellcheck_scripts }}
     markdownlint-cli2
     yamllint --strict .
 
 # Check shell script formatting with shfmt
-format:
+format: install
     shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
     mise exec -- oxfmt --check
 
-# Run all pre-commit checks
-precommit: format lint test
+# Run configured pre-commit hooks on every tracked file
+pre-commit: install
     pre-commit run --all-files
+
+# Run all pre-commit checks
+precommit: format lint test pre-commit
 
 # Refresh one Codex plugin from the local marketplace and clear its cached copy
 codex-reinstall PLUGIN:

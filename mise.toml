@@ -1,6 +1,6 @@
 [tools]
 just = "1.56.0"
-pre-commit = "latest"
+pre-commit = "4.6.0"
 shellcheck = "latest"
 shfmt = "latest"
 "npm:oxfmt" = "0.56"

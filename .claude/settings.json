@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"includeCoAuthoredBy": false,
+	"includeGitInstructions": false,
+	"enabledPlugins": {
+		"build@motlin-claude-code-plugins": true,
+		"code@motlin-claude-code-plugins": true,
+		"git@motlin-claude-code-plugins": true,
+		"markdown-tasks@motlin-claude-code-plugins": true,
+		"orchestration@motlin-claude-code-plugins": true,
+		"recap@motlin-claude-code-plugins": true
+	},
+	"extraKnownMarketplaces": {
+		"motlin-claude-code-plugins": {
+			"source": {
+				"source": "github",
+				"repo": "motlin/claude-code-plugins"
+			}
+		}
+	}
+}

@@ -257,4 +257,8 @@
 
 	// MD056/table-column-count : Table column count : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md056.md
 	"MD056": true,
+
+	// MD060/table-column-style : Table column style : https://github.com/DavidAnson/markdownlint/blob/main/doc/md060.md
+	// Disabled: oxfmt pads empty table cells in a form that MD060 rejects.
+	"MD060": false,
 }

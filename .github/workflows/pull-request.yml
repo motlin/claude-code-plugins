@@ -24,7 +24,7 @@ jobs:
             pull-requests: write
             contents: write
         steps:
-            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   persist-credentials: false
 
@@ -39,19 +39,20 @@ jobs:
             contents: write
             pull-requests: write
         steps:
-            - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   ref: ${{ github.event.pull_request.head.ref }}
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   persist-credentials: false
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+            - uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
               with:
                   cache: true
-                  # Pinned: 2026.6.2's minimum_release_age default breaks pipx installs
-                  # (pip --uploaded-prior-to needs pip >= 26.0). Unpin once fixed upstream.
-                  version: 2026.6.1
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
+
+            - run: just install
 
             - name: Configure Git
               run: |
