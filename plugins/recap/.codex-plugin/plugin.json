@@ -1,6 +1,6 @@
 {
 	"name": "recap",
-	"version": "1.24.0",
+	"version": "1.25.0",
 	"description": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
 	"author": {
 		"name": "Craig Motlin"
