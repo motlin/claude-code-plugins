@@ -257,6 +257,18 @@
 			"category": "Productivity"
 		},
 		{
+			"name": "herdr-reboot",
+			"source": {
+				"source": "local",
+				"path": "./plugins/herdr-reboot"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
+		},
+		{
 			"name": "recap",
 			"source": {
 				"source": "local",

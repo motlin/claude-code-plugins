@@ -1,0 +1,23 @@
+{
+	"name": "herdr-reboot",
+	"version": "1.25.0",
+	"description": "Snapshot the running herdr workspaces, tabs, and claude/codex agents before a reboot and rebuild them afterward, resuming each agent's exact session.",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/herdr-reboot",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "herdr", "resume", "reboot", "workspace"],
+	"interface": {
+		"displayName": "Herdr Reboot",
+		"shortDescription": "Snapshot and rebuild herdr workspaces with their claude/codex agents across a reboot.",
+		"longDescription": "Snapshot the running herdr workspaces, tabs, and claude/codex agents before a reboot and rebuild them afterward, resuming each agent's exact session.",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Snapshot my herdr workspaces so I can resume after a reboot."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
