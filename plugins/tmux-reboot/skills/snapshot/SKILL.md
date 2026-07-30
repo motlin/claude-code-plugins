@@ -1,6 +1,6 @@
 ---
 name: snapshot
-description: Snapshot running tmux claude/codex agents immediately before a reboot so their sessions can be restored afterward.
+description: Snapshot running tmux claude/codex agents to a resume-after-reboot JSON state file immediately before a reboot, so their sessions can be restored afterward. Use when asked to snapshot, save, or capture tmux sessions before rebooting. For herdr instead of tmux, use the herdr-reboot plugin.
 ---
 
 # Snapshot Tmux Agents
@@ -15,22 +15,63 @@ restoring one just re-runs the command line (best-effort).
 Run:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py > .llm/resume-after-reboot-state.md
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py --output .llm/resume-after-reboot-state.json
 ```
 
-Then show the user the generated table and confirm it looks right before they reboot. The state file
+Stdout works too, for redirection: `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py > FILE`.
+
+Then show the user the captured rows and confirm they look right before they reboot. The state file
 holds session ids personal to this machine, so keep it in the gitignored `.llm/` directory.
 
+## The state file
+
+JSON, schema `resume-after-reboot/v1`. One row per window:
+
+```json
+{
+	"schema": "resume-after-reboot/v1",
+	"captured": "2026-07-29T20:22:47-04:00",
+	"backend": "tmux",
+	"session": "main",
+	"rows": [
+		{
+			"slot": 1,
+			"name": "webapp",
+			"tool": "claude",
+			"command": "claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+			"cwd": "~/projects/webapp",
+			"session_id": "3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+			"note": "session mtime 2026-07-29 20:17"
+		}
+	]
+}
+```
+
+- `tool` is `claude`, `codex`, `command`, or `shell`. `shell` rows are idle panes: `command` and
+  `session_id` are `null` and nothing is restored into them.
+- `slot` is a 1-based ordinal for ordering and display, not a tmux window index — restore pairs
+  rows by `cwd`, because tmux-resurrect renumbers windows across a reboot.
+- `session_id` is broken out of `command` so nothing has to re-parse the command string. It is
+  `null` for `command`/`shell` rows and for the `claude --continue` / `codex resume --last`
+  fallbacks.
+- `note` records how the pairing was made, so a weak one is visible.
+
+The format is shared with the `herdr-reboot` plugin: a snapshot taken under either plugin restores
+under the other, so switching backends costs no captured sessions.
+
+## Matching caveats
+
 The script walks the process tree under each pane in the attached tmux session and matches the
-agent's working directory to recent transcripts on disk. Review these matching caveats with the
-user when they affect the generated table:
+agent's working directory to recent transcripts on disk. Review these with the user when they
+affect the captured rows:
 
 - Multiple agents in one working directory are assigned newest-transcript-first. The set of session
-  ids is correct, but the window-to-session assignment is best-effort.
+  ids is correct, but the window-to-session assignment is best-effort — that is what `note` records.
 - An idle Codex session can have a stale transcript modification time. If the assignment looks
   wrong, note that the user may need the interactive `codex resume` picker after reboot.
-- When no transcript matches, the snapshot records `claude --continue` or `codex resume --last`.
-  Point out these fallback rows so the user knows to verify them after restoration.
+- When no transcript matches, the snapshot records `claude --continue` or `codex resume --last` with
+  a `null` `session_id`. Point out these fallback rows so the user knows to verify them after
+  restoration.
 - The script ignores mirrored tmux group sessions and snapshots only the attached session.
 - `command` rows re-run their command line, not a saved session. Editors, REPLs, and shells with
   in-memory state (`vim`, `psql`, `ssh`) are intentionally not captured — only allowlisted

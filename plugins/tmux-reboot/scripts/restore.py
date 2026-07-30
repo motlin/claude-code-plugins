@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
-"""Restore claude/codex agents from a tmux-reboot snapshot.
+"""Restore claude/codex agents from a resume-after-reboot snapshot.
 
-Reads a state file produced by snapshot.py and sends each row's resume command into the
-matching tmux window. Dry-run by default; pass --go to actually fire.
+Reads the JSON state file produced by snapshot.py (schema resume-after-reboot/v1) and sends
+each row's resume command into the matching tmux window. Dry-run by default; pass --go to
+actually fire. The document is backend-neutral: a snapshot written by the herdr-reboot
+plugin replays here just as well as one written by snapshot.py.
 
-Windows are matched by cwd, not by index: tmux-resurrect renumbers windows across a
-reboot, so a positional lookup fires resume commands into the wrong windows. Each row is
-paired with a live window whose current path equals the recorded cwd. A row is only fired
-into a window sitting idle at a shell prompt with no live agent, so a mistargeted or
+Windows are matched by cwd, not by position: tmux-resurrect renumbers windows across a
+reboot, so a positional lookup fires resume commands into the wrong windows. A row's `slot`
+is a 1-based ordinal used for ordering, display, and --skip — never a window index. Each
+row is paired with a live window whose current path equals the recorded cwd. A row is only
+fired into a window sitting idle at a shell prompt with no live agent, so a mistargeted or
 repeated run never types into a running program.
 
 Usage:
-    restore.py [state_file] [--go]
-Defaults state_file to .llm/resume-after-reboot-state.md and to dry-run.
+    restore.py [state_file] [--go] [--skip SLOT]
+Defaults state_file to .llm/resume-after-reboot-state.json and to dry-run.
 The window running this process is fired last so it isn't disrupted mid-restore.
 """
-import subprocess, sys, os
+import argparse, json, subprocess, sys, os
 
 HOME = os.path.expanduser("~")
 SHELLS = {"zsh", "bash", "sh", "fish", "dash", "ksh", "tcsh"}
+
+SCHEMA = "resume-after-reboot/v1"
+DEFAULT_STATE = ".llm/resume-after-reboot-state.json"
 
 
 def sh(args):
@@ -29,21 +35,26 @@ def basename(cmd):
     return cmd.split("/")[-1].lstrip("-") if cmd else ""
 
 
-def parse(state_file):
-    """Return a dict per row that carries a real resume command."""
+def load_state(state_file):
+    """Return (document, rows that carry a real resume command).
+
+    The schema check is what stops some other JSON file from being replayed as state.
+    `shell` rows have nothing to run and drop out here.
+    """
+    try:
+        with open(state_file) as fh:
+            document = json.load(fh)
+    except (OSError, ValueError) as e:
+        sys.exit(f"{state_file}: not a readable JSON state file ({e})")
+    if not isinstance(document, dict) or document.get("schema") != SCHEMA:
+        found = document.get("schema") if isinstance(document, dict) else None
+        sys.exit(f"{state_file}: expected schema {SCHEMA!r}, found {found!r}")
     rows = []
-    with open(state_file) as fh:
-        for line in fh:
-            if not line.startswith("| ") or line.startswith("| Win") or set(line.strip()) <= set("|-: "):
-                continue
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if len(cells) < 5:
-                continue
-            win, name, tool, cmd, cwd = cells[0], cells[1], cells[2], cells[3], cells[4]
-            if tool in ("claude", "codex", "command") and cmd.startswith("`") and cmd.endswith("`"):
-                rows.append({"win": win, "name": name, "tool": tool,
-                             "cmd": cmd.strip("`"), "cwd": os.path.expanduser(cwd.replace("~", HOME))})
-    return rows
+    for r in document.get("rows", []):
+        if r.get("tool") == "shell" or not r.get("command"):
+            continue
+        rows.append({**r, "cwd": os.path.expanduser(r.get("cwd", ""))})
+    return document, rows
 
 
 def live_windows(session):
@@ -88,26 +99,43 @@ def idle_shell(pid, cur):
     return basename(cur) == shell and shell in SHELLS
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=__doc__.partition("Usage:")[0].strip(),
+        epilog=f"Defaults the state file to {DEFAULT_STATE} and to dry-run.\n"
+               f"The window running this process is fired last so it isn't disrupted "
+               f"mid-restore.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("state", nargs="?", default=DEFAULT_STATE,
+                        help="JSON state file to replay")
+    parser.add_argument("--go", action="store_true",
+                        help="actually send the resume commands (default: dry-run)")
+    parser.add_argument("--skip", action="append", type=int, default=[], metavar="SLOT",
+                        help="leave the row in this slot alone; repeatable")
+    return parser.parse_args()
+
+
 def main():
-    go = "--go" in sys.argv
-    args = [a for a in sys.argv[1:] if a != "--go"]
-    state = args[0] if args else ".llm/resume-after-reboot-state.md"
-    if not os.path.exists(state):
-        sys.exit(f"state file not found: {state}")
+    args = parse_args()
+    if not os.path.exists(args.state):
+        sys.exit(f"state file not found: {args.state}")
+    document, rows = load_state(args.state)
+    skip_slots = set(args.skip)
 
     session = sh(["tmux", "display-message", "-p", "#{session_name}"]).strip() or "main"
     here = sh(["tmux", "display-message", "-p", "#{window_index}"]).strip()
-    rows = parse(state)
     wins = live_windows(session)
     kids, cmd = proc_tree()
 
-    # Prefer the recorded window when its cwd still matches; else any unclaimed
-    # window with the same cwd. Lowest index first for a stable pairing.
+    # Any unclaimed window whose cwd matches, lowest index first for a stable pairing.
     claimed = set()
     plan, skips = [], []
     for r in rows:
-        candidates = [r["win"]] if wins.get(r["win"], {}).get("cwd") == r["cwd"] else []
-        candidates += sorted((w for w, d in wins.items() if d["cwd"] == r["cwd"]), key=int)
+        if r.get("slot") in skip_slots:
+            skips.append((r, "skipped by --skip"))
+            continue
+        candidates = sorted((w for w, d in wins.items() if d["cwd"] == r["cwd"]), key=int)
         win = next((w for w in candidates if w not in claimed), None)
         if win is None:
             skips.append((r, "no live window with this cwd"))
@@ -123,17 +151,22 @@ def main():
         plan.append((win, r))
 
     plan.sort(key=lambda p: p[0] == here)  # fire the current window last
-    mode = "FIRING" if go else "DRY-RUN (pass --go to fire)"
-    print(f"{mode}: {len(plan)} matched, {len(skips)} skipped, session {session}\n")
+    mode = "FIRING" if args.go else "DRY-RUN (pass --go to fire)"
+    print(f"{mode}: {len(plan)} matched, {len(skips)} skipped, session {session}")
+    print(f"state: backend {document.get('backend', '?')}, "
+          f"captured {document.get('captured', '?')}\n")
+    if not wins:
+        print("  no live tmux windows to pair against -- is tmux running?\n")
     for win, r in plan:
-        moved = "" if win == r["win"] else f"  (recorded win {r['win']})"
         here_tag = "  (current, last)" if win == here else ""
-        print(f"  {session}:{win:<4} {r['cmd']:<58} @{r['cwd'].replace(HOME, '~')}{moved}{here_tag}")
-        if go:
-            sh(["tmux", "send-keys", "-t", f"{session}:{win}", r["cmd"], "Enter"])
+        print(f"  {session}:{win:<4} {r['command']:<58} "
+              f"@{r['cwd'].replace(HOME, '~')}  (slot {r.get('slot', '?')}){here_tag}")
+        if args.go:
+            sh(["tmux", "send-keys", "-t", f"{session}:{win}", r["command"], "Enter"])
     for r, why in skips:
-        print(f"  SKIP  {r['name']:<20} {r['cmd']:<58} @{r['cwd'].replace(HOME, '~')} -- {why}")
-    if not go:
+        print(f"  SKIP  {r.get('name', ''):<20} {r['command']:<58} "
+              f"@{r['cwd'].replace(HOME, '~')} -- {why}")
+    if not args.go:
         print("\nNothing sent. Re-run with --go to resume these agents.")
 
 
