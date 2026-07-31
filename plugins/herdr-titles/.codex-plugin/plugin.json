@@ -1,0 +1,22 @@
+{
+	"name": "herdr-titles",
+	"version": "1.25.0",
+	"description": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/herdr-titles",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["plugin", "herdr", "claude", "titles"],
+	"interface": {
+		"displayName": "Herdr Titles",
+		"shortDescription": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+		"longDescription": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Workflow"],
+		"defaultPrompt": ["Use the herdr-titles plugin."],
+		"brandColor": "#3B82F6"
+	}
+}

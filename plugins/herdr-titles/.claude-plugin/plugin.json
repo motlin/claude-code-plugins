@@ -1,0 +1,11 @@
+{
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+	"name": "herdr-titles",
+	"description": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+	"version": "1.25.0",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"hooks": "./hooks/hooks.json"
+}

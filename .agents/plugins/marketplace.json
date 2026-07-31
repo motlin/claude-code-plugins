@@ -279,6 +279,18 @@
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
+		},
+		{
+			"name": "herdr-titles",
+			"source": {
+				"source": "local",
+				"path": "./plugins/herdr-titles"
+			},
+			"policy": {
+				"installation": "NOT_AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
 		}
 	]
 }

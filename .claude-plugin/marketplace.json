@@ -236,6 +236,16 @@
 			},
 			"source": "./plugins/recap",
 			"category": "productivity"
+		},
+		{
+			"name": "herdr-titles",
+			"description": "Keeps Herdr tab labels synchronized with Claude Code custom session titles",
+			"version": "1.25.0",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/herdr-titles",
+			"category": "productivity"
 		}
 	]
 }
