@@ -3,4 +3,4 @@
 __pycache__/
 /node_modules/
 JUSTFILE_BRANCH
-.llm/skip-finish-check
+/.llm/

@@ -239,7 +239,7 @@
 		},
 		{
 			"name": "herdr-titles",
-			"description": "Keeps Herdr tab labels synchronized with Claude Code custom session titles",
+			"description": "Reports Claude sessions to Herdr and synchronizes custom tab titles",
 			"version": "1.25.0",
 			"author": {
 				"name": "Craig Motlin"

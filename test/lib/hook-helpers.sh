@@ -44,12 +44,11 @@ run_hook_script() {
     local script_path="$1"
     local input_json="$2"
     shift 2
-    local args=("$@")
 
     local output
     local exit_code=0
 
-    output=$(echo "$input_json" | "$script_path" "${args[@]}" 2>&1) || exit_code=$?
+    output=$(echo "$input_json" | "$script_path" "$@" 2>&1) || exit_code=$?
 
     echo "$output"
     return $exit_code

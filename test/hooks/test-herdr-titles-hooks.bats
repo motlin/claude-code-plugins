@@ -3,6 +3,7 @@
 setup() {
   PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   HOOK_SCRIPT="$PROJECT_ROOT/plugins/herdr-titles/scripts/rename-herdr-tab.sh"
+  SESSION_REPORTER_SCRIPT="$PROJECT_ROOT/plugins/herdr-titles/scripts/report-herdr-agent-session.sh"
   CAPTURE_FILE="$BATS_TEST_TMPDIR/herdr-arguments"
   MOCK_BIN="$BATS_TEST_TMPDIR/bin"
 
@@ -40,14 +41,47 @@ hook_result() {
       '.plugins[] | select(.name == "herdr-titles") | .policy.installation' \
       "$codex_marketplace")" \
     --arg events "$(jq --raw-output '.hooks | keys | sort | join(",")' "$hooks")" \
+    --arg session_start_commands "$(jq --raw-output \
+      '.hooks.SessionStart[0].hooks | map(.command) | join(",")' \
+      "$hooks")" \
     '{
       claude_hooks: $claude_hooks,
       codex_hooks: $codex_hooks,
       codex_installation: $codex_installation,
-      events: $events
+      events: $events,
+      session_start_commands: $session_start_commands
     }')"
 
-  [ "$actual" = '{"claude_hooks":"./hooks/hooks.json","codex_hooks":"","codex_installation":"NOT_AVAILABLE","events":"SessionStart,Stop"}' ]
+  expected="{\"claude_hooks\":\"./hooks/hooks.json\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh,\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"}"
+  [ "$actual" = "$expected" ]
+}
+
+@test "herdr-titles reports Claude session metadata through the Herdr-managed hook" {
+  claude_config_directory="$BATS_TEST_TMPDIR/claude"
+  managed_hook="$claude_config_directory/hooks/herdr-agent-state.sh"
+  managed_arguments="$BATS_TEST_TMPDIR/managed-arguments"
+  managed_input="$BATS_TEST_TMPDIR/managed-input"
+  mkdir -p "$claude_config_directory/hooks"
+  cat >"$managed_hook" <<'EOF'
+#!/bin/bash
+printf '%s\n' "$@" >"$MANAGED_ARGUMENTS_FILE"
+cat >"$MANAGED_INPUT_FILE"
+EOF
+  chmod +x "$managed_hook"
+  input='{"hook_event_name":"SessionStart","session_id":"session-100"}'
+
+  run env \
+    CLAUDE_CONFIG_DIR="$claude_config_directory" \
+    MANAGED_ARGUMENTS_FILE="$managed_arguments" \
+    MANAGED_INPUT_FILE="$managed_input" \
+    "$SESSION_REPORTER_SCRIPT" <<<"$input"
+
+  actual="$(jq --null-input --compact-output \
+    --argjson status "$status" \
+    --rawfile arguments "$managed_arguments" \
+    --rawfile input "$managed_input" \
+    '{status: $status, arguments: ($arguments | rtrimstr("\n")), input: ($input | rtrimstr("\n"))}')"
+  [ "$actual" = '{"status":0,"arguments":"session","input":"{\"hook_event_name\":\"SessionStart\",\"session_id\":\"session-100\"}"}' ]
 }
 
 @test "herdr-titles renames the current tab to the latest custom title" {

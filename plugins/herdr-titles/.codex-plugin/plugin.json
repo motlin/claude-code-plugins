@@ -1,7 +1,7 @@
 {
 	"name": "herdr-titles",
 	"version": "1.25.0",
-	"description": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+	"description": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
 	"author": {
 		"name": "Craig Motlin"
 	},
@@ -11,8 +11,8 @@
 	"keywords": ["plugin", "herdr", "claude", "titles"],
 	"interface": {
 		"displayName": "Herdr Titles",
-		"shortDescription": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
-		"longDescription": "Keeps Herdr tab labels synchronized with Claude Code custom session titles.",
+		"shortDescription": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
+		"longDescription": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Workflow"],

@@ -5,6 +5,11 @@
 				"hooks": [
 					{
 						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh",
+						"timeout": 10
+					},
+					{
+						"type": "command",
 						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh",
 						"timeout": 10
 					}
