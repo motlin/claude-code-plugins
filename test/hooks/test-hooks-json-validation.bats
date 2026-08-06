@@ -5,11 +5,22 @@ setup() {
   PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
 }
 
-@test "terminal title hook files are valid JSON" {
-  for plugin in tmux-titles iterm2-titles ghostty-titles; do
-    validate_hooks_json "$PROJECT_ROOT/plugins/$plugin/hooks/hooks.json"
-    validate_hooks_json "$PROJECT_ROOT/plugins/$plugin/hooks/claude-hooks.json"
+# Broken JSON here breaks the whole plugin load, and validating the marketplace
+# does not open these files at all, so they are checked directly rather than
+# through whatever `claude plugin validate` happens to recurse into.
+@test "every hook config is valid JSON with a non-empty hooks root" {
+  failed=()
+  for hooks_file in "$PROJECT_ROOT"/plugins/*/hooks/*.json; do
+    if ! output="$(validate_hooks_json "$hooks_file" 2>&1)"; then
+      failed+=("${hooks_file#"$PROJECT_ROOT/"}: $output")
+    fi
   done
+
+  if [ "${#failed[@]}" -ne 0 ]; then
+    printf 'invalid hook configs:\n'
+    printf '  %s\n' "${failed[@]}"
+    return 1
+  fi
 }
 
 @test "default terminal title hooks use only the shared Codex event subset" {
