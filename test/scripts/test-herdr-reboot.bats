@@ -525,7 +525,11 @@ assert codex['skills'] == './skills/', codex['skills']
 print(claude['version'])
 " "$PLUGIN_DIR" "$PLUGIN_DIR"
     [ "$status" -eq 0 ]
-    [ "$output" = "1.26.0" ]
+    # Shape, not a literal: `just release` bumps every manifest, so pinning the
+    # version here fails the suite on release. The claude-to-codex match is
+    # asserted above, and marketplace-to-manifest parity in
+    # test/hooks/test-plugin-validate.bats.
+    [[ "$output" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 }
 
 @test "herdr-reboot skills exist with frontmatter naming them" {
