@@ -525,7 +525,7 @@ assert codex['skills'] == './skills/', codex['skills']
 print(claude['version'])
 " "$PLUGIN_DIR" "$PLUGIN_DIR"
     [ "$status" -eq 0 ]
-    [ "$output" = "1.25.0" ]
+    [ "$output" = "1.26.0" ]
 }
 
 @test "herdr-reboot skills exist with frontmatter naming them" {
