@@ -1,6 +1,6 @@
 {
 	"name": "herdr-titles",
-	"version": "1.26.0",
+	"version": "1.26.1",
 	"description": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
 	"author": {
 		"name": "Craig Motlin"
