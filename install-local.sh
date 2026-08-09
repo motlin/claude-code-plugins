@@ -7,12 +7,22 @@ CLAUDE_MARKETPLACE_JSON="$SCRIPT_DIR/.claude-plugin/marketplace.json"
 CODEX_MARKETPLACE_JSON="$SCRIPT_DIR/.agents/plugins/marketplace.json"
 MARKETPLACE_NAME="$(jq -er .name "$CLAUDE_MARKETPLACE_JSON")"
 
+# These rewrite the terminal title, which hides the spinner title herdr reads to
+# tell a working agent from an idle one. Kept in the marketplace, never installed.
+EXCLUDED_PLUGINS='["ghostty-titles", "iterm2-titles", "tmux-titles"]'
+
 function claude_plugin_names() {
-    jq -r '.plugins[].name' "$CLAUDE_MARKETPLACE_JSON"
+    jq -r --argjson excluded "$EXCLUDED_PLUGINS" \
+        '.plugins[].name | select(IN($excluded[]) | not)' \
+        "$CLAUDE_MARKETPLACE_JSON"
 }
 
 function codex_plugin_names() {
-    jq -r '.plugins[] | select(.policy.installation == "AVAILABLE") | .name' \
+    jq -r --argjson excluded "$EXCLUDED_PLUGINS" \
+        '.plugins[]
+        | select(.policy.installation == "AVAILABLE")
+        | .name
+        | select(IN($excluded[]) | not)' \
         "$CODEX_MARKETPLACE_JSON"
 }
 

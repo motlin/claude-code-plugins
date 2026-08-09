@@ -46,6 +46,49 @@ EOF
     chmod +x "$TEST_BIN/codex"
 }
 
+function write_claude_stub_disabled() {
+    cat >"$TEST_BIN/claude" <<'EOF'
+#!/bin/bash
+echo "claude $*" >>"$COMMAND_LOG"
+case "$*" in
+    "plugin marketplace list --json")
+        echo '[{"name":"motlin-claude-code-plugins"}]'
+        ;;
+    "plugin list --json")
+        jq '[.plugins[] | {id: (.name + "@motlin-claude-code-plugins"), enabled: false}]' \
+            "$PROJECT_ROOT/.claude-plugin/marketplace.json"
+        ;;
+esac
+EOF
+    chmod +x "$TEST_BIN/claude"
+}
+
+@test "Claude mode skips the terminal title plugins that break herdr agent status" {
+    write_claude_stub_disabled
+
+    run "$PROJECT_ROOT/install-local.sh"
+
+    [ "$status" -eq 0 ]
+    grep -Fqx "claude plugin enable code@motlin-claude-code-plugins" "$COMMAND_LOG"
+
+    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+        ! grep -Fq "${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
+    done
+}
+
+@test "Codex mode skips the terminal title plugins that break herdr agent status" {
+    write_codex_stub
+
+    run "$PROJECT_ROOT/install-local.sh" codex
+
+    [ "$status" -eq 0 ]
+    grep -Fqx "codex plugin add code@motlin-claude-code-plugins" "$COMMAND_LOG"
+
+    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+        ! grep -Fq "${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
+    done
+}
+
 @test "no argument preserves the Claude-only installation contract" {
     write_claude_stub
 
@@ -64,7 +107,10 @@ EOF
 
     [ "$status" -eq 0 ]
     expected_plugins="$(jq -r \
-        '.plugins[] | select(.policy.installation == "AVAILABLE") | .name' \
+        '.plugins[]
+        | select(.policy.installation == "AVAILABLE")
+        | .name
+        | select(IN("ghostty-titles", "iterm2-titles", "tmux-titles") | not)' \
         "$PROJECT_ROOT/.agents/plugins/marketplace.json" | sort)"
     installed_plugins="$(sed -n \
         's/^codex plugin add \([^@]*\)@motlin-claude-code-plugins$/\1/p' \
