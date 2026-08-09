@@ -53,6 +53,13 @@ codex_supported_hook_events() {
 extract_literal_plugin_script_references() {
     local skill_file="$1"
 
+    # Without this, a missing rg yields no matches, and every caller reads that
+    # as "no broken references" and passes.
+    if ! command -v rg >/dev/null; then
+        echo "rg (ripgrep) is required but not installed" >&2
+        return 1
+    fi
+
     rg --no-filename --only-matching --pcre2 \
         '(?:<plugin-root>|\$\{?CLAUDE_PLUGIN_ROOT\}?)/scripts/[A-Za-z0-9_./-]+' \
         "$skill_file" | sort --unique
