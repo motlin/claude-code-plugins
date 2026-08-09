@@ -1,6 +1,6 @@
 {
 	"name": "herdr-reboot",
-	"version": "1.26.1",
+	"version": "1.27.0",
 	"description": "Snapshot the running herdr workspaces, tabs, and claude/codex agents before a reboot and rebuild them afterward, resuming each agent's exact session.",
 	"author": {
 		"name": "Craig Motlin"

@@ -1,6 +1,6 @@
 {
 	"name": "justfile",
-	"version": "1.26.1",
+	"version": "1.27.0",
 	"description": "Utilities for working with justfiles, including doc comment optimization",
 	"author": {
 		"name": "Craig Motlin"
