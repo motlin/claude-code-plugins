@@ -149,3 +149,42 @@ EOF
   rm "$temp_script"
   [[ "$output" =~ "✓ my-app" ]]
 }
+
+@test "require-no-herdr.sh stays quiet outside herdr" {
+  test_json=$(create_test_json "/tmp/test")
+  run env -u HERDR_ENV bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/require-no-herdr.sh'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "require-no-herdr.sh reports a blocking error inside herdr" {
+  test_json=$(create_test_json "/tmp/test")
+  run env HERDR_ENV=1 \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/require-no-herdr.sh'"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"iterm2-titles"* ]]
+  [[ "$output" == *"CLAUDE_CODE_DISABLE_TERMINAL_TITLE"* ]]
+}
+
+@test "update-title.sh refuses to write a title inside herdr" {
+  mock_bin="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$mock_bin"
+  cat >"$mock_bin/ps" <<'MOCK'
+#!/bin/bash
+echo "not-a-real-device"
+MOCK
+  chmod +x "$mock_bin/ps"
+  test_json=$(create_test_json "/tmp/test")
+  run env -u HERDR_ENV PATH="$mock_bin:$PATH" LC_TERMINAL="iTerm2" \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-title.sh' '✻'"
+  [ "$status" -ne 0 ]
+  run env PATH="$mock_bin:$PATH" LC_TERMINAL="iTerm2" HERDR_ENV=1 \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-title.sh' '✻'"
+  [ "$status" -eq 0 ]
+}
+
+@test "SessionStart runs the herdr guard before any title hook" {
+  hooks_json="$PROJECT_ROOT/plugins/iterm2-titles/hooks/hooks.json"
+  first_command=$(jq --raw-output '.hooks.SessionStart[0].hooks[0].command' "$hooks_json")
+  [[ "$first_command" == *"require-no-herdr.sh"* ]]
+}

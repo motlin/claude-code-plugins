@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"\u273b\"",
 						"timeout": 500
 					}
 				]
@@ -26,13 +26,22 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✓\"",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"\u2713\"",
 						"timeout": 500
 					}
 				]
 			}
 		],
 		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh",
+						"timeout": 500
+					}
+				]
+			},
 			{
 				"matcher": "startup",
 				"hooks": [
@@ -43,7 +52,7 @@
 					},
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\"",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"\u25cb\"",
 						"timeout": 500
 					}
 				]
@@ -54,7 +63,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⌫\"",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"\u232b\"",
 						"timeout": 500
 					}
 				]
@@ -76,7 +85,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"\u273b\"",
 						"timeout": 500
 					}
 				]

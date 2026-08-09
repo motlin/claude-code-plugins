@@ -198,3 +198,25 @@ EOF
   rm "$temp_script"
   [[ "$output" =~ "✓ my-app" ]]
 }
+
+@test "require-no-herdr.sh stays quiet outside herdr" {
+  test_json=$(create_test_json "/tmp/test")
+  run env -u HERDR_ENV bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/require-no-herdr.sh'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "require-no-herdr.sh reports a blocking error inside herdr" {
+  test_json=$(create_test_json "/tmp/test")
+  run env HERDR_ENV=1 \
+    bash -c "echo '$test_json' | '$PROJECT_ROOT/plugins/tmux-titles/scripts/require-no-herdr.sh'"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"tmux-titles"* ]]
+  [[ "$output" == *"CLAUDE_CODE_DISABLE_TERMINAL_TITLE"* ]]
+}
+
+@test "SessionStart runs the herdr guard before any title hook" {
+  hooks_json="$PROJECT_ROOT/plugins/tmux-titles/hooks/hooks.json"
+  first_command=$(jq --raw-output '.hooks.SessionStart[0].hooks[0].command' "$hooks_json")
+  [[ "$first_command" == *"require-no-herdr.sh"* ]]
+}

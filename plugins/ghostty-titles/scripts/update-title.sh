@@ -10,6 +10,11 @@ if [ "${TERM_PROGRAM:-}" != "ghostty" ]; then
     exit 0
 fi
 
+# herdr reads the terminal title to detect agent state; see require-no-herdr.sh.
+if [ "${HERDR_ENV:-}" = "1" ]; then
+    exit 0
+fi
+
 cwd=$(echo "$json" | jq --raw-output '.cwd')
 dir_name=$(basename "$cwd")
 
