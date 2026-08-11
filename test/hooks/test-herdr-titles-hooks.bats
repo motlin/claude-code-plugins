@@ -28,14 +28,14 @@ hook_result() {
     }'
 }
 
-@test "herdr-titles exposes SessionStart and Stop hooks to Claude only" {
+@test "herdr-titles exposes SessionStart and Stop hooks to Claude only through the auto-loaded hooks file" {
   claude_manifest="$PROJECT_ROOT/plugins/herdr-titles/.claude-plugin/plugin.json"
   codex_manifest="$PROJECT_ROOT/plugins/herdr-titles/.codex-plugin/plugin.json"
   hooks="$PROJECT_ROOT/plugins/herdr-titles/hooks/hooks.json"
   codex_marketplace="$PROJECT_ROOT/.agents/plugins/marketplace.json"
 
   actual="$(jq --null-input --compact-output \
-    --arg claude_hooks "$(jq --raw-output '.hooks' "$claude_manifest")" \
+    --arg claude_hooks "$(jq --raw-output '.hooks // empty' "$claude_manifest")" \
     --arg codex_hooks "$(jq --raw-output '.hooks // empty' "$codex_manifest")" \
     --arg codex_installation "$(jq --raw-output \
       '.plugins[] | select(.name == "herdr-titles") | .policy.installation' \
@@ -52,7 +52,7 @@ hook_result() {
       session_start_commands: $session_start_commands
     }')"
 
-  expected="{\"claude_hooks\":\"./hooks/hooks.json\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh,\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"}"
+  expected="{\"claude_hooks\":\"\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh,\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"}"
   [ "$actual" = "$expected" ]
 }
 
