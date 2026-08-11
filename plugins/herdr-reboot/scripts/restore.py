@@ -134,6 +134,21 @@ def block_reason(pane_id, agents):
         time.sleep(IDLE_POLL_SECONDS)
 
 
+def fires_by_default(row):
+    """True when a `command` row is a read-only viewer rather than a dev server.
+
+    A missing field means a snapshot older than the distinction, including any taken by a
+    tmux-reboot that predates it, so it keeps the original opt-in behaviour.
+    """
+    return bool(row.get("restore_default"))
+
+
+def will_fire(row, commands):
+    if row["tool"] in AGENT_TOOLS:
+        return True
+    return row["tool"] == "command" and (commands or fires_by_default(row))
+
+
 def tab_label(row):
     if row["tool"] in AGENT_TOOLS:
         session = row.get("session_id")
@@ -190,8 +205,7 @@ def main():
     workspaces, agents, focused = live_state()
 
     tabs = sum(len(g["rows"]) for g in groups)
-    firing = [r for g in groups for r in g["rows"]
-              if r["tool"] in AGENT_TOOLS or (r["tool"] == "command" and args.commands)]
+    firing = [r for g in groups for r in g["rows"] if will_fire(r, args.commands)]
     quiet = tabs - len(firing)
     mode = "FIRING" if args.go else "DRY-RUN (pass --go to fire)"
     print(f"{mode}: {len(groups)} workspaces, {tabs} tabs, "
@@ -216,7 +230,7 @@ def main():
             label = tab_label(row)
             slot = row.get("slot")
             target = f"slot {slot:<3} {row['tool']:<8}{row['command'] or '-'}"
-            if row["tool"] == "command" and not args.commands:
+            if row["tool"] == "command" and not will_fire(row, args.commands):
                 print(f"    SKIP  {target} -- command row; pass --commands to re-run it")
                 continue
             if not args.go:

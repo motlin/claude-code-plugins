@@ -33,9 +33,12 @@ Each command is sent with a trailing Enter, so the user does not press return th
 script both pastes and runs every resume line.
 
 Rows with `"tool": "shell"` are idle panes with no command; they are skipped. Alongside
-`claude`/`codex` agents, the snapshot may hold `command` rows (dev servers and watchers like
-`just dev`). These are re-run the same way. Point them out before firing, since re-running a dev
-server rebinds its port.
+`claude`/`codex` agents, the snapshot may hold `command` rows — dev servers and watchers like
+`just dev` (`restore_default: false`), and read-only viewers like `git log`, `less FILE`, or
+`htop` (`restore_default: true`). This restore re-runs both the same way, unlike `herdr-reboot`,
+which fires only the viewers unless asked. Point the dev-server rows out before firing, since
+re-running one rebinds its port. Viewers re-run from the top: scroll position and search are not
+restored.
 
 Rows are only fired into windows sitting idle at a shell prompt with no live agent, so a repeated
 run never types into a running program. Report the skipped rows to the user; "no live window with

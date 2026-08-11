@@ -30,13 +30,22 @@ layout. Review these caveats with the user when they affect the rows:
   `herdr reported no session` in their note — point them out, since the id is a best guess and
   should be verified after restoration.
 - `codex resume --last` means no rollout matched the working directory at all.
-- `command` rows are long-lived foreground programs (dev servers and watchers like `just dev`,
-  `npm run dev`, `vite`). They carry no session state, so restoring one just re-runs the command
-  line. Restore skips them by default because dev servers frequently survive the reboot and still
-  hold their ports.
+- `command` rows carry no session state, so restoring one just re-runs the command line. Their
+  `restore_default` field says whether restore replays it unasked:
+    - `false` — long-lived dev servers and watchers (`just dev`, `npm run dev`, `vite`). Skipped by
+      default, because these frequently survive the reboot and still hold their ports.
+    - `true` — read-only viewers (`git log`, `git show`, `less FILE`, `man`, `htop`, `tig`,
+      `lazygit`). None of these outlives the reboot, so restore replays them by default.
+- `git` rows are judged by subcommand, not by program, so `git push` and `git rebase` are never
+  captured. An alias is judged by what it expands to and restored as the alias you typed, so
+  `git la` comes back as `git la`.
+- A pager is captured only when it names a file. A bare `less` is draining a pipe whose writer
+  dies with the reboot, and re-running it would hang the pane on stdin.
 - `shell` rows are panes with nothing worth restoring; the restore just recreates the tab.
 - Editors and REPLs with in-memory state (`vim`, `psql`, `ssh`) are intentionally recorded as
   `shell` rows rather than re-run.
+- `tig` and `lazygit` are captured as viewers, but both can stage, commit, and push from inside
+  the TUI — a restored one is only as safe as what you then type at it.
 
 Regenerate immediately before rebooting so the session ids are current. Keep refresh manual unless
 the user asks to automate it with cron or launchd.

@@ -94,6 +94,53 @@ spawn_pane_shell() { # program -> sets PANE_PID
     done
 }
 
+# Same, but the caller picks the whole argument list rather than getting a bare `60`.
+# Classification reads the command line out of ps, so the arguments are the point here.
+# Output goes nowhere because a flags-only stub has to be something chatty like `yes`.
+spawn_pane_command() { # program [args...] -> sets PANE_PID
+    # shellcheck disable=SC2016
+    bash -c '"$@" >/dev/null 2>&1; true' bash "$@" &
+    PANE_PID=$!
+    SPAWNED+=("$PANE_PID")
+    local waited=0
+    until [ -n "$(pgrep -P "$PANE_PID")" ]; do
+        sleep 0.05
+        waited=$((waited + 1))
+        [ "$waited" -lt 100 ] || return 1
+    done
+}
+
+# Viewers need argv[0] to be the program the classifier looks for. /bin/sleep suits any
+# stub whose arguments end in a number; a flags-only command line needs /usr/bin/yes,
+# which outlives the snapshot no matter what it is handed.
+link_viewer_stub() { # name [target]
+    ln -s "${2:-/bin/sleep}" "$STUB_BIN/$1"
+}
+
+# Classify a synthetic process tree: each argument is one process, the first a child of
+# the pane and the rest its descendants in order. Spawning these for real is not an option
+# -- every long-lived stub on macOS either rejects non-numeric arguments (sleep) or
+# rewrites its own argv where ps can see it (yes), and the git cases turn on the exact
+# command line.
+classify_tree() { # cmdline [descendant_cmdline...]
+    "$PYTHON3" - "$SCRIPTS_DIR" "$@" <<'PY'
+import sys
+
+sys.path.insert(0, sys.argv[1])
+import snapshot
+
+cmdlines = sys.argv[2:]
+kids = {100: [200]}
+commands = {}
+for offset, cmdline in enumerate(cmdlines):
+    pid = 200 + offset
+    commands[pid] = cmdline
+    if offset:
+        kids.setdefault(pid - 1, []).append(pid)
+print(snapshot.find_command(100, kids, commands))
+PY
+}
+
 write_claude_transcript() { # cwd uuid mtime_stamp
     local slug="${1//\//-}"
     mkdir -p "$FAKE_HOME/.claude/projects/$slug"
@@ -124,6 +171,12 @@ PY
 row_json() { # document_json index
     "$PYTHON3" -c 'import json, sys; print(json.dumps(json.loads(sys.argv[1])["rows"][int(sys.argv[2])]))' \
         "$1" "$2"
+}
+
+row_field() { # document_json index field
+    "$PYTHON3" -c \
+        'import json, sys; print(json.loads(sys.argv[1])["rows"][int(sys.argv[2])].get(sys.argv[3]))' \
+        "$1" "$2" "$3"
 }
 
 envelope_json() { # document_json -- the document minus its rows and capture time
@@ -239,8 +292,67 @@ print(datetime.datetime.fromisoformat(captured).utcoffset() is not None)' "$outp
         "command": "'"$STUB_BIN"'/just 60",
         "cwd": "~/projects/webapp",
         "session_id": null,
-        "note": "best-effort; re-runs command"
+        "note": "best-effort; re-runs command",
+        "restore_default": false
     }'
+}
+
+@test "snapshot records a read-only git command as a restorable viewer" {
+    run classify_tree "/usr/bin/git log --graph"
+    [ "$status" -eq 0 ]
+    [ "$output" = "('/usr/bin/git log --graph', True)" ]
+}
+
+@test "snapshot treats a mutating git command as a shell row" {
+    run classify_tree "/usr/bin/git push origin main"
+    [ "$status" -eq 0 ]
+    [ "$output" = "None" ]
+}
+
+@test "snapshot resolves a git alias before judging it safe" {
+    # git resolves an alias by re-execing itself out of git-core, so the expansion is the
+    # only honest signal -- the alias name says nothing about what it does.
+    run classify_tree "git la" "/usr/libexec/git-core/git log --graph"
+    [ "$status" -eq 0 ]
+    [ "$output" = "('git la', True)" ]
+
+    run classify_tree "git ra" "/usr/libexec/git-core/git rebase --interactive main"
+    [ "$status" -eq 0 ]
+    [ "$output" = "None" ]
+}
+
+@test "snapshot records a pager holding a file" {
+    link_viewer_stub less /usr/bin/yes
+    spawn_pane_command "$STUB_BIN/less" CHANGELOG.md
+    snapshot_pane 33 notes "$PANE_PID" "$FAKE_HOME/notes"
+
+    run "$PYTHON3" "$SCRIPTS_DIR/snapshot.py"
+    [ "$status" -eq 0 ]
+    [ "$(row_field "$output" 0 tool)" = "command" ]
+    [ "$(row_field "$output" 0 restore_default)" = "True" ]
+}
+
+@test "snapshot treats a pager with no file operand as a shell row" {
+    # A bare pager is draining a pipe whose writer dies with the reboot; re-running it
+    # would hang the pane on stdin.
+    link_viewer_stub less /usr/bin/yes
+    spawn_pane_command "$STUB_BIN/less" --RAW-CONTROL-CHARS
+    snapshot_pane 34 notes "$PANE_PID" "$FAKE_HOME/notes"
+
+    run "$PYTHON3" "$SCRIPTS_DIR/snapshot.py"
+    [ "$status" -eq 0 ]
+    [ "$(row_field "$output" 0 tool)" = "shell" ]
+}
+
+@test "snapshot records a system monitor as a restorable viewer" {
+    link_viewer_stub htop
+    spawn_pane_command "$STUB_BIN/htop" 60
+    snapshot_pane 35 dotfiles "$PANE_PID" "$FAKE_HOME/.dotfiles"
+
+    run "$PYTHON3" "$SCRIPTS_DIR/snapshot.py"
+    [ "$status" -eq 0 ]
+    [ "$(row_field "$output" 0 tool)" = "command" ]
+    [ "$(row_field "$output" 0 restore_default)" = "True" ]
 }
 
 @test "snapshot falls back to --continue with a null session id" {

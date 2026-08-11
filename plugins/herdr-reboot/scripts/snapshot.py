@@ -33,11 +33,41 @@ SHELLS = {"zsh", "bash", "sh", "fish", "dash", "ksh", "tcsh"}
 # Long-running foreground commands worth re-running after a reboot. These carry no resumable
 # session state (unlike claude/codex), so restoring one just re-executes the command line —
 # best-effort. Panes running anything else are recorded as plain shells.
+#
+# Restore leaves these alone unless asked: a dev server frequently outlives the reboot that
+# killed the agents, and re-running it just earns an EADDRINUSE against the process still
+# holding the port.
 FOREGROUND_ALLOW = {
     "just", "npm", "pnpm", "yarn", "bun", "vite", "next", "node", "deno",
     "cargo", "make", "gradle", "mvn", "tail", "watch", "watchexec",
     "python", "python3", "uvicorn", "flask", "rails", "ng", "turbo",
 }
+
+# Read-only viewers, safe to re-run verbatim. Unlike the dev servers above, none of these
+# survives a reboot and none holds a port, so restore fires them by default.
+#
+# tig and lazygit are here by request: both are viewers by convention but can stage, commit,
+# and push from inside the TUI, so a restored one is only as safe as what you then type at it.
+VIEW_ALLOW = {
+    "less", "more", "bat", "most", "man",
+    "htop", "btop", "top", "glances", "btm",
+    "tig", "lazygit",
+}
+
+# A pager is worth restoring only when it names a file. A bare one is draining a pipe whose
+# writer died with the reboot, so re-running it would hang the pane waiting on stdin.
+PAGERS = {"less", "more", "bat", "most"}
+
+# git cannot go in VIEW_ALLOW as a program: that would also re-run `git push` and
+# `git rebase --continue`. Only these subcommands are read-only enough to replay.
+GIT_READ_ONLY = {
+    "annotate", "blame", "cat-file", "describe", "diff", "grep", "log",
+    "ls-files", "ls-tree", "reflog", "shortlog", "show", "status", "whatchanged",
+}
+
+# Global git options that swallow the following token, so the subcommand scan can skip past
+# their values instead of mistaking one for the subcommand.
+GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
 
 def sh(args):
@@ -97,17 +127,69 @@ def leader_process(info):
     return procs[-1] if procs else None
 
 
+def cmdline_of(proc):
+    return proc.get("cmdline") or " ".join(proc.get("argv") or [])
+
+
+def git_subcommand(cmdline):
+    """The subcommand of a git command line, or None when it carries only global options."""
+    tokens = cmdline.split()[1:]
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token in GIT_OPTIONS_WITH_VALUE:
+            index += 2
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        return token
+    return None
+
+
+def has_operand(cmdline):
+    """True when the command line names something beyond its own flags."""
+    return any(not token.startswith("-") for token in cmdline.split()[1:])
+
+
+def classify(leader, processes):
+    """(command, restore_default) for a pane's foreground program, or None for a shell row."""
+    for proc in [leader] + list(processes):
+        if proc and program_name(proc) in FOREGROUND_ALLOW:
+            return cmdline_of(proc), False
+
+    if leader is None:
+        return None
+    name = program_name(leader)
+    cmdline = cmdline_of(leader)
+    if not cmdline:
+        return None
+
+    if name == "git":
+        # An alias tells us nothing about what it does, so judge the expansion rather than
+        # the name: git resolves an alias by re-execing itself out of git-core, leaving the
+        # expansion as a sibling process. Restore still replays the alias as typed.
+        resolved = next((proc for proc in processes
+                         if program_name(proc) == "git" and "git-core/" in cmdline_of(proc)), None)
+        subcommand = git_subcommand(cmdline_of(resolved) if resolved else cmdline)
+        return (cmdline, True) if subcommand in GIT_READ_ONLY else None
+
+    if name in VIEW_ALLOW:
+        if name in PAGERS and not has_operand(cmdline):
+            return None
+        return cmdline, True
+
+    return None
+
+
 def find_command(pane_id):
-    """The command line of the pane's allowlisted long-running program, or None."""
+    """(command, restore_default) for the pane's foreground program, or None."""
     info = process_info(pane_id)
     if not info:
         return None
     if info.get("foreground_process_group_id") == info.get("shell_pid"):
         return None
-    for proc in [leader_process(info)] + (info.get("foreground_processes") or []):
-        if proc and program_name(proc) in FOREGROUND_ALLOW:
-            return proc.get("cmdline") or " ".join(proc.get("argv") or [])
-    return None
+    return classify(leader_process(info), info.get("foreground_processes") or [])
 
 
 def index_codex_sessions():
@@ -200,10 +282,12 @@ def build_rows(snap):
                     row.update(command="codex resume --last",
                                note="herdr reported no session and no matching rollout for cwd")
         else:
-            command = find_command(pane.get("pane_id", ""))
-            if command:
-                row.update(tool="command", command=command,
-                           note="best-effort; re-runs command")
+            found = find_command(pane.get("pane_id", ""))
+            if found:
+                command, restore_default = found
+                row.update(tool="command", command=command, restore_default=restore_default,
+                           note="read-only; re-runs command" if restore_default
+                                else "best-effort; re-runs command")
         rows.append(row)
     return rows
 

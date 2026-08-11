@@ -131,6 +131,31 @@ print(json.dumps({"id": "cli", "result": {"type": "pane_process_info", "process_
 PY
 }
 
+# process_chain_fixture <pane_id> <outermost cmdline> [inner cmdline...]
+#
+# What a real `git la` pane looks like: git re-execs itself to resolve the alias and pipes
+# through a pager, so several foreground processes are live at once. herdr reports them
+# newest-pid-first, which is innermost-first, and the process group leader is the outermost
+# process -- the command the user actually typed.
+process_chain_fixture() {
+    local pane="$1"
+    shift
+    "$PYTHON3" - "$@" >"$FIXTURES/process-${pane//:/_}.json" <<'PY'
+import json, sys
+
+processes = []
+for offset, cmdline in enumerate(sys.argv[1:]):
+    argv = cmdline.split()
+    processes.append({"argv": argv, "argv0": argv[0], "cmdline": cmdline,
+                      "name": argv[0].split("/")[-1], "pid": 200 + offset})
+print(json.dumps({"id": "cli", "result": {"type": "pane_process_info", "process_info": {
+    "foreground_process_group_id": processes[0]["pid"],
+    "shell_pid": 100,
+    "foreground_processes": list(reversed(processes)),
+}}}))
+PY
+}
+
 run_snapshot() {
     run env HOME="$FAKE_HOME" PATH="$STUB_BIN:$PATH" \
         HERDR_LOG="$HERDR_LOG" HERDR_FIXTURES="$FIXTURES" \
@@ -158,8 +183,10 @@ import json, sys
 
 rows = []
 for slot, spec in enumerate(sys.argv[1:], 1):
-    name, tool, command, cwd, session = spec.split(",")
-    rows.append({
+    # Trailing restore_default is optional so existing callers keep their five fields.
+    name, tool, command, cwd, session = spec.split(",")[:5]
+    restore_default = spec.split(",")[5:6]
+    row = {
         "slot": slot,
         "name": name,
         "tool": tool,
@@ -167,7 +194,10 @@ for slot, spec in enumerate(sys.argv[1:], 1):
         "cwd": cwd,
         "session_id": session or None,
         "note": "",
-    })
+    }
+    if restore_default and restore_default[0]:
+        row["restore_default"] = restore_default[0] == "true"
+    rows.append(row)
 print(json.dumps({
     "schema": "resume-after-reboot/v1",
     "captured": "2026-07-29T20:22:47-04:00",
@@ -283,6 +313,94 @@ codex_rollout() {
     run_snapshot
     [ "$status" -eq 0 ]
     [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+}
+
+@test "snapshot leaves a dev-server command row out of the default restore" {
+    write_snapshot "w8,webapp,3,$FAKE_HOME/projects/webapp,,"
+    process_fixture "w8:p3" command "just dev"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['restore_default']")" = "False" ]
+}
+
+@test "snapshot records a read-only git viewer and restores it by default" {
+    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    process_chain_fixture "wG:p1" \
+        "git la" \
+        "/opt/homebrew/opt/git/libexec/git-core/git log --graph --decorate" \
+        "delta --features default-feature" \
+        "less --RAW-CONTROL-CHARS"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
+    # The alias as typed, not the expansion git resolved it to.
+    [ "$(json_field "['rows'][0]['command']")" = "git la" ]
+    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+}
+
+@test "snapshot resolves a git alias before judging it safe" {
+    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    # An alias whose name says nothing, expanding to a subcommand that rewrites history.
+    process_chain_fixture "wG:p1" \
+        "git ra" \
+        "/opt/homebrew/opt/git/libexec/git-core/git rebase --interactive origin/main"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+}
+
+@test "snapshot treats a mutating git command as a shell row" {
+    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    process_fixture "wG:p1" command "git push origin main"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+}
+
+@test "snapshot records a pager holding a file" {
+    write_snapshot "wP,notes,1,$FAKE_HOME/notes,,"
+    process_fixture "wP:p1" command "less CHANGELOG.md"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
+    [ "$(json_field "['rows'][0]['command']")" = "less CHANGELOG.md" ]
+    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+}
+
+@test "snapshot treats a pager with no file operand as a shell row" {
+    write_snapshot "wP,notes,1,$FAKE_HOME/notes,,"
+    # A bare pager is reading a pipe that will not exist after the reboot; re-running it
+    # would hang the pane on stdin.
+    process_fixture "wP:p1" command "less --RAW-CONTROL-CHARS --quit-if-one-screen"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+}
+
+@test "snapshot records a git TUI as a restorable viewer" {
+    write_snapshot "wT,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    process_fixture "wT:p1" command "lazygit"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
+    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+}
+
+@test "snapshot records a system monitor as a restorable viewer" {
+    write_snapshot "wM,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    process_fixture "wM:p1" command "htop"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
+    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
 }
 
 @test "snapshot numbers slots by workspace order then tab order" {
@@ -427,6 +545,57 @@ PY
 
     run grep -F -- "pane run n1:p1 just dev" "$HERDR_LOG"
     [ "$status" -eq 0 ]
+}
+
+@test "restore fires a viewer row without --commands" {
+    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    # A pager dies with the reboot, so the EADDRINUSE reasoning that makes dev servers
+    # opt-in does not apply to it.
+    write_state "dotfiles,command,git la,~/.dotfiles,,true"
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane run n1:p1 git la" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore still skips a dev-server row when a viewer row is present" {
+    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    write_state \
+        "dotfiles,command,git la,~/.dotfiles,,true" \
+        "webapp,command,just dev,~/projects/webapp,,false"
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane run n1:p1 git la" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+
+    run grep -c -F -- "just dev" "$HERDR_LOG"
+    [ "$output" = "0" ]
+}
+
+@test "restore treats a command row with no restore_default as opt-in" {
+    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    # Snapshots written before the field existed, including every tmux-reboot snapshot
+    # that predates it, must keep their old skipped-by-default behaviour.
+    write_state "webapp,command,just dev,~/projects/webapp,"
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -c "pane run" "$HERDR_LOG"
+    [ "$output" = "0" ]
+}
+
+@test "restore counts viewer rows as firing in its dry-run summary" {
+    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    write_state "dotfiles,command,git la,~/.dotfiles,,true"
+
+    run_restore "$STATE"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"1 rows to fire"* ]]
 }
 
 @test "restore adopts an existing workspace with the same cwd and gives every row a fresh tab" {

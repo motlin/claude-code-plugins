@@ -28,11 +28,41 @@ DEFAULT_STATE = ".llm/resume-after-reboot-state.json"
 # Long-running foreground commands worth re-running after a reboot. These carry no
 # resumable session state (unlike claude/codex), so restoring one just re-executes the
 # command line — best-effort. Bare shells with no such child stay `shell` rows.
+#
+# Restore leaves these alone unless asked: a dev server frequently outlives the reboot that
+# killed the agents, and re-running it just earns an EADDRINUSE against the process still
+# holding the port.
 FOREGROUND_ALLOW = {
     "just", "npm", "pnpm", "yarn", "bun", "vite", "next", "node", "deno",
     "cargo", "make", "gradle", "mvn", "tail", "watch", "watchexec",
     "python", "python3", "uvicorn", "flask", "rails", "ng", "turbo",
 }
+
+# Read-only viewers, safe to re-run verbatim. Unlike the dev servers above, none of these
+# survives a reboot and none holds a port, so restore fires them by default.
+#
+# tig and lazygit are here by request: both are viewers by convention but can stage, commit,
+# and push from inside the TUI, so a restored one is only as safe as what you then type at it.
+VIEW_ALLOW = {
+    "less", "more", "bat", "most", "man",
+    "htop", "btop", "top", "glances", "btm",
+    "tig", "lazygit",
+}
+
+# A pager is worth restoring only when it names a file. A bare one is draining a pipe whose
+# writer died with the reboot, so re-running it would hang the pane waiting on stdin.
+PAGERS = {"less", "more", "bat", "most"}
+
+# git cannot go in VIEW_ALLOW as a program: that would also re-run `git push` and
+# `git rebase --continue`. Only these subcommands are read-only enough to replay.
+GIT_READ_ONLY = {
+    "annotate", "blame", "cat-file", "describe", "diff", "grep", "log",
+    "ls-files", "ls-tree", "reflog", "shortlog", "show", "status", "whatchanged",
+}
+
+# Global git options that swallow the following token, so the subcommand scan can skip past
+# their values instead of mistaking one for the subcommand.
+GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
 
 def sh(args):
@@ -71,17 +101,86 @@ def find_tool(pid, kids, cmd):
     return None
 
 
-def find_command(pid, kids, cmd):
-    """Depth-first: return the cmdline of the first allowlisted long-running child, or None."""
-    for k in kids.get(pid, []):
-        c = cmd.get(k, "")
-        base = c.split()[0].split("/")[-1] if c else ""
-        if base in FOREGROUND_ALLOW:
-            return c
-        r = find_command(k, kids, cmd)
-        if r:
-            return r
+def base_name(cmdline):
+    return cmdline.split()[0].split("/")[-1] if cmdline else ""
+
+
+def git_subcommand(cmdline):
+    """The subcommand of a git command line, or None when it carries only global options."""
+    tokens = cmdline.split()[1:]
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token in GIT_OPTIONS_WITH_VALUE:
+            index += 2
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        return token
     return None
+
+
+def has_operand(cmdline):
+    """True when the command line names something beyond its own flags."""
+    return any(not token.startswith("-") for token in cmdline.split()[1:])
+
+
+def descendants(pid, kids, cmd):
+    """Every command line below pid, depth-first."""
+    found = []
+    for kid in kids.get(pid, []):
+        found.append(cmd.get(kid, ""))
+        found += descendants(kid, kids, cmd)
+    return found
+
+
+def find_dev_server(pid, kids, cmd):
+    """Depth-first: the cmdline of the first allowlisted long-running child, or None."""
+    for kid in kids.get(pid, []):
+        c = cmd.get(kid, "")
+        if base_name(c) in FOREGROUND_ALLOW:
+            return c
+        found = find_dev_server(kid, kids, cmd)
+        if found:
+            return found
+    return None
+
+
+def find_viewer(pid, kids, cmd):
+    """Depth-first: the cmdline of the first read-only viewer child, or None.
+
+    Kept separate from the dev-server walk so a nested process can never be reported in
+    place of the one the user launched -- git's own alias expansion is a child of the
+    alias, and returning that would restore the expansion rather than the alias.
+    """
+    for kid in kids.get(pid, []):
+        c = cmd.get(kid, "")
+        name = base_name(c)
+        if name == "git":
+            # An alias tells us nothing about what it does, so judge the expansion rather
+            # than the name: git resolves an alias by re-execing itself out of git-core.
+            # Restore still replays the alias as typed.
+            resolved = next((d for d in descendants(kid, kids, cmd)
+                             if base_name(d) == "git" and "git-core/" in d), None)
+            return c if git_subcommand(resolved or c) in GIT_READ_ONLY else None
+        if name in VIEW_ALLOW:
+            if name in PAGERS and not has_operand(c):
+                return None
+            return c
+        found = find_viewer(kid, kids, cmd)
+        if found:
+            return found
+    return None
+
+
+def find_command(pid, kids, cmd):
+    """(command, restore_default) for the pane's foreground program, or None."""
+    dev_server = find_dev_server(pid, kids, cmd)
+    if dev_server:
+        return dev_server, False
+    viewer = find_viewer(pid, kids, cmd)
+    return (viewer, True) if viewer else None
 
 
 def claude_slug_candidates(cwd):
@@ -123,7 +222,7 @@ def mtime(path):
     return datetime.fromtimestamp(os.path.getmtime(path)).strftime("%Y-%m-%d %H:%M")
 
 
-def row(slot, name, cwd, tool, command, session_id, note):
+def row(slot, name, cwd, tool, command, session_id, note, restore_default=None):
     """One state-file row.
 
     `slot` is a 1-based ordinal for ordering and display, not a tmux window index —
@@ -131,9 +230,10 @@ def row(slot, name, cwd, tool, command, session_id, note):
     `session_id` is broken out of `command` so consumers never re-parse the command
     string; it is null for `command`/`shell` rows and for the --continue/--last
     fallbacks, which carry no id. `note` records how the pairing was made, so a human
-    can spot a weak one.
+    can spot a weak one. `restore_default` appears only on `command` rows, marking the
+    read-only viewers restore may replay without being asked.
     """
-    return {
+    built = {
         "slot": slot,
         "name": name,
         "tool": tool,
@@ -142,6 +242,9 @@ def row(slot, name, cwd, tool, command, session_id, note):
         "session_id": session_id,
         "note": note,
     }
+    if restore_default is not None:
+        built["restore_default"] = restore_default
+    return built
 
 
 def parse_args():
@@ -176,9 +279,12 @@ def main():
         slot = len(rows) + 1
         tool = find_tool(int(ppid), kids, cmd)
         if not tool:
-            c = find_command(int(ppid), kids, cmd)
-            if c:
-                rows.append(row(slot, name, cwd, "command", c, None, "best-effort; re-runs command"))
+            found = find_command(int(ppid), kids, cmd)
+            if found:
+                c, restore_default = found
+                note = "read-only; re-runs command" if restore_default \
+                    else "best-effort; re-runs command"
+                rows.append(row(slot, name, cwd, "command", c, None, note, restore_default))
             else:
                 rows.append(row(slot, name, cwd, "shell", None, None, ""))
             continue

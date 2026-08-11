@@ -30,10 +30,16 @@ The state file is JSON, schema `resume-after-reboot/v1`, and is interchangeable 
 
 What the user needs to know before firing:
 
-- `command` rows are skipped by default. Dev servers often survive the reboot that killed the
-  agents, and re-running one just fails with `EADDRINUSE` against the server still holding the
-  port. Their tab is still created, so the user can start them by hand. Pass `--commands` to fire
-  them anyway, only after confirming the old processes are gone.
+- `command` rows split on their `restore_default` field. Dev servers (`restore_default: false`)
+  are skipped: they often survive the reboot that killed the agents, and re-running one just fails
+  with `EADDRINUSE` against the server still holding the port. Their tab is still created, so the
+  user can start them by hand. Pass `--commands` to fire them anyway, only after confirming the
+  old processes are gone.
+- Read-only viewers (`restore_default: true` — `git log`, `less FILE`, `htop`, `tig`) fire without
+  `--commands`. Nothing of theirs survives a reboot, so the `EADDRINUSE` reasoning does not apply.
+  They re-run from the top: scroll position, search, and selection are not restored.
+- A row with no `restore_default` at all is treated as opt-in. That covers snapshots taken before
+  the field existed, including any from a `tmux-reboot` that predates it.
 - Nothing is ever typed into a pane that is not an idle shell. `herdr pane run` types into
   whatever the pane holds, so firing into a resumed agent would submit the resume command to it as
   a prompt. Every row is fired only into a pane confirmed to be sitting at a shell prompt with no
