@@ -17,6 +17,12 @@ function claude_plugin_names() {
         "$CLAUDE_MARKETPLACE_JSON"
 }
 
+function excluded_claude_plugin_names() {
+    jq -r --argjson excluded "$EXCLUDED_PLUGINS" \
+        '.plugins[].name | select(IN($excluded[]))' \
+        "$CLAUDE_MARKETPLACE_JSON"
+}
+
 function codex_plugin_names() {
     jq -r --argjson excluded "$EXCLUDED_PLUGINS" \
         '.plugins[]
@@ -77,6 +83,21 @@ function install_claude_plugins() {
                 ;;
         esac
     done < <(claude_plugin_names)
+
+    # Excluding them from the install loop leaves earlier installs enabled, so
+    # turn off any that a previous run of this script already switched on.
+    echo "🚫 Disabling Claude Code plugins that break herdr agent status..."
+    while read -r plugin; do
+        plugin_id="${plugin}@${MARKETPLACE_NAME}"
+        enabled="$(jq -r --arg id "$plugin_id" '.[] | select(.id == $id) | .enabled' \
+            <<<"$plugin_states")"
+        if [[ "$enabled" == "true" ]]; then
+            echo "  - disabling ${plugin_id}..."
+            claude plugin disable "$plugin_id"
+        else
+            echo "  - ${plugin_id} not enabled, skipping."
+        fi
+    done < <(excluded_claude_plugin_names)
 }
 
 function install_codex_plugins() {

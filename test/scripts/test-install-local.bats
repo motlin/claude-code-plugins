@@ -76,6 +76,19 @@ EOF
     done
 }
 
+@test "Claude mode disables terminal title plugins left enabled by an earlier install" {
+    write_claude_stub
+
+    run "$PROJECT_ROOT/install-local.sh"
+
+    [ "$status" -eq 0 ]
+    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+        grep -Fqx "claude plugin disable ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
+        ! grep -Fq "claude plugin install ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
+        ! grep -Fq "claude plugin enable ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
+    done
+}
+
 @test "Codex mode skips the terminal title plugins that break herdr agent status" {
     write_codex_stub
 
