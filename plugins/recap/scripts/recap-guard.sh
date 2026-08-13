@@ -4,7 +4,7 @@
 # Every turn that hands control back to the user must end with two lines:
 #
 #     📌 You asked: <one sentence restating the user's original request>
-#     🔗 <label> — <url>          (or "🔗 None")
+#     🔗 [label](url)             (or "🔗 None")
 #
 # The footer exists because long, multitasked sessions end in a wall of text.
 # When the user returns to the terminal, the last message assumes context they
@@ -48,9 +48,9 @@ read -r -d '' reason <<'EOF' || true
 RECAP FOOTER MISSING. Do not redo the work and do not summarize what you did. Send only the two footer lines:
 
 📌 You asked: <one sentence restating the user's original request, in their framing>
-🔗 <label> — <url>
+🔗 [short label](URL)
 
-The 🔗 line carries the URL the user is most likely to want next (pull request, issue, CI run, deployed site, dev server, doc). It may come from far earlier in the conversation — the user has not scrolled up. Try hard to find one; write "🔗 None" only when nothing applies.
+The 🔗 line carries the URL the user is most likely to want next (pull request, issue, CI run, deployed site, dev server, doc). Always Markdown link syntax, never a bare URL — a bare URL can render as text the user cannot click. It may come from far earlier in the conversation — the user has not scrolled up. Try hard to find one; write "🔗 None" only when nothing applies.
 EOF
 
 jq --null-input --arg reason "$reason" '{

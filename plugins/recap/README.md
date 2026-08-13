@@ -4,7 +4,7 @@ Ends every turn with two lines: a one-sentence recap of what the user asked for,
 
 ```text
 📌 You asked: Make Claude end every turn with a recap and a link.
-🔗 PR #42 — https://github.com/motlin/claude-code-plugins/pull/42
+🔗 [PR #42](https://github.com/motlin/claude-code-plugins/pull/42)
 ```
 
 Long, multitasked sessions end in a wall of text. When you return to the terminal, the final message assumes context you no longer have — what the session was about, and the URL mentioned hundreds of lines earlier that you never scrolled back to.

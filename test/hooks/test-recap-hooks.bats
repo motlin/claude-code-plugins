@@ -4,7 +4,7 @@ setup() {
   load '../lib/hook-helpers.sh'
   PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   SCRIPT="$PROJECT_ROOT/plugins/recap/scripts/recap-guard.sh"
-  FOOTER=$'📌 You asked: Add a recap footer.\n🔗 PR #42 — https://example.com/pull/42'
+  FOOTER=$'📌 You asked: Add a recap footer.\n🔗 [PR #42](https://example.com/pull/42)'
 }
 
 @test "recap hooks.json is valid JSON" {
