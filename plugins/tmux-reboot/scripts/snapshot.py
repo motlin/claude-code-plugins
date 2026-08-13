@@ -6,8 +6,9 @@ running inside them. This captures, per pane: the tool (claude/codex), its cwd, 
 exact session id to resume — resolved by matching the pane's cwd against the most
 recently modified session transcript on disk.
 
-The state file is a JSON document (schema resume-after-reboot/v1) shared with the
-herdr-reboot plugin, so a snapshot taken here restores under either backend.
+The state file is a flat JSON document (schema resume-after-reboot/v1), one row per window.
+The herdr-reboot plugin speaks a nested resume-after-reboot/v2 instead, which carries the
+workspace, tab, and split structure tmux gets back from tmux-resurrect.
 
 Usage:
     snapshot.py [tmux_session]        # prints the JSON document to stdout

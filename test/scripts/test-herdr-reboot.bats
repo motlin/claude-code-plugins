@@ -4,6 +4,7 @@ setup() {
     PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
     SCRIPTS_DIR="$PROJECT_ROOT/plugins/herdr-reboot/scripts"
     PLUGIN_DIR="$PROJECT_ROOT/plugins/herdr-reboot"
+    FIXTURE="$PROJECT_ROOT/test/lib/herdr_fixture.py"
     FAKE_HOME="$BATS_TEST_TMPDIR/home"
     FIXTURES="$BATS_TEST_TMPDIR/fixtures"
     STUB_BIN="$BATS_TEST_TMPDIR/bin"
@@ -19,7 +20,8 @@ setup() {
 
 # A fake `herdr` that logs every invocation, answers reads from $FIXTURES, and models the
 # two behaviours that broke the hand-rolled restore: `pane run` succeeds with no output, and
-# a freshly created tab is an idle shell.
+# a freshly created tab is an idle shell. Created ids are workspace-qualified the way herdr's
+# are, so a test can tell which workspace a tab or split landed in.
 write_herdr_stub() {
     cat >"$STUB_BIN/herdr" <<'STUB'
 #!/bin/bash
@@ -29,6 +31,14 @@ next_id() {
     n=$(($(cat "$HERDR_FIXTURES/counter" 2>/dev/null || echo 0) + 1))
     printf '%s\n' "$n" >"$HERDR_FIXTURES/counter"
     printf '%s\n' "$n"
+}
+option() {
+    local want="$1"
+    shift
+    while [ $# -gt 0 ]; do
+        [ "$1" = "$want" ] && { printf '%s\n' "$2"; return; }
+        shift
+    done
 }
 case "$1 $2" in
     "api snapshot")
@@ -53,9 +63,18 @@ case "$1 $2" in
         ;;
     "tab create")
         n=$(next_id)
-        printf '{"id":"cli","result":{"type":"tab_created","tab":{"tab_id":"n%s:t1"},"root_pane":{"pane_id":"n%s:p1"}}}\n' "$n" "$n"
+        ws=$(option --workspace "$@")
+        printf '{"id":"cli","result":{"type":"tab_created","tab":{"tab_id":"%s:t%s"},"root_pane":{"pane_id":"%s:p%s"}}}\n' "$ws" "$n" "$ws" "$n"
+        ;;
+    "pane split")
+        n=$(next_id)
+        target=$(option --pane "$@")
+        printf '{"id":"cli","result":{"type":"pane_split","pane":{"pane_id":"%s:s%s"}}}\n' "${target%%:*}" "$n"
         ;;
     "pane run") exit 0 ;;
+    "pane zoom") exit 0 ;;
+    "tab rename") exit 0 ;;
+    "tab focus") exit 0 ;;
     "workspace focus") exit 0 ;;
     *)
         printf 'stub herdr: unhandled %s\n' "$*" >&2
@@ -67,46 +86,20 @@ STUB
     process_fixture default idle
 }
 
-# Each spec is `workspace_id,label,tab_number,cwd,agent,session_id`; agent and session_id
-# may be empty. Workspace order follows first appearance.
+# Both fixtures come from one description of the session tree; see test/lib/herdr_fixture.py.
 write_snapshot() {
-    "$PYTHON3" - "$@" >"$FIXTURES/snapshot.json" <<'PY'
-import json, sys
+    printf '%s' "$1" | "$PYTHON3" "$FIXTURE" snapshot - >"$FIXTURES/snapshot.json"
+}
 
-workspaces, tabs, panes = [], [], []
-for spec in sys.argv[1:]:
-    wsid, label, tabno, cwd, agent, session = spec.split(",")
-    if wsid not in [w["workspace_id"] for w in workspaces]:
-        workspaces.append({
-            "workspace_id": wsid,
-            "label": label,
-            "number": len(workspaces) + 1,
-            "focused": False,
-        })
-    tabs.append({
-        "tab_id": f"{wsid}:t{tabno}",
-        "workspace_id": wsid,
-        "label": label,
-        "number": int(tabno),
-    })
-    pane = {
-        "pane_id": f"{wsid}:p{tabno}",
-        "tab_id": f"{wsid}:t{tabno}",
-        "workspace_id": wsid,
-        "cwd": cwd,
-        "agent": agent or None,
-    }
-    if session:
-        pane["agent_session"] = {"agent": agent, "kind": "id", "value": session}
-    panes.append(pane)
+write_state() {
+    printf '%s' "$1" | "$PYTHON3" "$FIXTURE" state - >"$STATE"
+}
 
-print(json.dumps({"id": "cli:api:snapshot", "result": {"snapshot": {
-    "focused_workspace_id": workspaces[0]["workspace_id"] if workspaces else None,
-    "workspaces": workspaces,
-    "tabs": tabs,
-    "panes": panes,
-}}}))
-PY
+# one_pane <workspace_id> <label> <cwd> [agent] [session] — the single-pane tree most tests want.
+one_pane() {
+    printf '{"workspaces":[{"id":"%s","label":"%s","tabs":[{"id":"%s:t1","layout":
+        {"pane":"%s:p1","cwd":"%s","agent":"%s","session":"%s"}}]}]}' \
+        "$1" "$2" "$1" "$1" "$3" "${4:-}" "${5:-}"
 }
 
 # process_fixture <pane_id|default> <idle|command|claude|codex> [cmdline]
@@ -168,7 +161,7 @@ run_restore() {
         "$PYTHON3" "$SCRIPTS_DIR/restore.py" "$@" --delay 0
 }
 
-# Reads a jq-ish path out of the snapshot JSON on stdout of the last `run`.
+# Reads a python path out of the state document on stdout of the last `run`.
 json_field() {
     printf '%s' "$output" | "$PYTHON3" -c "
 import json, sys
@@ -177,35 +170,18 @@ print(eval('data' + sys.argv[1]))
 " "$1"
 }
 
-write_state() {
-    "$PYTHON3" - "$@" >"$STATE" <<'PY'
+# pane_field <slot> <key> — a pane leaf out of the state document, found by slot.
+pane_field() {
+    printf '%s' "$output" | "$PYTHON3" -c '
 import json, sys
 
-rows = []
-for slot, spec in enumerate(sys.argv[1:], 1):
-    # Trailing restore_default is optional so existing callers keep their five fields.
-    name, tool, command, cwd, session = spec.split(",")[:5]
-    restore_default = spec.split(",")[5:6]
-    row = {
-        "slot": slot,
-        "name": name,
-        "tool": tool,
-        "command": command or None,
-        "cwd": cwd,
-        "session_id": session or None,
-        "note": "",
-    }
-    if restore_default and restore_default[0]:
-        row["restore_default"] = restore_default[0] == "true"
-    rows.append(row)
-print(json.dumps({
-    "schema": "resume-after-reboot/v1",
-    "captured": "2026-07-29T20:22:47-04:00",
-    "backend": "herdr",
-    "session": "testsession",
-    "rows": rows,
-}))
-PY
+def leaves(node):
+    return [node] if node["type"] == "pane" else [l for c in node["children"] for l in leaves(c)]
+
+doc = json.loads(sys.stdin.read())
+panes = [p for w in doc["workspaces"] for t in w["tabs"] for p in leaves(t["layout"])]
+print(next(p for p in panes if p["slot"] == int(sys.argv[1])).get(sys.argv[2]))
+' "$1" "$2"
 }
 
 codex_rollout() {
@@ -215,117 +191,231 @@ codex_rollout() {
     printf '{"payload":{"cwd":"%s"}}\n' "$cwd" >"$dir/rollout-2026-07-29T10-00-00-$uuid.jsonl"
 }
 
-@test "snapshot writes the shared v1 schema envelope" {
-    write_snapshot "w6,toolkit,1,$FAKE_HOME/work/toolkit,,"
+@test "snapshot writes the v2 schema envelope" {
+    write_snapshot "$(one_pane w6 toolkit "$FAKE_HOME/work/toolkit")"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['schema']")" = "resume-after-reboot/v1" ]
+    [ "$(json_field "['schema']")" = "resume-after-reboot/v2" ]
     [ "$(json_field "['backend']")" = "herdr" ]
     [ "$(json_field "['session']")" = "testsession" ]
     [ "$(json_field "['captured'][4]")" = "-" ]
 }
 
-@test "snapshot takes a claude pane's session id straight from herdr" {
-    write_snapshot "w8,webapp,1,$FAKE_HOME/projects/webapp,claude,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"
+@test "snapshot nests panes under their own tab and workspace" {
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"agent","layout":{"pane":"w8:p1","cwd":"/w/webapp"}},
+        {"id":"w8:t2","label":"server","layout":{"pane":"w8:p2","cwd":"/w/webapp"}}]}]}'
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['slot']")" = "1" ]
-    [ "$(json_field "['rows'][0]['name']")" = "webapp" ]
-    [ "$(json_field "['rows'][0]['tool']")" = "claude" ]
-    [ "$(json_field "['rows'][0]['command']")" = "claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
+    [ "$(json_field "['workspaces'][0]['label']")" = "webapp" ]
+    [ "$(json_field "['workspaces'][0]['workspace_id']")" = "w8" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['tab_id']")" = "w8:t1" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][1]['tab_id']")" = "w8:t2" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][1]['layout']['pane_id']")" = "w8:p2" ]
+}
+
+@test "snapshot keeps a tab label that differs from its workspace label" {
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"just dev","layout":{"pane":"w8:p1","cwd":"/w/webapp"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['label']")" = "just dev" ]
+}
+
+@test "snapshot records a split with its direction and ratio" {
+    write_snapshot '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.6,"children":[
+            {"pane":"wA:p1","cwd":"/w/kalshi","agent":"claude","session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"},
+            {"pane":"wA:p2","cwd":"/w/kalshi"}]}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['type']")" = "split" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['direction']")" = "right" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['ratio']")" = "0.6" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['children'][0]['pane_id']")" = "wA:p1" ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['children'][1]['pane_id']")" = "wA:p2" ]
+    [ "$(pane_field 1 tool)" = "claude" ]
+    [ "$(pane_field 2 tool)" = "shell" ]
+}
+
+@test "snapshot nests a split inside a split" {
+    write_snapshot '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.6,"children":[
+            {"pane":"wA:p1","cwd":"/w/kalshi"},
+            {"split":"down","ratio":0.3,"children":[
+                {"pane":"wA:p2","cwd":"/w/kalshi"},
+                {"pane":"wA:p3","cwd":"/w/kalshi"}]}]}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    right="['workspaces'][0]['tabs'][0]['layout']['children'][1]"
+    [ "$(json_field "${right}['type']")" = "split" ]
+    [ "$(json_field "${right}['direction']")" = "down" ]
+    [ "$(json_field "${right}['ratio']")" = "0.3" ]
+    [ "$(json_field "${right}['children'][0]['pane_id']")" = "wA:p2" ]
+    [ "$(json_field "${right}['children'][1]['pane_id']")" = "wA:p3" ]
+}
+
+@test "snapshot records which workspace, tab, and pane held focus" {
+    write_snapshot '{"focus":{"workspace":"wB","tab":"wB:t1","pane":"wB:p2"},
+        "workspaces":[
+        {"id":"wA","label":"kalshi","tabs":[{"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"/w/a"}}]},
+        {"id":"wB","label":"webapp","active_tab":"wB:t1","tabs":[
+            {"id":"wB:t1","focused_pane":"wB:p2","layout":{"split":"down","ratio":0.5,"children":[
+                {"pane":"wB:p1","cwd":"/w/b"},{"pane":"wB:p2","cwd":"/w/b"}]}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['focus']['workspace_id']")" = "wB" ]
+    [ "$(json_field "['focus']['tab_id']")" = "wB:t1" ]
+    [ "$(json_field "['focus']['pane_id']")" = "wB:p2" ]
+    [ "$(json_field "['workspaces'][1]['active_tab_id']")" = "wB:t1" ]
+    [ "$(json_field "['workspaces'][1]['tabs'][0]['focused_pane_id']")" = "wB:p2" ]
+}
+
+@test "snapshot records a zoomed tab" {
+    write_snapshot '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","zoomed":true,"layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"/w/a"},{"pane":"wA:p2","cwd":"/w/a"}]}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['workspaces'][0]['tabs'][0]['zoomed']")" = "True" ]
+}
+
+@test "snapshot numbers slots by workspace order, then tab order, then layout order" {
+    write_snapshot '{"workspaces":[
+        {"id":"wB","label":"second","number":1,"tabs":[
+            {"id":"wB:t1","number":2,"layout":{"split":"right","ratio":0.5,"children":[
+                {"pane":"wB:p1","cwd":"/w/b"},{"pane":"wB:p2","cwd":"/w/b"}]}}]},
+        {"id":"w6","label":"first","number":2,"tabs":[
+            {"id":"w6:t1","number":1,"layout":{"pane":"w6:p1","cwd":"/w/a"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 pane_id)" = "wB:p1" ]
+    [ "$(pane_field 2 pane_id)" = "wB:p2" ]
+    [ "$(pane_field 3 pane_id)" = "w6:p1" ]
+}
+
+@test "snapshot orders workspaces and tabs by their herdr numbers" {
+    write_snapshot '{"workspaces":[
+        {"id":"wB","label":"second","number":2,"tabs":[
+            {"id":"wB:t9","number":9,"layout":{"pane":"wB:p9","cwd":"/w/b"}},
+            {"id":"wB:t1","number":1,"layout":{"pane":"wB:p1","cwd":"/w/b"}}]},
+        {"id":"w6","label":"first","number":1,"tabs":[
+            {"id":"w6:t1","number":1,"layout":{"pane":"w6:p1","cwd":"/w/a"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['workspaces'][0]['label']")" = "first" ]
+    [ "$(json_field "['workspaces'][1]['tabs'][0]['tab_id']")" = "wB:t1" ]
+    [ "$(pane_field 1 pane_id)" = "w6:p1" ]
+}
+
+@test "snapshot takes a claude pane's session id straight from herdr" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "claude" ]
+    [ "$(pane_field 1 command)" = "claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
+    [ "$(pane_field 1 session_id)" = "3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
     tilde_home="~"
-    [ "$(json_field "['rows'][0]['cwd']")" = "$tilde_home/projects/webapp" ]
+    [ "$(pane_field 1 cwd)" = "$tilde_home/projects/webapp" ]
+    [ "$(pane_field 1 pane_id)" = "w8:p1" ]
+}
+
+@test "snapshot records claude --continue when herdr reports no session" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude)"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 command)" = "claude --continue" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
 }
 
 @test "snapshot takes a codex pane's session id straight from herdr when it reports one" {
-    write_snapshot "w6,toolkit,4,$FAKE_HOME/work/toolkit,codex,019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718"
+    write_snapshot "$(one_pane w6 toolkit "$FAKE_HOME/work/toolkit" codex 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718)"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "codex" ]
-    [ "$(json_field "['rows'][0]['command']")" = "codex resume 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
+    [ "$(pane_field 1 tool)" = "codex" ]
+    [ "$(pane_field 1 command)" = "codex resume 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
+    [ "$(pane_field 1 session_id)" = "019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
 }
 
 @test "snapshot falls back to the rollout index for a codex pane with no reported session" {
     codex_rollout "$FAKE_HOME/projects/dashboard" "019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718"
-    write_snapshot "wP,dashboard,1,$FAKE_HOME/projects/dashboard,codex,"
+    write_snapshot "$(one_pane wP dashboard "$FAKE_HOME/projects/dashboard" codex)"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "codex" ]
-    [ "$(json_field "['rows'][0]['command']")" = "codex resume 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
-    [[ "$(json_field "['rows'][0]['note']")" == *rollout* ]]
+    [ "$(pane_field 1 command)" = "codex resume 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
+    [ "$(pane_field 1 session_id)" = "019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718" ]
+    [[ "$(pane_field 1 note)" == *rollout* ]]
 }
 
 @test "snapshot records codex resume --last with a null session id when no rollout matches" {
-    write_snapshot "wN,notes,1,$FAKE_HOME/projects/notes,codex,"
+    write_snapshot "$(one_pane wN notes "$FAKE_HOME/projects/notes" codex)"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['command']")" = "codex resume --last" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "None" ]
+    [ "$(pane_field 1 command)" = "codex resume --last" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
 }
 
 @test "snapshot pairs multiple codex panes in one cwd newest-rollout-first" {
     codex_rollout "$FAKE_HOME/projects/dashboard" "019b2c3d-4e5f-7061-b2c3-d4e5f6071829"
     sleep 1
     codex_rollout "$FAKE_HOME/projects/dashboard" "019c3d4e-5f60-7172-c3d4-e5f607182930"
-    write_snapshot \
-        "wA,dashboard,1,$FAKE_HOME/projects/dashboard,codex," \
-        "wA,dashboard,2,$FAKE_HOME/projects/dashboard,codex,"
+    write_snapshot "{\"workspaces\":[{\"id\":\"wA\",\"label\":\"dashboard\",\"tabs\":[
+        {\"id\":\"wA:t1\",\"layout\":{\"pane\":\"wA:p1\",\"cwd\":\"$FAKE_HOME/projects/dashboard\",\"agent\":\"codex\"}},
+        {\"id\":\"wA:t2\",\"layout\":{\"pane\":\"wA:p2\",\"cwd\":\"$FAKE_HOME/projects/dashboard\",\"agent\":\"codex\"}}]}]}"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "019c3d4e-5f60-7172-c3d4-e5f607182930" ]
-    [ "$(json_field "['rows'][1]['session_id']")" = "019b2c3d-4e5f-7061-b2c3-d4e5f6071829" ]
+    [ "$(pane_field 1 session_id)" = "019c3d4e-5f60-7172-c3d4-e5f607182930" ]
+    [ "$(pane_field 2 session_id)" = "019b2c3d-4e5f-7061-b2c3-d4e5f6071829" ]
 }
 
-@test "snapshot records an agentless pane at an idle shell as a shell row" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+@test "snapshot records an agentless pane at an idle shell as a shell pane" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
-    [ "$(json_field "['rows'][0]['command']")" = "None" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "None" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
+    [ "$(pane_field 1 command)" = "None" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
 }
 
-@test "snapshot records an allowlisted foreground command as a command row" {
-    write_snapshot "w8,webapp,3,$FAKE_HOME/projects/webapp,,"
-    process_fixture "w8:p3" command "just dev"
+@test "snapshot records an allowlisted foreground command as a command pane" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp")"
+    process_fixture "w8:p1" command "just dev"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
-    [ "$(json_field "['rows'][0]['command']")" = "just dev" ]
-    [ "$(json_field "['rows'][0]['session_id']")" = "None" ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 command)" = "just dev" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
+    [ "$(pane_field 1 restore_default)" = "False" ]
 }
 
-@test "snapshot treats an unallowlisted foreground program as a shell row" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+@test "snapshot treats an unallowlisted foreground program as a shell pane" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     process_fixture "wS:p1" command "vim notes.md"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
-}
-
-@test "snapshot leaves a dev-server command row out of the default restore" {
-    write_snapshot "w8,webapp,3,$FAKE_HOME/projects/webapp,,"
-    process_fixture "w8:p3" command "just dev"
-
-    run_snapshot
-    [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['restore_default']")" = "False" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
 }
 
 @test "snapshot records a read-only git viewer and restores it by default" {
-    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    write_snapshot "$(one_pane wG dotfiles "$FAKE_HOME/.dotfiles")"
     process_chain_fixture "wG:p1" \
         "git la" \
         "/opt/homebrew/opt/git/libexec/git-core/git log --graph --decorate" \
@@ -334,14 +424,14 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
+    [ "$(pane_field 1 tool)" = "command" ]
     # The alias as typed, not the expansion git resolved it to.
-    [ "$(json_field "['rows'][0]['command']")" = "git la" ]
-    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+    [ "$(pane_field 1 command)" = "git la" ]
+    [ "$(pane_field 1 restore_default)" = "True" ]
 }
 
 @test "snapshot resolves a git alias before judging it safe" {
-    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    write_snapshot "$(one_pane wG dotfiles "$FAKE_HOME/.dotfiles")"
     # An alias whose name says nothing, expanding to a subcommand that rewrites history.
     process_chain_fixture "wG:p1" \
         "git ra" \
@@ -349,132 +439,124 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
 }
 
-@test "snapshot treats a mutating git command as a shell row" {
-    write_snapshot "wG,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+@test "snapshot treats a mutating git command as a shell pane" {
+    write_snapshot "$(one_pane wG dotfiles "$FAKE_HOME/.dotfiles")"
     process_fixture "wG:p1" command "git push origin main"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
 }
 
 @test "snapshot records a pager holding a file" {
-    write_snapshot "wP,notes,1,$FAKE_HOME/notes,,"
+    write_snapshot "$(one_pane wP notes "$FAKE_HOME/notes")"
     process_fixture "wP:p1" command "less CHANGELOG.md"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
-    [ "$(json_field "['rows'][0]['command']")" = "less CHANGELOG.md" ]
-    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 command)" = "less CHANGELOG.md" ]
+    [ "$(pane_field 1 restore_default)" = "True" ]
 }
 
-@test "snapshot treats a pager with no file operand as a shell row" {
-    write_snapshot "wP,notes,1,$FAKE_HOME/notes,,"
+@test "snapshot treats a pager with no file operand as a shell pane" {
+    write_snapshot "$(one_pane wP notes "$FAKE_HOME/notes")"
     # A bare pager is reading a pipe that will not exist after the reboot; re-running it
     # would hang the pane on stdin.
     process_fixture "wP:p1" command "less --RAW-CONTROL-CHARS --quit-if-one-screen"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "shell" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
 }
 
 @test "snapshot records a git TUI as a restorable viewer" {
-    write_snapshot "wT,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    write_snapshot "$(one_pane wT dotfiles "$FAKE_HOME/.dotfiles")"
     process_fixture "wT:p1" command "lazygit"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
-    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 restore_default)" = "True" ]
 }
 
 @test "snapshot records a system monitor as a restorable viewer" {
-    write_snapshot "wM,dotfiles,1,$FAKE_HOME/.dotfiles,,"
+    write_snapshot "$(one_pane wM dotfiles "$FAKE_HOME/.dotfiles")"
     process_fixture "wM:p1" command "htop"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['tool']")" = "command" ]
-    [ "$(json_field "['rows'][0]['restore_default']")" = "True" ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 restore_default)" = "True" ]
 }
 
-@test "snapshot numbers slots by workspace order then tab order" {
-    write_snapshot \
-        "wB,second,2,$FAKE_HOME/b,," \
-        "w6,first,3,$FAKE_HOME/a,," \
-        "w6,first,1,$FAKE_HOME/a,," \
-        "wB,second,1,$FAKE_HOME/b,,"
+@test "snapshot classifies every pane of a split tab on its own" {
+    write_snapshot '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"down","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"/w/kalshi"},
+            {"pane":"wA:p2","cwd":"/w/kalshi"}]}}]}]}'
+    process_fixture "wA:p2" command "htop"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['rows'][0]['name']")" = "second" ]
-    [ "$(json_field "['rows'][0]['slot']")" = "1" ]
-    [ "$(json_field "['rows'][1]['name']")" = "second" ]
-    [ "$(json_field "['rows'][2]['name']")" = "first" ]
-    [ "$(json_field "['rows'][3]['name']")" = "first" ]
-    [ "$(json_field "['rows'][3]['slot']")" = "4" ]
+    [ "$(pane_field 1 tool)" = "shell" ]
+    [ "$(pane_field 2 tool)" = "command" ]
+    [ "$(pane_field 2 command)" = "htop" ]
 }
 
 @test "snapshot --output writes the state file instead of stdout" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
 
     run_snapshot --output "$STATE"
     [ "$status" -eq 0 ]
     [ -z "$output" ]
 
     run "$PYTHON3" -c "import json,sys; print(json.load(open(sys.argv[1]))['schema'])" "$STATE"
-    [ "$output" = "resume-after-reboot/v1" ]
+    [ "$output" = "resume-after-reboot/v2" ]
 }
 
-@test "restore rejects a state file whose schema is not resume-after-reboot/v1" {
-    printf '{"schema":"resume-after-reboot/v2","backend":"herdr","rows":[]}\n' >"$STATE"
+@test "restore rejects the flat v1 schema and names the one it wants" {
+    printf '{"schema":"resume-after-reboot/v1","backend":"tmux","rows":[]}\n' >"$STATE"
 
     run_restore "$STATE"
     [ "$status" -ne 0 ]
-    [[ "$output" == *"resume-after-reboot/v1"* ]]
-}
-
-@test "restore accepts a state file captured by the tmux backend" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    "$PYTHON3" - "$STATE" <<'PY'
-import json, sys
-json.dump({"schema": "resume-after-reboot/v1", "captured": "2026-07-29T20:22:47-04:00",
-           "backend": "tmux", "session": "main", "rows": []}, open(sys.argv[1], "w"))
-PY
-
-    run_restore "$STATE"
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"0 workspaces"* ]]
+    [[ "$output" == *"resume-after-reboot/v2"* ]]
 }
 
 @test "restore dry run reports the plan and touches nothing" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "webapp,claude,claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607,~/projects/webapp,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" \
-        "webapp,shell,,~/projects/webapp," \
-        "api-server,claude,claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f,~/projects/api-server,7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[
+        {"id":"w8","label":"webapp","tabs":[
+            {"id":"w8:t1","label":"agent","layout":{"pane":"w8:p1","cwd":"~/projects/webapp",
+                "tool":"claude","command":"claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+                "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"}},
+            {"id":"w8:t2","label":"shell","layout":{"pane":"w8:p2","cwd":"~/projects/webapp"}}]},
+        {"id":"wZ","label":"api-server","tabs":[
+            {"id":"wZ:t1","layout":{"pane":"wZ:p1","cwd":"~/projects/api-server",
+                "tool":"claude","command":"claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+                "session":"7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"}}]}]}'
 
     run_restore "$STATE"
     [ "$status" -eq 0 ]
     [[ "$output" == *"DRY-RUN"* ]]
     [[ "$output" == *"2 workspaces"* ]]
     [[ "$output" == *"3 tabs"* ]]
+    [[ "$output" == *"agent"* ]]
 
-    run grep -c -e "workspace create" -e "tab create" -e "pane run" "$HERDR_LOG"
+    run grep -c -e "workspace create" -e "tab create" -e "pane split" -e "pane run" "$HERDR_LOG"
     [ "$output" = "0" ]
 }
 
-@test "restore --go creates one workspace per cwd and one tab per row" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "webapp,claude,claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607,~/projects/webapp,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" \
-        "webapp,shell,,~/projects/webapp," \
-        "api-server,claude,claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f,~/projects/api-server,7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"
+@test "restore --go rebuilds every captured workspace, even two sharing a cwd" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[
+        {"id":"w8","label":"webapp","tabs":[
+            {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp"}}]},
+        {"id":"wZ","label":"webapp review","tabs":[
+            {"id":"wZ:t1","layout":{"pane":"wZ:p1","cwd":"~/projects/webapp"}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -482,18 +564,79 @@ PY
     run grep -c "workspace create" "$HERDR_LOG"
     [ "$output" = "2" ]
 
-    run grep -c "tab create" "$HERDR_LOG"
-    [ "$output" = "1" ]
-
     run grep -F -- "workspace create --cwd $FAKE_HOME/projects/webapp --label webapp --no-focus" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "--label webapp review --no-focus" "$HERDR_LOG"
     [ "$status" -eq 0 ]
 }
 
-@test "restore --go fires each agent row into its own pane and reports success" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "api-server,claude,claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f,~/projects/api-server,7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f" \
-        "api-server,codex,codex resume 019b2c3d-4e5f-7061-b2c3-d4e5f6071829,~/projects/api-server,019b2c3d-4e5f-7061-b2c3-d4e5f6071829"
+@test "restore --go gives every captured tab its own label" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"agent","layout":{"pane":"w8:p1","cwd":"~/projects/webapp"}},
+        {"id":"w8:t2","label":"server","layout":{"pane":"w8:p2","cwd":"~/projects/webapp"}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    # The workspace's own root tab carries the first tab's label; the rest are created.
+    run grep -F -- "tab rename n1:t1 agent" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "tab create --workspace n1 --cwd $FAKE_HOME/projects/webapp --label server --no-focus" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore --go rebuilds a split at its captured direction and ratio" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.6,"children":[
+            {"pane":"wA:p1","cwd":"~/work/kalshi","tool":"claude",
+             "command":"claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+             "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"},
+            {"pane":"wA:p2","cwd":"~/work/kalshi"}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -c "tab create" "$HERDR_LOG"
+    [ "$output" = "0" ]
+
+    run grep -F -- "pane split --pane n1:p1 --direction right --ratio 0.6 --cwd $FAKE_HOME/work/kalshi --no-focus" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore --go rebuilds a nested split into the pane that holds it" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.6,"children":[
+            {"pane":"wA:p1","cwd":"~/work/kalshi"},
+            {"split":"down","ratio":0.3,"children":[
+                {"pane":"wA:p2","cwd":"~/work/kalshi"},
+                {"pane":"wA:p3","cwd":"~/work/kalshi"}]}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -c "pane split" "$HERDR_LOG"
+    [ "$output" = "2" ]
+
+    # The nested split divides the pane the outer split created, not the tab's root pane.
+    run grep -F -- "pane split --pane n1:s2 --direction down --ratio 0.3" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore --go fires each agent pane into its own pane and reports success" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
+        {"id":"wA:t1","layout":{"split":"down","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"~/projects/api-server","tool":"claude",
+             "command":"claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+             "session":"7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"},
+            {"pane":"wA:p2","cwd":"~/projects/api-server","tool":"codex",
+             "command":"codex resume 019b2c3d-4e5f-7061-b2c3-d4e5f6071829",
+             "session":"019b2c3d-4e5f-7061-b2c3-d4e5f6071829"}]}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -504,11 +647,15 @@ PY
 
     run grep -F -- "pane run n1:p1 claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f" "$HERDR_LOG"
     [ "$status" -eq 0 ]
+
+    run grep -F -- "pane run n1:s2 codex resume 019b2c3d-4e5f-7061-b2c3-d4e5f6071829" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
 }
 
-@test "restore --go creates a tab for a shell row but fires no command into it" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "api-server,shell,,~/projects/api-server,"
+@test "restore --go creates a tab for a shell pane but fires no command into it" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
+        {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"~/projects/api-server"}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -520,9 +667,60 @@ PY
     [ "$output" = "0" ]
 }
 
-@test "restore skips command rows by default and says why" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "webapp,command,just dev,~/projects/webapp,"
+@test "restore focuses the captured pane as it creates it" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","focused_pane":"wA:p2","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"~/work/kalshi"},
+            {"pane":"wA:p2","cwd":"~/work/kalshi"}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane split --pane n1:p1 --direction right --ratio 0.5 --cwd $FAKE_HOME/work/kalshi --focus" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore returns focus to the captured workspace and its active tab" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"focus":{"workspace":"wZ","tab":"wZ:t2","pane":"wZ:p2"},"workspaces":[
+        {"id":"w8","label":"webapp","tabs":[
+            {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp"}}]},
+        {"id":"wZ","label":"api-server","active_tab":"wZ:t2","tabs":[
+            {"id":"wZ:t1","layout":{"pane":"wZ:p1","cwd":"~/projects/api-server"}},
+            {"id":"wZ:t2","layout":{"pane":"wZ:p2","cwd":"~/projects/api-server"}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    # The second workspace's root pane serves its first tab, so its second tab is created next.
+    run grep -F -- "tab focus n2:t3" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "workspace focus n2" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore re-zooms a tab captured zoomed" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","zoomed":true,"focused_pane":"wA:p2",
+         "layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"~/work/kalshi"},
+            {"pane":"wA:p2","cwd":"~/work/kalshi"}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane zoom --pane n1:s2 --on" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore skips command panes by default and says why" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command",
+            "command":"just dev","restore_default":false}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -532,13 +730,15 @@ PY
     run grep -c "pane run" "$HERDR_LOG"
     [ "$output" = "0" ]
 
-    run grep -c -e "tab create" -e "workspace create" "$HERDR_LOG"
+    run grep -c "workspace create" "$HERDR_LOG"
     [ "$output" = "1" ]
 }
 
-@test "restore --commands fires command rows" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "webapp,command,just dev,~/projects/webapp,"
+@test "restore --commands fires command panes" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command",
+            "command":"just dev","restore_default":false}}]}]}'
 
     run_restore "$STATE" --go --commands
     [ "$status" -eq 0 ]
@@ -547,11 +747,13 @@ PY
     [ "$status" -eq 0 ]
 }
 
-@test "restore fires a viewer row without --commands" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+@test "restore fires a viewer pane without --commands" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     # A pager dies with the reboot, so the EADDRINUSE reasoning that makes dev servers
     # opt-in does not apply to it.
-    write_state "dotfiles,command,git la,~/.dotfiles,,true"
+    write_state '{"workspaces":[{"id":"wG","label":"dotfiles","tabs":[
+        {"id":"wG:t1","layout":{"pane":"wG:p1","cwd":"~/.dotfiles","tool":"command",
+            "command":"git la","restore_default":true}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -560,49 +762,24 @@ PY
     [ "$status" -eq 0 ]
 }
 
-@test "restore still skips a dev-server row when a viewer row is present" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "dotfiles,command,git la,~/.dotfiles,,true" \
-        "webapp,command,just dev,~/projects/webapp,,false"
-
-    run_restore "$STATE" --go
-    [ "$status" -eq 0 ]
-
-    run grep -F -- "pane run n1:p1 git la" "$HERDR_LOG"
-    [ "$status" -eq 0 ]
-
-    run grep -c -F -- "just dev" "$HERDR_LOG"
-    [ "$output" = "0" ]
-}
-
-@test "restore treats a command row with no restore_default as opt-in" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    # Snapshots written before the field existed, including every tmux-reboot snapshot
-    # that predates it, must keep their old skipped-by-default behaviour.
-    write_state "webapp,command,just dev,~/projects/webapp,"
-
-    run_restore "$STATE" --go
-    [ "$status" -eq 0 ]
-
-    run grep -c "pane run" "$HERDR_LOG"
-    [ "$output" = "0" ]
-}
-
-@test "restore counts viewer rows as firing in its dry-run summary" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "dotfiles,command,git la,~/.dotfiles,,true"
+@test "restore counts viewer panes as firing in its dry-run summary" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wG","label":"dotfiles","tabs":[
+        {"id":"wG:t1","layout":{"pane":"wG:p1","cwd":"~/.dotfiles","tool":"command",
+            "command":"git la","restore_default":true}}]}]}'
 
     run_restore "$STATE"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"1 rows to fire"* ]]
+    [[ "$output" == *"1 panes to fire"* ]]
 }
 
-@test "restore adopts an existing workspace with the same cwd and gives every row a fresh tab" {
-    write_snapshot "w8,webapp,1,$FAKE_HOME/projects/webapp,claude,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"
-    write_state \
-        "webapp,claude,claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607,~/projects/webapp,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" \
-        "webapp,shell,,~/projects/webapp,"
+@test "restore adopts a live workspace with the same label and cwd, on fresh tabs" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"claude",
+            "command":"claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+            "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"}},
+        {"id":"w8:t2","layout":{"pane":"w8:p2","cwd":"~/projects/webapp"}}]}]}'
 
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
@@ -619,8 +796,11 @@ PY
 }
 
 @test "restore refuses to fire into a pane that is not an idle shell" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "api-server,claude,claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f,~/projects/api-server,7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
+        {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"~/projects/api-server","tool":"claude",
+            "command":"claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+            "session":"7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"}}]}]}'
     process_fixture "n1:p1" claude "claude --resume b1c2d3e4-f506-4718-8293-a4b5c6d7e8f9"
 
     run_restore "$STATE" --go
@@ -633,11 +813,14 @@ PY
 }
 
 @test "restore --limit keeps only the first N workspaces" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "webapp,shell,,~/projects/webapp," \
-        "api-server,shell,,~/projects/api-server," \
-        "notes,shell,,~/projects/notes,"
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[
+        {"id":"w1","label":"webapp","tabs":[
+            {"id":"w1:t1","layout":{"pane":"w1:p1","cwd":"~/projects/webapp"}}]},
+        {"id":"w2","label":"api-server","tabs":[
+            {"id":"w2:t1","layout":{"pane":"w2:p1","cwd":"~/projects/api-server"}}]},
+        {"id":"w3","label":"notes","tabs":[
+            {"id":"w3:t1","layout":{"pane":"w3:p1","cwd":"~/projects/notes"}}]}]}'
 
     run_restore "$STATE" --limit 2
     [ "$status" -eq 0 ]
@@ -645,36 +828,73 @@ PY
     [[ "$output" != *notes* ]]
 }
 
-@test "restore --skip drops rows by slot" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state \
-        "webapp,claude,claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607,~/projects/webapp,3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" \
-        "api-server,claude,claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f,~/projects/api-server,7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"
+@test "restore --skip drops a pane and collapses the split that held it" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"~/work/kalshi","tool":"claude",
+             "command":"claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+             "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"},
+            {"pane":"wA:p2","cwd":"~/work/kalshi","tool":"claude",
+             "command":"claude --resume 7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+             "session":"7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"}]}}]}]}'
 
-    run_restore "$STATE" --skip 1
+    run_restore "$STATE" --go --skip 2
     [ "$status" -eq 0 ]
-    [[ "$output" == *"1 workspaces"* ]]
-    [[ "$output" != *webapp* ]]
-    [[ "$output" == *api-server* ]]
+
+    run grep -c "pane split" "$HERDR_LOG"
+    [ "$output" = "0" ]
+
+    run grep -c "pane run" "$HERDR_LOG"
+    [ "$output" = "1" ]
 }
 
-@test "restore returns focus to the workspace that had it before the run" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
-    write_state "api-server,shell,,~/projects/api-server,"
+@test "restore --skip drops a whole tab when every pane in it is skipped" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp"}},
+        {"id":"w8:t2","label":"doomed","layout":{"pane":"w8:p2","cwd":"~/projects/webapp"}}]}]}'
 
+    run_restore "$STATE" --go --skip 2
+    [ "$status" -eq 0 ]
+    [[ "$output" != *doomed* ]]
+
+    run grep -c "tab create" "$HERDR_LOG"
+    [ "$output" = "0" ]
+}
+
+@test "snapshot and restore agree on the document one writes and the other reads" {
+    write_snapshot '{"focus":{"workspace":"wA","tab":"wA:t1","pane":"wA:p2"},
+        "workspaces":[{"id":"wA","label":"kalshi","tabs":[
+        {"id":"wA:t1","label":"agents","focused_pane":"wA:p2",
+         "layout":{"split":"right","ratio":0.6,"children":[
+            {"pane":"wA:p1","cwd":"/w/kalshi","agent":"claude",
+             "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"},
+            {"pane":"wA:p2","cwd":"/w/kalshi","agent":"claude",
+             "session":"7c8d9e0f-1a2b-4c3d-8e4f-5a6b7c8d9e0f"}]}}]}]}'
+
+    run_snapshot --output "$STATE"
+    [ "$status" -eq 0 ]
+
+    # The reboot took that session with it, so restore meets an unrelated live one.
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
 
-    run grep -F -- "workspace focus wS" "$HERDR_LOG"
+    run grep -F -- "pane split --pane n1:p1 --direction right --ratio 0.6 --cwd /w/kalshi --focus" "$HERDR_LOG"
     [ "$status" -eq 0 ]
+
+    run grep -c "pane run" "$HERDR_LOG"
+    [ "$output" = "2" ]
 }
 
 @test "restore reads .llm/resume-after-reboot-state.json when given no state file" {
-    write_snapshot "wS,toolkit,1,$FAKE_HOME/work/toolkit,,"
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     project="$BATS_TEST_TMPDIR/project"
     mkdir -p "$project/.llm"
     STATE="$project/.llm/resume-after-reboot-state.json"
-    write_state "api-server,shell,,~/projects/api-server,"
+    write_state '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
+        {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"~/projects/api-server"}}]}]}'
 
     command cd "$project"
     run_restore

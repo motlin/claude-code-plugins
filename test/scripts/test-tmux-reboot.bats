@@ -188,12 +188,12 @@ document.pop("captured")
 print(json.dumps(document))' "$1"
 }
 
-write_state() { # rows_json -- a hand-written herdr-flavoured state file
+write_state() { # rows_json -- a hand-written v1 state file, backend recorded as "other"
     cat >"$STATE" <<EOF
 {
   "schema": "$SCHEMA",
   "captured": "2026-07-29T20:22:47-04:00",
-  "backend": "herdr",
+  "backend": "other",
   "session": "main",
   "rows": $1
 }
@@ -464,7 +464,7 @@ print(json.dumps([row["name"] for row in json.loads(sys.argv[1])["rows"]]))' "$o
     [[ "$output" != *"Traceback"* ]]
 }
 
-@test "restore plans a herdr-written state file against live tmux windows" {
+@test "restore plans a state file from another backend against live tmux windows" {
     write_state '[{
         "slot": 1,
         "name": "webapp",
@@ -480,7 +480,7 @@ print(json.dumps([row["name"] for row in json.loads(sys.argv[1])["rows"]]))' "$o
     run "$PYTHON3" "$SCRIPTS_DIR/restore.py" "$STATE"
     [ "$status" -eq 0 ]
     [[ "$output" == *"1 matched, 0 skipped"* ]]
-    [[ "$output" == *"backend herdr"* ]]
+    [[ "$output" == *"backend other"* ]]
     [[ "$output" == *"main:3"* ]]
     [[ "$output" == *"claude --resume $CLAUDE_UUID"* ]]
     [[ "$output" == *"@~/projects/webapp"* ]]

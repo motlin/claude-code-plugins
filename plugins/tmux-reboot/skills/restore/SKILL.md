@@ -1,6 +1,6 @@
 ---
 name: restore
-description: Restore claude/codex agents from a resume-after-reboot JSON state file after tmux-resurrect reopens their windows, whether the snapshot was taken by tmux-reboot or herdr-reboot. Use after a reboot when asked to restore, resume, or bring back tmux agents. For herdr instead of tmux, use the herdr-reboot plugin.
+description: Restore claude/codex agents from a resume-after-reboot JSON state file after tmux-resurrect reopens their windows. Use after a reboot when asked to restore, resume, or bring back tmux agents. For herdr instead of tmux, use the herdr-reboot plugin.
 ---
 
 # Restore Tmux Agents
@@ -20,9 +20,10 @@ Show the user the list of windows and resume commands. Once they confirm, fire t
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/restore.py .llm/resume-after-reboot-state.json --go
 ```
 
-The state file is JSON, schema `resume-after-reboot/v1`, and is interchangeable with the
-`herdr-reboot` plugin — a snapshot taken under either plugin restores under the other. A file
-written with any other `schema` value is rejected rather than guessed at. The header line of the
+The state file is JSON, schema `resume-after-reboot/v1`. A file written with any other `schema`
+value is rejected rather than guessed at, including the nested `resume-after-reboot/v2` that
+`herdr-reboot` writes — its workspaces, tabs, and splits have no tmux equivalent here. The header
+line of the
 output echoes the `backend` and `captured` time so the user can see which plugin wrote the file and
 how stale it is.
 

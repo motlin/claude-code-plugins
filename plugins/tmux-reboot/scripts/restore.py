@@ -3,8 +3,8 @@
 
 Reads the JSON state file produced by snapshot.py (schema resume-after-reboot/v1) and sends
 each row's resume command into the matching tmux window. Dry-run by default; pass --go to
-actually fire. The document is backend-neutral: a snapshot written by the herdr-reboot
-plugin replays here just as well as one written by snapshot.py.
+actually fire. The document is flat and tmux-shaped; the herdr-reboot plugin writes a nested
+resume-after-reboot/v2 document instead, which this restore rejects rather than flattens.
 
 Windows are matched by cwd, not by position: tmux-resurrect renumbers windows across a
 reboot, so a positional lookup fires resume commands into the wrong windows. A row's `slot`

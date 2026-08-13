@@ -2,19 +2,21 @@
 """Snapshot the running herdr session so claude/codex agents can be resumed after a reboot.
 
 Nothing survives a reboot: the workspaces, the tabs, and the agents inside them all go away.
-This captures, per pane, the tool (claude/codex), its cwd, and the exact session id to resume.
+This captures the whole tree — workspaces with their labels, their tabs with theirs, the split
+layout inside each tab, which pane held focus — and, per pane, the tool (claude/codex), its cwd,
+and the exact session id to resume.
 
 herdr makes this strictly better than the tmux-reboot snapshot. There, every claude session id
 is *guessed* by matching a pane's cwd against the most recently modified transcript on disk.
-Here, `herdr api snapshot` reports each claude pane's REAL session id, so claude rows involve no
+Here, `herdr api snapshot` reports each claude pane's REAL session id, so claude panes involve no
 transcript-mtime guessing at all.
 
 herdr's codex integration is less complete: it leaves `agent_session` null until that pane takes
 a turn (claude's hook reports on resume). Codex panes with no reported session therefore fall
-back to the same cwd -> rollout index that tmux-reboot uses, and say so in the row's note.
+back to the same cwd -> rollout index that tmux-reboot uses, and say so in the pane's note.
 
-The state file is JSON, schema `resume-after-reboot/v1`, shared verbatim with the tmux-reboot
-plugin so either plugin's restore can read the other's snapshot.
+The state file is JSON, schema `resume-after-reboot/v2`. It is herdr-shaped and NOT interchangeable
+with the tmux-reboot plugin, which reads and writes the flat `resume-after-reboot/v1` documents.
 
 Usage:
     snapshot.py [--output PATH] [--session NAME]
@@ -26,7 +28,7 @@ from datetime import datetime
 
 HOME = os.path.expanduser("~")
 CODEX_SESSIONS = os.path.join(HOME, ".codex", "sessions")
-SCHEMA = "resume-after-reboot/v1"
+SCHEMA = "resume-after-reboot/v2"
 
 SHELLS = {"zsh", "bash", "sh", "fish", "dash", "ksh", "tcsh"}
 
@@ -153,7 +155,7 @@ def has_operand(cmdline):
 
 
 def classify(leader, processes):
-    """(command, restore_default) for a pane's foreground program, or None for a shell row."""
+    """(command, restore_default) for a pane's foreground program, or None for a shell pane."""
     for proc in [leader] + list(processes):
         if proc and program_name(proc) in FOREGROUND_ALLOW:
             return cmdline_of(proc), False
@@ -222,74 +224,152 @@ def tilde(path):
     return path.replace(HOME, "~", 1) if path.startswith(HOME) else path
 
 
-def ordered_panes(snap):
-    """Panes grouped by workspace order, then tab order, so slots follow the visual layout."""
-    ws_order = {w["workspace_id"]: w.get("number", 0) for w in snap.get("workspaces", [])}
-    tab_order = {t["tab_id"]: t.get("number", 0) for t in snap.get("tabs", [])}
-    return sorted(snap.get("panes", []),
-                  key=lambda p: (ws_order.get(p.get("workspace_id"), 0),
-                                 tab_order.get(p.get("tab_id"), 0),
-                                 p.get("pane_id", "")))
-
-
 def reported_session(pane):
     session = pane.get("agent_session") or {}
     return session.get("value")
 
 
-def build_rows(snap):
-    labels = {w["workspace_id"]: w.get("label") or w["workspace_id"]
-              for w in snap.get("workspaces", [])}
-    codex_idx = index_codex_sessions()
-    codex_used = {}
-    rows = []
-    for pane in ordered_panes(snap):
-        cwd = pane.get("cwd") or HOME
-        row = {
-            "slot": len(rows) + 1,
-            "name": labels.get(pane.get("workspace_id"), pane.get("workspace_id", "")),
-            "tool": "shell",
-            "command": None,
-            "cwd": tilde(cwd),
-            "session_id": None,
-            "note": "",
-        }
-        agent = pane.get("agent")
-        session_id = reported_session(pane)
-        if agent == "claude":
-            row.update(tool="claude", note="session id reported by herdr")
-            if session_id:
-                row.update(command=f"claude --resume {session_id}", session_id=session_id)
-            else:
-                row.update(command="claude --continue",
-                           note="no session reported; --continue picks newest in cwd")
-        elif agent == "codex":
-            row.update(tool="codex")
-            if session_id:
-                row.update(command=f"codex resume {session_id}", session_id=session_id,
-                           note="session id reported by herdr")
-            else:
-                # herdr's codex integration reports nothing until the pane takes a turn, so
-                # match the cwd against recent rollouts the way tmux-reboot does.
-                rollouts = codex_idx.get(cwd, [])
-                i = codex_used.get(cwd, 0)
-                codex_used[cwd] = i + 1
-                found = uuid_in(os.path.basename(rollouts[i])) if i < len(rollouts) else None
-                if found:
-                    row.update(command=f"codex resume {found}", session_id=found,
-                               note=f"herdr reported no session; rollout mtime {mtime(rollouts[i])}")
-                else:
-                    row.update(command="codex resume --last",
-                               note="herdr reported no session and no matching rollout for cwd")
+def rect_key(rect):
+    return (rect["x"], rect["y"], rect["width"], rect["height"])
+
+
+def divide(split, area, members, rects):
+    """The two (area, pane ids) halves a split carves out of its area, or None.
+
+    herdr reports splits as a flat list of dividers, each carrying the area it divides rather
+    than the panes on either side of it. Pane rects tile that area exactly, so the boundary is
+    the first pane edge past the area's own, and the panes fall to whichever side of it they
+    start on. That reconstructs the tree without depending on how herdr rounds a ratio.
+    """
+    axis, size = ("x", "width") if split["direction"] == "right" else ("y", "height")
+    edges = sorted({rects[m][axis] for m in members if rects[m][axis] > area[axis]})
+    if not edges:
+        return None
+    boundary = edges[0]
+    halves = [({**area, size: boundary - area[axis]},
+               [m for m in members if rects[m][axis] < boundary]),
+              ({**area, axis: boundary, size: area[axis] + area[size] - boundary},
+               [m for m in members if rects[m][axis] >= boundary])]
+    return halves if all(ids for _, ids in halves) else None
+
+
+def layout_tree(layout, build_leaf):
+    """The tab's pane tree: split nodes with two children each, pane leaves at the bottom."""
+    rects = {p["pane_id"]: p["rect"] for p in layout.get("panes", [])}
+    splits = {rect_key(s["rect"]): s for s in layout.get("splits", [])}
+
+    def build(area, members):
+        split = splits.get(rect_key(area)) if len(members) > 1 else None
+        halves = divide(split, area, members, rects) if split else None
+        if not halves:
+            return build_leaf(members[0])
+        return {"type": "split", "direction": split["direction"], "ratio": split["ratio"],
+                "children": [build(half, ids) for half, ids in halves]}
+
+    return build(layout["area"], list(rects))
+
+
+def pane_leaf(pane, slot, codex_index, codex_used):
+    """One pane of the tree: what it is running and the command that brings it back."""
+    cwd = pane.get("cwd") or HOME
+    leaf = {
+        "type": "pane",
+        "slot": slot,
+        "pane_id": pane.get("pane_id"),
+        "tool": "shell",
+        "command": None,
+        "cwd": tilde(cwd),
+        "session_id": None,
+        "note": "",
+    }
+    agent = pane.get("agent")
+    session_id = reported_session(pane)
+    if agent == "claude":
+        leaf.update(tool="claude", note="session id reported by herdr")
+        if session_id:
+            leaf.update(command=f"claude --resume {session_id}", session_id=session_id)
         else:
-            found = find_command(pane.get("pane_id", ""))
+            leaf.update(command="claude --continue",
+                        note="no session reported; --continue picks newest in cwd")
+    elif agent == "codex":
+        leaf.update(tool="codex")
+        if session_id:
+            leaf.update(command=f"codex resume {session_id}", session_id=session_id,
+                        note="session id reported by herdr")
+        else:
+            # herdr's codex integration reports nothing until the pane takes a turn, so
+            # match the cwd against recent rollouts the way tmux-reboot does.
+            rollouts = codex_index.get(cwd, [])
+            i = codex_used.get(cwd, 0)
+            codex_used[cwd] = i + 1
+            found = uuid_in(os.path.basename(rollouts[i])) if i < len(rollouts) else None
             if found:
-                command, restore_default = found
-                row.update(tool="command", command=command, restore_default=restore_default,
-                           note="read-only; re-runs command" if restore_default
-                                else "best-effort; re-runs command")
-        rows.append(row)
-    return rows
+                leaf.update(command=f"codex resume {found}", session_id=found,
+                            note=f"herdr reported no session; rollout mtime {mtime(rollouts[i])}")
+            else:
+                leaf.update(command="codex resume --last",
+                            note="herdr reported no session and no matching rollout for cwd")
+    else:
+        found = find_command(pane.get("pane_id", ""))
+        if found:
+            command, restore_default = found
+            leaf.update(tool="command", command=command, restore_default=restore_default,
+                        note="read-only; re-runs command" if restore_default
+                             else "best-effort; re-runs command")
+    return leaf
+
+
+def single_pane_layout(tab_id, panes):
+    """A stand-in layout for a tab herdr reported no layout for."""
+    area = {"x": 0, "y": 0, "width": 1, "height": 1}
+    return {"tab_id": tab_id, "area": area, "splits": [], "focused_pane_id": None, "zoomed": False,
+            "panes": [{"pane_id": p["pane_id"], "rect": area} for p in panes[:1]]}
+
+
+def build_workspaces(snap):
+    """The whole session as nested workspaces > tabs > layout, in herdr's own display order."""
+    layouts = {layout["tab_id"]: layout for layout in snap.get("layouts", [])}
+    panes = {pane["pane_id"]: pane for pane in snap.get("panes", [])}
+    tabs_of = {}
+    for tab in sorted(snap.get("tabs", []), key=lambda t: t.get("number", 0)):
+        tabs_of.setdefault(tab["workspace_id"], []).append(tab)
+    panes_of = {}
+    for pane in snap.get("panes", []):
+        panes_of.setdefault(pane.get("tab_id"), []).append(pane)
+
+    codex_index, codex_used, slots = index_codex_sessions(), {}, [0]
+
+    def build_leaf(pane_id):
+        slots[0] += 1
+        return pane_leaf(panes.get(pane_id, {"pane_id": pane_id}), slots[0],
+                         codex_index, codex_used)
+
+    built = []
+    for workspace in sorted(snap.get("workspaces", []), key=lambda w: w.get("number", 0)):
+        tabs = []
+        for tab in tabs_of.get(workspace["workspace_id"], []):
+            layout = layouts.get(tab["tab_id"]) or single_pane_layout(
+                tab["tab_id"], panes_of.get(tab["tab_id"], []))
+            if not layout["panes"]:
+                continue
+            tabs.append({
+                "tab_id": tab["tab_id"],
+                "label": tab.get("label") or tab["tab_id"],
+                "number": tab.get("number", len(tabs) + 1),
+                "zoomed": bool(layout.get("zoomed")),
+                "focused_pane_id": layout.get("focused_pane_id"),
+                "layout": layout_tree(layout, build_leaf),
+            })
+        if not tabs:
+            continue
+        built.append({
+            "workspace_id": workspace["workspace_id"],
+            "label": workspace.get("label") or workspace["workspace_id"],
+            "number": workspace.get("number", len(built) + 1),
+            "active_tab_id": workspace.get("active_tab_id") or tabs[0]["tab_id"],
+            "tabs": tabs,
+        })
+    return built
 
 
 def main():
@@ -304,7 +384,12 @@ def main():
         "captured": datetime.now().astimezone().isoformat(timespec="seconds"),
         "backend": "herdr",
         "session": args.session or running_session(),
-        "rows": build_rows(snap),
+        "focus": {
+            "workspace_id": snap.get("focused_workspace_id"),
+            "tab_id": snap.get("focused_tab_id"),
+            "pane_id": snap.get("focused_pane_id"),
+        },
+        "workspaces": build_workspaces(snap),
     }
     text = json.dumps(state, indent=2) + "\n"
     if args.output:

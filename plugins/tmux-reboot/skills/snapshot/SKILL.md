@@ -58,8 +58,9 @@ JSON, schema `resume-after-reboot/v1`. One row per window:
   fallbacks.
 - `note` records how the pairing was made, so a weak one is visible.
 
-The format is shared with the `herdr-reboot` plugin: a snapshot taken under either plugin restores
-under the other, so switching backends costs no captured sessions.
+The format is tmux-shaped: a flat row list, since tmux-resurrect brings the windows and panes back
+on its own. The `herdr-reboot` plugin writes a nested `resume-after-reboot/v2` document instead —
+workspaces, tabs, and splits included — so the two are not interchangeable.
 
 ## Matching caveats
 
