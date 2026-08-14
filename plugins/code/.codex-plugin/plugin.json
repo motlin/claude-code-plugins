@@ -1,6 +1,6 @@
 {
 	"name": "code",
-	"version": "1.28.1",
+	"version": "1.28.2",
 	"description": "Code quality tools for comment cleanup and emoji enhancement",
 	"author": {
 		"name": "Craig Motlin"

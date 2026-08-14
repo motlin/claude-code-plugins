@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "recap",
 	"description": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
-	"version": "1.28.1",
+	"version": "1.28.2",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"

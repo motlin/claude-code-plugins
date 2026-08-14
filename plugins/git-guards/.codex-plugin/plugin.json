@@ -1,6 +1,6 @@
 {
 	"name": "git-guards",
-	"version": "1.28.1",
+	"version": "1.28.2",
 	"description": "Block dangerous git commands before they execute",
 	"author": {
 		"name": "Craig Motlin"

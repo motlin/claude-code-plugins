@@ -1,6 +1,6 @@
 {
 	"name": "orchestration",
-	"version": "1.28.1",
+	"version": "1.28.2",
 	"description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
 	"author": {
 		"name": "Craig Motlin"

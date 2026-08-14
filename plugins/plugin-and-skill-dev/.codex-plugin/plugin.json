@@ -1,6 +1,6 @@
 {
 	"name": "plugin-and-skill-dev",
-	"version": "1.28.1",
+	"version": "1.28.2",
 	"description": "Development guidelines for writing stable, maintainable skills, agents, and commands",
 	"author": {
 		"name": "Craig Motlin"
