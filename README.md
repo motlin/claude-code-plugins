@@ -100,7 +100,7 @@ Use `./install-local.sh all` to install both product variants. When developing a
 refresh its Codex installation before starting a new conversation:
 
 ```bash
-just codex-reinstall markdown-tasks
+just codex-reinstall --plugin markdown-tasks
 ```
 
 ## Install Skills Without a Plugin
