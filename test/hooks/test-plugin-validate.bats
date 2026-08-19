@@ -96,6 +96,30 @@ local_marketplace_sources() {
   fi
 }
 
+# Validation checks that command and agent directories resolve, not the script
+# paths their bodies tell Claude to run. A command whose script was renamed still
+# validates, and fails only when a user runs it.
+@test "command and agent files reference scripts that exist" {
+  missing=()
+  while IFS= read -r component_file; do
+    plugin_root="${component_file%/commands/*}"
+    plugin_root="${plugin_root%/agents/*}"
+    while IFS= read -r reference; do
+      [ -n "$reference" ] || continue
+      relative_path="scripts/${reference#*/scripts/}"
+      if [ ! -f "$plugin_root/$relative_path" ]; then
+        missing+=("$component_file: $reference")
+      fi
+    done < <(extract_literal_plugin_script_references "$component_file")
+  done < <(find "$PROJECT_ROOT/plugins" \( -path '*/commands/*' -o -path '*/agents/*' \) -name '*.md' -type f -print)
+
+  if [ "${#missing[@]}" -ne 0 ]; then
+    printf 'missing command and agent script references:\n'
+    printf '  %s\n' "${missing[@]}"
+    return 1
+  fi
+}
+
 # Validation resolves the component paths a manifest declares, but not the files
 # inside them, and most skills are auto-discovered rather than declared at all. A
 # directory that loses its SKILL.md drops out of the `agentskills validate` glob
