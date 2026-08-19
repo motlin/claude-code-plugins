@@ -74,6 +74,8 @@ python <plugin-root>/scripts/task_archive.py .llm/todo.md
 
 Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.
 
+Blocked `[!]` tasks never reach the archive. Each one moves into a fresh `.llm/todo.md` with its indented context, still marked `[!]`, so `task_get.py` keeps skipping it and `task_unblock.py` stays the deliberate way to reopen it. The script prints the archive path and how many blocked tasks it carried forward.
+
 **Exit codes**: 0 (success), 1 (file not found or error)
 
 ### task_unblock.py - Recover Blocked Tasks

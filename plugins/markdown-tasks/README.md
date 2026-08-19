@@ -71,13 +71,13 @@ context, not the rest of the queue.
 
 The bundled scripts are the supported way for agents to change the task file:
 
-| Script            | Operation                                                     |
-| ----------------- | ------------------------------------------------------------- |
-| `task_add.py`     | Append a self-contained `[ ]` task                            |
-| `task_get.py`     | Print the first incomplete task and its context               |
-| `task_mark.py`    | Mark the first incomplete task `[x]` or another state         |
-| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`            |
-| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md` |
+| Script            | Operation                                                                    |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `task_add.py`     | Append a self-contained `[ ]` task                                           |
+| `task_get.py`     | Print the first incomplete task and its context                              |
+| `task_mark.py`    | Mark the first incomplete task `[x]` or another state                        |
+| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`, keeping `[!]` tasks live |
+| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md`                |
 
 ## Populate the Queue
 

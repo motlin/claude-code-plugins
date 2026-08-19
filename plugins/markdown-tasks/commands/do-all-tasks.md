@@ -41,6 +41,8 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
     python ${CLAUDE_PLUGIN_ROOT}/scripts/task_archive.py .llm/todo.md
     ```
 
+    Blocked `[!]` tasks are carried forward into a fresh `.llm/todo.md` rather than archived. Report the archive path and the carried-forward count the script prints.
+
 ## Notes
 
 - Each task is handled completely by the `do-task` agent before moving to the next, and gets its own commit for clear history

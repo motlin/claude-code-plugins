@@ -4,6 +4,8 @@ import sys
 import os
 from datetime import datetime
 
+from task_blocks import block_text, describe_blocked, join_sections, split_blocked_tasks
+
 
 def archive_task_file(filename):
     try:
@@ -25,8 +27,20 @@ def archive_task_file(filename):
             )
             counter += 1
 
+        with open(filename, "r") as file:
+            remaining, blocked = split_blocked_tasks(file.readlines())
+
         os.rename(filename, archived_filename)
+
+        if blocked:
+            with open(archived_filename, "w") as file:
+                file.writelines(remaining)
+
+            with open(filename, "w") as file:
+                file.write(join_sections(block_text(block) for block in blocked))
+
         print(f"Archived to: {archived_filename}")
+        print(f"Carried forward: {describe_blocked(len(blocked))}")
 
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found", file=sys.stderr)

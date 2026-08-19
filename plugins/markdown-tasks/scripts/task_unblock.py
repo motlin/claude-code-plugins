@@ -3,34 +3,10 @@
 import argparse
 import glob
 import os
-import re
 import sys
 from datetime import date
 
-from task_blocks import collect_context, trim_trailing_blanks
-
-BLOCKED_PATTERN = re.compile(r"^- \[!\]")
-
-
-def split_blocked_tasks(lines):
-    """Return the lines that stay in the file and the blocked task blocks."""
-    remaining = []
-    blocks = []
-    index = 0
-
-    while index < len(lines):
-        line = lines[index]
-
-        if not BLOCKED_PATTERN.match(line):
-            remaining.append(line)
-            index += 1
-            continue
-
-        context = collect_context(lines, index)
-        index += 1 + len(context)
-        blocks.append(trim_trailing_blanks([line] + context))
-
-    return remaining, blocks
+from task_blocks import block_text, describe_blocked, join_sections, split_blocked_tasks
 
 
 def recovery_stamp():
@@ -44,20 +20,16 @@ def recovery_stamp():
 
 
 def reinstate(block, stamp):
-    body = "".join(block).rstrip("\n")
+    body = block_text(block)
     body = "- [ ]" + body[len("- [!]") :]
     return f"{body}\n{stamp}"
-
-
-def describe(count):
-    return f"{count} blocked task" if count == 1 else f"{count} blocked tasks"
 
 
 def report(scanned):
     for path, blocks, _ in scanned:
         if not blocks:
             continue
-        print(f"{path}: {describe(len(blocks))}")
+        print(f"{path}: {describe_blocked(len(blocks))}")
         for block in blocks:
             print(f"  {block[0].rstrip()}")
 
@@ -73,7 +45,7 @@ def append_tasks(todo_path, remaining, blocks, stamp):
         chunks.append(reinstate(block, stamp))
 
     with open(todo_path, "w") as file:
-        file.write("\n\n".join(chunks) + "\n")
+        file.write(join_sections(chunks))
 
 
 def unblock_tasks(llm_dir, dry_run):
@@ -95,7 +67,7 @@ def unblock_tasks(llm_dir, dry_run):
     if dry_run:
         print("DRY RUN: no files were modified")
         report(scanned)
-        print(f"Total: {describe(total)} would move to {todo_path}")
+        print(f"Total: {describe_blocked(total)} would move to {todo_path}")
         return
 
     if total == 0:
@@ -116,7 +88,7 @@ def unblock_tasks(llm_dir, dry_run):
     append_tasks(todo_path, todo_remaining, recovered, recovery_stamp())
 
     report(scanned)
-    print(f"Total: {describe(total)} recovered into {todo_path}")
+    print(f"Total: {describe_blocked(total)} recovered into {todo_path}")
 
 
 if __name__ == "__main__":

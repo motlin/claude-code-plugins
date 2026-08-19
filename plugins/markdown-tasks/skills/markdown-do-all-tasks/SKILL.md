@@ -72,4 +72,4 @@ When `task_get.py` returns no result, every task is completed `[x]` or blocked `
 python <plugin-root>/scripts/task_archive.py .llm/todo.md
 ```
 
-Report the archive path and identify blocked tasks reported during this run. Do not archive early when user-supplied stopping instructions leave incomplete `[ ]` tasks.
+Archiving carries blocked `[!]` tasks forward into a fresh `.llm/todo.md` instead of filing them away, and reports how many it carried. Report the archive path and that carried-forward count alongside the blocked tasks seen during this run. Do not archive early when user-supplied stopping instructions leave incomplete `[ ]` tasks.
