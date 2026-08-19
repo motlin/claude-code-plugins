@@ -1,6 +1,6 @@
 {
 	"name": "build",
-	"version": "1.28.2",
+	"version": "1.29.0",
 	"description": "Test and build automation tools that loop until all commits pass",
 	"author": {
 		"name": "Craig Motlin"
