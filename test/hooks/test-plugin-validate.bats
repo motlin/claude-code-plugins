@@ -138,11 +138,17 @@ local_marketplace_sources() {
 # rather than failing it, which leaves the skill silently unshipped.
 @test "every skill directory has a SKILL.md" {
   missing=()
-  for skill_root in "$PROJECT_ROOT"/plugins/*/skills/*/; do
-    [ -d "$skill_root" ] || continue
-    if [ ! -f "${skill_root}SKILL.md" ]; then
+  for plugin_root in "$PROJECT_ROOT"/plugins/*/; do
+    plugin_root="${plugin_root%/}"
+    [ -d "$plugin_root/skills" ] || continue
+    # Descending stops at each SKILL.md, so a skill's own subdirectories are its
+    # supporting files. Of the rest, one holding files is a skill missing its
+    # SKILL.md, and one holding only subdirectories is grouping them.
+    while IFS= read -r skill_root; do
+      [ -n "$(find "$skill_root" -mindepth 1 -maxdepth 1 -type f -print -quit)" ] || continue
       missing+=("${skill_root#"$PROJECT_ROOT/"}")
-    fi
+    done < <(find "$plugin_root/skills" -mindepth 1 -type d \
+      \( -exec test -f '{}/SKILL.md' \; -prune -o -print \))
   done
 
   if [ "${#missing[@]}" -ne 0 ]; then
