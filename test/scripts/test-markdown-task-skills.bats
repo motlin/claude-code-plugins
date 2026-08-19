@@ -31,6 +31,20 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "markdown-do-all-tasks reports blocked tasks before the loop starts" {
+  SKILL="$SKILLS_DIR/markdown-do-all-tasks/SKILL.md"
+
+  run rg --line-number "task_unblock[.]py .* --dry-run" "$SKILL"
+  [ "$status" -eq 0 ]
+  dry_run_line="${output%%:*}"
+
+  run rg --line-number "^## Process One Task per Worker" "$SKILL"
+  [ "$status" -eq 0 ]
+  loop_line="${output%%:*}"
+
+  [ "$dry_run_line" -lt "$loop_line" ]
+}
+
 @test "multi-task producer skills require chained writes" {
   for skill in markdown-plan-tasks markdown-import-plan markdown-sweep-todos; do
     run rg "one shell command" "$SKILLS_DIR/$skill/SKILL.md"

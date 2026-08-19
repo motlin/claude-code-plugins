@@ -12,6 +12,7 @@ Use the `markdown-tasks` skill for script path rules and task semantics. Use thi
 The leader coordinates the loop and does not implement tasks. It may only:
 
 - Extract work with `task_get.py`.
+- Survey blocked work with `task_unblock.py --dry-run`.
 - Record a failed attempt with `task_mark.py --marker='!' --reason='<what failed>'`.
 - Spawn and wait for one fresh subagent at a time.
 - Inspect Git status and commit boundaries.
@@ -19,6 +20,18 @@ The leader coordinates the loop and does not implement tasks. It may only:
 - Archive the task list with `task_archive.py`.
 
 The leader must not read `.llm/todo.md` directly, read task-referenced source files, or edit implementation files. Each worker discovers and reads its own implementation context.
+
+## Report Blocked Work Before the Loop
+
+Blocked `[!]` tasks left by an earlier run are invisible to `task_get.py`, so open the run by surveying them:
+
+```bash
+python <plugin-root>/scripts/task_unblock.py .llm --dry-run
+```
+
+The dry run rewrites nothing. It reports the blocked count per file, so `.llm/todo.md` shows the blocked tasks this run will skip and the archives show blocked work still waiting for recovery.
+
+Report those counts to the user before spawning the first worker, not after the loop finishes, where they scroll away under the run's output. Blocked tasks in `.llm/todo.md` are skipped rather than retried, so state the count and continue. Recovering them is the user's decision, not something the loop makes on its own.
 
 ## Process One Task per Worker
 
