@@ -71,12 +71,13 @@ context, not the rest of the queue.
 
 The bundled scripts are the supported way for agents to change the task file:
 
-| Script            | Operation                                             |
-| ----------------- | ----------------------------------------------------- |
-| `task_add.py`     | Append a self-contained `[ ]` task                    |
-| `task_get.py`     | Print the first incomplete task and its context       |
-| `task_mark.py`    | Mark the first incomplete task `[x]` or another state |
-| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`    |
+| Script            | Operation                                                     |
+| ----------------- | ------------------------------------------------------------- |
+| `task_add.py`     | Append a self-contained `[ ]` task                            |
+| `task_get.py`     | Print the first incomplete task and its context               |
+| `task_mark.py`    | Mark the first incomplete task `[x]` or another state         |
+| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`            |
+| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md` |
 
 ## Populate the Queue
 
@@ -102,8 +103,10 @@ task commit, and checks `HEAD` before extracting the next item. A failed worker 
 the coordinator marks that task `[!]` and continues. Ambiguous task state or an unverified commit
 stops the run instead of stacking more work.
 
-When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. To retry a
-blocked item later, change its marker from `[!]` back to `[ ]` before starting another run.
+When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. Archived `[!]`
+items are otherwise invisible, so `task_unblock.py` moves them out of every dated file and back into
+`.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. Run it with `--dry-run` first, since
+recovery rewrites the archives it reads.
 
 ## Boundaries
 

@@ -6,6 +6,8 @@ import subprocess
 import re
 import argparse
 
+from task_blocks import collect_context, trim_trailing_blanks
+
 
 def find_git_root(start_path):
     try:
@@ -95,27 +97,12 @@ def mark_first_task(filename, marker):
         modified = False
         task_lines = []
 
-        for i, line in enumerate(lines):
+        for index, line in enumerate(lines):
             if re.match(r"^- \[ \]", line):
-                lines[i] = f"- [{marker}]" + line[len("- [ ]") :]
+                lines[index] = f"- [{marker}]" + line[len("- [ ]") :]
 
-                task_lines.append(lines[i])
+                task_lines = [lines[index]] + collect_context(lines, index)
                 modified = True
-
-                j = i + 1
-                while j < len(lines):
-                    next_line = lines[j]
-                    if re.match(r"^[\s\t]+", next_line) and next_line.strip():
-                        task_lines.append(next_line)
-                    elif re.match(r"^- \[.\]", next_line):
-                        break
-                    elif re.match(r"^#", next_line):
-                        break
-                    elif next_line.strip() == "":
-                        task_lines.append(next_line)
-                    else:
-                        break
-                    j += 1
                 break
 
         if modified:
@@ -124,8 +111,7 @@ def mark_first_task(filename, marker):
 
             verify_gitignored(filename)
 
-            while task_lines and task_lines[-1].strip() == "":
-                task_lines.pop()
+            trim_trailing_blanks(task_lines)
 
             print("".join(task_lines), end="")
         else:

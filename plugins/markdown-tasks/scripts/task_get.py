@@ -4,6 +4,8 @@ import sys
 import os
 import re
 
+from task_blocks import collect_context, trim_trailing_blanks
+
 
 def extract_first_task(filename):
     try:
@@ -15,28 +17,13 @@ def extract_first_task(filename):
             lines = file.readlines()
 
         task_lines = []
-        in_task = False
 
-        for i, line in enumerate(lines):
+        for index, line in enumerate(lines):
             if re.match(r"^- \[ \]", line):
-                if in_task:
-                    break
-                task_lines.append(line)
-                in_task = True
-            elif in_task:
-                if re.match(r"^[\s\t]+", line) and line.strip():
-                    task_lines.append(line)
-                elif re.match(r"^- \[[^ ]\]", line):
-                    break
-                elif re.match(r"^#", line):
-                    break
-                elif line.strip() == "":
-                    task_lines.append(line)
-                else:
-                    break
+                task_lines = [line] + collect_context(lines, index)
+                break
 
-        while task_lines and task_lines[-1].strip() == "":
-            task_lines.pop()
+        trim_trailing_blanks(task_lines)
 
         if task_lines:
             print("".join(task_lines), end="")

@@ -76,6 +76,21 @@ Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.
 
 **Exit codes**: 0 (success), 1 (file not found or error)
 
+### task_unblock.py - Recover Blocked Tasks
+
+Move blocked `[!]` tasks out of archived task lists and back into `.llm/todo.md`:
+
+```bash
+python <plugin-root>/scripts/task_unblock.py .llm --dry-run
+python <plugin-root>/scripts/task_unblock.py .llm
+```
+
+Scans every `.llm/*todo*.md`, including the live `.llm/todo.md`, and moves each `[!]` task with its indented context into `.llm/todo.md` as an open `[ ]` task, stamped with an indented `Recovered <yyyy-mm-dd> session <session-id>` line. Recovery is a move, so the task disappears from the archive it came from and re-running the script cannot duplicate it. Emptied archive files stay on disk, and existing `Blocked` lines are preserved so a task's full round-trip history stays readable.
+
+Recovery rewrites historical archive files. Always run `--dry-run` first and confirm the report with the user before running it for real.
+
+**Exit codes**: 0 (success, including when nothing is blocked), 1 (directory not found or error)
+
 ## Task Format
 
 The task list is in `.llm/todo.md`.
