@@ -29,7 +29,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 
 5. If a task is found:
     - Check whether we have already attempted this task once
-    - If yes, mark it blocked and continue to the next task: `python ${CLAUDE_PLUGIN_ROOT}/scripts/task_mark.py .llm/todo.md --marker='!'` (the blocked task is always the first incomplete task, so this targets it; `task_get.py` skips `[!]` on the next iteration)
+    - If yes, mark it blocked and continue to the next task: `python ${CLAUDE_PLUGIN_ROOT}/scripts/task_mark.py .llm/todo.md --marker='!' --reason='<what failed>'` (the blocked task is always the first incomplete task, so this targets it; `task_get.py` skips `[!]` on the next iteration). `--reason` is required and gets written into the task body, so quote the concrete failure the agent reported rather than restating the task
     - If no, launch the `markdown-tasks:do-task` agent to implement it
     - **Do NOT add instructions to the agent prompt** - the agent is self-contained and follows its own workflow (including precommit, commit, rebase)
     - Do NOT mark the task as complete yourself - the `do-task` agent does this
@@ -46,7 +46,7 @@ If the user did not provide instructions, work through ALL incomplete tasks unti
 ## Notes
 
 - Each task is handled completely by the `do-task` agent before moving to the next, and gets its own commit for clear history
-- The `do-task` agent marks tasks done (`[x]`). The leader's only write action is marking a failed task blocked via `task_mark.py --marker='!'`
+- The `do-task` agent marks tasks done (`[x]`). The leader's only write action is marking a failed task blocked via `task_mark.py --marker='!' --reason='<what failed>'`
 - After each agent returns, run `task_get.py` again to determine whether any work remains
 
 ## User feedback

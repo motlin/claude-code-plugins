@@ -4,25 +4,20 @@ import argparse
 import glob
 import os
 import sys
-from datetime import date
 
-from task_blocks import block_text, describe_blocked, join_sections, split_blocked_tasks
-
-
-def recovery_stamp():
-    today = date.today().strftime("%Y-%m-%d")
-    session = os.environ.get("CLAUDE_CODE_SESSION_ID", "").strip()
-
-    if session:
-        return f"  Recovered {today} session {session}"
-
-    return f"  Recovered {today}"
+from task_blocks import (
+    block_text,
+    describe_blocked,
+    join_sections,
+    split_blocked_tasks,
+    stamp,
+)
 
 
-def reinstate(block, stamp):
+def reinstate(block, recovery_stamp):
     body = block_text(block)
     body = "- [ ]" + body[len("- [!]") :]
-    return f"{body}\n{stamp}"
+    return f"{body}\n{recovery_stamp}"
 
 
 def report(scanned):
@@ -34,7 +29,7 @@ def report(scanned):
             print(f"  {block[0].rstrip()}")
 
 
-def append_tasks(todo_path, remaining, blocks, stamp):
+def append_tasks(todo_path, remaining, blocks, recovery_stamp):
     chunks = []
 
     existing = "".join(remaining).strip("\n")
@@ -42,7 +37,7 @@ def append_tasks(todo_path, remaining, blocks, stamp):
         chunks.append(existing)
 
     for block in blocks:
-        chunks.append(reinstate(block, stamp))
+        chunks.append(reinstate(block, recovery_stamp))
 
     with open(todo_path, "w") as file:
         file.write(join_sections(chunks))
@@ -85,7 +80,7 @@ def unblock_tasks(llm_dir, dry_run):
         with open(path, "w") as file:
             file.writelines(remaining)
 
-    append_tasks(todo_path, todo_remaining, recovered, recovery_stamp())
+    append_tasks(todo_path, todo_remaining, recovered, stamp("Recovered"))
 
     report(scanned)
     print(f"Total: {describe_blocked(total)} recovered into {todo_path}")

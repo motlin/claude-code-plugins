@@ -54,7 +54,8 @@ markers:
 
 - `[ ]` is ready.
 - `[x]` completed validation and was committed.
-- `[!]` failed during a batch attempt and is skipped.
+- `[!]` failed during a batch attempt and is skipped. Marking a task `[!]` requires a reason, which
+  `task_mark.py` appends to the task body so the next attempt sees what failed.
 
 Indent context beneath the checkbox so extraction returns the whole task:
 
@@ -71,13 +72,13 @@ context, not the rest of the queue.
 
 The bundled scripts are the supported way for agents to change the task file:
 
-| Script            | Operation                                                                    |
-| ----------------- | ---------------------------------------------------------------------------- |
-| `task_add.py`     | Append a self-contained `[ ]` task                                           |
-| `task_get.py`     | Print the first incomplete task and its context                              |
-| `task_mark.py`    | Mark the first incomplete task `[x]` or another state                        |
-| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`, keeping `[!]` tasks live |
-| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md`                |
+| Script            | Operation                                                                     |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `task_add.py`     | Append a self-contained `[ ]` task                                            |
+| `task_get.py`     | Print the first incomplete task and its context                               |
+| `task_mark.py`    | Mark the first incomplete task `[x]` or another state, recording a `--reason` |
+| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`, keeping `[!]` tasks live  |
+| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md`                 |
 
 ## Populate the Queue
 
@@ -100,8 +101,12 @@ succeed.
 
 `do-all-tasks` is a sequential coordinator. It starts one fresh worker per task, requires one clean
 task commit, and checks `HEAD` before extracting the next item. A failed worker leaves no commit;
-the coordinator marks that task `[!]` and continues. Ambiguous task state or an unverified commit
-stops the run instead of stacking more work.
+the coordinator marks that task `[!]` with the reason it failed and continues. Ambiguous task state
+or an unverified commit stops the run instead of stacking more work.
+
+The reason is stored inside the task body rather than in a side file, so it travels with the task
+through archiving and recovery. Without it a recovered task returns with no record of the earlier
+attempt and the next worker repeats the same failing approach.
 
 When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. Archived `[!]`
 items are otherwise invisible, so `task_unblock.py` moves them out of every dated file and back into

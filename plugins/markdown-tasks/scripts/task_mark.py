@@ -6,7 +6,7 @@ import subprocess
 import re
 import argparse
 
-from task_blocks import collect_context, trim_trailing_blanks
+from task_blocks import collect_context, stamp, trim_trailing_blanks
 
 
 def find_git_root(start_path):
@@ -85,7 +85,18 @@ def verify_gitignored(filename):
         )
 
 
-def mark_first_task(filename, marker):
+def insert_reason(lines, start, context, reason):
+    """Insert the reason below the task body, above any trailing blank lines."""
+    body_length = len(trim_trailing_blanks(list(context)))
+    position = start + 1 + body_length
+
+    if not lines[position - 1].endswith("\n"):
+        lines[position - 1] += "\n"
+
+    lines.insert(position, stamp("Blocked", reason) + "\n")
+
+
+def mark_first_task(filename, marker, reason):
     try:
         if not os.path.exists(filename):
             print(f"No tasks found (file doesn't exist)", file=sys.stderr)
@@ -100,8 +111,13 @@ def mark_first_task(filename, marker):
         for index, line in enumerate(lines):
             if re.match(r"^- \[ \]", line):
                 lines[index] = f"- [{marker}]" + line[len("- [ ]") :]
+                context = collect_context(lines, index)
 
-                task_lines = [lines[index]] + collect_context(lines, index)
+                if reason:
+                    insert_reason(lines, index, context, reason)
+                    context = collect_context(lines, index)
+
+                task_lines = [lines[index]] + context
                 modified = True
                 break
 
@@ -136,6 +152,11 @@ if __name__ == "__main__":
         default="x",
         help="Marker char inside the checkbox (default: x)",
     )
+    parser.add_argument(
+        "--reason",
+        default="",
+        help="Why the task reached this state; required for --marker='!'",
+    )
 
     args = parser.parse_args()
 
@@ -146,4 +167,13 @@ if __name__ == "__main__":
         )
         sys.exit(1)
 
-    mark_first_task(args.filename, args.marker)
+    reason = " ".join(args.reason.split())
+
+    if args.marker == "!" and not reason:
+        print(
+            "Error: --reason is required with --marker='!' so the next attempt knows what failed",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    mark_first_task(args.filename, args.marker, reason)

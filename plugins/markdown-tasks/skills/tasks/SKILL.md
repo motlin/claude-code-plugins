@@ -57,12 +57,24 @@ Mark the first incomplete task with a marker character:
 
 ```bash
 python <plugin-root>/scripts/task_mark.py .llm/todo.md
-python <plugin-root>/scripts/task_mark.py .llm/todo.md --marker='!'
+python <plugin-root>/scripts/task_mark.py .llm/todo.md --marker='!' --reason='precommit failed on the parser rewrite'
 ```
 
 Changes the first `[ ]` to `[x]` by default. Pass `--marker` with any single non-space character (e.g. `!`, `>`, `-`) to use a different marker.
 
-**Exit codes**: 0 (success), 1 (no incomplete tasks or error)
+`--reason` appends the failure as an indented context line at the end of the task body, above any trailing blank line:
+
+```markdown
+- [!] Require authentication on API routes.
+  Reuse `validateJwt` from `/workspace/project/src/auth/tokens.ts`.
+  Blocked 2026-08-19 session 94aec27b: validateJwt does not exist; the repo uses `verifyToken`
+```
+
+The reason lives in the task body so it survives archive, recovery, and reinstatement, and so `task_get.py` hands it to the next attempt along with the rest of the context. Quote the concrete failure — the failing command, the assertion, the missing symbol — rather than restating the task.
+
+`--reason` is **required** with `--marker='!'`; blocking a task without one exits 1 and leaves the file untouched. It is optional for every other marker.
+
+**Exit codes**: 0 (success), 1 (no incomplete tasks, missing reason for `!`, or error)
 
 ### task_archive.py - Archive Task List
 

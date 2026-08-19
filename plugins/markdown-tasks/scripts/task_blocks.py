@@ -1,11 +1,27 @@
 """Shared parsing rules for the markdown checkbox task lists in .llm/."""
 
+import os
 import re
+from datetime import date
 
 CHECKBOX_PATTERN = re.compile(r"^- \[.\]")
 HEADING_PATTERN = re.compile(r"^#")
 INDENT_PATTERN = re.compile(r"^[\s\t]+")
 BLOCKED_PATTERN = re.compile(r"^- \[!\]")
+
+
+def stamp(label, detail=None):
+    """Return an indented context line recording a state change and its session.
+
+    Codex runs these scripts without CLAUDE_CODE_SESSION_ID, so the session
+    field is dropped rather than filled with a placeholder.
+    """
+    today = date.today().strftime("%Y-%m-%d")
+    session = os.environ.get("CLAUDE_CODE_SESSION_ID", "").strip()
+
+    line = f"  {label} {today} session {session}" if session else f"  {label} {today}"
+
+    return f"{line}: {detail}" if detail else line
 
 
 def collect_context(lines, start):

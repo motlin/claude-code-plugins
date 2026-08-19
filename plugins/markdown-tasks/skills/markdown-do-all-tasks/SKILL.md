@@ -12,7 +12,7 @@ Use the `markdown-tasks` skill for script path rules and task semantics. Use thi
 The leader coordinates the loop and does not implement tasks. It may only:
 
 - Extract work with `task_get.py`.
-- Record a failed attempt with `task_mark.py --marker='!'`.
+- Record a failed attempt with `task_mark.py --marker='!' --reason='<what failed>'`.
 - Spawn and wait for one fresh subagent at a time.
 - Inspect Git status and commit boundaries.
 - Run the test gate against `HEAD`.
@@ -45,8 +45,10 @@ After the worker returns:
 - On failure, verify that `HEAD` did not advance, then mark the first incomplete task blocked so the loop can continue:
 
     ```bash
-    python <plugin-root>/scripts/task_mark.py .llm/todo.md --marker='!'
+    python <plugin-root>/scripts/task_mark.py .llm/todo.md --marker='!' --reason='<what failed>'
     ```
+
+    `--reason` is required here and is recorded in the task body, so it is the only record of the failure that survives this session. Quote the concrete failure the worker reported — the failing command, the assertion, the missing dependency — not a restatement of the task. The script rejects a blocked mark with no reason.
 
 - If the worker made commits before failing or the task state is ambiguous, stop instead of marking or stacking more work.
 
