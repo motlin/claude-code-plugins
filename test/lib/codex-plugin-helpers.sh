@@ -60,8 +60,10 @@ extract_literal_plugin_script_references() {
         return 1
     fi
 
+    # Any path under the plugin root, not just `scripts/`, so a reference to a
+    # deleted file in `bin/` or `hooks/` is checked rather than ignored.
     rg --no-filename --only-matching --pcre2 \
-        '(?:<plugin-root>|\$\{?CLAUDE_PLUGIN_ROOT\}?)/scripts/[A-Za-z0-9_./-]+' \
+        '(?:<plugin-root>|\$\{?CLAUDE_PLUGIN_ROOT\}?)/[A-Za-z0-9_./-]+' \
         "$skill_file" | sort --unique
 }
 
@@ -74,7 +76,9 @@ missing_plugin_script_references() {
 
     while IFS= read -r reference; do
         [ -n "$reference" ] || continue
-        if [ ! -f "$plugin_root/scripts/${reference#*/scripts/}" ]; then
+        # Every plugin-root spelling is slash-free, so the first slash separates
+        # the marker from the path relative to the plugin root.
+        if [ ! -f "$plugin_root/${reference#*/}" ]; then
             printf '%s: %s\n' "$source_file" "$reference"
         fi
     done < <(extract_literal_plugin_script_references "$source_file")
