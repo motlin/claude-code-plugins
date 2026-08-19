@@ -65,6 +65,21 @@ extract_literal_plugin_script_references() {
         "$skill_file" | sort --unique
 }
 
+# Prints one `<file>: <reference>` line per script reference that does not
+# resolve to a file inside the plugin, and nothing when they all resolve.
+missing_plugin_script_references() {
+    local plugin_root="$1"
+    local source_file="$2"
+    local reference
+
+    while IFS= read -r reference; do
+        [ -n "$reference" ] || continue
+        if [ ! -f "$plugin_root/scripts/${reference#*/scripts/}" ]; then
+            printf '%s: %s\n' "$source_file" "$reference"
+        fi
+    done < <(extract_literal_plugin_script_references "$source_file")
+}
+
 validate_codex_hooks() {
     local hooks_file="$1"
     local supported_events

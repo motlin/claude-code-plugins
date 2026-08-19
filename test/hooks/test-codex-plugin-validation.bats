@@ -92,33 +92,6 @@ setup() {
   fi
 }
 
-@test "Codex-bundled skill script references resolve inside their plugins" {
-  missing=()
-
-  for manifest in "$PROJECT_ROOT"/plugins/*/.codex-plugin/plugin.json; do
-    if [ "$(jq --raw-output '.skills // empty' "$manifest")" != "./skills/" ]; then
-      continue
-    fi
-
-    plugin_root="${manifest%/.codex-plugin/plugin.json}"
-    while IFS= read -r skill_file; do
-      while IFS= read -r reference; do
-        [ -n "$reference" ] || continue
-        relative_path="scripts/${reference#*/scripts/}"
-        if [ ! -f "$plugin_root/$relative_path" ]; then
-          missing+=("$skill_file: $reference")
-        fi
-      done < <(extract_literal_plugin_script_references "$skill_file")
-    done < <(find "$plugin_root/skills" -name SKILL.md -type f -print)
-  done
-
-  if [ "${#missing[@]}" -ne 0 ]; then
-    printf 'missing plugin script references:\n'
-    printf '  %s\n' "${missing[@]}"
-    return 1
-  fi
-}
-
 @test "Agent Skill names match their parent directories" {
   mismatches=()
 

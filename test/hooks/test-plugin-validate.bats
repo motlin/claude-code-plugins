@@ -79,14 +79,9 @@ local_marketplace_sources() {
 @test "hook commands reference scripts that exist" {
   missing=()
   for hooks_file in "$PROJECT_ROOT"/plugins/*/hooks/*.json; do
-    plugin_root="${hooks_file%/hooks/*}"
-    while IFS= read -r reference; do
-      [ -n "$reference" ] || continue
-      relative_path="scripts/${reference#*/scripts/}"
-      if [ ! -f "$plugin_root/$relative_path" ]; then
-        missing+=("$hooks_file: $reference")
-      fi
-    done < <(extract_literal_plugin_script_references "$hooks_file")
+    while IFS= read -r line; do
+      missing+=("$line")
+    done < <(missing_plugin_script_references "${hooks_file%/hooks/*}" "$hooks_file")
   done
 
   if [ "${#missing[@]}" -ne 0 ]; then
@@ -104,17 +99,34 @@ local_marketplace_sources() {
   while IFS= read -r component_file; do
     plugin_root="${component_file%/commands/*}"
     plugin_root="${plugin_root%/agents/*}"
-    while IFS= read -r reference; do
-      [ -n "$reference" ] || continue
-      relative_path="scripts/${reference#*/scripts/}"
-      if [ ! -f "$plugin_root/$relative_path" ]; then
-        missing+=("$component_file: $reference")
-      fi
-    done < <(extract_literal_plugin_script_references "$component_file")
+    while IFS= read -r line; do
+      missing+=("$line")
+    done < <(missing_plugin_script_references "$plugin_root" "$component_file")
   done < <(find "$PROJECT_ROOT/plugins" \( -path '*/commands/*' -o -path '*/agents/*' \) -name '*.md' -type f -print)
 
   if [ "${#missing[@]}" -ne 0 ]; then
     printf 'missing command and agent script references:\n'
+    printf '  %s\n' "${missing[@]}"
+    return 1
+  fi
+}
+
+# Skills carry the same unvalidated script paths as commands and agents, so a
+# skill left pointing at a renamed script fails only when a user runs it.
+@test "skill files reference scripts that exist" {
+  missing=()
+  for plugin_root in "$PROJECT_ROOT"/plugins/*/; do
+    plugin_root="${plugin_root%/}"
+    [ -d "$plugin_root/skills" ] || continue
+    while IFS= read -r skill_file; do
+      while IFS= read -r line; do
+        missing+=("$line")
+      done < <(missing_plugin_script_references "$plugin_root" "$skill_file")
+    done < <(find "$plugin_root/skills" -name SKILL.md -type f -print)
+  done
+
+  if [ "${#missing[@]}" -ne 0 ]; then
+    printf 'missing skill script references:\n'
     printf '  %s\n' "${missing[@]}"
     return 1
   fi
