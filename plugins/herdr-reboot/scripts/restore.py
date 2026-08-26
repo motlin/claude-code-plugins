@@ -29,7 +29,7 @@ import argparse, json, os, shlex, subprocess, sys, time
 HOME = os.path.expanduser("~")
 SCHEMA = "resume-after-reboot/v2"
 DEFAULT_STATE = ".llm/resume-after-reboot-state.json"
-AGENT_TOOLS = ("claude", "codex")
+AGENT_TOOLS = ("claude", "claude-rc", "codex")
 
 # How long to wait for a freshly created pane's shell to come up before giving up on it.
 IDLE_TIMEOUT_SECONDS = 2.0

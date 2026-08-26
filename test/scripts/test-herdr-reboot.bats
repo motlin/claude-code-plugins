@@ -339,6 +339,84 @@ codex_rollout() {
     [ "$(pane_field 1 session_id)" = "None" ]
 }
 
+# transcript <cwd> <session> <bytes> — the jsonl claude writes for a session, under the project
+# slug it derives from the pane's cwd. Zero bytes is a session that never took a turn.
+transcript() {
+    local cwd="$1" session="$2" bytes="${3:-1}"
+    local slug
+    slug=$(printf '%s' "$cwd" | tr -c 'A-Za-z0-9' '-')
+    mkdir -p "$FAKE_HOME/.claude/projects/$slug"
+    local file="$FAKE_HOME/.claude/projects/$slug/$session.jsonl"
+    : >"$file"
+    if [ "$bytes" -gt 0 ]; then
+        printf '{"type":"user"}\n' >"$file"
+    fi
+}
+
+# `rc` is `claude rc --spawn worktree` -- Remote Control, whose pre-created placeholder session
+# never takes a turn. Resuming its id always fails, so the pane is restored by relaunching.
+@test "snapshot restores a Remote Control pane by relaunching it, never by --resume" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude ccc0b0b8-dea4-5101-928d-9c2942e0eccf)"
+    process_fixture w8:p1 command "claude rc --permission-mode auto --spawn worktree --name webapp"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "claude-rc" ]
+    [ "$(pane_field 1 command)" = "claude rc --permission-mode auto --spawn worktree --name webapp --continue" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
+}
+
+@test "snapshot refuses --resume for a uuid v5 session id" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 68df324e-c620-5083-8d52-93e4fa4dad87)"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 command)" = "claude --continue" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
+}
+
+@test "snapshot refuses --resume when the transcript exists but is empty" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+    transcript "$FAKE_HOME/projects/webapp" 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607 0
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 command)" = "claude --continue" ]
+    [ "$(pane_field 1 session_id)" = "None" ]
+}
+
+# A missing transcript is not proof the session is dead -- a worktree cwd hashes to a different
+# slug -- so herdr's report still wins.
+@test "snapshot keeps --resume when no transcript is found for the cwd" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 command)" = "claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
+}
+
+@test "snapshot keeps --resume when the transcript holds a turn" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+    transcript "$FAKE_HOME/projects/webapp" 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607 1
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 command)" = "claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607" ]
+}
+
+@test "restore fires a Remote Control pane like any other agent pane" {
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"workspaces":[
+        {"id":"w8","label":"webapp","tabs":[
+            {"id":"w8:t1","label":"rc","layout":{"pane":"w8:p1","cwd":"~/projects/webapp",
+                "tool":"claude-rc",
+                "command":"claude rc --spawn worktree --continue"}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+    grep -q 'pane run .* claude rc --spawn worktree --continue' "$HERDR_LOG"
+}
+
 @test "snapshot takes a codex pane's session id straight from herdr when it reports one" {
     write_snapshot "$(one_pane w6 toolkit "$FAKE_HOME/work/toolkit" codex 019a1b2c-3d4e-7f50-a1b2-c3d4e5f60718)"
 

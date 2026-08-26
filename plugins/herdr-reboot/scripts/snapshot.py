@@ -229,6 +229,51 @@ def reported_session(pane):
     return session.get("value")
 
 
+def remote_control_launch(pane_id):
+    """The `claude rc` command line a Remote Control pane was started with, or None.
+
+    `rc` is Remote Control -- a server hosting sessions driven from claude.ai/code and the
+    phone -- not an ordinary claude session. herdr reports it as a claude pane carrying the id
+    of the placeholder session RC pre-creates on startup, which never takes a turn, so
+    `claude --resume` on that id always answers "No conversation found". The pane comes back by
+    relaunching, and the leader process is the launch line verbatim.
+    """
+    info = process_info(pane_id)
+    leader = leader_process(info) if info else None
+    cmdline = cmdline_of(leader) if leader else ""
+    tokens = cmdline.split()
+    if len(tokens) >= 2 and os.path.basename(tokens[0].lstrip("-")).startswith("claude"):
+        if tokens[1] in ("rc", "remote-control"):
+            return cmdline
+    return None
+
+
+def transcript_path(cwd, session_id):
+    """Where claude keeps a session's transcript: one file per session under a cwd-derived slug."""
+    slug = re.sub(r"[^A-Za-z0-9]", "-", cwd)
+    return os.path.join(HOME, ".claude", "projects", slug, f"{session_id}.jsonl")
+
+
+def resumable(cwd, session_id):
+    """Whether `claude --resume session_id` can actually reopen something.
+
+    Two ways to know it cannot, both cheap and both seen in the wild:
+
+    - The id is a **uuid v5**. claude mints v4 for a real session, so a v5 is a derived
+      placeholder (Remote Control's pre-created session), and its id changes every launch.
+    - The transcript exists but is **empty** -- the session was opened and never took a turn.
+
+    A *missing* transcript proves nothing: a pane sitting in a git worktree derives a different
+    slug than the one the session was written under. herdr's report wins in that case.
+    """
+    if not session_id:
+        return False
+    if len(session_id) >= 15 and session_id[14] == "5":
+        return False
+    path = transcript_path(cwd, session_id)
+    return not (os.path.isfile(path) and os.path.getsize(path) == 0)
+
+
 def rect_key(rect):
     return (rect["x"], rect["y"], rect["width"], rect["height"])
 
@@ -285,11 +330,22 @@ def pane_leaf(pane, slot, codex_index, codex_used):
     agent = pane.get("agent")
     session_id = reported_session(pane)
     if agent == "claude":
-        leaf.update(tool="claude", note="session id reported by herdr")
-        if session_id:
-            leaf.update(command=f"claude --resume {session_id}", session_id=session_id)
+        launch = remote_control_launch(pane.get("pane_id", ""))
+        if launch:
+            # --continue reattaches to the session RC last recorded for this directory. Past its
+            # ~4h window it errors out and leaves the pane at a prompt, which is the honest
+            # outcome: a fresh server started in its place looks identical but is attached to
+            # nothing you were driving.
+            leaf.update(tool="claude-rc", command=f"{launch} --continue",
+                        note="remote control; reattaches the session recorded for this cwd")
+        elif resumable(cwd, session_id):
+            leaf.update(tool="claude", command=f"claude --resume {session_id}",
+                        session_id=session_id, note="session id reported by herdr")
+        elif session_id:
+            leaf.update(tool="claude", command="claude --continue",
+                        note="reported session is not resumable; --continue picks newest in cwd")
         else:
-            leaf.update(command="claude --continue",
+            leaf.update(tool="claude", command="claude --continue",
                         note="no session reported; --continue picks newest in cwd")
     elif agent == "codex":
         leaf.update(tool="codex")
