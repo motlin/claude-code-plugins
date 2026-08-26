@@ -67,3 +67,6 @@ the panes:
 
 Regenerate immediately before rebooting so the session ids are current. Keep refresh manual unless
 the user asks to automate it with cron or launchd.
+
+Expect the file to go stale between reboots; the session keeps moving. It only has to be right just
+before one, so don't chase drift or nag the user about refreshing.
