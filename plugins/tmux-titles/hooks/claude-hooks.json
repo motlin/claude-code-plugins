@@ -34,6 +34,15 @@
 		],
 		"SessionStart": [
 			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh",
+						"timeout": 500
+					}
+				]
+			},
+			{
 				"matcher": "startup",
 				"hooks": [
 					{
