@@ -52,3 +52,7 @@ What the user needs to know before firing:
   the working directory against rollout files on disk, so the pairing is a best guess. If a resumed
   session opens the wrong conversation, run `codex resume` in that pane and use the interactive
   picker.
+- `claude-rc` panes are Remote Control servers, fired like any other agent pane. Their command
+  reattaches with `--continue`, which errors out if nothing was recorded for that directory in
+  roughly the last 4 hours — expect that on any reboot you did not come straight back from. The
+  pane is left at a prompt; start a fresh server there by hand when you want one.

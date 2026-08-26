@@ -29,6 +29,19 @@ order, so a slot follows the visual layout. Review these caveats with the user w
 the panes:
 
 - `claude` panes carry the session id herdr itself reports, so they need no guessing and are exact.
+  Two ids are rejected before they reach the state file, because `claude --resume` would answer
+  `No conversation found` for both: a **uuid v5** (claude mints v4 for a real session, so a v5 is a
+  derived placeholder) and an id whose transcript exists but is empty (the session never took a
+  turn). Those panes fall back to `claude --continue` and say so in their note. A _missing_
+  transcript is not held against the id — a pane sitting in a git worktree derives a different
+  project slug than the one the session was written under.
+- `claude-rc` panes are Remote Control — `claude rc`, the server hosting sessions driven from
+  claude.ai/code and the phone. herdr reports one as a claude pane carrying the id of the
+  placeholder session RC pre-creates on startup, which is never resumable and changes every launch,
+  so these are restored by relaunching with `--continue` instead. That reattaches the session last
+  recorded for the directory; past its ~4h window it errors and leaves the pane at a prompt, which
+  beats a fresh server that looks restored but is attached to nothing. Conversation state lives
+  server-side, so relaunching by hand loses none of it.
 - `codex` panes are only exact when herdr reported a session. herdr's codex integration reports
   nothing until that pane takes a turn, so a codex pane that has been idle since launch falls back
   to matching its working directory against recent rollout files on disk. Those panes say
