@@ -245,3 +245,45 @@ make_repo_on_branch() {
   decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
   [ "$decision" = "deny" ]
 }
+
+# --- verification bypass flags ---
+
+@test "git-guards denies git commit --no-verify" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git commit --no-verify --message x\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies the short -n form of --no-verify" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git commit -n -m x\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies git push --no-verify to a feature branch" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git push --no-verify origin feature\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards denies --no-verify after the pathspec separator" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git commit -m x --no-verify\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  decision=$(echo "$output" | jq --raw-output '.hookSpecificOutput.permissionDecision')
+  [ "$decision" = "deny" ]
+}
+
+@test "git-guards allows a commit message that merely mentions no-verify" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git commit --message \\\"Document why --no-verify is banned.\\\"\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "git-guards allows git commit -n when it is another command's flag" {
+  run bash -c "echo '{\"tool_input\":{\"command\":\"git log -n 5\"}}' | '$SCRIPT'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
