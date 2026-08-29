@@ -35,6 +35,32 @@ if [[ "$command" =~ git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--git-dir=[^[:s
         "Run 'git status' to see changed files, then add them individually with 'git add <path>'"
 fi
 
+# Check for --no-verify (or its short -n form) on commit and push. The flag skips
+# the pre-commit and pre-push hooks that gate this repo, so a failing hook gets
+# stepped over rather than fixed. Quoted text is stripped first, so a commit
+# message that merely names the flag is not mistaken for the flag itself, and the
+# subcommand is checked so an unrelated -n ('git log -n 5') stays allowed.
+scrubbed="$command"
+while [[ "$scrubbed" =~ \"[^\"]*\" ]]; do
+    scrubbed="${scrubbed/"${BASH_REMATCH[0]}"/}"
+done
+while [[ "$scrubbed" =~ \'[^\']*\' ]]; do
+    scrubbed="${scrubbed/"${BASH_REMATCH[0]}"/}"
+done
+
+if [[ "$scrubbed" =~ git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--git-dir=[^[:space:]]+)[[:space:]]+)?(commit|push)([[:space:]]|$) ]]; then
+    verify_args="${scrubbed#*"${BASH_REMATCH[3]}"}"
+    verify_args="${verify_args%%|*}"
+    verify_args="${verify_args%%;*}"
+    verify_args="${verify_args%%&&*}"
+
+    if [[ " $verify_args " =~ [[:space:]](--no-verify|-n)[[:space:]] ]]; then
+        deny \
+            "--no-verify skips the hooks that gate this repo. A failing hook is the work, not an obstacle to it." \
+            "Run 'just precommit' (or the project's check command), fix what fails, then commit again without --no-verify."
+    fi
+fi
+
 # Check for any push to main/master (regular or force)
 if [[ "$command" =~ git[[:space:]]+push.*[[:space:]](main|master)([[:space:]]|$) ]]; then
     deny \
