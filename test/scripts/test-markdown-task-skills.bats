@@ -54,3 +54,30 @@ setup() {
     [ "$status" -eq 0 ]
   done
 }
+
+@test "every markdown task command has a matching skill" {
+  for command in "$PROJECT_ROOT/plugins/markdown-tasks/commands"/*.md; do
+    name="$(basename "$command" .md)"
+    test -f "$SKILLS_DIR/markdown-${name}/SKILL.md" ||
+      test -f "$SKILLS_DIR/markdown-${name/-one-/-}/SKILL.md"
+  done
+}
+
+@test "unblock-tasks is reachable as a command and a skill" {
+  test -f "$PROJECT_ROOT/plugins/markdown-tasks/commands/unblock-tasks.md"
+  test -f "$SKILLS_DIR/markdown-unblock-tasks/SKILL.md"
+}
+
+@test "markdown-unblock-tasks surveys with --dry-run before rewriting archives" {
+  SKILL="$SKILLS_DIR/markdown-unblock-tasks/SKILL.md"
+
+  run rg --line-number "task_unblock[.]py .* --dry-run" "$SKILL"
+  [ "$status" -eq 0 ]
+  dry_run_line="${output%%:*}"
+
+  run rg --line-number "task_unblock[.]py [^-]*$" "$SKILL"
+  [ "$status" -eq 0 ]
+  apply_line="${output%%:*}"
+
+  [ "$dry_run_line" -lt "$apply_line" ]
+}

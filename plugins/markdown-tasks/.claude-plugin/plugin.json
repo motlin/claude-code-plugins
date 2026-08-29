@@ -13,7 +13,8 @@
 		"./commands/do-one-task.md",
 		"./commands/add-one-task.md",
 		"./commands/do-all-tasks.md",
-		"./commands/sweep-todos.md"
+		"./commands/sweep-todos.md",
+		"./commands/unblock-tasks.md"
 	],
 	"agents": ["./agents/do-task.md"],
 	"skills": ["./skills/tasks"]

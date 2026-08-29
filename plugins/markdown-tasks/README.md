@@ -35,14 +35,15 @@ has an independent task file.
 
 Claude Code exposes slash commands and Codex exposes corresponding skills:
 
-| Goal                           | Claude Code command                  | Codex skill                             |
-| ------------------------------ | ------------------------------------ | --------------------------------------- |
-| Add one task                   | `/markdown-tasks:add-one-task`       | `$markdown-tasks:markdown-add-task`     |
-| Capture the current planning   | `/markdown-tasks:plan-tasks`         | `$markdown-tasks:markdown-plan-tasks`   |
-| Import a plan file             | `/markdown-tasks:import-plan <path>` | `$markdown-tasks:markdown-import-plan`  |
-| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`        | `$markdown-tasks:markdown-sweep-todos`  |
-| Implement the next task        | `/markdown-tasks:do-one-task`        | `$markdown-tasks:markdown-do-one-task`  |
-| Process every incomplete task  | `/markdown-tasks:do-all-tasks`       | `$markdown-tasks:markdown-do-all-tasks` |
+| Goal                           | Claude Code command                  | Codex skill                              |
+| ------------------------------ | ------------------------------------ | ---------------------------------------- |
+| Add one task                   | `/markdown-tasks:add-one-task`       | `$markdown-tasks:markdown-add-task`      |
+| Capture the current planning   | `/markdown-tasks:plan-tasks`         | `$markdown-tasks:markdown-plan-tasks`    |
+| Import a plan file             | `/markdown-tasks:import-plan <path>` | `$markdown-tasks:markdown-import-plan`   |
+| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`        | `$markdown-tasks:markdown-sweep-todos`   |
+| Implement the next task        | `/markdown-tasks:do-one-task`        | `$markdown-tasks:markdown-do-one-task`   |
+| Process every incomplete task  | `/markdown-tasks:do-all-tasks`       | `$markdown-tasks:markdown-do-all-tasks`  |
+| Recover blocked tasks          | `/markdown-tasks:unblock-tasks`      | `$markdown-tasks:markdown-unblock-tasks` |
 
 The `markdown-tasks:tasks` skill supplies the low-level task format and script conventions used by
 the workflow skills. It is not normally the entry point for a queue operation.
@@ -109,9 +110,13 @@ through archiving and recovery. Without it a recovered task returns with no reco
 attempt and the next worker repeats the same failing approach.
 
 When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. Archived `[!]`
-items are otherwise invisible, so `task_unblock.py` moves them out of every dated file and back into
-`.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. Run it with `--dry-run` first, since
-recovery rewrites the archives it reads.
+items are otherwise invisible, so `unblock-tasks` moves them out of every dated file and back into
+`.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. It surveys with `--dry-run` and
+confirms the report before touching anything, since recovery rewrites the archives it reads.
+
+Recovery is a move rather than a copy, so a task leaves the archive it came from and repeated runs
+cannot duplicate it. The earlier `Blocked` line survives alongside the new `Recovered` line, so the
+reason the task failed travels with it and the next worker does not repeat that approach.
 
 ## Boundaries
 

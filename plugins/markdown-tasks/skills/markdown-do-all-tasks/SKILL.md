@@ -31,7 +31,7 @@ python <plugin-root>/scripts/task_unblock.py .llm --dry-run
 
 The dry run rewrites nothing. It reports the blocked count per file, so `.llm/todo.md` shows the blocked tasks this run will skip and the archives show blocked work still waiting for recovery.
 
-Report those counts to the user before spawning the first worker, not after the loop finishes, where they scroll away under the run's output. Blocked tasks in `.llm/todo.md` are skipped rather than retried, so state the count and continue. Recovering them is the user's decision, not something the loop makes on its own.
+Report those counts to the user before spawning the first worker, not after the loop finishes, where they scroll away under the run's output. Blocked tasks in `.llm/todo.md` are skipped rather than retried, so state the count and continue. Recovering them is the user's decision, not something the loop makes on its own; point them at the `markdown-unblock-tasks` skill and move on.
 
 ## Process One Task per Worker
 
