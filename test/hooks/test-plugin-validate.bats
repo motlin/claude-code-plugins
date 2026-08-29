@@ -172,3 +172,27 @@ local_marketplace_sources() {
     [ -n "$cachebuster" ]
   done
 }
+
+# A command file that nobody declares is invisible: plugin.json enumerates
+# commands explicitly, so adding the file without adding the entry ships a
+# command that never loads. Compare the declared list against the directory
+# for every plugin that declares commands at all.
+@test "every command file on disk is declared in plugin.json" {
+  while IFS= read -r manifest; do
+    jq --exit-status 'has("commands")' "$manifest" >/dev/null || continue
+
+    plugin_root="${manifest%/.claude-plugin/plugin.json}"
+
+    declared="$(jq --raw-output '.commands[]' "$manifest" | sed 's|^[.]/commands/||' | sort)"
+    on_disk="$(find "$plugin_root/commands" -maxdepth 1 -name '*.md' -type f \
+      -exec basename {} \; | sort)"
+
+    [ "$declared" = "$on_disk" ] || {
+      echo "$plugin_root declares:"
+      echo "$declared"
+      echo "$plugin_root has on disk:"
+      echo "$on_disk"
+      false
+    }
+  done < <(find "$PROJECT_ROOT/plugins" -path '*/.claude-plugin/plugin.json' -type f -print)
+}
