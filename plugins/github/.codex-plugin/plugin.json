@@ -1,6 +1,6 @@
 {
 	"name": "github",
-	"version": "1.30.1",
+	"version": "1.31.0",
 	"description": "GitHub Actions troubleshooting and CI/CD automation",
 	"author": {
 		"name": "Craig Motlin"
