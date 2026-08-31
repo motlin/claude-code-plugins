@@ -111,8 +111,10 @@ spawn_pane_command() { # program [args...] -> sets PANE_PID
 }
 
 # Viewers need argv[0] to be the program the classifier looks for. /bin/sleep suits any
-# stub whose arguments end in a number; a flags-only command line needs /usr/bin/yes,
-# which outlives the snapshot no matter what it is handed.
+# stub whose arguments end in a number; a flags-only command line needs /usr/bin/tail,
+# which blocks on stdin. `yes` cannot serve here: GNU yes exits on an unrecognized long
+# option, and BSD yes rewrites its own argv so ps shows the leftover environment as an
+# extra token, which reads as the file operand the flags-only cases are asserting is absent.
 link_viewer_stub() { # name [target]
     ln -s "${2:-/bin/sleep}" "$STUB_BIN/$1"
 }
@@ -335,8 +337,8 @@ print(datetime.datetime.fromisoformat(captured).utcoffset() is not None)' "$outp
 @test "snapshot treats a pager with no file operand as a shell row" {
     # A bare pager is draining a pipe whose writer dies with the reboot; re-running it
     # would hang the pane on stdin.
-    link_viewer_stub less /usr/bin/yes
-    spawn_pane_command "$STUB_BIN/less" --RAW-CONTROL-CHARS
+    link_viewer_stub less /usr/bin/tail
+    spawn_pane_command "$STUB_BIN/less" -f
     snapshot_pane 34 notes "$PANE_PID" "$FAKE_HOME/notes"
 
     run "$PYTHON3" "$SCRIPTS_DIR/snapshot.py"
