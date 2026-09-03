@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# Publish a rendered demo where the user can reach it from another device —
+# a phone on the tailnet, a tablet, a second machine.
+#
+# The publish directory and the URL it is served at are environment settings,
+# so no host name or path belongs in this script.
+
+set -Eeuo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  demo-publish [options] <demo-dir>
+
+Options:
+  --dir <path>       Publish root. Default: $DEMO_PUBLISH_DIR, else
+                     ${XDG_DATA_HOME:-$HOME/.local/share}/demos
+  --url-base <url>   Base URL the publish root is served at.
+                     Default: $DEMO_PUBLISH_URL
+  --name <slug>      Publish under this name. Default: the demo directory name.
+  -h, --help         Show this help.
+
+Copies the whole demo — the rendered page and every captured step — so the
+evidence behind the page stays reachable, and prints the URL to hand over.
+
+Set DEMO_PUBLISH_URL to whatever serves the publish root over the tailnet
+(a reverse proxy host, a `tailscale serve` target). Without it this still
+publishes to disk and reports that no URL is configured.
+EOF
+}
+
+publish_dir="${DEMO_PUBLISH_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/demos}"
+url_base="${DEMO_PUBLISH_URL:-}"
+name=""
+demo_dir=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dir)
+            publish_dir="$2"
+            shift 2
+            ;;
+        --url-base)
+            url_base="$2"
+            shift 2
+            ;;
+        --name)
+            name="$2"
+            shift 2
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "demo-publish: unknown option '$1'" >&2
+            usage >&2
+            exit 2
+            ;;
+        *)
+            demo_dir="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$demo_dir" ]; then
+    echo "demo-publish: no demo directory given" >&2
+    usage >&2
+    exit 2
+fi
+
+demo_dir="${demo_dir%/}"
+
+if [ ! -d "$demo_dir" ]; then
+    echo "demo-publish: no such demo directory: $demo_dir" >&2
+    exit 1
+fi
+
+if ! command -v rsync >/dev/null 2>&1; then
+    echo "demo-publish: rsync is required" >&2
+    exit 1
+fi
+
+name="${name:-$(basename "$demo_dir")}"
+target="$publish_dir/$name"
+
+mkdir -p "$target"
+rsync --archive --delete "$demo_dir/" "$target/"
+
+# A bare directory URL should open the demo rather than a file listing.
+if [ -f "$target/demo.html" ] && [ ! -f "$target/index.html" ]; then
+    cp "$target/demo.html" "$target/index.html"
+fi
+
+if [ ! -f "$target/index.html" ]; then
+    echo "demo-publish: warning: no rendered page in $demo_dir — run demo-render.py first" >&2
+fi
+
+echo "published $target" >&2
+
+if [ -n "$url_base" ]; then
+    printf '%s/%s/\n' "${url_base%/}" "$name"
+else
+    echo "demo-publish: DEMO_PUBLISH_URL is not set, so there is no URL to hand over" >&2
+    printf '%s\n' "$target"
+fi

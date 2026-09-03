@@ -46,10 +46,36 @@ Builds a self-contained HTML page (or markdown with `--format md`) from the capt
 scripts/demo-render.py .llm/demo/import-pipeline -o .llm/demo/import-pipeline/demo.html
 ```
 
+### `demo-presence`
+
+Reports whether the user is at this machine — idle seconds, screen lock, Tailscale state, active tailnet peers — and exits `0` present, `1` away, `2` unknown. Prevents a demo from being `open`ed on a screen nobody is looking at.
+
+```console
+$ scripts/demo-presence
+idle_seconds=10569
+screen_locked=true
+tailscale_up=true
+active_remote_peers=ipad
+verdict=away
+```
+
+### `demo-publish`
+
+Copies a rendered demo — page plus every captured step — into the publish root and prints the URL to hand over, so it opens on a phone or tablet rather than on this desk.
+
+```console
+scripts/demo-publish .llm/demo/import-pipeline
+```
+
+- `DEMO_PUBLISH_DIR` — where published demos live. Default: `${XDG_DATA_HOME:-$HOME/.local/share}/demos`
+- `DEMO_PUBLISH_URL` — the base URL that root is served at over the tailnet
+
+Serve the publish root however the machine already exposes things to the tailnet: a reverse proxy behind `tailscale serve`, or `tailscale serve` pointed at the directory. With `DEMO_PUBLISH_URL` unset, the demo still publishes and the script says there is no URL instead of printing one that will not resolve.
+
 ## Layout
 
 Demos live under `.llm/demo/<slug>/` by default; set `DEMO_ROOT` to change it and `DEMO_SLUG` to avoid repeating `--demo`. Each step is a directory of plain files (`command`, `stdout`, `stderr`, `exit`, `title`, `why`, `look_for`), so a demo stays readable and greppable without the renderer.
 
 ## Requirements
 
-- `bash` and `python3`
+- `bash`, `python3`, and `rsync` (for `demo-publish`)

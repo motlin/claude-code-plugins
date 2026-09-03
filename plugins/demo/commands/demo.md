@@ -33,7 +33,14 @@ If that is empty, demo the work done so far in this session.
 - Ask for sign-off with AskUserQuestion before moving on
 - Never dump the whole trace at once
 
+## Deliver it where the user is
+
+- Render into the demo directory with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-render.py`
+- Check `${CLAUDE_PLUGIN_ROOT}/scripts/demo-presence` rather than assuming the user is at this machine
+- If they are here, `open` the page; if they are away or it cannot tell, run `${CLAUDE_PLUGIN_ROOT}/scripts/demo-publish` and hand over the URL
+- Send the rendered file to the user as well, so it arrives even without the tailnet
+- Never finish with only a local `open` and a path on this machine
+
 ## Finish
 
-- Render with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-render.py` and open the page
 - State plainly what the demo does not prove

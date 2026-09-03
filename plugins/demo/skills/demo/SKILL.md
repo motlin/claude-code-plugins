@@ -61,17 +61,64 @@ Screenshots, terminal recordings, downloaded payloads:
   --look-for 'Maker and taker columns now sum to the total.' screenshot.png
 ```
 
-### Render and open it
+### Render it
 
 ```console
 <plugin-root>/scripts/demo-render.py .llm/demo/<slug> -o .llm/demo/<slug>/demo.html
-open .llm/demo/<slug>/demo.html
 ```
 
+Render into the demo directory, so the page and the evidence behind it travel together.
 The renderer reads only the captured files, so the page cannot drift from what ran.
 Use `--format md` when the demo is small enough to live in the conversation. Long
 output is trimmed with a visible `… N lines omitted …` marker and a pointer to the
 full file — never silently.
+
+## Deliver it where the user is
+
+`open` puts the demo on the screen of the machine running the command. The person
+asking for it is often somewhere else — on a phone, on a tablet, driving the session
+from another device. A demo delivered to an empty desk is not delivered.
+
+Check, rather than assume:
+
+```console
+<plugin-root>/scripts/demo-presence
+```
+
+It reports idle seconds, whether the screen is locked, whether Tailscale is up, and
+which tailnet peers are active, then exits `0` for present, `1` for away, `2` for
+can't tell. Treat that output like any other captured evidence — it is a reading, not
+a guess.
+
+- **Present** — `open` the rendered page, and say the path
+- **Away, or can't tell** — publish it and hand over a URL that works from their other device, and send the file itself so it reaches them even if the network does not
+- **Never** end a demo with only a local `open` and a path on this machine
+
+### Publish over Tailscale
+
+```console
+<plugin-root>/scripts/demo-publish .llm/demo/<slug>
+```
+
+This copies the whole demo — page plus every captured step — into the publish root and
+prints the URL. Two environment settings drive it, so no host name or path is baked in:
+
+- `DEMO_PUBLISH_DIR` — where published demos live. Defaults to `${XDG_DATA_HOME:-$HOME/.local/share}/demos`
+- `DEMO_PUBLISH_URL` — the base URL that root is served at over the tailnet
+
+Serve that root however the machine already serves things to the tailnet — a reverse
+proxy behind `tailscale serve`, or `tailscale serve` pointed straight at the directory.
+Prefer whatever the machine already does over standing up something new; reuse the
+existing gateway and add one host to it.
+
+When `DEMO_PUBLISH_URL` is unset the demo still publishes to disk and the script says
+plainly that there is no URL, rather than printing one that will not resolve.
+
+### Also hand over the file
+
+Send the rendered page to the user directly as well as serving it. A URL needs them on
+the tailnet; a delivered file does not. Both cost nothing, and between them the demo
+arrives.
 
 ## Boundaries worth capturing
 
