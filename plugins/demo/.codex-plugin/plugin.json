@@ -1,0 +1,23 @@
+{
+	"name": "demo",
+	"version": "1.32.0",
+	"description": "Demo working software with real IO captured deterministically: the request on the wire, the SQL, the DDL, the command and its real output",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/demo",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "demo", "evidence"],
+	"interface": {
+		"displayName": "Demo",
+		"shortDescription": "Demo software with real IO, captured not authored",
+		"longDescription": "Demo working software by showing real data crossing real IO boundaries — the request on the wire, the SQL that ran, the rows and DDL on disk, the command and its captured output — with every byte recorded by a capture script rather than written by hand",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the demo plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

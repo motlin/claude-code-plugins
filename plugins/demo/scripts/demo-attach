@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+# Record an existing file — a screenshot, a recording, a log, a payload dump —
+# as a demo step, alongside the steps captured by demo-capture.
+
+set -Eeuo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  demo-attach --demo <slug> [options] <file>
+
+Options:
+  --demo <slug>       Demo to append to (or $DEMO_SLUG). Required.
+  --root <dir>        Demo root (or $DEMO_ROOT). Default: .llm/demo
+  --title <text>      Title for this step. Default: the file name.
+  --why <text>        One line on why this file is evidence.
+  --look-for <text>   What the reader should notice in it.
+  -h, --help          Show this help.
+
+The file is copied into the demo, so later edits to the original do not
+change what the demo shows.
+EOF
+}
+
+root="${DEMO_ROOT:-.llm/demo}"
+slug="${DEMO_SLUG:-}"
+title=""
+why=""
+look_for=""
+source_file=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --demo)
+            slug="$2"
+            shift 2
+            ;;
+        --root)
+            root="$2"
+            shift 2
+            ;;
+        --title)
+            title="$2"
+            shift 2
+            ;;
+        --why)
+            why="$2"
+            shift 2
+            ;;
+        --look-for)
+            look_for="$2"
+            shift 2
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "demo-attach: unknown option '$1'" >&2
+            usage >&2
+            exit 2
+            ;;
+        *)
+            source_file="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$slug" ]; then
+    echo "demo-attach: --demo <slug> is required (or set DEMO_SLUG)" >&2
+    exit 2
+fi
+
+if [ -z "$source_file" ]; then
+    echo "demo-attach: no file given" >&2
+    usage >&2
+    exit 2
+fi
+
+if [ ! -f "$source_file" ]; then
+    echo "demo-attach: no such file: $source_file" >&2
+    exit 1
+fi
+
+demo_dir="$root/$slug"
+mkdir -p "$demo_dir/steps"
+
+if [ ! -f "$demo_dir/created" ]; then
+    printf '%s\n' "$slug" >"$demo_dir/title"
+    date -u +%Y-%m-%dT%H:%M:%SZ >"$demo_dir/created"
+    printf '%s\n' "$PWD" >"$demo_dir/cwd"
+    hostname >"$demo_dir/host"
+    git rev-parse HEAD >"$demo_dir/git_commit" 2>/dev/null || true
+fi
+
+count=$(find "$demo_dir/steps" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+step_dir="$(printf '%s/steps/%03d' "$demo_dir" "$((count + 1))")"
+mkdir -p "$step_dir"
+
+base="$(basename "$source_file")"
+cp "$source_file" "$step_dir/$base"
+
+printf 'file\n' >"$step_dir/kind"
+printf '%s\n' "${title:-$base}" >"$step_dir/title"
+printf '%s\n' "$base" >"$step_dir/attachment"
+printf '%s\n' "$source_file" >"$step_dir/source_path"
+if [ -n "$why" ]; then
+    printf '%s\n' "$why" >"$step_dir/why"
+fi
+if [ -n "$look_for" ]; then
+    printf '%s\n' "$look_for" >"$step_dir/look_for"
+fi
+date -u +%Y-%m-%dT%H:%M:%SZ >"$step_dir/started"
+
+echo "attached $step_dir/$base" >&2

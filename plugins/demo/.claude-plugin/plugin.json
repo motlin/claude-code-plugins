@@ -1,0 +1,12 @@
+{
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+	"name": "demo",
+	"description": "Demo working software by showing real data crossing real IO boundaries, with command output captured deterministically instead of written by hand",
+	"version": "1.32.0",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"commands": ["./commands/demo.md"],
+	"skills": ["./skills/demo"]
+}

@@ -208,6 +208,16 @@
 			"category": "productivity"
 		},
 		{
+			"name": "demo",
+			"description": "Demo working software by showing real data crossing real IO boundaries, with command output captured deterministically instead of written by hand",
+			"version": "1.32.0",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/demo",
+			"category": "productivity"
+		},
+		{
 			"name": "tmux-reboot",
 			"description": "Snapshot the running tmux/claude/codex agents before a reboot and resume the exact sessions afterward, complementing tmux-resurrect which restores windows but not the agents inside them",
 			"version": "1.32.0",
