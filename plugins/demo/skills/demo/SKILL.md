@@ -1,6 +1,6 @@
 ---
 name: demo
-description: 'Demo working software by showing real data crossing real IO boundaries — the request on the wire, the SQL that ran, the rows and DDL on disk, the command and its captured output — with every byte recorded by a capture script rather than written by hand. Use when asked to demo, to "show me it working", "I need to see it", "prove it", or to walk through what was built, and before opening a pull request or calling work done.'
+description: 'Demo working software by showing real data crossing real IO boundaries — the request on the wire, the SQL that ran, the row and the bytes on disk, the command and its captured output — recorded with Showboat, Rodney, VHS or screenshots rather than written by hand, then delivered where the user actually is. Use when asked to demo, to "show me it working", "I need to see it", "prove it", or to walk through what was built, and before opening a pull request or calling work done.'
 ---
 
 # Demo
@@ -16,150 +16,118 @@ Everything else is commentary.
 
 - **In at the edge** — the actual HTTP request and response on the wire, the CLI invocation, the file a user would really drop in, the message off the queue
 - **Through the work** — the command that does the thing, run for real
-- **Into storage** — the SQL that executed, the rows before and after, and the on-disk shape: DDL, schema dump, file layout, bytes
+- **Into storage** — the SQL that executed, the rows before and after, and the on-disk representation
 - **Out to the human** — the page, the terminal, the report, the screenshot
 
 Reading code aloud is not a demo. Neither is a table of what changed, a test-passed
 count, or a paragraph beginning "the system now correctly". Those describe. A demo shows.
 
-## Capture, never author
+## Capture with Showboat, never author
 
-Every byte of output in a demo comes from a file a script wrote while the command ran.
-Write the command; let the tool capture the result. Never retype output, tidy it,
+Every byte of output in a demo comes from a tool that recorded it while the command
+ran. Write the command; let the tool capture the result. Never retype output, tidy it,
 reconstruct it from memory, or predict what it would say.
 
-The rule: if it was typed, it is prose. If it is evidence, it came out of `demo-capture`.
+The rule: if it was typed, it is prose. If it is evidence, a capture tool produced it.
 
-### Record each step
-
-Resolve `<plugin-root>` before running plugin scripts:
-
-- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
-- In Codex, use the plugin root that contains this `skills/demo/SKILL.md` file.
+[Showboat](https://github.com/simonw/showboat) builds the document. It runs with no
+install through `uvx showboat`, or `uv tool install showboat` to keep it around.
 
 ```console
-<plugin-root>/scripts/demo-capture --demo <slug> \
-  --title 'Import one real Fidelity export' \
-  --why 'This is the only way data enters the system.' \
-  --look-for 'Four transactions in, two of them paired into one move.' \
-  -- ./bin/run.js import ~/Downloads/fidelity-2026-08.csv
+uvx showboat init demo.md 'One POST, end to end'
+uvx showboat note demo.md '## The table starts empty'
+uvx showboat exec demo.md bash 'sqlite3 app.db "SELECT count(*) FROM note;"'
+uvx showboat image demo.md screenshot.png
 ```
 
-Use `--sh '<string>'` instead of `-- <argv>` when the step is a pipeline; the string is
-what runs and what gets displayed, so it stays honest. Add `--allow-failure` when a
-non-zero exit _is_ the evidence. Add `--redact '<regex>'` for tokens and keys — the
-rendered demo names every pattern that was applied, so redaction never reads as
-the real output.
+- `exec` appends the command and its captured output, prints that output, and exits with the command's own status — so a failure is visible immediately and still recorded
+- `note` carries every word you write: the framing, what to look for, the caveats
+- `image` copies a screenshot or recording into the document
+- `pop` removes the most recent entry, for a step that went wrong in a way worth re-running rather than keeping
 
-### Attach evidence you did not produce on stdout
+### Make it verifiable
 
-Screenshots, terminal recordings, downloaded payloads:
+`showboat verify demo.md` re-runs every code block and fails if any output has drifted.
+That is the difference between a document that claims something and one that keeps
+proving it, so aim for a demo that passes.
+
+A demo only passes verification if it is idempotent. Reset state **inside** a captured
+step rather than before the recording starts — a first block that empties the table is
+part of the proof, while a reset you did off-camera makes the second run disagree with
+the first. When a demo genuinely cannot be idempotent, run `verify` anyway and write
+down in the document which blocks drift and why.
+
+### Redaction stays visible
+
+Never hand-edit a secret out of captured output. Put the redaction in the command
+itself, where it is part of the evidence:
 
 ```console
-<plugin-root>/scripts/demo-attach --demo <slug> \
-  --title 'The rollup page after the import' \
-  --look-for 'Maker and taker columns now sum to the total.' screenshot.png
+uvx showboat exec demo.md bash 'curl -sS -D- "$URL" | sed -E "s/Bearer [A-Za-z0-9._-]+/Bearer «redacted»/"'
 ```
 
-### Render it
+The reader can see exactly what was removed and that nothing else was.
 
-```console
-<plugin-root>/scripts/demo-render.py .llm/demo/<slug> -o .llm/demo/<slug>/demo.html
-```
+## Pick the capture tool for what you are showing
 
-Render into the demo directory, so the page and the evidence behind it travel together.
-The renderer reads only the captured files, so the page cannot drift from what ran.
-Use `--format md` when the demo is small enough to live in the conversation. Long
-output is trimmed with a visible `… N lines omitted …` marker and a pointer to the
-full file — never silently.
+| Showing                                                                 | Capture with                                                                                                      |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Shell, CLI, SQL, HTTP, file bytes, logs                                 | `showboat exec`                                                                                                   |
+| A web page or web app                                                   | [Rodney](https://github.com/simonw/rodney) — `rodney start`, `open`, `wait`, `screenshot` — then `showboat image` |
+| A terminal UI, an animation, anything where timing or keystrokes matter | a [VHS](https://github.com/charmbracelet/vhs) tape rendered to GIF, then `showboat image`                         |
+| Charts from data                                                        | `chartroom`, then `showboat image`                                                                                |
+| Anything only visible on a screen                                       | a screenshot, then `showboat image`                                                                               |
 
-## Deliver it where the user is
+Rodney drives one persistent headless Chrome across many short commands, so a page can
+be opened, waited on, asserted against and photographed as separate captured steps. Its
+`exists`, `visible` and `assert` subcommands exit non-zero on failure, which makes them
+evidence rather than narration. When Rodney is not installed, any browser-automation MCP
+that produces a real screenshot file will do — what matters is that the image comes from
+the running page, not from a description of it.
 
-`open` puts the demo on the screen of the machine running the command. The person
-asking for it is often somewhere else — on a phone, on a tablet, driving the session
-from another device. A demo delivered to an empty desk is not delivered.
-
-Check, rather than assume:
-
-```console
-<plugin-root>/scripts/demo-presence
-```
-
-It reports idle seconds, whether the screen is locked, whether Tailscale is up, and
-which tailnet peers are active, then exits `0` for present, `1` for away, `2` for
-can't tell. Treat that output like any other captured evidence — it is a reading, not
-a guess.
-
-- **Present** — `open` the rendered page, and say the path
-- **Away, or can't tell** — publish it and hand over a URL that works from their other device, and send the file itself so it reaches them even if the network does not
-- **Never** end a demo with only a local `open` and a path on this machine
-
-### Publish over Tailscale
-
-```console
-<plugin-root>/scripts/demo-publish .llm/demo/<slug>
-```
-
-This copies the whole demo — page plus every captured step — into the publish root and
-prints the URL. Two environment settings drive it, so no host name or path is baked in:
-
-- `DEMO_PUBLISH_DIR` — where published demos live. Defaults to `${XDG_DATA_HOME:-$HOME/.local/share}/demos`
-- `DEMO_PUBLISH_URL` — the base URL that root is served at over the tailnet
-
-Serve that root however the machine already serves things to the tailnet — a reverse
-proxy behind `tailscale serve`, or `tailscale serve` pointed straight at the directory.
-Prefer whatever the machine already does over standing up something new; reuse the
-existing gateway and add one host to it.
-
-When `DEMO_PUBLISH_URL` is unset the demo still publishes to disk and the script says
-plainly that there is no URL, rather than printing one that will not resolve.
-
-### Also hand over the file
-
-Send the rendered page to the user directly as well as serving it. A URL needs them on
-the tailnet; a delivered file does not. Both cost nothing, and between them the demo
-arrives.
+Reach for VHS when a still frame would lose the point: a progress display, a TUI, a
+keystroke sequence, anything where the reader needs to see it move.
 
 ## Boundaries worth capturing
 
 Reach for the command that shows the boundary itself, not a friendly summary of it.
 
-- **HTTP** — `curl -sS -D- -X POST -H 'content-type: application/json' -d @request.json <url>`, so headers and status are in the capture. Pretty-print the body through `python3 -m json.tool` as its own step, and capture the request body too — both sides of the wire.
-- **SQL** — the statement and its result, then the row: `sqlite3 app.db 'SELECT * FROM note ORDER BY id DESC LIMIT 3'`. Turn on statement logging where the system generates the SQL, and capture the generated statement rather than describing it.
-- **Schema** — `sqlite3 app.db '.schema note'`, `psql -c '\d+ note'`, `SHOW CREATE TABLE note`. Show what the database stored, which is not always what the migration said.
-- **On disk** — `ls -l`, `file`, `wc -c`, `xxd | head`, `tree -L 2`, `git status --porcelain`. For formats that are really archives or containers, show the container listing too.
-- **CLI** — the exact invocation, including flags, and `--help` when the flags are the thing being demoed.
-- **Web UI** — drive the real browser, screenshot it, and attach it. Pair the screenshot with the network request behind it so the picture is backed by the payload.
+- **HTTP** — `curl -sS -D- -X POST -H 'content-type: application/json' -d @request.json <url>`, so headers and status are in the capture. Capture the request body as its own step; both sides of the wire are the point.
+- **SQL** — the statement and its result. Turn on statement logging where the system generates the SQL, and capture the generated statement rather than describing it.
+- **Schema** — `.schema`, `\d+`, `SHOW CREATE TABLE`. Show what the database stored, which is not always what the migration said.
+- **On disk** — show the **representation**, not the file's metadata. `sqlite3 db .dump`, `git cat-file -p`, `xxd` at the offset where the record actually sits, an archive listing. Size, mtime and page counts are trivia: they change nothing the reader understands, and a step that only reports them should be cut.
+- **CLI** — the exact invocation including flags, and `--help` when the flags are the thing being demoed.
+- **Web UI** — the screenshot, paired with the network request behind it, so the picture is backed by the payload.
 - **Library** — a short script that imports the published entry point and prints results, run for real. Not the test suite; a caller.
-- **Background work** — the log lines the job wrote, `tail`ed from the real log file, plus the row or file it produced.
+- **Background work** — the log lines the job wrote, read from the real log file, plus the row or file it produced.
 
 ## Use real data
 
 A demo built on data seeded for the demo proves the demo. Use records the system
-actually holds, exports the user actually has, markets that are actually trading.
+actually holds, exports the user actually has.
 
-When only fixture data exists, say so in the step's own `--why`, out loud, before
-the output — and prefer a real record over an invented one even when it is messier.
-Never hand-seed a clean happy path and present it as evidence.
+When only fixture data exists, say so in a `note`, out loud, before the output — and
+prefer a real record over an invented one even when it is messier. Never hand-seed a
+clean happy path and present it as evidence.
 
 ## Start from a known state
 
-Prove the starting point before proving the change. An empty database shown empty,
-a directory shown missing, a query returning zero rows — then the command, then the
-same query again. Otherwise the reader cannot tell what the command did from what
-was already there.
+Prove the starting point before proving the change. An empty table shown empty, a
+directory shown missing, a query returning zero rows — then the command, then the same
+query again. Otherwise the reader cannot tell what the command did from what was
+already there.
 
 ## Before and after is the proof
 
 For a fix, capture the same command on both sides of it and let the difference speak.
-Build the old binary in a worktree at the parent commit, or drive the flag that
-disables the change, and run the identical input through each. Two screenshots, two
-JSON dumps, two row sets. Assertion is not evidence; a diff is.
+Build the old binary in a worktree at the parent commit, or drive the flag that disables
+the change, and run the identical input through each. Two screenshots, two dumps, two
+row sets. Assertion is not evidence; a diff is.
 
-## Pace it one step at a time
+## Pace it one at a time
 
-One at a time is literal. Present one step, stop, and wait. Do not deliver a list of
-ten things and ask for sign-off on all of them — every step earns its own follow-up
+One at a time is literal. Present one step, stop, and wait. Do not deliver a list of ten
+things and ask for sign-off on all of them — every step earns its own follow-up
 questions, and a wall of text gets skipped instead of read.
 
 - Keep the remaining steps in internal todos so nothing is lost across the pauses
@@ -172,27 +140,63 @@ questions, and a wall of text gets skipped instead of read.
 The output is only evidence if the reader can read it.
 
 - Map console columns to the fields they came from — this column is that JSON key
-- Put headers on tables in the report; an unlabelled column is not proof of anything
+- Put headers on tables; an unlabelled column is not proof of anything
 - Define units, and say what a number is denominated in
 - Explain any term the reader has not used themselves; jargon in a demo reads as evasion
 - Name where the data lives — the file path, the table, the endpoint — so the reader can go look
 
 ## Offer choices when taste is the question
 
-When the demo exists to settle how something looks or feels, build several real
-variants and show them side by side rather than one and a description of the others.
-Push each variant to its limit — the longest text, the fullest screen, the widest
-table — because the interesting failure is at the edge.
+When the demo exists to settle how something looks or feels, build several real variants
+and show them side by side rather than one and a description of the others. Push each
+variant to its limit — the longest text, the fullest screen, the widest table — because
+the interesting failure is at the edge.
 
 ## Say what it does not prove
 
-Close with the honest caveats: what the demo covers, what it does not, which inputs
-were pinned, which conditions were not exercised. A demo that overclaims costs more
-trust than one that admits a gap.
+Close with the honest caveats: what the demo covers, what it does not, which inputs were
+pinned, which conditions were not exercised, which blocks fail `verify` and why. A demo
+that overclaims costs more trust than one that admits a gap.
+
+## Deliver it where the user is
+
+`open` puts the demo on the screen of the machine running the command. The person asking
+for it is often somewhere else — on a phone, on a tablet, driving the session from
+another device. A demo delivered to an empty desk is not delivered.
+
+Check, rather than assume:
+
+```console
+<plugin-root>/scripts/demo-presence
+```
+
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this `skills/demo/SKILL.md` file.
+
+It reports idle seconds, whether the screen is locked, whether Tailscale is up and which
+tailnet peers are active, then exits `0` present, `1` away, `2` can't tell. Treat that
+output like any other captured evidence — a reading, not a guess.
+
+Render the document to a page first, since Showboat writes markdown:
+
+```console
+<plugin-root>/scripts/demo-render.py demo.md -o demo.html
+```
+
+Then deliver by whichever of these the environment offers, best first:
+
+- **A Claude Artifact**, when the Artifact tool is available. It reaches any device with no VPN and no network of the user's involved. Render with `--fragment`, since the artifact host supplies its own document skeleton.
+- **A URL on the tailnet**, with `<plugin-root>/scripts/demo-publish demo-dir/`. It copies the document, its images and the rendered page into the publish root and prints the URL. `DEMO_PUBLISH_DIR` sets where published demos live (default `${XDG_DATA_HOME:-$HOME/.local/share}/demos`) and `DEMO_PUBLISH_URL` the base URL that root is served at. Serve that root however the machine already serves things to the tailnet, and reuse the existing gateway rather than standing up something new. With `DEMO_PUBLISH_URL` unset it still publishes and says plainly that there is no URL.
+- **The file itself**, sent to the user directly. A URL needs them on the tailnet; a delivered file does not.
+- **`open`**, but only when the presence check says they are here.
+
+Never end a demo with only a local `open` and a path on this machine.
 
 ## Keep proof that outlives the session
 
-`.llm/demo/<slug>/` is the default and it is scratch. When the demo is the evidence
-for a change — a pull request, a behaviour claim, a bug that must stay fixed — copy the
-demo directory somewhere durable and committed, next to the code it vouches for, with
-the pinned inputs and the command that reproduces it.
+A demo directory under `.llm/` is scratch. When the demo is the evidence for a change —
+a pull request, a behaviour claim, a bug that must stay fixed — copy the document and its
+images somewhere durable and committed, next to the code it vouches for, so
+`showboat verify` can be run against it again later.

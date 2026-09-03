@@ -16,15 +16,15 @@ If that is empty, demo the work done so far in this session.
 
 ## Plan the trace
 
-- Decide which boundaries this thing crosses — request on the wire, command, SQL, on-disk shape, rendered output
-- Pick a slug for the demo and keep the whole trace under it
+- Decide which boundaries this thing crosses — request on the wire, command, SQL, on-disk representation, rendered output
+- Pick the capture tool per step: `showboat exec` for anything a shell can show, `rodney` for a web page, `vhs` for a terminal UI, `chartroom` for charts
 - List the steps as internal todos, since they will be delivered across several pauses
 
 ## Capture each step
 
-- Run every step through `${CLAUDE_PLUGIN_ROOT}/scripts/demo-capture` so its output is recorded, not authored
-- Attach screenshots and other files with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-attach`
+- Build the document with `uvx showboat`, so every byte of output is recorded rather than written
 - Use real data, and start from a state shown to be empty
+- Reset state inside a captured step, so `showboat verify` can pass
 - For a fix, capture the same command before and after so the difference is visible
 
 ## Deliver one step at a time
@@ -33,14 +33,14 @@ If that is empty, demo the work done so far in this session.
 - Ask for sign-off with AskUserQuestion before moving on
 - Never dump the whole trace at once
 
-## Deliver it where the user is
+## Hand it over where the user is
 
-- Render into the demo directory with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-render.py`
+- Render with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-render.py`
 - Check `${CLAUDE_PLUGIN_ROOT}/scripts/demo-presence` rather than assuming the user is at this machine
-- If they are here, `open` the page; if they are away or it cannot tell, run `${CLAUDE_PLUGIN_ROOT}/scripts/demo-publish` and hand over the URL
-- Send the rendered file to the user as well, so it arrives even without the tailnet
+- Publish as an artifact when the Artifact tool is available, otherwise over the tailnet with `${CLAUDE_PLUGIN_ROOT}/scripts/demo-publish`, and send the file as well
 - Never finish with only a local `open` and a path on this machine
 
 ## Finish
 
+- Run `uvx showboat verify` and report the result honestly
 - State plainly what the demo does not prove

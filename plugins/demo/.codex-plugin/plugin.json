@@ -1,7 +1,7 @@
 {
 	"name": "demo",
 	"version": "1.32.0",
-	"description": "Demo working software with real IO captured deterministically: the request on the wire, the SQL, the DDL, the command and its real output",
+	"description": "Demo working software by showing real data crossing real IO boundaries, captured with Showboat and friends rather than written by hand, then delivered where the user actually is",
 	"author": {
 		"name": "Craig Motlin"
 	},
@@ -11,8 +11,8 @@
 	"keywords": ["codex", "plugin", "demo", "evidence"],
 	"interface": {
 		"displayName": "Demo",
-		"shortDescription": "Demo software with real IO, captured not authored",
-		"longDescription": "Demo working software by showing real data crossing real IO boundaries — the request on the wire, the SQL that ran, the rows and DDL on disk, the command and its captured output — with every byte recorded by a capture script rather than written by hand",
+		"shortDescription": "Demo real IO, captured with Showboat, delivered where you are",
+		"longDescription": "Demo working software by showing real data crossing real IO boundaries, captured with Showboat and friends rather than written by hand, then delivered where the user actually is",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Skills"],

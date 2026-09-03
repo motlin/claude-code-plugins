@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-"""Render a captured demo as a self-contained HTML page (or markdown).
+"""Render a Showboat demo document as one self-contained HTML page.
 
-Reads only what demo-capture and demo-attach wrote. Command output is copied
-from the captured files verbatim, so the rendered demo cannot drift from what
-actually ran.
+Showboat writes markdown; browsers, artifact hosts and static file servers want
+HTML with nothing to fetch. This converts the one into the other and inlines
+every referenced image, so the page survives being copied anywhere.
+
+Nothing here touches the captured output — it only changes the wrapper around it.
 """
 
 import argparse
@@ -12,229 +14,218 @@ import base64
 import html
 import mimetypes
 import os
+import re
+import shutil
+import subprocess
 import sys
+import tempfile
 
-IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
-TEXT_SUFFIXES = {".txt", ".log", ".json", ".jsonl", ".sql", ".csv", ".tsv", ".md", ".yaml", ".yml", ".xml", ".ddl"}
+FONT_LINK = (
+    '<link rel="stylesheet" '
+    'href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600'
+    "&family=IBM+Plex+Sans:wght@400;600&display=swap\">"
+)
+
+# The page's material is terminal transcripts, so the mono face carries it and
+# the one structural distinction worth drawing is input versus captured output.
+STYLE = """
+:root {
+  color-scheme: light dark;
+  --paper: #fbfaf8;
+  --ink: #16191d;
+  --muted: #69707a;
+  --rule: #dcdfe3;
+  --slab: #f1f0ed;
+  --captured: #0f766e;
+  --captured-wash: #0f766e12;
+  --caveat: #b45309;
+  --caveat-wash: #b4530912;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14171a;
+    --ink: #e8eaed;
+    --muted: #9aa3ad;
+    --rule: #2b3036;
+    --slab: #1c2024;
+    --captured: #5eead4;
+    --captured-wash: #5eead410;
+    --caveat: #fbbf24;
+    --caveat-wash: #fbbf2410;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14171a;
+  --ink: #e8eaed;
+  --muted: #9aa3ad;
+  --rule: #2b3036;
+  --slab: #1c2024;
+  --captured: #5eead4;
+  --captured-wash: #5eead410;
+  --caveat: #fbbf24;
+  --caveat-wash: #fbbf2410;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.shell {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+h1, h2, h3 { text-wrap: balance; font-weight: 600; line-height: 1.25; margin: 0; }
+h1 { font-size: 1.9rem; padding-bottom: .4rem; border-bottom: 2px solid var(--ink); }
+h2 { font-size: 1.3rem; margin-top: 2rem; }
+h3 { font-size: 1.05rem; margin-top: 1.25rem; }
+p, ul, ol { margin: 0; }
+a { color: var(--captured); }
+pre {
+  margin: 0;
+  padding: .85rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--slab);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+pre, code { font-family: var(--mono); }
+pre code { background: none; padding: 0; font-size: inherit; }
+code {
+  padding: .12em .35em;
+  border-radius: 3px;
+  background: var(--slab);
+  font-size: 90%;
+}
+/* Showboat fences captured output as ```output, so the machine's words can be
+   told apart from the command that produced them. */
+pre:has(code.language-output) {
+  border-left: 3px solid var(--captured);
+  background: var(--captured-wash);
+}
+blockquote {
+  margin: 0;
+  padding: .6rem 1rem;
+  border-left: 3px solid var(--caveat);
+  background: var(--caveat-wash);
+}
+blockquote p { margin: 0; }
+img { max-width: 100%; border: 1px solid var(--rule); border-radius: 5px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: .4rem .6rem; border: 1px solid var(--rule); text-align: left; }
+/* Showboat's byline sits directly under the title. */
+h1 + p em { color: var(--muted); font-style: normal; font-size: .9rem; }
+em { color: var(--muted); }
+"""
 
 
-def read(path, default=""):
+def markdown_to_html(text):
+    """Convert markdown, preferring an importable library over a subprocess."""
     try:
-        with open(path, "r", errors="replace") as handle:
-            return handle.read().rstrip("\n")
-    except OSError:
-        return default
+        from markdown_it import MarkdownIt
+    except ImportError:
+        pass
+    else:
+        return MarkdownIt("commonmark", {"html": True}).enable("table").render(text)
+
+    # The markdown-it CLI reads a path, not stdin, so hand it one.
+    if shutil.which("uvx"):
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as scratch:
+            scratch.write(text)
+            scratch_path = scratch.name
+        try:
+            done = subprocess.run(
+                ["uvx", "--from", "markdown-it-py", "markdown-it", scratch_path],
+                capture_output=True,
+                text=True,
+            )
+        finally:
+            os.unlink(scratch_path)
+        if done.returncode == 0:
+            return done.stdout
+        sys.stderr.write(done.stderr)
+
+    sys.exit(
+        "demo-render: need markdown-it-py — `uv tool install markdown-it-py`, "
+        "or `pip install markdown-it-py`"
+    )
 
 
-def read_lines(path):
-    try:
-        with open(path, "r", errors="replace") as handle:
-            return handle.read().split("\n")
-    except OSError:
-        return []
+def inline_images(markup, base_dir):
+    """Replace relative image sources with data URIs so the page stands alone."""
 
-
-def trim(lines, head, tail):
-    """Trim to head+tail lines, returning (lines, omitted_count)."""
-    while lines and lines[-1] == "":
-        lines.pop()
-    if len(lines) <= head + tail:
-        return lines, 0
-    omitted = len(lines) - head - tail
-    return lines[:head] + [f"… {omitted:,} lines omitted …"] + lines[-tail:], omitted
-
-
-def load_steps(demo_dir):
-    steps_dir = os.path.join(demo_dir, "steps")
-    if not os.path.isdir(steps_dir):
-        sys.exit(f"demo-render: no steps in {demo_dir}")
-    steps = []
-    for name in sorted(os.listdir(steps_dir)):
-        step_dir = os.path.join(steps_dir, name)
-        if not os.path.isdir(step_dir):
-            continue
-        steps.append(
-            {
-                "id": name,
-                "dir": step_dir,
-                "kind": read(os.path.join(step_dir, "kind"), "command"),
-                "title": read(os.path.join(step_dir, "title"), name),
-                "why": read(os.path.join(step_dir, "why")),
-                "look_for": read(os.path.join(step_dir, "look_for")),
-                "command": read(os.path.join(step_dir, "command")),
-                "cwd": read(os.path.join(step_dir, "cwd")),
-                "exit": read(os.path.join(step_dir, "exit")),
-                "duration": read(os.path.join(step_dir, "duration_seconds")),
-                "redactions": [p for p in read(os.path.join(step_dir, "redactions")).split("\n") if p],
-                "attachment": read(os.path.join(step_dir, "attachment")),
-                "source_path": read(os.path.join(step_dir, "source_path")),
-            }
-        )
-    return steps
-
-
-def attachment_block_html(step, demo_dir):
-    name = step["attachment"]
-    path = os.path.join(step["dir"], name)
-    suffix = os.path.splitext(name)[1].lower()
-    relative = os.path.relpath(path, demo_dir)
-    if suffix in IMAGE_SUFFIXES and os.path.isfile(path):
-        mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+    def replace(match):
+        src = html.unescape(match.group(1))
+        if src.startswith(("http://", "https://", "data:")):
+            return match.group(0)
+        path = os.path.join(base_dir, src)
+        if not os.path.isfile(path):
+            sys.stderr.write(f"demo-render: missing image {path}\n")
+            return match.group(0)
+        mime = mimetypes.guess_type(path)[0] or "application/octet-stream"
         with open(path, "rb") as handle:
             data = base64.b64encode(handle.read()).decode("ascii")
-        return f'<img alt="{html.escape(name)}" src="data:{mime};base64,{data}">\n<p class="meta">{html.escape(relative)}</p>'
-    if suffix in TEXT_SUFFIXES and os.path.isfile(path):
-        lines, _ = trim(read_lines(path), 40, 20)
-        body = html.escape("\n".join(lines))
-        return f'<p class="meta">{html.escape(relative)}</p>\n<pre>{body}</pre>'
-    size = os.path.getsize(path) if os.path.isfile(path) else 0
-    return f'<p class="meta">{html.escape(relative)} ({size:,} bytes)</p>'
+        return f'src="data:{mime};base64,{data}"'
+
+    return re.sub(r'src="([^"]+)"', replace, markup)
 
 
-def stream_block_html(step, stream, head, tail):
-    path = os.path.join(step["dir"], stream)
-    if not os.path.isfile(path) or os.path.getsize(path) == 0:
-        return ""
-    lines, omitted = trim(read_lines(path), head, tail)
-    label = "stdout" if stream == "stdout" else "stderr"
-    note = f" — full output in <code>{html.escape(path)}</code>" if omitted else ""
-    body = html.escape("\n".join(lines))
-    return f'<p class="meta">{label}{note}</p>\n<pre class="{stream}">{body}</pre>'
-
-
-def render_html(demo_dir, steps, head, tail):
-    title = read(os.path.join(demo_dir, "title"), os.path.basename(demo_dir.rstrip("/")))
-    created = read(os.path.join(demo_dir, "created"))
-    commit = read(os.path.join(demo_dir, "git_commit"))
-    dirty = read(os.path.join(demo_dir, "git_dirty"))
-    host = read(os.path.join(demo_dir, "host"))
-    cwd = read(os.path.join(demo_dir, "cwd"))
-
-    provenance = []
-    if created:
-        provenance.append(f"captured {html.escape(created)}")
-    if commit:
-        label = html.escape(commit[:12]) + (" (working tree dirty)" if dirty else "")
-        provenance.append(f"commit {label}")
-    if host:
-        provenance.append(f"on {html.escape(host)}")
-    if cwd:
-        provenance.append(f"in <code>{html.escape(cwd)}</code>")
-
-    parts = [
-        "<!doctype html>",
-        '<html lang="en"><head><meta charset="utf-8">',
-        '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        f"<title>{html.escape(title)}</title>",
-        "<style>",
-        ":root{color-scheme:light dark}",
-        "body{font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:60rem;margin:2rem auto;padding:0 1rem}",
-        "h1{margin-bottom:.25rem}",
-        "h2{margin-top:2.5rem;border-bottom:1px solid #8884;padding-bottom:.25rem}",
-        "pre{background:#8881;padding:.75rem;border-radius:4px;overflow-x:auto;font-size:13px;line-height:1.4}",
-        "pre.stderr{border-left:3px solid #c66}",
-        "code{font-size:13px}",
-        ".meta{color:#8a8a8a;font-size:13px;margin:.5rem 0 .25rem}",
-        ".why{margin:.25rem 0 .75rem}",
-        ".look{background:#ffd7001a;border-left:3px solid #d4a72c;padding:.5rem .75rem;margin:.75rem 0}",
-        ".fail{color:#c33;font-weight:600}",
-        ".banner{background:#8881;padding:.75rem 1rem;border-radius:4px;font-size:13px}",
-        "img{max-width:100%;border:1px solid #8884;border-radius:4px}",
-        "ol.toc{color:#8a8a8a}",
-        "</style></head><body>",
-        f"<h1>{html.escape(title)}</h1>",
-        f'<p class="meta">{" &middot; ".join(provenance)}</p>' if provenance else "",
-        '<p class="banner">Every command and every byte of output below was recorded by '
-        "<code>demo-capture</code> as it ran. Nothing here was typed by hand.</p>",
-        '<ol class="toc">',
-    ]
-    for step in steps:
-        parts.append(f'<li><a href="#{step["id"]}">{html.escape(step["title"])}</a></li>')
-    parts.append("</ol>")
-
-    for step in steps:
-        parts.append(f'<h2 id="{step["id"]}">{html.escape(step["title"])}</h2>')
-        if step["why"]:
-            parts.append(f'<p class="why">{html.escape(step["why"])}</p>')
-        if step["kind"] == "command":
-            parts.append(f'<pre class="cmd">$ {html.escape(step["command"])}</pre>')
-            details = []
-            if step["cwd"]:
-                details.append(f'in <code>{html.escape(step["cwd"])}</code>')
-            if step["duration"]:
-                details.append(f'{step["duration"]}s')
-            if step["exit"] and step["exit"] != "0":
-                details.append(f'<span class="fail">exit {html.escape(step["exit"])}</span>')
-            if step["redactions"]:
-                patterns = ", ".join(f"<code>{html.escape(p)}</code>" for p in step["redactions"])
-                details.append(f"redacted: {patterns}")
-            if details:
-                parts.append(f'<p class="meta">{" &middot; ".join(details)}</p>')
-            parts.append(stream_block_html(step, "stdout", head, tail))
-            parts.append(stream_block_html(step, "stderr", head, tail))
-        elif step["attachment"]:
-            parts.append(attachment_block_html(step, demo_dir))
-        if step["look_for"]:
-            parts.append(f'<p class="look">{html.escape(step["look_for"])}</p>')
-
-    parts.append("</body></html>")
-    return "\n".join(part for part in parts if part)
-
-
-def render_markdown(demo_dir, steps, head, tail):
-    title = read(os.path.join(demo_dir, "title"), os.path.basename(demo_dir.rstrip("/")))
-    commit = read(os.path.join(demo_dir, "git_commit"))
-    created = read(os.path.join(demo_dir, "created"))
-    out = [f"# {title}", ""]
-    if created or commit:
-        out.append(f"Captured {created} at commit {commit[:12]}." if commit else f"Captured {created}.")
-        out.append("")
-    out.append("Every command and its output below was recorded by `demo-capture` as it ran.")
-    out.append("")
-    for step in steps:
-        out.append(f"## {step['title']}")
-        out.append("")
-        if step["why"]:
-            out.extend([step["why"], ""])
-        if step["kind"] == "command":
-            out.extend(["```console", f"$ {step['command']}"])
-            for stream in ("stdout", "stderr"):
-                path = os.path.join(step["dir"], stream)
-                if os.path.isfile(path) and os.path.getsize(path) > 0:
-                    lines, _ = trim(read_lines(path), head, tail)
-                    out.extend(lines)
-            out.extend(["```", ""])
-            if step["exit"] and step["exit"] != "0":
-                out.extend([f"Exit status {step['exit']}.", ""])
-        elif step["attachment"]:
-            out.extend([f"![{step['title']}]({os.path.relpath(os.path.join(step['dir'], step['attachment']), demo_dir)})", ""])
-        if step["look_for"]:
-            out.extend([f"> {step['look_for']}", ""])
-    return "\n".join(out)
+def first_heading(text, fallback):
+    for line in text.split("\n"):
+        if line.startswith("# "):
+            return line[2:].strip()
+    return fallback
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Render a captured demo.")
-    parser.add_argument("demo_dir", help="Demo directory, e.g. .llm/demo/import-pipeline")
+    parser = argparse.ArgumentParser(description="Render a Showboat document as HTML.")
+    parser.add_argument("document", help="Showboat markdown file, e.g. .llm/demo/notes.md")
     parser.add_argument("-o", "--output", help="Write here instead of stdout")
-    parser.add_argument("--format", choices=("html", "md"), default="html")
-    parser.add_argument("--head", type=int, default=40, help="Leading output lines kept per stream")
-    parser.add_argument("--tail", type=int, default=20, help="Trailing output lines kept per stream")
+    parser.add_argument("--title", help="Page title. Default: the document's first heading")
+    parser.add_argument(
+        "--fragment",
+        action="store_true",
+        help="Emit head contents and body markup only, for hosts that supply their "
+        "own document skeleton (Claude Artifacts)",
+    )
     args = parser.parse_args()
 
-    demo_dir = args.demo_dir.rstrip("/")
-    steps = load_steps(demo_dir)
-    if args.format == "html":
-        text = render_html(demo_dir, steps, args.head, args.tail)
+    with open(args.document, "r", errors="replace") as handle:
+        text = handle.read()
+
+    title = args.title or first_heading(text, os.path.basename(args.document))
+    body = inline_images(markdown_to_html(text), os.path.dirname(os.path.abspath(args.document)))
+    head = f"<title>{html.escape(title)}</title>\n{FONT_LINK}\n<style>{STYLE}</style>"
+
+    if args.fragment:
+        page = f'{head}\n<main class="shell">\n{body}</main>\n'
     else:
-        text = render_markdown(demo_dir, steps, args.head, args.tail)
+        page = (
+            "<!doctype html>\n"
+            '<html lang="en"><head><meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f"{head}</head><body>\n"
+            f'<main class="shell">\n{body}</main>\n'
+            "</body></html>\n"
+        )
 
     if args.output:
         with open(args.output, "w") as handle:
-            handle.write(text + "\n")
+            handle.write(page)
         print(args.output)
     else:
-        print(text)
+        sys.stdout.write(page)
 
 
 if __name__ == "__main__":
