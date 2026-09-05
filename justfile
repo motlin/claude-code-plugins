@@ -1,4 +1,14 @@
-set dotenv-filename := ".envrc"
+# WARNING: this is somewhat dangerous. Direnv's .envrc file contains a few things
+# unsupported by dotenv. For instance, "export VAR=1" is unsupported by dotenv.
+# In addition, .envrc file that's commonly used by direnv can contain a number of
+# direnv-specific functions and statements, such as PATH_add is the direnv function
+# to append a folder to a $PATH. You can use in fact any of the functions defined here:
+# https://github.com/direnv/direnv/blob/master/stdlib.sh
+#
+# Note that one of these functions is "dotenv" and "dotenv_if_exists <filename>".
+# These last two load your dotenv environment into your shell environment, which is presumably
+# what you were trying to accomplish here.
+# set dotenv-filename := ".envrc"
 
 formatted_shell_scripts := "plugins/*/scripts/*.sh test/*.sh test/lib/*.sh install-local.sh"
 shellcheck_scripts := `plugins/build/scripts/list-shell-files`
