@@ -25,6 +25,10 @@ recipes:
     @just --choose
 ```
 
+## Expressing dependencies
+
+One of the power-features of any `justfile` is (just like it's predecessor: `Makefile`) is the ability for a target to depend on other targets. This allows you to combine multiple smaller targets into a single powerful just command. This comes particularly handy when you are dealing with infrastructure that requires multiple re-authentication steps prior to doing anything useful. A [sample GCP deploy module](https://github.com/kigster/just-gcp-deploy) comes with the file you can can import into your primary `justfile`, and it uses the dependencies to ensure that by the time `deploy` target is activated you are properly authenticated against GCP. The actual just file example is [available here](https://github.com/kigster/just-gcp-deploy/blob/main/just/gcp-deploy.just).
+
 ## Doc Comment Simplification
 
 For very short justfile recipes, change the doc comment string to be the entire command instead of a descriptive phrase.
