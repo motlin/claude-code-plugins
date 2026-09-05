@@ -15,9 +15,9 @@ shellcheck_scripts := `plugins/build/scripts/list-shell-files`
 
 codex_marketplace := "motlin-claude-code-plugins"
 
-# `just --list--unsorted`
-default:
-    @just --list --unsorted
+[no-exit-message]
+recipes:
+    @just --choose
 
 # Install pinned tools
 install:

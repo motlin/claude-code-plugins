@@ -7,6 +7,24 @@ description: Style guidelines for justfile recipe documentation. Use when writin
 
 This skill provides best practices for writing justfile recipe documentation comments.
 
+## The Very First Justfile Target
+
+> [!NOTE]
+>
+> This note is about when it's appropriate to inject a default first recipe into a `justfile`, one that allows the user to search and choose the task from the list.
+
+When analyzing an existing `justfile`, we first check if it contains a clearly deliberately chosen **very first recipe**, such as _running all the test checks_, or _performing a comprehensive build_. If such a recipe is found, the author clearly had thought about their "default" target and we are not going to mess with that.
+
+If, however, the first recipe does not appear to be a strategic target, then it is _probably_ ok to inject an additional target at the top of the file, and after all the variables have been defined, and without any comment.
+
+The target looks exactly like this, no more no less:
+
+```justfile
+[no-exit-message]
+recipes:
+    @just --choose
+```
+
 ## Doc Comment Simplification
 
 For very short justfile recipes, change the doc comment string to be the entire command instead of a descriptive phrase.
