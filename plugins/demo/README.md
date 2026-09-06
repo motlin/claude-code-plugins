@@ -33,6 +33,8 @@ scripts/demo-render.py demo.md --fragment -o fragment.html
 
 Reports whether the user is at this machine — idle seconds, screen lock, Tailscale state, active tailnet peers — and exits `0` present, `1` away, `2` unknown. Stops a demo being `open`ed on a screen nobody is looking at.
 
+Set `DEMO_IDLE_SECONDS` or `DEMO_SCREEN_LOCKED` to supply a reading instead of probing for it, on hosts where the probes do not work; the literal `unknown` states that there is no reading. `DEMO_IDLE_THRESHOLD` sets the idle cutoff in seconds (default 300).
+
 ```console
 $ scripts/demo-presence
 idle_seconds=10569

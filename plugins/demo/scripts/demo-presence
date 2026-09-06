@@ -10,26 +10,58 @@ set -Eeuo pipefail
 
 idle_threshold="${DEMO_IDLE_THRESHOLD:-300}"
 
-idle_seconds=""
-screen_locked=""
+# Readings can be supplied instead of probed: for hosts where the probes do not
+# work (a Linux box with no xprintidle, a container), and for tests. The literal
+# "unknown" states that there is no reading, which is not the same as a value.
+idle_seconds="${DEMO_IDLE_SECONDS:-}"
+screen_locked="${DEMO_SCREEN_LOCKED:-}"
 remote_peers=""
 tailscale_up=""
 
+if [ "$idle_seconds" = "unknown" ]; then
+    idle_seconds=""
+    probe_idle=false
+elif [ -n "$idle_seconds" ]; then
+    probe_idle=false
+else
+    probe_idle=true
+fi
+
+if [ "$screen_locked" = "unknown" ]; then
+    screen_locked=""
+    probe_lock=false
+elif [ -n "$screen_locked" ]; then
+    probe_lock=false
+else
+    probe_lock=true
+fi
+
 case "$(uname -s)" in
     Darwin)
-        idle_seconds="$(ioreg -c IOHIDSystem 2>/dev/null |
-            awk '/HIDIdleTime/ {print int($NF / 1000000000); exit}' || true)"
-        # Read the key and its value together: absent means no GUI session,
-        # which is not the same as an unlocked screen.
-        lock_entry="$(ioreg -n Root -d1 -a 2>/dev/null |
-            grep -A1 CGSSessionScreenIsLocked || true)"
-        case "$lock_entry" in
-            *"<true/>"*) screen_locked=true ;;
-            *"<false/>"*) screen_locked=false ;;
-        esac
+        if [ "$probe_idle" = true ]; then
+            idle_seconds="$(ioreg -c IOHIDSystem 2>/dev/null |
+                awk '/HIDIdleTime/ {print int($NF / 1000000000); exit}' || true)"
+        fi
+        if [ "$probe_lock" = true ]; then
+            session="$(ioreg -n Root -d1 -a 2>/dev/null || true)"
+            # macOS publishes CGSSessionScreenIsLocked only while the screen is
+            # locked, so an absent key means unlocked — but only when the rest of
+            # the session dictionary is there. With no session at all, there is
+            # no reading to give.
+            lock_entry="$(printf '%s' "$session" | grep -A1 CGSSessionScreenIsLocked || true)"
+            case "$lock_entry" in
+                *"<true/>"*) screen_locked=true ;;
+                *"<false/>"*) screen_locked=false ;;
+                *)
+                    case "$session" in
+                        *CGSSession*) screen_locked=false ;;
+                    esac
+                    ;;
+            esac
+        fi
         ;;
     Linux)
-        if command -v xprintidle >/dev/null 2>&1; then
+        if [ "$probe_idle" = true ] && command -v xprintidle >/dev/null 2>&1; then
             idle_seconds="$(($(xprintidle) / 1000))"
         fi
         ;;

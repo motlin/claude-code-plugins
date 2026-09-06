@@ -57,6 +57,18 @@ part of the proof, while a reset you did off-camera makes the second run disagre
 the first. When a demo genuinely cannot be idempotent, run `verify` anyway and write
 down in the document which blocks drift and why.
 
+### Look at the rendered page before handing it over
+
+Command output tells you the commands worked. It cannot tell you the document reads
+correctly. Screenshot the rendered page once — with Rodney, or by opening it — and read
+it as the recipient will. Defects that only appear there are common: a duplicated
+section, a block in the wrong order, a fence that closed in the wrong place.
+
+Two that bite in practice:
+
+- **End captured output with a newline.** A command whose last byte is not a newline puts Showboat's closing fence on the same line as the output, and the stray ` ``` ` shows up in the page. Prefer `cat file` or add an `echo` rather than a bare `printf` without a trailing newline.
+- **`pop` removes one entry, not one section.** A failed `exec` usually has a `note` in front of it; popping the exec leaves the note stranded, and re-adding both duplicates the heading. Pop the note too, or rebuild the document.
+
 ### Redaction stays visible
 
 Never hand-edit a secret out of captured output. Put the redaction in the command
