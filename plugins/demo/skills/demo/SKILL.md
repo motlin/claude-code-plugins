@@ -143,8 +143,9 @@ things and ask for sign-off on all of them — every step earns its own follow-u
 questions, and a wall of text gets skipped instead of read.
 
 - Keep the remaining steps in internal todos so nothing is lost across the pauses
-- Use AskUserQuestion at each pause, with real options
-- Get sign-off on a step before moving to the next
+- At each pause, ask whether to continue to the named next step. Follow the session's question-routing rules and use a question mechanism callable in the current mode: for example, `AskUserQuestion` in Claude Code or a suitable Codex question tool. Use `request_user_input` only when the current mode permits it. Offer options to continue, revisit the step, or stop when the mechanism supports them.
+- If no suitable question tool is callable, or the tool call fails, ask the question in plain text and end the turn to wait for the user's response.
+- Wait for explicit user sign-off before moving to the next step. Silence, a timeout, or an empty tool response is not approval. If the user requests an explanation or change, address it and ask again before continuing.
 - Demo before opening a pull request, and before calling anything done
 
 ## Annotate the output
