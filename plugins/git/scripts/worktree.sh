@@ -41,6 +41,12 @@ if [ -d ".claude" ]; then
     cp -r ".claude" "$WORKTREE_PATH/"
 fi
 
+# Copy local Codex configuration without replacing target-branch files
+if [ -d "$ORIGINAL_REPO_PATH/.codex" ]; then
+    echo "rsync --archive --ignore-existing \"$ORIGINAL_REPO_PATH/.codex/\" \"$WORKTREE_PATH/.codex/\""
+    rsync --archive --ignore-existing "$ORIGINAL_REPO_PATH/.codex/" "$WORKTREE_PATH/.codex/"
+fi
+
 # Copy .mise/config.local.toml if it exists
 if [ -f ".mise/config.local.toml" ]; then
     echo "mkdir -p \"$WORKTREE_PATH/.mise\""
