@@ -7,6 +7,12 @@ description: Work through all incomplete tasks in .llm/todo.md with one subagent
 
 Use the `markdown-tasks` skill for script path rules and task semantics. Use this workflow only when live edits are permitted; leave plan mode before starting the loop.
 
+## Check Delegation Before Starting
+
+Before running queue scripts, check that the current session exposes callable tools to spawn a fresh subagent and wait for its result. In Codex, check the available tool set rather than assuming delegation is supported. When both capabilities are available, continue with the leader workflow below.
+
+If either capability is missing, stop before entering the loop. Report which capability is unavailable and that this workflow requires a session with subagent spawning and result retrieval. Leave task states, archives, and Git unchanged; do not mark tasks blocked because the session lacks delegation tools. Resume this skill in a session with those tools. Direct implementation by the leader is not a fallback for this workflow.
+
 ## Keep the Leader Focused
 
 The leader coordinates the loop and does not implement tasks. It may only:
