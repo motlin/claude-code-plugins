@@ -31,7 +31,8 @@ Run `git test run HEAD --retest --verbose --verbose` to validate code:
 - Before invoking `git test run`, commit unstaged, staged, or uncommitted changes with the `git-commit` skill. Do not wait for `git test run` to refuse the dirty tree.
 - Do not substitute `just precommit` or another direct build command. Run `git test run HEAD --retest --verbose --verbose` on the committed tree so the result is cached against the commit.
 - Prefer an eager validation commit over avoiding `git test run`. The caller can reset, squash, or fix up the commit later, but skipping `git test run` loses the cache benefit this workflow depends on.
-- In sandboxed environments, request escalation for `git test run`; it refreshes the index and writes `.git/index.lock` before the configured command starts.
+- Check the active sandbox and approval policy before requesting escalation. Run `git test run` with permitted execution first; it refreshes the index and writes `.git/index.lock` before the configured command starts. If it succeeds without escalation, use that committed-tree result.
+- If sandbox permissions block the command, request escalation only when the active policy allows it. Under `approval_policy=never`, do not request escalation or bypass the policy. If no permitted execution can complete the command, report committed-tree validation as blocked, including the command and permission error. Other checks do not establish that committed-tree validation passed.
 
 ## 📋 Handle Missing Configuration
 
@@ -54,6 +55,7 @@ Your final message MUST start with one of:
 - "⚡ **Skipped precommit checks (on battery power)**" - if skipped due to battery
 - "✅ **Precommit checks passed**" - if ran successfully
 - "✅ **Precommit checks passed** (after fixing [brief description])" - if fixed issues
+- "⛔ **Committed-tree validation blocked**" - if permissions prevent `git test run HEAD` and escalation is unavailable or denied; include the command and permission error, and report other checks separately without claiming precommit passed
 
 ## Related Workflows
 
