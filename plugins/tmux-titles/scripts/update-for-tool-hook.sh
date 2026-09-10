@@ -18,7 +18,7 @@ case "$tool_name" in
     Bash)
         icon='$'
         ;;
-    Create | Edit | Write | MultiEdit)
+    Create | Edit | Write | MultiEdit | apply_patch)
         icon='✎'
         ;;
     Read)
