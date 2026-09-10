@@ -9,17 +9,23 @@ After a reboot, rebuild the session from the snapshot written by `/herdr-reboot:
 captured workspace with its label, every tab with its label, the panes inside each tab split at the
 captured direction and ratio, then the resume command fired into each new pane.
 
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this loaded `skills/restore/SKILL.md` file,
+  including when the skill is installed outside the repository.
+
 Preview the plan first:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/restore.py .llm/resume-after-reboot-state.json
+python3 "<plugin-root>/scripts/restore.py" .llm/resume-after-reboot-state.json
 ```
 
 The preview prints the tree it will build — workspaces, tabs, `split right 0.6` lines, and the
 pane that each slot lands in. Show it to the user. Once they confirm, fire it:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/restore.py .llm/resume-after-reboot-state.json --go
+python3 "<plugin-root>/scripts/restore.py" .llm/resume-after-reboot-state.json --go
 ```
 
 Use `--limit N` to rebuild only the first N workspaces and `--skip 3,7` to leave individual slots

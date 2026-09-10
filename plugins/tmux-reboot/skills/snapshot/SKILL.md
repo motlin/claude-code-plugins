@@ -14,13 +14,19 @@ running a long-lived foreground command (dev servers and watchers like `just dev
 one just re-runs the command line (best-effort). Their `restore_default` field separates the two:
 `false` for dev servers, `true` for viewers.
 
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this loaded `skills/snapshot/SKILL.md` file,
+  including when the skill is installed outside the repository.
+
 Run:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py --output .llm/resume-after-reboot-state.json
+python3 "<plugin-root>/scripts/snapshot.py" --output .llm/resume-after-reboot-state.json
 ```
 
-Stdout works too, for redirection: `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py > FILE`.
+Stdout works too, for redirection: `python3 "<plugin-root>/scripts/snapshot.py" > FILE`.
 
 Then show the user the captured rows and confirm they look right before they reboot. The state file
 holds session ids personal to this machine, so keep it in the gitignored `.llm/` directory.

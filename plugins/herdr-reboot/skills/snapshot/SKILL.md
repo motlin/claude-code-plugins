@@ -8,10 +8,16 @@ description: Snapshot running herdr workspaces, tabs, pane splits, and their cla
 Capture the live herdr session so `/herdr-reboot:restore` can rebuild it after a reboot. Nothing
 survives the reboot — not the workspaces, not the tabs, not the agents inside them.
 
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this loaded `skills/snapshot/SKILL.md` file,
+  including when the skill is installed outside the repository.
+
 Run:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/snapshot.py --output .llm/resume-after-reboot-state.json
+python3 "<plugin-root>/scripts/snapshot.py" --output .llm/resume-after-reboot-state.json
 ```
 
 Then show the user the tree and confirm it looks right before the reboot. The state file holds

@@ -8,16 +8,22 @@ description: Restore claude/codex agents from a resume-after-reboot JSON state f
 After a reboot, tmux-resurrect reopens the windows and working directories. Resume the agents that
 were running in them from the JSON snapshot written by `/tmux-reboot:snapshot`.
 
+Resolve `<plugin-root>` before running plugin scripts:
+
+- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
+- In Codex, use the plugin root that contains this loaded `skills/restore/SKILL.md` file,
+  including when the skill is installed outside the repository.
+
 Preview the plan first:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/restore.py .llm/resume-after-reboot-state.json
+python3 "<plugin-root>/scripts/restore.py" .llm/resume-after-reboot-state.json
 ```
 
 Show the user the list of windows and resume commands. Once they confirm, fire them:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/restore.py .llm/resume-after-reboot-state.json --go
+python3 "<plugin-root>/scripts/restore.py" .llm/resume-after-reboot-state.json --go
 ```
 
 The state file is JSON, schema `resume-after-reboot/v1`. A file written with any other `schema`
