@@ -63,8 +63,10 @@ setup() {
   done
 }
 
-@test "unblock-tasks is reachable as a command and a skill" {
-  test -f "$PROJECT_ROOT/plugins/markdown-tasks/commands/unblock-tasks.md"
+@test "unblock-tasks is reachable only as a skill" {
+  test ! -e "$PROJECT_ROOT/plugins/markdown-tasks/commands/unblock-tasks.md"
+  run rg "unblock-tasks" "$PROJECT_ROOT/plugins/markdown-tasks/.claude-plugin/plugin.json"
+  [ "$status" -eq 1 ]
   test -f "$SKILLS_DIR/markdown-unblock-tasks/SKILL.md"
 }
 

@@ -102,12 +102,12 @@ Find all TODO and TASK comments in your codebase and add them to the task list:
 - [ ] Implement TODO from test/utils.test.ts:103: Use deep object equality
 ```
 
-### /unblock-tasks
+### /markdown-unblock-tasks
 
 Recover blocked tasks. `/do-all-tasks` marks a failing task `[!]` and moves on, and archiving carries those tasks into the next task list still blocked. Nothing retries them on its own, so they accumulate quietly across runs:
 
 ```
-/unblock-tasks
+/markdown-unblock-tasks
 ```
 
 Claude surveys every `.llm/*todo*.md` with a dry run first, reports what is blocked and where, and asks before touching anything, because recovery rewrites the archives it reads. Confirmed, each blocked task moves back into `.llm/todo.md` as an open `[ ]` task stamped with the recovery date.
