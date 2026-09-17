@@ -11,10 +11,9 @@ allows installation for that product; `—` means it does not.
 
 ### Plan and Run Work
 
-| Plugin                                             | Use it to                                                         | Claude Code | Codex |
-| -------------------------------------------------- | ----------------------------------------------------------------- | ----------- | ----- |
-| [builtin-tasks](plugins/builtin-tasks/README.md)   | Run task queues with Claude Code's task, dependency, and team API | ✅          | —     |
-| [markdown-tasks](plugins/markdown-tasks/README.md) | Manage a visible task queue in `.llm/todo.md`                     | ✅          | ✅    |
+| Plugin                                             | Use it to                                     | Claude Code | Codex |
+| -------------------------------------------------- | --------------------------------------------- | ----------- | ----- |
+| [markdown-tasks](plugins/markdown-tasks/README.md) | Manage a visible task queue in `.llm/todo.md` | ✅          | ✅    |
 
 ### Build and Maintain Code
 

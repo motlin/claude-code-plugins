@@ -53,18 +53,6 @@
 			"category": "Productivity"
 		},
 		{
-			"name": "builtin-tasks",
-			"source": {
-				"source": "local",
-				"path": "./plugins/builtin-tasks"
-			},
-			"policy": {
-				"installation": "NOT_AVAILABLE",
-				"authentication": "ON_INSTALL"
-			},
-			"category": "Productivity"
-		},
-		{
 			"name": "code",
 			"source": {
 				"source": "local",

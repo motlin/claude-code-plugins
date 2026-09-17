@@ -5,8 +5,7 @@ checkboxes, while bundled scripts give agents a narrow view of one item at a tim
 with Claude Code and Codex.
 
 Choose this plugin when you want inspectable task state, a queue scoped to the current checkout, or
-the same task model in both products. Choose [builtin-tasks](../builtin-tasks/README.md) when Claude
-Code's built-in dependency tracking and team execution should own the queue.
+the same task model in both products.
 
 ## Install
 

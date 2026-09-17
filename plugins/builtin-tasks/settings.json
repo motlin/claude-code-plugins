@@ -1,5 +1,0 @@
-{
-	"permissions": {
-		"allow": ["Skill(builtin-tasks:*)", "SlashCommand(/builtin-tasks:*)"]
-	}
-}
