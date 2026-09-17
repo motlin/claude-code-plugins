@@ -6,8 +6,8 @@ tree it describes: one workspace per captured workspace with its label, one tab 
 with its label, the panes inside each tab split at the captured direction and ratio, then the
 captured focus and zoom. Dry-run by default; pass --go to actually create and fire.
 
-The document is herdr-shaped. The tmux-reboot plugin's flat `resume-after-reboot/v1` document has
-no workspaces, tabs, or splits to rebuild, so it is rejected rather than half-restored.
+The document is herdr-shaped. An older flat `resume-after-reboot/v1` document has no workspaces,
+tabs, or splits to rebuild, so it is rejected rather than half-restored.
 
 `herdr pane run` types into whatever the pane currently holds — there is no idle-shell guard in
 herdr itself. Firing into a pane that already held a resumed claude submits the text as a PROMPT

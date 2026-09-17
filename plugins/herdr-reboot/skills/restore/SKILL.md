@@ -1,6 +1,6 @@
 ---
 name: restore
-description: Rebuild herdr workspaces, tabs, and pane splits from a resume-after-reboot snapshot and resume the claude/codex agents that were running in them. Use after a reboot when asked to restore, rebuild, or bring back herdr sessions. For tmux instead of herdr, use the tmux-reboot plugin.
+description: Rebuild herdr workspaces, tabs, and pane splits from a resume-after-reboot snapshot and resume the claude/codex agents that were running in them. Use after a reboot when asked to restore, rebuild, or bring back herdr sessions.
 ---
 
 # Restore Herdr Workspaces
@@ -32,8 +32,8 @@ Use `--limit N` to rebuild only the first N workspaces and `--skip 3,7` to leave
 out entirely; a split left holding one pane collapses, and a tab left holding none is not created.
 Agent launches are spaced 0.4s apart (`--delay`) so a couple dozen boots do not all land at once.
 
-The state file is JSON, schema `resume-after-reboot/v2`, and is herdr-shaped. A `tmux-reboot`
-snapshot (`resume-after-reboot/v1`) is flat, with no workspaces, tabs, or splits to rebuild, so
+The state file is JSON, schema `resume-after-reboot/v2`, and is herdr-shaped. An older
+`resume-after-reboot/v1` snapshot is flat, with no workspaces, tabs, or splits to rebuild, so
 this restore rejects it rather than half-restoring it.
 
 What the user needs to know before firing:

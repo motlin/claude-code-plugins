@@ -6,17 +6,15 @@ This captures the whole tree — workspaces with their labels, their tabs with t
 layout inside each tab, which pane held focus — and, per pane, the tool (claude/codex), its cwd,
 and the exact session id to resume.
 
-herdr makes this strictly better than the tmux-reboot snapshot. There, every claude session id
-is *guessed* by matching a pane's cwd against the most recently modified transcript on disk.
-Here, `herdr api snapshot` reports each claude pane's REAL session id, so claude panes involve no
-transcript-mtime guessing at all.
+`herdr api snapshot` reports each claude pane's REAL session id, so a claude pane's session is
+never guessed by matching its cwd against the most recently modified transcript on disk.
 
 herdr's codex integration is less complete: it leaves `agent_session` null until that pane takes
 a turn (claude's hook reports on resume). Codex panes with no reported session therefore fall
-back to the same cwd -> rollout index that tmux-reboot uses, and say so in the pane's note.
+back to a cwd -> rollout index, and say so in the pane's note.
 
 The state file is JSON, schema `resume-after-reboot/v2`. It is herdr-shaped and NOT interchangeable
-with the tmux-reboot plugin, which reads and writes the flat `resume-after-reboot/v1` documents.
+with the older flat `resume-after-reboot/v1`.
 
 Usage:
     snapshot.py [--output PATH] [--session NAME]
@@ -354,7 +352,7 @@ def pane_leaf(pane, slot, codex_index, codex_used):
                         note="session id reported by herdr")
         else:
             # herdr's codex integration reports nothing until the pane takes a turn, so
-            # match the cwd against recent rollouts the way tmux-reboot does.
+            # match the cwd against recent rollouts.
             rollouts = codex_index.get(cwd, [])
             i = codex_used.get(cwd, 0)
             codex_used[cwd] = i + 1

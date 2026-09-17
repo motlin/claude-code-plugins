@@ -1,6 +1,6 @@
 ---
 name: snapshot
-description: Snapshot running herdr workspaces, tabs, pane splits, and their claude/codex agents immediately before a reboot so they can be rebuilt afterward. Use when asked to snapshot, save, or capture herdr sessions before rebooting. For tmux instead of herdr, use the tmux-reboot plugin.
+description: Snapshot running herdr workspaces, tabs, pane splits, and their claude/codex agents immediately before a reboot so they can be rebuilt afterward. Use when asked to snapshot, save, or capture herdr sessions before rebooting.
 ---
 
 # Snapshot Herdr Workspaces
@@ -26,9 +26,7 @@ session ids personal to this machine, so keep it in the gitignored `.llm/` direc
 The state file is JSON, schema `resume-after-reboot/v2`, and mirrors the session's own shape:
 workspaces (with label, number, and active tab) hold tabs (with label, number, zoom, and focused
 pane), and each tab holds a `layout` tree of `split` nodes — `direction` and `ratio` — bottoming
-out in `pane` leaves. The document also records which workspace, tab, and pane held focus. It is
-herdr-shaped, so the `tmux-reboot` plugin, which speaks the flat `resume-after-reboot/v1`, neither
-reads nor writes it.
+out in `pane` leaves. The document also records which workspace, tab, and pane held focus.
 
 Each pane is one leaf, and `slot` numbers them by workspace order, then tab order, then layout
 order, so a slot follows the visual layout. Review these caveats with the user when they affect
