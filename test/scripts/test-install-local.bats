@@ -71,7 +71,7 @@ EOF
     [ "$status" -eq 0 ]
     grep -Fqx "claude plugin enable code@motlin-claude-code-plugins" "$COMMAND_LOG"
 
-    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+    for plugin in ghostty-titles tmux-titles; do
         ! grep -Fq "${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
     done
 }
@@ -82,7 +82,7 @@ EOF
     run "$PROJECT_ROOT/install-local.sh"
 
     [ "$status" -eq 0 ]
-    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+    for plugin in ghostty-titles tmux-titles; do
         grep -Fqx "claude plugin disable ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
         ! grep -Fq "claude plugin install ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
         ! grep -Fq "claude plugin enable ${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
@@ -97,7 +97,7 @@ EOF
     [ "$status" -eq 0 ]
     grep -Fqx "codex plugin add code@motlin-claude-code-plugins" "$COMMAND_LOG"
 
-    for plugin in ghostty-titles iterm2-titles tmux-titles; do
+    for plugin in ghostty-titles tmux-titles; do
         ! grep -Fq "${plugin}@motlin-claude-code-plugins" "$COMMAND_LOG"
     done
 }
@@ -123,7 +123,7 @@ EOF
         '.plugins[]
         | select(.policy.installation == "AVAILABLE")
         | .name
-        | select(IN("ghostty-titles", "iterm2-titles", "tmux-titles") | not)' \
+        | select(IN("ghostty-titles", "tmux-titles") | not)' \
         "$PROJECT_ROOT/.agents/plugins/marketplace.json" | sort)"
     installed_plugins="$(sed -n \
         's/^codex plugin add \([^@]*\)@motlin-claude-code-plugins$/\1/p' \

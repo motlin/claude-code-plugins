@@ -161,7 +161,7 @@ setup() {
 @test "terminal title plugins are available through Codex default hook discovery" {
   marketplace="$PROJECT_ROOT/.agents/plugins/marketplace.json"
 
-  for plugin in tmux-titles iterm2-titles ghostty-titles; do
+  for plugin in tmux-titles ghostty-titles; do
     [ "$(jq --raw-output --arg plugin "$plugin" \
       '.plugins[] | select(.name == $plugin) | .policy.installation' "$marketplace")" = "AVAILABLE" ]
     [ -f "$PROJECT_ROOT/plugins/$plugin/hooks/hooks.json" ]

@@ -9,8 +9,7 @@ the window that owns the agent pane. Renaming the window and reporting activity
 are independent: the name stays in `#W`, while the activity symbol changes as
 hooks run.
 
-Use [iterm2-titles](../iterm2-titles/README.md) or
-[ghostty-titles](../ghostty-titles/README.md) when the terminal application's
+Use [ghostty-titles](../ghostty-titles/README.md) when the terminal application's
 title bar is the desired destination.
 
 ## Requirements

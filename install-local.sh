@@ -9,7 +9,7 @@ MARKETPLACE_NAME="$(jq -er .name "$CLAUDE_MARKETPLACE_JSON")"
 
 # These rewrite the terminal title, which hides the spinner title herdr reads to
 # tell a working agent from an idle one. Kept in the marketplace, never installed.
-EXCLUDED_PLUGINS='["ghostty-titles", "iterm2-titles", "tmux-titles"]'
+EXCLUDED_PLUGINS='["ghostty-titles", "tmux-titles"]'
 
 function claude_plugin_names() {
     jq -r --argjson excluded "$EXCLUDED_PLUGINS" \

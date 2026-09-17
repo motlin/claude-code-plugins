@@ -26,7 +26,7 @@ setup() {
 @test "default terminal title hooks use only the shared Codex event subset" {
   expected="PostToolUse,PreCompact,PreToolUse,SessionStart,Stop,UserPromptSubmit,"
 
-  for plugin in tmux-titles iterm2-titles ghostty-titles; do
+  for plugin in tmux-titles ghostty-titles; do
     hooks=$(jq --raw-output '.hooks | keys[]' \
       "$PROJECT_ROOT/plugins/$plugin/hooks/hooks.json" | sort | tr '\n' ',')
     [ "$hooks" = "$expected" ]
@@ -34,7 +34,7 @@ setup() {
 }
 
 @test "Claude manifests load the richer terminal title hook configs" {
-  for plugin in tmux-titles iterm2-titles ghostty-titles; do
+  for plugin in tmux-titles ghostty-titles; do
     manifest="$PROJECT_ROOT/plugins/$plugin/.claude-plugin/plugin.json"
     [ "$(jq --raw-output '.hooks' "$manifest")" = "./hooks/claude-hooks.json" ]
     jq --exit-status '.hooks.Notification' \
@@ -50,15 +50,12 @@ setup() {
     "$PROJECT_ROOT/plugins/tmux-titles/hooks/hooks.json" \
     "$PROJECT_ROOT/plugins/tmux-titles/scripts/update-tmux-title.sh"
   check_hook_type_consistency \
-    "$PROJECT_ROOT/plugins/iterm2-titles/hooks/hooks.json" \
-    "$PROJECT_ROOT/plugins/iterm2-titles/scripts/update-title.sh"
-  check_hook_type_consistency \
     "$PROJECT_ROOT/plugins/ghostty-titles/hooks/hooks.json" \
     "$PROJECT_ROOT/plugins/ghostty-titles/scripts/update-title.sh"
 }
 
 @test "all terminal title hook commands point to existing scripts" {
-  for plugin in tmux-titles iterm2-titles ghostty-titles; do
+  for plugin in tmux-titles ghostty-titles; do
     for hooks_file in hooks.json claude-hooks.json; do
       while IFS= read -r command; do
         script_name="${command#*\/scripts\/}"
