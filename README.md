@@ -50,6 +50,7 @@ allows installation for that product; `—` means it does not.
 | -------------------------------------------------- | --------------------------------------------------------------- | ----------- | ----- |
 | [claude-code-plans](plugins/claude-code-plans/)    | Publish session lifecycle events to a claude-code-plans service | ✅          | ✅    |
 | [ghostty-titles](plugins/ghostty-titles/README.md) | Show agent activity in a Ghostty tab title                      | ✅          | ✅    |
+| [herdr-reboot](plugins/herdr-reboot/)              | Snapshot and restore agent sessions across herdr restarts       | ✅          | ✅    |
 | `herdr-titles`                                     | Report Claude sessions and sync custom titles to Herdr          | ✅          | —     |
 | [tmux-titles](plugins/tmux-titles/README.md)       | Show agent activity in the tmux window status                   | ✅          | ✅    |
 
