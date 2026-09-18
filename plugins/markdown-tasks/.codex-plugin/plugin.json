@@ -1,7 +1,7 @@
 {
 	"name": "markdown-tasks",
 	"version": "1.34.1",
-	"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+	"description": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 	"author": {
 		"name": "Craig Motlin"
 	},
@@ -11,8 +11,8 @@
 	"keywords": ["codex", "plugin", "markdown", "tasks"],
 	"interface": {
 		"displayName": "Markdown Tasks",
-		"shortDescription": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
-		"longDescription": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+		"shortDescription": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
+		"longDescription": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Skills"],

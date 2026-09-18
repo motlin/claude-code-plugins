@@ -68,8 +68,8 @@ Goal: every non-main, non-protected worktree removed, so its branch is free to r
   plain `git worktree list` — never a user shell alias like `git worktrees`, which won't exist
   elsewhere.
 - Remove them **one at a time**, from the main repo, delegating to the `git:clean-worktrees`
-  skill (which runs `git worktree remove --no-force <dir>` and lets git refuse unsafe removals):
-  `git -C <main> worktree remove --no-force <dir>`.
+  skill (which runs `git worktree remove <dir>` without `--force` and lets git refuse unsafe
+  removals). Write the flag explicitly here: `git -C <main> worktree remove --no-force <dir>`.
 - **Stop on the first failure — do not retry with `--force`.** A dirty worktree fails with
   `fatal: '<dir>' contains modified or untracked files, use --force to delete it` (exit 128).
   That's the safety net working. When it happens, look at what's there

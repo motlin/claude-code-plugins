@@ -44,9 +44,9 @@ Each task includes a description line followed by indented context:
 
 The indented lines provide all the context Claude needs to implement the task independently. This is crucial because tasks are extracted one at a time - Claude cannot see other tasks in the file when working on one.
 
-## Slash Commands
+## Workflows
 
-The plugin provides seven slash commands for different workflows:
+The plugin provides seven workflows, each invoked as `/markdown-tasks:<name>` and shortened below to `/<name>`. Only `add-one-task` is still a slash command; the rest are skills, so Codex loads them too.
 
 ### /add-one-task
 

@@ -8,15 +8,5 @@
 		"name": "Craig Motlin"
 	},
 	"agents": ["./agents/commit-handler.md", "./agents/rebaser.md", "./agents/conflict-resolver.md"],
-	"skills": ["./skills/git-workflow"],
-	"commands": [
-		"./commands/worktree.md",
-		"./commands/commit.md",
-		"./commands/commit-chunks.md",
-		"./commands/conflicts.md",
-		"./commands/rebase-all.md",
-		"./commands/clean-worktrees.md",
-		"./commands/split-branch.md",
-		"./commands/reword-commits.md"
-	]
+	"skills": ["./skills/git-workflow"]
 }

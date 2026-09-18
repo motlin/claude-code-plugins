@@ -4,17 +4,11 @@ Demo working software by showing real data crossing real IO boundaries — the r
 
 Capture is [Showboat](https://github.com/simonw/showboat), with [Rodney](https://github.com/simonw/rodney), [VHS](https://github.com/charmbracelet/vhs) and `chartroom` for the things a shell command cannot show. This plugin adds the parts those tools leave to you: choosing what to capture, pacing the walkthrough, and getting the finished demo onto the right screen.
 
-## Commands
-
-### `/demo`
-
-Plan the IO trace, capture each step with the right tool, deliver the steps one at a time, and hand over the finished demo.
-
 ## Skills
 
-### `demo`
+### `/demo:demo`
 
-Triggers on "demo this", "show me it working", "I need to see it", "prove it", and before opening a pull request. Covers what counts as a demo, which capture tool fits what you are showing, keeping the document verifiable, using real data, before-and-after evidence, pacing, annotating output, and stating what the demo does not prove.
+Invoke as `/demo:demo [what to demo]` to plan the IO trace, capture each step with the right tool, deliver the steps one at a time, and hand over the finished demo; with no target it demos the work done so far in the session. Claude also loads it itself on "demo this", "show me it working", "I need to see it", "prove it", and before opening a pull request. Covers what counts as a demo, which capture tool fits what you are showing, keeping the document verifiable, using real data, before-and-after evidence, pacing, annotating output, and stating what the demo does not prove.
 
 ## Scripts
 

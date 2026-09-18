@@ -9,7 +9,7 @@
 	"plugins": [
 		{
 			"name": "markdown-tasks",
-			"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+			"description": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 			"version": "1.34.1",
 			"author": {
 				"name": "Craig Motlin"

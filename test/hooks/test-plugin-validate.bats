@@ -196,3 +196,46 @@ local_marketplace_sources() {
     }
   done < <(find "$PROJECT_ROOT/plugins" -path '*/.claude-plugin/plugin.json' -type f -print)
 }
+
+# A command that also exists as a skill, under the same name or under a
+# prefixed name such as git-commit or markdown-do-one-task, shows up twice in
+# the slash menu and drifts as one copy is edited without the other. Workflows
+# live as skills so both Claude Code and Codex load one copy.
+@test "no command duplicates a skill" {
+  duplicates=""
+  while IFS= read -r command_file; do
+    plugin_root="${command_file%/commands/*}"
+    plugin="$(basename "$plugin_root")"
+    name="$(basename "$command_file" .md)"
+    for skill_dir in "$plugin_root"/skills/*/; do
+      skill="$(basename "$skill_dir")"
+      case "$skill" in
+        "$name" | *-"$name")
+          duplicates+="$plugin: commands/$name.md duplicates skills/$skill"$'\n'
+          ;;
+      esac
+    done
+  done < <(find "$PROJECT_ROOT/plugins" -path '*/commands/*.md' -type f -print)
+
+  [ -z "$duplicates" ] || {
+    printf '%s' "$duplicates"
+    false
+  }
+}
+
+# A bare skill name such as `commit` or `tasks` leaves the reader guessing which
+# plugin it lives in, and Codex namespaces skills by plugin. Instruction files
+# name skills as `plugin:skill` so the reference resolves the same everywhere.
+@test "skill references in instruction files are fully qualified" {
+  names="$(find "$PROJECT_ROOT/plugins" -path '*/skills/*/SKILL.md' -type f \
+    | awk -F/ '{print $(NF-1)}' | sort -u | paste -sd '|' -)"
+
+  bare="$(grep -rni 'skill' "$PROJECT_ROOT/plugins" --include='*.md' \
+    | grep -E "\`(${names})\`" || true)"
+
+  [ -z "$bare" ] || {
+    echo "bare skill references (use plugin:skill):"
+    echo "$bare"
+    false
+  }
+}

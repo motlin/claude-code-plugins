@@ -32,17 +32,21 @@ has an independent task file.
 
 ## Choose a Workflow
 
-Claude Code exposes slash invocations and Codex exposes corresponding skills:
+Each workflow is a skill that Claude Code and Codex both load. Claude Code invokes it as a slash
+command and Codex as a `$` skill under the same name:
 
 | Goal                           | Claude Code                              | Codex skill                              |
 | ------------------------------ | ---------------------------------------- | ---------------------------------------- |
 | Add one task                   | `/markdown-tasks:add-one-task`           | `$markdown-tasks:markdown-add-task`      |
-| Capture the current planning   | `/markdown-tasks:plan-tasks`             | `$markdown-tasks:markdown-plan-tasks`    |
-| Import a plan file             | `/markdown-tasks:import-plan <path>`     | `$markdown-tasks:markdown-import-plan`   |
-| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`            | `$markdown-tasks:markdown-sweep-todos`   |
-| Implement the next task        | `/markdown-tasks:do-one-task`            | `$markdown-tasks:markdown-do-one-task`   |
-| Process every incomplete task  | `/markdown-tasks:do-all-tasks`           | `$markdown-tasks:markdown-do-all-tasks`  |
+| Capture the current planning   | `/markdown-tasks:plan-tasks`             | `$markdown-tasks:plan-tasks`             |
+| Import a plan file             | `/markdown-tasks:import-plan <path>`     | `$markdown-tasks:import-plan`            |
+| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`            | `$markdown-tasks:sweep-todos`            |
+| Implement the next task        | `/markdown-tasks:do-one-task`            | `$markdown-tasks:do-one-task`            |
+| Process every incomplete task  | `/markdown-tasks:do-all-tasks`           | `$markdown-tasks:do-all-tasks`           |
 | Recover blocked tasks          | `/markdown-tasks:markdown-unblock-tasks` | `$markdown-tasks:markdown-unblock-tasks` |
+
+`add-one-task` is still a Claude Code command; its Codex counterpart is the
+`markdown-tasks:markdown-add-task` skill.
 
 The `markdown-tasks:tasks` skill supplies the low-level task format and script conventions used by
 the workflow skills. It is not normally the entry point for a queue operation.
@@ -82,36 +86,37 @@ The bundled scripts are the supported way for agents to change the task file:
 
 ## Populate the Queue
 
-`add-one-task` expands one description into a self-contained item. `plan-tasks` converts the
-requirements already discussed in the conversation into a batch and writes that batch in one
-operation.
+`add-one-task` expands one description into a self-contained item. `markdown-tasks:plan-tasks`
+converts the requirements already discussed in the conversation into a batch and writes that batch in
+one operation.
 
-`import-plan` takes a stored plan, places it under `.llm/plans/`, and creates tasks for its steps.
-The generated queue also contains a whole-plan verification task and a final task that archives the
-plan under `.llm/plans/done/`.
+`markdown-tasks:import-plan` takes a stored plan, places it under `.llm/plans/`, and creates tasks
+for its steps. The generated queue also contains a whole-plan verification task and a final task
+that archives the plan under `.llm/plans/done/`.
 
-`sweep-todos` searches for `TODO` comments and adds their paths, line numbers, and text to the
-queue. It captures work; it does not remove comments or implement them.
+`markdown-tasks:sweep-todos` searches for `TODO` comments and adds their paths, line numbers, and
+text to the queue. It captures work; it does not remove comments or implement them.
 
 ## Execute the Queue
 
-`do-one-task` extracts one `[ ]` item, implements only that item, runs task-specific validation,
-and invokes the finish pipeline. The task is marked `[x]` only after its commit and validation
-succeed.
+`markdown-tasks:do-one-task` extracts one `[ ]` item, implements only that item, runs task-specific
+validation, and invokes the finish pipeline. The task is marked `[x]` only after its commit and
+validation succeed.
 
-`do-all-tasks` is a sequential coordinator. It starts one fresh worker per task, requires one clean
-task commit, and checks `HEAD` before extracting the next item. A failed worker leaves no commit;
-the coordinator marks that task `[!]` with the reason it failed and continues. Ambiguous task state
-or an unverified commit stops the run instead of stacking more work.
+`markdown-tasks:do-all-tasks` is a sequential coordinator. It starts one fresh worker per task,
+requires one clean task commit, and checks `HEAD` before extracting the next item. A failed worker
+leaves no commit; the coordinator marks that task `[!]` with the reason it failed and continues.
+Ambiguous task state or an unverified commit stops the run instead of stacking more work.
 
 The reason is stored inside the task body rather than in a side file, so it travels with the task
 through archiving and recovery. Without it a recovered task returns with no record of the earlier
 attempt and the next worker repeats the same failing approach.
 
 When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. Archived `[!]`
-items are otherwise invisible, so `markdown-unblock-tasks` moves them out of every dated file and
-back into `.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. It surveys with `--dry-run`
-and confirms the report before touching anything, since recovery rewrites the archives it reads.
+items are otherwise invisible, so `markdown-tasks:markdown-unblock-tasks` moves them out of every
+dated file and back into `.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. It surveys
+with `--dry-run` and confirms the report before touching anything, since recovery rewrites the
+archives it reads.
 
 Recovery is a move rather than a copy, so a task leaves the archive it came from and repeated runs
 cannot duplicate it. The earlier `Blocked` line survives alongside the new `Recovered` line, so the

@@ -19,20 +19,20 @@ setup() {
 
 @test "markdown task execution skills use task_mark.py" {
   run rg "task_complete[.]py" \
-    "$SKILLS_DIR/markdown-do-one-task/SKILL.md" \
-    "$SKILLS_DIR/markdown-do-all-tasks/SKILL.md"
+    "$SKILLS_DIR/do-one-task/SKILL.md" \
+    "$SKILLS_DIR/do-all-tasks/SKILL.md"
 
   [ "$status" -eq 1 ]
 
   run rg "task_mark[.]py" \
-    "$SKILLS_DIR/markdown-do-one-task/SKILL.md" \
-    "$SKILLS_DIR/markdown-do-all-tasks/SKILL.md"
+    "$SKILLS_DIR/do-one-task/SKILL.md" \
+    "$SKILLS_DIR/do-all-tasks/SKILL.md"
 
   [ "$status" -eq 0 ]
 }
 
-@test "markdown-do-all-tasks reports blocked tasks before the loop starts" {
-  SKILL="$SKILLS_DIR/markdown-do-all-tasks/SKILL.md"
+@test "do-all-tasks reports blocked tasks before the loop starts" {
+  SKILL="$SKILLS_DIR/do-all-tasks/SKILL.md"
 
   run rg --line-number "task_unblock[.]py .* --dry-run" "$SKILL"
   [ "$status" -eq 0 ]
@@ -46,7 +46,7 @@ setup() {
 }
 
 @test "multi-task producer skills require chained writes" {
-  for skill in markdown-plan-tasks markdown-import-plan markdown-sweep-todos; do
+  for skill in plan-tasks import-plan sweep-todos; do
     run rg "one shell command" "$SKILLS_DIR/$skill/SKILL.md"
     [ "$status" -eq 0 ]
 
@@ -55,11 +55,20 @@ setup() {
   done
 }
 
-@test "every markdown task command has a matching skill" {
+@test "converted workflows exist only as short-name skills" {
+  for name in do-all-tasks do-one-task import-plan plan-tasks sweep-todos; do
+    test ! -e "$PROJECT_ROOT/plugins/markdown-tasks/commands/${name}.md"
+    test ! -e "$SKILLS_DIR/markdown-${name}"
+    test -f "$SKILLS_DIR/${name}/SKILL.md"
+    run rg "^name: ${name}$" "$SKILLS_DIR/${name}/SKILL.md"
+    [ "$status" -eq 0 ]
+  done
+}
+
+@test "every remaining markdown task command has a matching skill" {
   for command in "$PROJECT_ROOT/plugins/markdown-tasks/commands"/*.md; do
     name="$(basename "$command" .md)"
-    test -f "$SKILLS_DIR/markdown-${name}/SKILL.md" ||
-      test -f "$SKILLS_DIR/markdown-${name/-one-/-}/SKILL.md"
+    test -f "$SKILLS_DIR/markdown-${name/-one-/-}/SKILL.md"
   done
 }
 

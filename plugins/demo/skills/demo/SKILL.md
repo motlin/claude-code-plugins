@@ -9,6 +9,9 @@ A demo answers one question: does the system really do this? Code is not the ans
 and neither is a summary of the code. The answer is data — a real request, a real row,
 a real file, a real command and what it printed.
 
+Demo what the user asked to see: a feature, a fix, a command, a page. When no target is
+named, demo the work done so far in this session.
+
 ## What counts as a demo
 
 Show the data crossing the boundaries of the system, in the order it crosses them.
@@ -198,14 +201,20 @@ Render the document to a page first, since Showboat writes markdown:
 <plugin-root>/scripts/demo-render.py demo.md -o demo.html
 ```
 
-Then deliver by whichever of these the environment offers, best first:
+Then deliver by whichever of these the environment offers, best first, and send the file
+as well whichever one you use:
 
 - **A Claude Artifact**, when the Artifact tool is available. It reaches any device with no VPN and no network of the user's involved. Render with `--fragment`, since the artifact host supplies its own document skeleton.
-- **A URL on the tailnet**, with `<plugin-root>/scripts/demo-publish demo-dir/`. It copies the document, its images and the rendered page into the publish root and prints the URL. `DEMO_PUBLISH_DIR` sets where published demos live (default `${XDG_DATA_HOME:-$HOME/.local/share}/demos`) and `DEMO_PUBLISH_URL` the base URL that root is served at. Serve that root however the machine already serves things to the tailnet, and reuse the existing gateway rather than standing up something new. With `DEMO_PUBLISH_URL` unset it still publishes and says plainly that there is no URL.
+- **A URL on the tailnet**, otherwise, with `<plugin-root>/scripts/demo-publish demo-dir/`. It copies the document, its images and the rendered page into the publish root and prints the URL. `DEMO_PUBLISH_DIR` sets where published demos live (default `${XDG_DATA_HOME:-$HOME/.local/share}/demos`) and `DEMO_PUBLISH_URL` the base URL that root is served at. Serve that root however the machine already serves things to the tailnet, and reuse the existing gateway rather than standing up something new. With `DEMO_PUBLISH_URL` unset it still publishes and says plainly that there is no URL.
 - **The file itself**, sent to the user directly. A URL needs them on the tailnet; a delivered file does not.
 - **`open`**, but only when the presence check says they are here.
 
 Never end a demo with only a local `open` and a path on this machine.
+
+## Finish with verification
+
+Always finish by running `uvx showboat verify demo.md` and reporting the result honestly,
+including which blocks drift and why when it does not pass.
 
 ## Keep proof that outlives the session
 

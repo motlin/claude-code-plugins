@@ -28,7 +28,7 @@ Run `git test run HEAD --retest --verbose --verbose` to validate code:
 
 - Use a timeout of at least 10 minutes
 - This command runs the test configured via `git test add` (typically autoformatting, builds, tests, and other quality checks)
-- Before invoking `git test run`, commit unstaged, staged, or uncommitted changes with the `git-commit` skill. Do not wait for `git test run` to refuse the dirty tree.
+- Before invoking `git test run`, commit unstaged, staged, or uncommitted changes with the `git:commit` skill. Do not wait for `git test run` to refuse the dirty tree.
 - Do not substitute `just precommit` or another direct build command. Run `git test run HEAD --retest --verbose --verbose` on the committed tree so the result is cached against the commit.
 - Prefer an eager validation commit over avoiding `git test run`. The caller can reset, squash, or fix up the commit later, but skipping `git test run` loses the cache benefit this workflow depends on.
 - Check the active sandbox and approval policy before requesting escalation. Run `git test run` with permitted execution first; it refreshes the index and writes `.git/index.lock` before the configured command starts. If it succeeds without escalation, use that committed-tree result.
@@ -36,7 +36,7 @@ Run `git test run HEAD --retest --verbose --verbose` to validate code:
 
 ## 📋 Handle Missing Configuration
 
-If `git test` is not configured for this repository, clearly explain the situation and suggest using the `build-test-setup` skill to configure it.
+If `git test` is not configured for this repository, clearly explain the situation and suggest using the `build:test-setup` skill to configure it.
 
 ## ❌ Handle Check Failures
 
@@ -61,6 +61,6 @@ Your final message MUST start with one of:
 
 | Task                    | Use                       |
 | ----------------------- | ------------------------- |
-| Run precommit and fix   | `build-fix` skill         |
-| Test all branch commits | `build-test-branch` skill |
-| Test and autosquash     | `build-test-all` skill    |
+| Run precommit and fix   | `build:fix` skill         |
+| Test all branch commits | `build:test-branch` skill |
+| Test and autosquash     | `build:test-all` skill    |

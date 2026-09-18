@@ -2,7 +2,7 @@
 description: Scan code generator files for string concatenation blocks missing @formatter:off guards or broken by auto-formatting. Fix violations using the code-generation skill.
 ---
 
-Use the `code-generation` skill to understand the formatting conventions.
+Use the `code:code-generation` skill to understand the formatting conventions.
 
 Scan all Java code generator files for string concatenation blocks containing `\n` that are missing `// @formatter:off` / `// @formatter:on` guards.
 

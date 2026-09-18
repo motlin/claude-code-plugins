@@ -5,9 +5,9 @@ description: Recover blocked [!] tasks from archived task lists back into .llm/t
 
 # Markdown Unblock Tasks
 
-Use the `markdown-tasks` skill for script path rules and task semantics.
+Use the `markdown-tasks:tasks` skill for script path rules and task semantics.
 
-Blocked `[!]` tasks are invisible to `task_get.py`, so `do-one-task` and `do-all-tasks` skip them forever. Archiving carries them into a fresh `.llm/todo.md` still marked `[!]`, and earlier archives keep the ones that were already there. Recovery is the only way back, and it is always the user's decision.
+Blocked `[!]` tasks are invisible to `task_get.py`, so `markdown-tasks:do-one-task` and `markdown-tasks:do-all-tasks` skip them forever. Archiving carries them into a fresh `.llm/todo.md` still marked `[!]`, and earlier archives keep the ones that were already there. Recovery is the only way back, and it is always the user's decision.
 
 ## Survey First
 
@@ -35,4 +35,4 @@ Each `[!]` task moves into `.llm/todo.md` with its indented context as an open `
 
 Recovery is a move, not a copy. The task leaves the archive it came from, so re-running the script cannot duplicate it. Emptied archive files stay on disk.
 
-Report the recovered count and the files it drew from. Offer to run `do-one-task` or `do-all-tasks` next.
+Report the recovered count and the files it drew from. Offer to run `markdown-tasks:do-one-task` or `markdown-tasks:do-all-tasks` next.

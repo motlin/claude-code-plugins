@@ -5,7 +5,7 @@ description: Debug and fix failing GitHub Actions checks for the current commit.
 
 # GitHub Actions Fix
 
-Use the `code:cli`, `git-workflow`, and `git-commit` skills when available.
+Use the `code:cli`, `git:git-workflow`, and `git:commit` skills when available.
 
 ## Fetch Latest Refs
 

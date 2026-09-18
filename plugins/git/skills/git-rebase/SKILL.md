@@ -27,5 +27,5 @@ Do not add arguments or environment overrides. Do not use raw `git rebase`, `git
 ## Handle Outcomes
 
 - Success: report success.
-- Merge conflicts: use the `git-conflicts` skill.
+- Merge conflicts: use the `git:conflicts` skill.
 - Other errors: report the specific error and stop.

@@ -5,7 +5,7 @@ description: Create a GitHub pull request the user's preferred way. Use whenever
 
 # Create Pull Request
 
-Use the `code:cli`, `git-workflow`, and `git-commit` skills when available. Only create a PR when the user has explicitly asked for one.
+Use the `code:cli`, `git:git-workflow`, and `git:commit` skills when available. Only create a PR when the user has explicitly asked for one.
 
 ## Confirm the branch is on top of upstream main
 

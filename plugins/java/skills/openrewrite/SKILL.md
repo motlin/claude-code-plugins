@@ -219,4 +219,4 @@ Ensure comprehensive coverage including:
 
 ## Maven POM Dependency Ordering
 
-Maven POM files should follow a consistent dependency ordering structure. See the `pom-ordering` skill for detailed guidelines.
+Maven POM files should follow a consistent dependency ordering structure. See the `java:pom-ordering` skill for detailed guidelines.

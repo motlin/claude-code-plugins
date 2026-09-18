@@ -1,7 +1,13 @@
 ---
 name: pom-ordering
-description: Enforce Maven POM dependency ordering rules. This skill should be used when editing pom.xml files.
+description: Enforce Maven POM dependency ordering rules, and check pom.xml files against them. Use when editing pom.xml files or when asked to check Maven POM dependency ordering.
 ---
+
+# Maven POM Dependency Ordering
+
+## Running the check
+
+When asked to check POM ordering, check the Maven `pom.xml` files in the project that have local modifications (`git status --porcelain -- '*pom.xml'`). If none have local modifications, check them all. Report every violation of the rules below, naming the file and the dependency that is out of place.
 
 ## Ordering Rules
 

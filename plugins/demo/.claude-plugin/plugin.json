@@ -7,6 +7,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"commands": ["./commands/demo.md"],
 	"skills": ["./skills/demo"]
 }

@@ -9,7 +9,7 @@ This skill provides guidelines for git operations including commits, conflict re
 
 ## Commit Guidelines
 
-Use the `git-commit` skill for commit operations. In Claude Code this may delegate to the `git:commit-handler` agent; in Codex, follow the `git-commit` skill directly unless the user explicitly asks for a subagent workflow.
+Use the `git:commit` skill for commit operations. In Claude Code this may delegate to the `git:commit-handler` agent; in Codex, follow the `git:commit` skill directly unless the user explicitly asks for a subagent workflow.
 
 ### Commit Message Format
 
@@ -24,11 +24,11 @@ A task description or prompt is **intent, not the message**. When the prompt is 
 
 ## Conflict Resolution
 
-Use the `git-conflicts` skill to resolve git merge or rebase conflicts. In Codex, spawn a subagent only when the user explicitly asks for subagents or parallel agent work.
+Use the `git:conflicts` skill to resolve git merge or rebase conflicts. In Codex, spawn a subagent only when the user explicitly asks for subagents or parallel agent work.
 
 ## Rebasing
 
-Use the `git-rebase` skill to rebase the current branch on upstream.
+Use the `git:git-rebase` skill to rebase the current branch on upstream.
 
 ## Prefer Modern Git Commands
 

@@ -1,11 +1,13 @@
 ---
 name: test-assertions
-description: Write test assertions as complete, strict deep-equality checks, and hold existing tests to the same standard. Use when writing new tests, adding assertions, reviewing test quality, strengthening weak tests, or replacing fragmented assertions in a file, directory, diff, or repository.
+description: Write test assertions as complete, strict deep-equality checks, and rewrite existing tests to the same standard. Use when writing new tests, adding assertions, reviewing test quality, strengthening weak tests, or replacing fragmented assertions in a file, directory, diff, or repository.
 ---
 
 # Strict Test Assertions
 
 Write each assertion to capture a value's complete structure in one strict deep-equality check. Reach for one full-value assertion first rather than a cluster of narrow checks you consolidate later. Hold existing tests to the same standard when reviewing or strengthening them.
+
+When rewriting existing tests, this is a full rewrite, not incremental tweaking. Rethink each test holistically. Collapse multiple weak assertions about the same value into a single strict equality check against the complete expected value.
 
 ## Select the scope
 
@@ -13,51 +15,154 @@ Write each assertion to capture a value's complete structure in one strict deep-
 - Otherwise, use test files in staged and unstaged changes when the working tree contains changes.
 - Otherwise, use all test files in the repository.
 
-Do not change snapshots unless the user explicitly includes them.
+Do not change snapshot assertions (`toMatchSnapshot`) unless the user explicitly includes them.
 
 ## Prefer the strongest assertion
 
 Use the strictest deep-equality matcher the framework offers for objects, arrays, sets, maps, class instances, and other structured values (in Jest, `toStrictEqual`). Replace looser equality, partial matchers, property checks, containment checks, length checks, and existence guards when one complete assertion can express the expected value.
 
-Use exact-equality for primitives (in Jest, `toBe`). Tighten calls and exceptions to their exact observable contract: the exact arguments, error type, and message.
+Ranked from worst to best, in Jest and Chai terms; only the last is good enough for structured values:
 
-Assert native collection types directly rather than converting them to arrays.
+- `toBeTruthy`, `toBeDefined`, `not.toBeNull`: barely checks anything
+- `toHaveProperty('key')`: only checks existence, not value
+- `toContain`, `toMatch`: substring/regex match hides the full value
+- `toHaveLength(n)`: only checks count, not contents
+- `toMatchObject`, `objectContaining`, `arrayContaining`: allows extra properties to sneak in
+- `toEqual`, `to.deep.equal`: close, but ignores class mismatches and undefined vs missing
+- **`toStrictEqual`**: the only acceptable assertion for objects and arrays
+
+`toEqual` and `to.deep.equal` are not strict enough: a class instance passes as equal to a plain object with the same shape, and missing properties pass as equal to `undefined` properties. Always use `toStrictEqual` instead, including when migrating existing `toEqual` or `to.deep.equal` assertions.
+
+Use exact-equality for primitives (in Jest, `toBe` is fine for strings, numbers, booleans, null). Tighten calls and exceptions to their exact observable contract: the exact arguments, error type, and message.
+
+- `toThrow()` or `toThrow(/partial/)` → `toThrow(new SpecificError("exact message"))`
+- `toHaveBeenCalled()` → `toHaveBeenCalledWith("exact", "args")`
 
 ## Discover expected values from the test
 
-Do not infer an expected value from implementation code. When writing a new assertion or replacing a weak one, start with a deliberately incomplete strict assertion, run the narrowest relevant test, and use the failure output to capture the actual value. Then review that value as the intended contract and rerun the test.
+Do not infer an expected value from implementation code. When writing a new assertion or replacing a weak one, start with a deliberately incomplete strict assertion, run the narrowest relevant test, and use the failure output to capture the actual value. Then review that value as the intended contract and rerun the test to confirm it passes.
 
 ```ts
+// Before: three assertions that barely check anything
+const result = await Children.run(['--json', '--projects-dir', '/tmp/fake-projects']);
+expect(result).toHaveProperty('projects');
+expect(result).toHaveProperty('summary');
+expect(result.summary.total).toBe(2);
+
+// First: replace with a placeholder; do NOT guess the expected value
 expect(result).toStrictEqual({});
+
+// Then: run the test, read the actual value from the error output, paste it in
+expect(result).toStrictEqual({
+	projects: [
+		{name: 'project-a', path: '/tmp/fake-projects/project-a'},
+		{name: 'project-b', path: '/tmp/fake-projects/project-b'},
+	],
+	summary: {total: 2, active: 2},
+});
 ```
 
 If the observed value reveals a bug or an unclear contract, stop and ask the user instead of blessing it as expected behavior.
 
 ## Assert the whole value at once
 
-Write one structural assertion instead of several narrow ones; collapse fragmented assertions in existing tests the same way:
+Write one structural assertion instead of several narrow ones; collapse fragmented assertions in existing tests the same way. Even when each assertion is already strict, splitting them across properties loses the structural picture and makes failures harder to diagnose:
 
 ```ts
+// Before: correct but fragmented; each line is fine on its own
+const result = processOrder(input);
+expect(result.id).toBe('order-42');
+expect(result.status).toBe('confirmed');
+expect(result.total).toBe(119.99);
+expect(result.currency).toBe('USD');
+expect(result.items).toStrictEqual([
+	{sku: 'A1', qty: 2},
+	{sku: 'B3', qty: 1},
+]);
+expect(result.shipping.method).toBe('express');
+expect(result.shipping.estimatedDays).toBe(3);
+expect(result.tags).toStrictEqual([]);
+
+// After: one assertion captures the complete value
 expect(result).toStrictEqual({
-	id: 'order-100',
+	id: 'order-42',
 	status: 'confirmed',
+	total: 119.99,
+	currency: 'USD',
 	items: [
-		{sku: 'A-100', quantity: 2},
-		{sku: 'B-100', quantity: 1},
+		{sku: 'A1', qty: 2},
+		{sku: 'B3', qty: 1},
 	],
 	shipping: {method: 'express', estimatedDays: 3},
+	tags: [],
 });
 ```
 
-Do not retain redundant length, existence, or property assertions before a complete value assertion.
+Apply the same pattern for every assertion type in the ranking.
+
+### Redundant guards
+
+Never assert length, size, or existence right before asserting the full value; the content assertion already implies it:
+
+```ts
+// BAD: toHaveLength is redundant
+expect(result).toHaveLength(2);
+expect(result[0].name).toBe('a');
+expect(result[1].name).toBe('b');
+
+// GOOD: one assertion covers length AND contents
+expect(result.map((r) => r.name)).toStrictEqual(['a', 'b']);
+```
+
+Same for `toBeDefined()` / `not.toBeNull()` before property access: if the value were nullish, the next line would throw anyway.
+
+### Native collection types
+
+Assert Sets and Maps directly rather than converting them to arrays:
+
+```ts
+// BAD: pointless conversion
+expect([...result]).toStrictEqual(['a', 'b']);
+
+// GOOD: assert the actual type
+expect(result).toStrictEqual(new Set(['a', 'b']));
+```
 
 ## Control dynamic properties
 
-Prefer deterministic test data: freeze time, inject identifiers, and use fixed test paths. When a value genuinely comes from outside the test's control, assert that property separately, remove it from the value, and strictly assert everything remaining.
+Some properties are non-deterministic (timestamps, temp paths, UUIDs). Prefer deterministic test data: freeze time, inject identifiers, and use fixed test paths. When a value genuinely comes from outside the test's control, never fall back to weak assertions. Instead, assert the dynamic properties individually, strip them, and assert strict equality on the rest:
 
-Do not turn type checks into booleans inside assertion objects; that hides the actual value in failures. For deterministic dates, assert the exact value, such as `new Date("2000-01-01T00:00:00.000Z")`.
+```ts
+const result = await createReport();
 
-Extract expected values longer than about 50 lines into a clearly named constant or fixture.
+// Assert dynamic properties individually
+expect(result.createdAt).toBeInstanceOf(Date);
+expect(result.tempDir).toMatch(/^\/tmp\//);
+
+// Strip them, then assert everything else strictly
+const {createdAt, tempDir, ...rest} = result;
+expect(rest).toStrictEqual({
+	title: 'Q1 Report',
+	status: 'complete',
+	items: [{id: 1, name: 'revenue'}],
+});
+```
+
+Only strip when the dynamic value comes from outside the test's control. If it IS deterministic (fixed test data), compute and assert the exact expected value.
+
+**Never use `instanceof` or type checks inside assertion objects.** This destroys diagnostic value: a failure shows `false !== true` instead of the actual value.
+
+```ts
+// BAD: hides the actual value
+expect({createdAt: result.createdAt instanceof Date}).toStrictEqual({
+	createdAt: true,
+});
+
+// GOOD: shows the actual value on failure
+expect(result.createdAt).toStrictEqual(new Date(1_704_067_200 * 1000));
+```
+
+When the full expected value would be enormous (more than about 50 lines), extract it into a clearly named `const` at the top of the test or a fixture file.
 
 ## Verify
 

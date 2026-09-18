@@ -19,7 +19,6 @@
 		"./commands/comments.md",
 		"./commands/all-comments.md",
 		"./commands/emoji.md",
-		"./commands/formatter-off.md",
-		"./commands/test-assertions.md"
+		"./commands/formatter-off.md"
 	]
 }

@@ -1,20 +1,13 @@
 {
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "markdown-tasks",
-	"description": "Task management system using markdown checkboxes in .llm/todo.md with slash commands for planning, implementing, and tracking tasks across git worktrees",
+	"description": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 	"version": "1.34.1",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"commands": [
-		"./commands/plan-tasks.md",
-		"./commands/import-plan.md",
-		"./commands/do-one-task.md",
-		"./commands/add-one-task.md",
-		"./commands/do-all-tasks.md",
-		"./commands/sweep-todos.md"
-	],
+	"commands": ["./commands/add-one-task.md"],
 	"agents": ["./agents/do-task.md"],
 	"skills": ["./skills/tasks"]
 }

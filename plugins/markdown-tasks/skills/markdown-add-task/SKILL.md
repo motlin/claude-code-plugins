@@ -5,7 +5,7 @@ description: Add a self-contained task to .llm/todo.md. Use when the user asks t
 
 # Markdown Add Task
 
-Use the `markdown-tasks` skill for task format and script path rules.
+Use the `markdown-tasks:tasks` skill for task format and script path rules.
 
 If the user did not provide a task description, ask for one.
 
