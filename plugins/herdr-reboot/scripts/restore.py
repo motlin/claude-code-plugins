@@ -12,19 +12,26 @@ tabs, or splits to rebuild, so it is rejected rather than half-restored.
 `herdr pane run` types into whatever the pane currently holds — there is no idle-shell guard in
 herdr itself. Firing into a pane that already held a resumed claude submits the text as a PROMPT
 to that agent and pollutes a real conversation. So every pane is fired only into one confirmed to
-be sitting at an idle shell with no live agent, which also makes re-running this script safe. For
-the same reason a live workspace matching a captured one is adopted rather than duplicated, but
-each of its tabs is still created fresh, so a live agent pane is never reused.
+be sitting at an idle shell with no live agent, which also makes re-running this script safe.
 
-`command` panes (dev servers and watchers like `just dev`) are NOT fired unless --commands is
-passed: those processes often survive the reboot that killed the agents, and re-running them just
-produces EADDRINUSE against the server still holding the port. Their pane is still created.
+herdr can bring a session back by itself, agents included, leaving only the command panes
+idle. So a live workspace matching a captured one is adopted, and each captured tab is paired with
+the live tab of the same label and layout: its idle panes are fired into in place, and a pane
+already running its agent is reported as such. Only a captured tab with no live counterpart is
+created fresh.
+
+`command` panes (dev servers like `just dev`, viewers like `git la`) are fired by default, since
+bringing them back is most of what a restore is for. --no-commands leaves the dev servers alone,
+for when one outlived the reboot and still holds its port.
 
 Usage:
-    restore.py [state_file] [--go] [--limit N] [--skip SLOT[,SLOT...]] [--commands]
+    restore.py [state_file] [--go] [--limit N] [--skip SLOT[,SLOT...]] [--no-commands]
 Defaults state_file to .llm/resume-after-reboot-state.json and to dry-run.
 """
 import argparse, json, os, shlex, subprocess, sys, time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from snapshot import layout_tree  # noqa: E402
 
 HOME = os.path.expanduser("~")
 SCHEMA = "resume-after-reboot/v2"
@@ -98,7 +105,7 @@ def leader_process(info):
 
 
 def live_state():
-    """((label, cwd) -> workspace_id for live workspaces, pane_id -> live agent)."""
+    """((label, cwd) -> workspace_id, pane_id -> live agent, workspace_id -> its live tabs)."""
     result = herdr_json(["api", "snapshot"])
     if not result or "snapshot" not in result:
         sys.exit("herdr api snapshot returned no state; is the herdr server running?")
@@ -112,7 +119,54 @@ def live_state():
     for ws in sorted(snap.get("workspaces", []), key=lambda w: w.get("number", 0)):
         workspaces[(ws.get("label"), cwds.get(ws["workspace_id"]))] = ws["workspace_id"]
     agents = {p.get("pane_id"): p.get("agent") for p in panes if p.get("agent")}
-    return workspaces, agents
+    return workspaces, agents, live_tabs(snap)
+
+
+def live_tabs(snap):
+    """workspace_id -> [{tab_id, label, panes in layout order, shape}], in tab order."""
+    layouts = {layout["tab_id"]: layout for layout in snap.get("layouts", [])}
+    tabs = {}
+    for tab in sorted(snap.get("tabs", []), key=lambda t: t.get("number", 0)):
+        layout = layouts.get(tab["tab_id"])
+        if layout and layout.get("panes"):
+            tree = layout_tree(layout, lambda pane_id: {"type": "pane", "pane_id": pane_id})
+        else:
+            first = next((p["pane_id"] for p in snap.get("panes", [])
+                          if p.get("tab_id") == tab["tab_id"]), None)
+            tree = {"type": "pane", "pane_id": first}
+        tabs.setdefault(tab["workspace_id"], []).append(
+            {"tab_id": tab["tab_id"], "label": tab.get("label"),
+             "panes": [leaf["pane_id"] for leaf in leaves(tree)], "shape": shape(tree)})
+    return tabs
+
+
+def shape(node):
+    """A layout's split structure, ignoring ratios and panes, to tell two layouts apart."""
+    if node["type"] == "pane":
+        return "pane"
+    return (node["direction"], shape(node["children"][0]), shape(node["children"][1]))
+
+
+def pair_tabs(tabs, live):
+    """captured tab_id -> (live tab_id, captured pane_id -> live pane_id).
+
+    Each live tab answers for at most one captured tab: the first, in order, with its label and
+    the same split structure. A captured tab left unpaired is created fresh.
+    """
+    paired, used = {}, set()
+    for tab in tabs:
+        captured = leaves(tab["layout"])
+        for candidate in live:
+            if candidate["tab_id"] in used or candidate["label"] != tab["label"]:
+                continue
+            if candidate["shape"] != shape(tab["layout"]):
+                continue
+            used.add(candidate["tab_id"])
+            paired[tab["tab_id"]] = (candidate["tab_id"],
+                                     {leaf["pane_id"]: pane
+                                      for leaf, pane in zip(captured, candidate["panes"])})
+            break
+    return paired
 
 
 def leaves(node):
@@ -151,10 +205,15 @@ def fires_by_default(leaf):
     return bool(leaf.get("restore_default"))
 
 
-def will_fire(leaf, commands):
+def will_fire(leaf, no_commands):
     if leaf["tool"] in AGENT_TOOLS:
         return True
-    return leaf["tool"] == "command" and (commands or fires_by_default(leaf))
+    return leaf["tool"] == "command" and (not no_commands or fires_by_default(leaf))
+
+
+def already_running(leaf, pane, agents):
+    """True when an agent pane's live counterpart already holds a live agent."""
+    return leaf["tool"] in AGENT_TOOLS and bool(agents.get(pane))
 
 
 def block_reason(pane_id, agents):
@@ -210,11 +269,13 @@ def describe(leaf):
 class Restorer:
     """Rebuilds the captured tree, reporting each pane as it goes."""
 
-    def __init__(self, args, agents):
+    def __init__(self, args, agents, paired):
         self.args = args
         self.agents = agents
+        self.paired = paired
         self.fired = 0
         self.skipped = 0
+        self.running = 0
         # The pane now holding the tab's captured focused pane, once the walk reaches it.
         self.focused = None
 
@@ -245,8 +306,12 @@ class Restorer:
         if leaf["pane_id"] == tab.get("focused_pane_id"):
             self.focused = pane
         target = describe(leaf)
-        if leaf["tool"] == "command" and not will_fire(leaf, self.args.commands):
-            self.report(depth, f"SKIP  {target} -- command pane; pass --commands to re-run it")
+        if already_running(leaf, pane, self.agents):
+            self.report(depth, f"LIVE  {target} -- pane {pane} already runs {self.agents[pane]}")
+            self.running += 1
+            return
+        if leaf["tool"] == "command" and not will_fire(leaf, self.args.no_commands):
+            self.report(depth, f"SKIP  {target} -- command pane left alone by --no-commands")
             return
         if not self.args.go:
             self.report(depth, target)
@@ -271,8 +336,14 @@ class Restorer:
     def build_tab(self, tab, workspace_id, root):
         """(tab id, pane holding the tab's focused pane) — root is the workspace's own tab."""
         cwd = expand(leaves(tab["layout"])[0]["cwd"])
-        self.report(2, f'tab "{tab["label"]}"')
         self.focused = None
+        if tab["tab_id"] in self.paired:
+            live_tab, panes = self.paired[tab["tab_id"]]
+            self.report(2, f'tab "{tab["label"]}"  (live {live_tab})')
+            for leaf in leaves(tab["layout"]):
+                self.serve(leaf, panes[leaf["pane_id"]], tab, 3)
+            return live_tab
+        self.report(2, f'tab "{tab["label"]}"')
         tab_id, pane = root or (None, None)
         if self.args.go:
             if root:
@@ -308,7 +379,6 @@ class Restorer:
 
         active = None
         for tab in tabs:
-            # An adopted workspace gets every tab created fresh: its live panes may hold agents.
             built = self.build_tab(tab, workspace_id, root)
             root = None
             if built and tab["tab_id"] == workspace.get("active_tab_id"):
@@ -336,8 +406,8 @@ def main():
     parser.add_argument("--go", action="store_true", help="create and fire, instead of previewing")
     parser.add_argument("--limit", type=int, help="restore only the first N workspaces")
     parser.add_argument("--skip", default="", help="comma-separated slots to leave out entirely")
-    parser.add_argument("--commands", action="store_true",
-                        help="also re-run `command` panes, which are skipped by default")
+    parser.add_argument("--no-commands", action="store_true",
+                        help="leave dev-server `command` panes alone; viewers still re-run")
     parser.add_argument("--delay", type=float, default=0.4,
                         help="seconds between agent launches (default: 0.4)")
     args = parser.parse_args()
@@ -345,25 +415,37 @@ def main():
     skip = {int(s) for s in args.skip.split(",") if s.strip()}
     state = load_state(args.state)
     workspaces = select(state, args.limit, skip)
-    live, agents = live_state()
+    live, agents, tabs_live = live_state()
 
-    tabs = [tab for workspace in workspaces for tab in workspace["tabs"]]
-    panes = [leaf for tab in tabs for leaf in leaves(tab["layout"])]
-    firing = [leaf for leaf in panes if will_fire(leaf, args.commands)]
-    mode = "FIRING" if args.go else "DRY-RUN (pass --go to fire)"
-    print(f"{mode}: {len(workspaces)} workspaces, {len(tabs)} tabs, "
-          f"{len(firing)} panes to fire, {len(panes) - len(firing)} not fired\n")
-
-    restorer = Restorer(args, agents)
-    restored = {}
+    adopted, paired = {}, {}
     for workspace in workspaces:
         cwd = expand(leaves(workspace["tabs"][0]["layout"])[0]["cwd"])
-        adopted = live.get((workspace["label"], cwd))
-        restored[workspace["workspace_id"]] = restorer.build_workspace(workspace, adopted)
+        workspace_id = live.get((workspace["label"], cwd))
+        adopted[workspace["workspace_id"]] = workspace_id
+        if workspace_id:
+            paired.update(pair_tabs(workspace["tabs"], tabs_live.get(workspace_id, [])))
+
+    tabs = [tab for workspace in workspaces for tab in workspace["tabs"]]
+    targets = [(leaf, paired.get(tab["tab_id"], (None, {}))[1].get(leaf["pane_id"]))
+               for tab in tabs for leaf in leaves(tab["layout"])]
+    running = [leaf for leaf, pane in targets if already_running(leaf, pane, agents)]
+    firing = [leaf for leaf, pane in targets
+              if will_fire(leaf, args.no_commands) and not already_running(leaf, pane, agents)]
+    mode = "FIRING" if args.go else "DRY-RUN (pass --go to fire)"
+    print(f"{mode}: {len(workspaces)} workspaces, {len(tabs)} tabs, "
+          f"{len(firing)} panes to fire, {len(running)} already running, "
+          f"{len(targets) - len(firing) - len(running)} not fired\n")
+
+    restorer = Restorer(args, agents, paired)
+    restored = {}
+    for workspace in workspaces:
+        restored[workspace["workspace_id"]] = restorer.build_workspace(
+            workspace, adopted[workspace["workspace_id"]])
     restore_focus(state, restored, args.go)
 
     if args.go:
-        print(f"\nFired {restorer.fired} of {len(firing)} panes; {restorer.skipped} skipped.")
+        print(f"\nFired {restorer.fired} of {len(firing)} panes; "
+              f"{restorer.running} already running; {restorer.skipped} skipped.")
     else:
         print("\nNothing sent. Re-run with --go to restore these workspaces.")
 

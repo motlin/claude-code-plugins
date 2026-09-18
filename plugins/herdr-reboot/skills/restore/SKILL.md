@@ -38,20 +38,23 @@ this restore rejects it rather than half-restoring it.
 
 What the user needs to know before firing:
 
-- `command` panes split on their `restore_default` field. Dev servers (`restore_default: false`)
-  are skipped: they often survive the reboot that killed the agents, and re-running one just fails
-  with `EADDRINUSE` against the server still holding the port. Their pane is still created, so the
-  user can start them by hand. Pass `--commands` to fire them anyway, only after confirming the
-  old processes are gone.
-- Read-only viewers (`restore_default: true` — `git log`, `less FILE`, `htop`, `tig`) fire without
-  `--commands`. Nothing of theirs survives a reboot, so the `EADDRINUSE` reasoning does not apply.
-  They re-run from the top: scroll position, search, and selection are not restored.
+- `command` panes fire by default — bringing back dev servers like `just dev` is most of what a
+  restore is for. Pass `--no-commands` to leave the dev servers (`restore_default: false`) alone
+  when one outlived the reboot and still holds its port; read-only viewers (`git log`,
+  `less FILE`, `htop`, `tig`) fire either way, re-running from the top without scroll position,
+  search, or selection.
+- herdr can bring the session back by itself, agents included, leaving only the command panes at
+  a prompt. Check the preview for this: a workspace line reading `(adopt …)` and a tab line
+  reading `(live …)` mean restore reuses what is already there. Each captured tab pairs with the
+  live tab of the same label and split structure; its idle panes are fired into in place, and a
+  pane already running its agent prints `LIVE` and is counted as already running. Only a captured
+  tab with no live counterpart — renamed since the snapshot, or laid out differently — is created
+  fresh.
 - Nothing is ever typed into a pane that is not an idle shell. `herdr pane run` types into
   whatever the pane holds, so firing into a resumed agent would submit the resume command to it as
   a prompt. Every pane is fired only when confirmed to be sitting at a shell prompt with no live
   agent; anything else is skipped with a printed reason. Re-running the script is therefore safe.
 - A live workspace with the same label and working directory is adopted rather than duplicated.
-  Its captured tabs land there as brand new tabs, never reusing its live panes.
 - Focus comes back last: each workspace's active tab, then the workspace that held focus. Focus
   inside a tab is restored as the tree is built, by creating the focused pane focused.
 - Verify codex panes whose note says `herdr reported no session`. Those ids come from matching

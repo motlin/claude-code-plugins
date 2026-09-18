@@ -53,16 +53,24 @@ the panes:
   should be verified after restoration.
 - `codex resume --last` means no rollout matched the working directory at all.
 - `command` panes carry no session state, so restoring one just re-runs the command line. Their
-  `restore_default` field says whether restore replays it unasked:
-    - `false` — long-lived dev servers and watchers (`just dev`, `npm run dev`, `vite`). Skipped by
-      default, because these frequently survive the reboot and still hold their ports.
+  `restore_default` field says whether restore's `--no-commands` still replays it:
+    - `false` — long-lived dev servers and watchers (`just dev`, `npm run dev`, `vite`). Restore
+      fires these by default; `--no-commands` skips them for when one survived and holds its port.
     - `true` — read-only viewers (`git log`, `git show`, `less FILE`, `man`, `htop`, `tig`,
-      `lazygit`). None of these outlives the reboot, so restore replays them by default.
+      `lazygit`). None of these outlives the reboot, so restore replays them either way.
 - `git` panes are judged by subcommand, not by program, so `git push` and `git rebase` are never
   captured. An alias is judged by what it expands to and restored as the alias you typed, so
   `git la` comes back as `git la`.
 - A pager is captured only when it names a file. A bare `less` is draining a pipe whose writer
   dies with the reboot, and re-running it would hang the pane on stdin.
+- A pane sitting at an idle shell is judged by its **tab label**, because that label often names
+  what belongs there even when it is not running at snapshot time. A label of `rc` or
+  `<name> rc` becomes a Remote Control relaunch named for the tab (or, for a bare `rc`, for its
+  directory), patterned on a live RC pane's launch line when the session has one and otherwise
+  plain `claude rc --name <name>`. Any other label is judged like a running process: its first
+  word, alias expanded in your interactive shell (so `j ta` counts when `j` is `just`), must be on
+  the same allowlist, and the label is restored as typed. A label like `op run` or `reboot` stays a
+  shell. These panes say `inferred from tab label` in their note — point them out.
 - `shell` panes are panes with nothing worth restoring; the restore just recreates the pane.
 - Editors and REPLs with in-memory state (`vim`, `psql`, `ssh`) are intentionally recorded as
   `shell` panes rather than re-run.

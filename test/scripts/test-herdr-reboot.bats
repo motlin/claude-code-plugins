@@ -794,16 +794,16 @@ transcript() {
     [ "$status" -eq 0 ]
 }
 
-@test "restore skips command panes by default and says why" {
+@test "restore --no-commands skips dev-server command panes and says why" {
     write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
         {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command",
             "command":"just dev","restore_default":false}}]}]}'
 
-    run_restore "$STATE" --go
+    run_restore "$STATE" --go --no-commands
     [ "$status" -eq 0 ]
     [[ "$output" == *"SKIP"* ]]
-    [[ "$output" == *"--commands"* ]]
+    [[ "$output" == *"--no-commands"* ]]
 
     run grep -c "pane run" "$HERDR_LOG"
     [ "$output" = "0" ]
@@ -812,13 +812,13 @@ transcript() {
     [ "$output" = "1" ]
 }
 
-@test "restore --commands fires command panes" {
+@test "restore fires dev-server command panes by default" {
     write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
         {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command",
             "command":"just dev","restore_default":false}}]}]}'
 
-    run_restore "$STATE" --go --commands
+    run_restore "$STATE" --go
     [ "$status" -eq 0 ]
 
     run grep -F -- "pane run n1:p1 just dev" "$HERDR_LOG"
@@ -851,7 +851,7 @@ transcript() {
     [[ "$output" == *"1 panes to fire"* ]]
 }
 
-@test "restore adopts a live workspace with the same label and cwd, on fresh tabs" {
+@test "restore adopts a live workspace and leaves its live agent tab alone" {
     write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
     write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
         {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"claude",
@@ -862,12 +862,15 @@ transcript() {
     run_restore "$STATE" --go
     [ "$status" -eq 0 ]
     [[ "$output" == *"adopt w8"* ]]
+    [[ "$output" == *"LIVE"* ]]
+    [[ "$output" == *"1 already running"* ]]
 
     run grep -c "workspace create" "$HERDR_LOG"
     [ "$output" = "0" ]
 
+    # The live tab answers for the first captured tab; only the second is missing.
     run grep -c "tab create" "$HERDR_LOG"
-    [ "$output" = "2" ]
+    [ "$output" = "1" ]
 
     run grep -F -- "pane run w8:p1" "$HERDR_LOG"
     [ "$status" -ne 0 ]
@@ -970,9 +973,9 @@ transcript() {
     write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
     project="$BATS_TEST_TMPDIR/project"
     mkdir -p "$project/.llm"
-    STATE="$project/.llm/resume-after-reboot-state.json"
-    write_state '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
-        {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"~/projects/api-server"}}]}]}'
+    printf '%s' '{"workspaces":[{"id":"wA","label":"api-server","tabs":[
+        {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"~/projects/api-server"}}]}]}' |
+        "$PYTHON3" "$FIXTURE" state - >"$project/.llm/resume-after-reboot-state.json"
 
     command cd "$project"
     run_restore
@@ -1005,4 +1008,155 @@ print(claude['version'])
 
     run grep -c "^name: restore$" "$PLUGIN_DIR/skills/restore/SKILL.md"
     [ "$output" = "1" ]
+}
+
+# stub_command <name> — an executable on PATH, so a tab label naming it resolves.
+stub_command() {
+    printf '#!/bin/sh\nexit 0\n' >"$STUB_BIN/$1"
+    chmod +x "$STUB_BIN/$1"
+}
+
+@test "snapshot infers a dev-server command from the label of an idle shell tab" {
+    stub_command just
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"just dev","layout":{"pane":"w8:p1","cwd":"/w/webapp"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 command)" = "just dev" ]
+    [ "$(pane_field 1 restore_default)" = "False" ]
+    [[ "$(pane_field 1 note)" == *"tab label"* ]]
+}
+
+@test "snapshot expands an alias in a tab label before judging it, and keeps the alias" {
+    printf "alias j='just --global-justfile'\n" >"$FAKE_HOME/.zshrc"
+    printf "alias j='just --global-justfile'\n" >"$FAKE_HOME/.bashrc"
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"j ta","layout":{"pane":"w8:p1","cwd":"/w/webapp"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 command)" = "j ta" ]
+}
+
+@test "snapshot never infers a command from a label outside the allowlist" {
+    stub_command reboot
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"reboot","layout":{"pane":"w8:p1","cwd":"/w/webapp"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "shell" ]
+    [ "$(pane_field 1 command)" = "None" ]
+}
+
+@test "snapshot infers nothing from the label of a pane that is running something" {
+    stub_command just
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"just dev","layout":{"pane":"w8:p1","cwd":"/w/webapp"}}]}]}'
+    process_fixture "w8:p1" command "vim notes.md"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "shell" ]
+}
+
+@test "snapshot relaunches an idle rc tab from a live Remote Control launch line" {
+    write_snapshot '{"workspaces":[
+        {"id":"wA","label":"kalshi","tabs":[{"id":"wA:t1","label":"rc","layout":
+            {"pane":"wA:p1","cwd":"/w/kalshi","agent":"claude",
+             "session":"ccc0b0b8-dea4-5101-928d-9c2942e0eccf"}}]},
+        {"id":"wN","label":"neighbors","tabs":[{"id":"wN:t1","label":"elemental-arena rc",
+            "layout":{"pane":"wN:p1","cwd":"/w/elemental-arena"}}]}]}'
+    process_fixture "wA:p1" command \
+        "/opt/bin/claude rc --permission-mode auto --spawn worktree --name kalshi"
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 2 tool)" = "command" ]
+    [ "$(pane_field 2 command)" = "/opt/bin/claude rc --permission-mode auto --spawn worktree --name elemental-arena" ]
+    [ "$(pane_field 2 restore_default)" = "True" ]
+}
+
+@test "snapshot names a bare rc tab for its directory when no live launch line exists" {
+    write_snapshot '{"workspaces":[{"id":"wQ","label":"quarto","tabs":[
+        {"id":"wQ:t1","label":"rc","layout":{"pane":"wQ:p1","cwd":"/w/quarto"}}]}]}'
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(pane_field 1 tool)" = "command" ]
+    [ "$(pane_field 1 command)" = "claude rc --name quarto" ]
+}
+
+@test "restore fires into the idle pane of a matching live tab instead of creating one" {
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"just dev","layout":{"pane":"w8:p1","cwd":"'"$FAKE_HOME"'/projects/webapp"}}]}]}'
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"just dev","layout":{"pane":"w8:p1","cwd":"~/projects/webapp",
+            "tool":"command","command":"just dev","restore_default":false}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane run w8:p1 just dev" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+
+    run grep -c -e "workspace create" -e "tab create" "$HERDR_LOG"
+    [ "$output" = "0" ]
+}
+
+@test "restore pairs a live split tab's panes with the captured ones in layout order" {
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"dev","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"w8:p7","cwd":"'"$FAKE_HOME"'/projects/webapp"},
+            {"pane":"w8:p9","cwd":"'"$FAKE_HOME"'/projects/webapp"}]}}]}]}'
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"dev","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command","command":"just dev",
+             "restore_default":false},
+            {"pane":"w8:p2","cwd":"~/projects/webapp","tool":"command","command":"git la",
+             "restore_default":true}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "pane run w8:p7 just dev" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+    run grep -F -- "pane run w8:p9 git la" "$HERDR_LOG"
+    [ "$status" -eq 0 ]
+    run grep -c -e "tab create" -e "pane split" "$HERDR_LOG"
+    [ "$output" = "0" ]
+}
+
+@test "restore creates a fresh tab when the live tab of that label is laid out differently" {
+    write_snapshot '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"dev","layout":{"pane":"w8:p7","cwd":"'"$FAKE_HOME"'/projects/webapp"}}]}]}'
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","label":"dev","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"w8:p1","cwd":"~/projects/webapp","tool":"command","command":"just dev",
+             "restore_default":false},
+            {"pane":"w8:p2","cwd":"~/projects/webapp"}]}}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -c "tab create" "$HERDR_LOG"
+    [ "$output" = "1" ]
+    run grep -F -- "pane run w8:p7" "$HERDR_LOG"
+    [ "$status" -ne 0 ]
+}
+
+@test "restore dry run leaves agents already running in live tabs out of the fire count" {
+    write_snapshot "$(one_pane w8 webapp "$FAKE_HOME/projects/webapp" claude 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607)"
+    write_state '{"workspaces":[{"id":"w8","label":"webapp","tabs":[
+        {"id":"w8:t1","layout":{"pane":"w8:p1","cwd":"~/projects/webapp","tool":"claude",
+            "command":"claude --resume 3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607",
+            "session":"3f2a1b0c-4d5e-4f60-8a71-b2c3d4e5f607"}}]}]}'
+
+    run_restore "$STATE"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"0 panes to fire"* ]]
+    [[ "$output" == *"1 already running"* ]]
 }

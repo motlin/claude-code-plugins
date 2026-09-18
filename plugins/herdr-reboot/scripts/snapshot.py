@@ -13,6 +13,10 @@ herdr's codex integration is less complete: it leaves `agent_session` null until
 a turn (claude's hook reports on resume). Codex panes with no reported session therefore fall
 back to a cwd -> rollout index, and say so in the pane's note.
 
+A pane sitting at an idle shell has nothing running to capture, but its tab label often names
+what belongs there (`just dev`, `rc`). Those labels are recorded as commands, under the same
+allowlist the running-process capture uses, so a tab named `reboot` is never replayed.
+
 The state file is JSON, schema `resume-after-reboot/v2`. It is herdr-shaped and NOT interchangeable
 with the older flat `resume-after-reboot/v1`.
 
@@ -21,7 +25,7 @@ Usage:
 Prints the state JSON to stdout unless --output is given, e.g.:
     snapshot.py > .llm/resume-after-reboot-state.json
 """
-import argparse, glob, json, os, re, subprocess, sys
+import argparse, glob, json, os, re, shutil, subprocess, sys
 from datetime import datetime
 
 HOME = os.path.expanduser("~")
@@ -34,9 +38,8 @@ SHELLS = {"zsh", "bash", "sh", "fish", "dash", "ksh", "tcsh"}
 # session state (unlike claude/codex), so restoring one just re-executes the command line —
 # best-effort. Panes running anything else are recorded as plain shells.
 #
-# Restore leaves these alone unless asked: a dev server frequently outlives the reboot that
-# killed the agents, and re-running it just earns an EADDRINUSE against the process still
-# holding the port.
+# Restore fires these by default; its --no-commands skips them for when a dev server outlived
+# the reboot and would only earn an EADDRINUSE against the process still holding the port.
 FOREGROUND_ALLOW = {
     "just", "npm", "pnpm", "yarn", "bun", "vite", "next", "node", "deno",
     "cargo", "make", "gradle", "mvn", "tail", "watch", "watchexec",
@@ -183,13 +186,94 @@ def classify(leader, processes):
 
 
 def find_command(pane_id):
-    """(command, restore_default) for the pane's foreground program, or None."""
+    """((command, restore_default) or None, whether the pane sits at an idle shell)."""
     info = process_info(pane_id)
     if not info:
-        return None
+        return None, False
     if info.get("foreground_process_group_id") == info.get("shell_pid"):
+        return None, True
+    return classify(leader_process(info), info.get("foreground_processes") or []), False
+
+
+# Prints each word with what `command -v` makes of it, fenced by markers because an interactive
+# shell's startup can write terminal escapes onto the same line.
+RESOLVE_SCRIPT = 'for w in "$@"; do printf "@@%s@@%s\\n" "$w" "$(command -v -- "$w" 2>/dev/null)"; done'
+
+
+def resolve_words(words):
+    """word -> the program it runs, alias expansion included, for each word the shell knows.
+
+    Aliases live only in the user's interactive shell, so ask it once for every word rather
+    than guessing from PATH. A shell that cannot answer falls back to PATH lookup alone.
+    """
+    words = sorted(set(words))
+    if not words:
+        return {}
+    shell = os.environ.get("SHELL", "")
+    if os.path.basename(shell) in ("zsh", "bash"):
+        try:
+            p = subprocess.run([shell, "-ic", RESOLVE_SCRIPT, "resolve"] + words,
+                               capture_output=True, text=True, timeout=15,
+                               stdin=subprocess.DEVNULL)
+            found = {}
+            for word, answer in re.findall(r"@@(.*?)@@(.*)", p.stdout):
+                answer = answer.strip()
+                if answer.startswith("alias "):
+                    found[word] = answer.partition("=")[2].strip().strip("'\"")
+                elif answer:
+                    found[word] = answer
+            return found
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    return {word: shutil.which(word) for word in words if shutil.which(word)}
+
+
+def remote_control_name(label, cwd):
+    """The --name for a tab labelled `rc` or `<name> rc`, or None for any other label."""
+    words = label.split()
+    if not words or words[-1] != "rc":
         return None
-    return classify(leader_process(info), info.get("foreground_processes") or [])
+    return " ".join(words[:-1]) or os.path.basename(cwd.rstrip("/"))
+
+
+def with_name(launch, name):
+    """A `claude rc` launch line with its --name swapped for (or given) `name`."""
+    tokens = launch.split()
+    for i, token in enumerate(tokens):
+        if token == "--name" and i + 1 < len(tokens):
+            tokens[i + 1] = name
+            return " ".join(tokens)
+        if token.startswith("--name="):
+            tokens[i] = f"--name={name}"
+            return " ".join(tokens)
+    return " ".join(tokens + ["--name", name])
+
+
+def label_commands(idle, rc_launch):
+    """Fill in the idle shell panes whose tab label says what they should be running.
+
+    `idle` is (leaf, tab label) for every pane found at an idle shell. An `rc` label relaunches
+    Remote Control named for the tab, patterned on a live RC pane's launch line when the session
+    has one. Any other label is judged like a running process: its first word, alias expanded,
+    must be on the capture allowlist, and the label is restored as typed.
+    """
+    resolved = resolve_words(label.split()[0] for _, label in idle if label.split())
+    for leaf, label in idle:
+        name = remote_control_name(label, leaf["cwd"])
+        if name:
+            command = with_name(rc_launch, name) if rc_launch else f"claude rc --name {name}"
+            leaf.update(tool="command", command=command, restore_default=True,
+                        note="inferred from tab label; relaunches remote control")
+            continue
+        first, _, rest = label.partition(" ")
+        program = resolved.get(first)
+        if not program:
+            continue
+        expanded = f"{program} {rest}".strip()
+        found = classify({"argv0": expanded.split()[0], "cmdline": expanded}, [])
+        if found:
+            leaf.update(tool="command", command=label, restore_default=found[1],
+                        note="inferred from tab label; pane was an idle shell")
 
 
 def index_codex_sessions():
@@ -312,8 +396,10 @@ def layout_tree(layout, build_leaf):
     return build(layout["area"], list(rects))
 
 
-def pane_leaf(pane, slot, codex_index, codex_used):
-    """One pane of the tree: what it is running and the command that brings it back."""
+def pane_leaf(pane, slot, codex_index, codex_used, idle=None):
+    """One pane of the tree: what it is running and the command that brings it back.
+
+    A pane found at an idle shell is appended to `idle` so its tab label can be judged later."""
     cwd = pane.get("cwd") or HOME
     leaf = {
         "type": "pane",
@@ -364,7 +450,9 @@ def pane_leaf(pane, slot, codex_index, codex_used):
                 leaf.update(command="codex resume --last",
                             note="herdr reported no session and no matching rollout for cwd")
     else:
-        found = find_command(pane.get("pane_id", ""))
+        found, at_shell = find_command(pane.get("pane_id", ""))
+        if at_shell and idle is not None:
+            idle.append(leaf)
         if found:
             command, restore_default = found
             leaf.update(tool="command", command=command, restore_default=restore_default,
@@ -392,11 +480,12 @@ def build_workspaces(snap):
         panes_of.setdefault(pane.get("tab_id"), []).append(pane)
 
     codex_index, codex_used, slots = index_codex_sessions(), {}, [0]
+    idle, labelled = [], []
 
     def build_leaf(pane_id):
         slots[0] += 1
         return pane_leaf(panes.get(pane_id, {"pane_id": pane_id}), slots[0],
-                         codex_index, codex_used)
+                         codex_index, codex_used, idle)
 
     built = []
     for workspace in sorted(snap.get("workspaces", []), key=lambda w: w.get("number", 0)):
@@ -406,14 +495,17 @@ def build_workspaces(snap):
                 tab["tab_id"], panes_of.get(tab["tab_id"], []))
             if not layout["panes"]:
                 continue
+            label = tab.get("label") or tab["tab_id"]
             tabs.append({
                 "tab_id": tab["tab_id"],
-                "label": tab.get("label") or tab["tab_id"],
+                "label": label,
                 "number": tab.get("number", len(tabs) + 1),
                 "zoomed": bool(layout.get("zoomed")),
                 "focused_pane_id": layout.get("focused_pane_id"),
                 "layout": layout_tree(layout, build_leaf),
             })
+            labelled += [(leaf, label) for leaf in idle]
+            idle.clear()
         if not tabs:
             continue
         built.append({
@@ -423,7 +515,16 @@ def build_workspaces(snap):
             "active_tab_id": workspace.get("active_tab_id") or tabs[0]["tab_id"],
             "tabs": tabs,
         })
+    rc_launch = next((leaf["command"].removesuffix(" --continue") for leaf in all_leaves(built)
+                      if leaf["tool"] == "claude-rc"), None)
+    label_commands(labelled, rc_launch)
     return built
+
+
+def all_leaves(workspaces):
+    def walk(node):
+        return [node] if node["type"] == "pane" else [l for c in node["children"] for l in walk(c)]
+    return [leaf for w in workspaces for t in w["tabs"] for leaf in walk(t["layout"])]
 
 
 def main():
