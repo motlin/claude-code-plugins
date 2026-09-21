@@ -12,6 +12,12 @@ a real file, a real command and what it printed.
 Demo what the user asked to see: a feature, a fix, a command, a page. When no target is
 named, demo the work done so far in this session.
 
+## Read before designing an interactive demo
+
+Read [Red Blob Games' Making of: Circle drawing tutorial](https://www.redblobgames.com/making-of/circle-drawing/)
+as a benchmark for demo and tutorial quality. Use it to inform your approach to teaching
+through interaction.
+
 ## What counts as a demo
 
 Show the data crossing the boundaries of the system, in the order it crosses them.

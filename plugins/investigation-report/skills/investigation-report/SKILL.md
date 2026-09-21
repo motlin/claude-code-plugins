@@ -7,6 +7,12 @@ description: 'Produce a single self-contained HTML report that explains a comman
 
 When asked to explain or document a command-line investigation, produce a chronological command log as a single HTML page: what you ran, what it printed, and enough reasoning that the reader could rerun it and understand every flag. The goal is teaching, not a status update.
 
+## Read before designing a tutorial
+
+Read [Red Blob Games' Making of: Circle drawing tutorial](https://www.redblobgames.com/making-of/circle-drawing/)
+as a benchmark for demo and tutorial quality. Use it to inform how you teach through
+an HTML page.
+
 ## Structure it as a chronological command log
 
 Walk the investigation in the order it actually happened — including dead ends, wrong hypotheses, and the command that disproved them. Do not sanitize it into a clean after-the-fact story; the wrong turns are where the learning is. Each step is: the command, its real output, one line of why you ran it, and — only where the evidence changed your conclusion — a short "changed my mind" note.
