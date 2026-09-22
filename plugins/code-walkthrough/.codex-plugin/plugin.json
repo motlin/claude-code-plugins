@@ -1,0 +1,23 @@
+{
+	"name": "code-walkthrough",
+	"version": "1.35.2",
+	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/code-walkthrough",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "code", "walkthrough"],
+	"interface": {
+		"displayName": "Code Walkthrough",
+		"shortDescription": "Explore code with scroll-linked explanations and source",
+		"longDescription": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Create a source-backed code walkthrough."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}

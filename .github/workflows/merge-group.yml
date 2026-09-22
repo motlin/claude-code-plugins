@@ -66,6 +66,11 @@ jobs:
             # The bats suite runs `claude plugin validate`, which needs the claude CLI.
             - run: npm install --global @anthropic-ai/claude-code
             - run: just test
+            - name: Test source-backed walkthrough renderer
+              run: |
+                  python3 -m venv .llm/walkthrough-tests
+                  .llm/walkthrough-tests/bin/pip install -r plugins/code-walkthrough/scripts/requirements.txt
+                  .llm/walkthrough-tests/bin/python -m unittest discover -s plugins/code-walkthrough/tests
 
     all-checks:
         name: All checks

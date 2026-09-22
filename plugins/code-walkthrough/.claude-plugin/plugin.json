@@ -1,0 +1,11 @@
+{
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+	"name": "code-walkthrough",
+	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
+	"version": "1.35.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"skills": ["./skills/code-walkthrough"]
+}
