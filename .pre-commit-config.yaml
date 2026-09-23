@@ -22,6 +22,12 @@ repos:
 
     - repo: local
       hooks:
+          - id: just-fmt
+            name: just --fmt
+            entry: sh -c 'for file do just --fmt --justfile "$file" || exit; done' --
+            language: system
+            files: '(?i)(^|/)\.?justfile$|\.just$'
+            types: [file]
           - id: oxfmt
             name: oxfmt
             entry: oxfmt --no-error-on-unmatched-pattern

@@ -25,6 +25,7 @@ lint: install
 
 # Check shell script formatting with shfmt
 format: install
+    pre-commit run just-fmt --all-files
     shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
     oxfmt --check
 
