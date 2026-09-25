@@ -6,7 +6,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-git.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/validate-git.sh\"",
 						"timeout": 500
 					}
 				]

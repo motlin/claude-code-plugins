@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/stop-phrase-guard.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/stop-phrase-guard.sh\"",
 						"timeout": 5
 					}
 				]

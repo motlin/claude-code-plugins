@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionStart",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" SessionStart",
 						"timeout": 5000
 					}
 				]
@@ -16,7 +16,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh Stop",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" Stop",
 						"timeout": 5000
 					}
 				]
@@ -27,7 +27,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh PostToolUse",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" PostToolUse",
 						"timeout": 5000
 					}
 				]

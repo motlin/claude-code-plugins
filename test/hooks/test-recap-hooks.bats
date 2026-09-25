@@ -20,6 +20,7 @@ setup() {
   all_exist=0
   commands=$(get_hook_commands "$PROJECT_ROOT/plugins/recap/hooks/hooks.json" "Stop")
   for command in $commands; do
+    command="${command//\"/}"
     resolved_command="${command//\$\{CLAUDE_PLUGIN_ROOT\}/$PROJECT_ROOT/plugins/recap}"
     if [ ! -f "$resolved_command" ]; then
       echo "Script not found: $resolved_command"

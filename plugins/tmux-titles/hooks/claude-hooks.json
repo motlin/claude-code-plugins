@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"✻\"",
 						"timeout": 500
 					}
 				]
@@ -15,7 +15,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/rename-tmux-window.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/rename-tmux-window.sh\"",
 						"timeout": 500
 					}
 				]
@@ -26,7 +26,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✓\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"✓\"",
 						"timeout": 500
 					}
 				]
@@ -37,7 +37,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh\"",
 						"timeout": 500
 					}
 				]
@@ -47,12 +47,12 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/persist-tmux-pane.sh\"",
 						"timeout": 500
 					},
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"○\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"○\"",
 						"timeout": 500
 					}
 				]
@@ -64,7 +64,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"?\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"?\"",
 						"timeout": 500
 					}
 				]
@@ -75,7 +75,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"⌫\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"⌫\"",
 						"timeout": 500
 					}
 				]
@@ -86,7 +86,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-for-tool-hook.sh\"",
 						"timeout": 500
 					}
 				]
@@ -97,7 +97,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh \"✻\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/update-tmux-title.sh\" \"✻\"",
 						"timeout": 500
 					}
 				]
@@ -108,7 +108,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/clear-tmux-title.sh\"",
 						"timeout": 500
 					}
 				]

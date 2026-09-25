@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/on-worktree-create.sh",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/on-worktree-create.sh\"",
 						"timeout": 120000
 					}
 				]
