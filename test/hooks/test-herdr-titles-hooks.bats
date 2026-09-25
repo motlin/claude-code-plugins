@@ -52,7 +52,7 @@ hook_result() {
       session_start_commands: $session_start_commands
     }')"
 
-  expected="{\"claude_hooks\":\"\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh,\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"}"
+  expected="{\"claude_hooks\":\"\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh\\\",\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\\\"\"}"
   [ "$actual" = "$expected" ]
 }
 

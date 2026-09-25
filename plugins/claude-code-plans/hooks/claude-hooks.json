@@ -5,7 +5,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionStart",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" SessionStart",
 						"timeout": 5000
 					}
 				]
@@ -16,7 +16,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh SessionEnd",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" SessionEnd",
 						"timeout": 5000
 					}
 				]
@@ -27,7 +27,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh Stop",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" Stop",
 						"timeout": 5000
 					}
 				]
@@ -48,7 +48,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh PostToolUse",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" PostToolUse",
 						"timeout": 5000
 					}
 				]
@@ -59,7 +59,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh TaskCompleted",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" TaskCompleted",
 						"timeout": 5000
 					}
 				]
@@ -70,7 +70,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh WorktreeCreate",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/post-hook.sh\" WorktreeCreate",
 						"timeout": 5000
 					}
 				]

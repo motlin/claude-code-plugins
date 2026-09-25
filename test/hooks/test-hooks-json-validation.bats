@@ -60,6 +60,7 @@ setup() {
       while IFS= read -r command; do
         script_name="${command#*\/scripts\/}"
         script_name="${script_name%% *}"
+        script_name="${script_name%%\"*}"
         [ -f "$PROJECT_ROOT/plugins/$plugin/scripts/$script_name" ]
       done < <(jq --raw-output '.hooks[][]?.hooks[]?.command // empty' \
         "$PROJECT_ROOT/plugins/$plugin/hooks/$hooks_file")

@@ -224,7 +224,7 @@ EOF
 @test "Claude SessionStart fires the herdr guard inside herdr" {
   hooks_json="$PROJECT_ROOT/plugins/tmux-titles/hooks/claude-hooks.json"
   hook_command=$(jq --raw-output '.hooks.SessionStart[0].hooks[0].command' "$hooks_json")
-  [ "$hook_command" = "\${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh" ]
+  [ "$hook_command" = "\"\${CLAUDE_PLUGIN_ROOT}/scripts/require-no-herdr.sh\"" ]
 
   test_json=$(create_test_json "/tmp/test")
   run env CLAUDE_PLUGIN_ROOT="$PROJECT_ROOT/plugins/tmux-titles" HERDR_ENV=1 \
