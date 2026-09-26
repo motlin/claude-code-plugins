@@ -1,24 +1,12 @@
 {
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "code",
-	"description": "Code quality tools for comment cleanup and emoji enhancement",
+	"description": "Code quality, CLI, and test-writing guidelines with emoji enhancement",
 	"version": "1.35.2",
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"agents": ["./agents/comment-cleaner.md"],
-	"skills": [
-		"./skills/code-quality",
-		"./skills/comment-cleanup",
-		"./skills/cli",
-		"./skills/code-generation",
-		"./skills/test-data"
-	],
-	"commands": [
-		"./commands/comments.md",
-		"./commands/all-comments.md",
-		"./commands/emoji.md",
-		"./commands/formatter-off.md"
-	]
+	"skills": ["./skills/code-quality", "./skills/cli", "./skills/code-generation", "./skills/test-data"],
+	"commands": ["./commands/emoji.md", "./commands/formatter-off.md"]
 }

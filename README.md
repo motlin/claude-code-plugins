@@ -17,7 +17,7 @@ Plugins for agent workflows, development tools, terminal feedback, and safety ch
 | Plugin                                             | Use it to                                                        | Claude Code | Codex |
 | -------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
 | [build](plugins/build/README.md)                   | Run precommit checks and test commits or branches                | ✅          | ✅    |
-| [code](plugins/code/README.md)                     | Apply code-quality, comment, CLI, and test-writing conventions   | ✅          | ✅    |
+| [code](plugins/code/README.md)                     | Apply code-quality, CLI, and test-writing conventions            | ✅          | ✅    |
 | [git](plugins/git/README.md)                       | Commit, rebase, resolve conflicts, and manage branches/worktrees | ✅          | ✅    |
 | [github](plugins/github/README.md)                 | Diagnose GitHub Actions failures                                 | ✅          | ✅    |
 | [justfile](plugins/justfile/README.md)             | Write and tighten Justfile recipe documentation                  | ✅          | ✅    |
