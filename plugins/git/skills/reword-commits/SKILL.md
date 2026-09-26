@@ -5,64 +5,43 @@ description: Rewrite every in-scope commit message (subject AND body) to a singl
 
 # Reword Commits
 
-Rewrite **every** commit message in scope to a single line that follows the `git:git-workflow` skill. Do not triage. Do not skip commits whose subjects already look fine. If the user invoked this skill, every commit needs a fresh message.
+Use the `code:cli` and `git:git-workflow` skills. The message format in `git:git-workflow` is the target.
 
-ALWAYS use the `code:cli` and `git:git-workflow` skills. The rules in `git:git-workflow` are what to write toward.
+Rewrite every commit message in scope. Don't triage, and don't skip commits whose subjects already look fine: every commit gets a fresh proposal.
 
 ## Constraints
 
-Use `git history reword` only. Do not use interactive rebase, `git commit --amend`, `git filter-branch`, `git filter-repo`, or `git replay`. No branch switching, no force-pushing, no changes to commit content, authors, dates, parents, or trees. Messages only.
+Use `git history reword` only: no interactive rebase, `git commit --amend`, `git filter-branch`, `git filter-repo`, or `git replay`. No branch switching, no force-pushing, and no changes to content, authors, dates, parents, or trees. Messages only.
 
 ## Scope
 
-Default scope is commits on the current branch that aren't on its upstream (or on `main`/`master` if there is no upstream). If the user asks for a wider scope like "all branches", expand to cover every local branch's unique commits. Anything else the user wrote is extra guidance to apply on top of the `git:git-workflow` rules.
+By default, reword the current branch's commits that aren't on its upstream: `<upstream>..HEAD`, falling back to `main..HEAD` or `master..HEAD`. If none apply, ask which base to use via AskUserQuestion.
 
-## Picking the Commit Set
+If the user asks for "all branches", collect each local branch's commits not on its upstream (or the `main`/`master` fallback). A commit shared across branches is rewritten once, since `git history reword` updates every branch that contains it.
 
-For the default scope, use `<upstream>..HEAD` if the branch has an upstream, otherwise `main..HEAD` or `master..HEAD`. If none of those apply, ask which base to use via AskUserQuestion.
-
-For "all branches", collect commits reachable from each local branch but not from its upstream (or `main`/`master` fallback). A commit shared across branches gets rewritten once, because `git history reword` updates every branch that contains it.
-
-If the set is empty, say so and stop.
+Anything else the user wrote is extra guidance on top of `git:git-workflow`. If the set is empty, say so and stop.
 
 ## Reading Each Commit
 
-Read the **full message**, subject and body, for every commit. A body is itself a violation of the single-line rule, so you have to see it to fix it.
-
-Stream every full message in scope:
+Read the full message, subject and body, for every commit. A body is itself a violation of the single-line rule.
 
 ```bash
 git log --format='%H%n%B%n--END-COMMIT--' <range>
-```
-
-For one commit at a time:
-
-```bash
 git show --no-patch --format=%B <sha>
 ```
 
-If a message's intent isn't clear from the text, run `git show <sha>` to see the diff.
+If a message's intent is unclear, read the diff with `git show <sha>`.
 
-## Drafting
+## Drafting and Confirming
 
-For **every** commit in scope, draft a replacement single-line message that:
-
-- Follows every rule from `git:git-workflow` (one line, present-tense verb, length range, trailing period, no praise adjectives).
-- Distills the full prior message (subject + body) into one line. Never copy the body verbatim, never preserve paragraphs.
-- Incorporates the user's extra guidance, if any.
-
-Do not categorize commits as "already conforming." Every commit gets a proposed rewrite.
-
-## Confirming
-
-Show before/after for every commit. When the prior message has a body, indicate that in the BEFORE so the user can see what's being collapsed:
+For each commit, draft one line that distills the full prior message (subject and body) and applies the user's extra guidance. Show before/after for every commit, noting any body being collapsed:
 
 ```text
 <short-sha>  BEFORE: <current subject>  [+ N-line body]
              AFTER:  <proposed single-line message>
 ```
 
-Then ask via AskUserQuestion with these options:
+Then ask via AskUserQuestion:
 
 - "Apply all rewrites" (recommended)
 - "Apply a subset" (ask which SHAs)
@@ -71,7 +50,7 @@ Then ask via AskUserQuestion with these options:
 
 ## Applying
 
-Run `git history reword <sha>` for each approved commit, oldest first, with a `GIT_EDITOR` that overwrites the message file so the body is dropped (not just the subject):
+Run `git history reword <sha>` for each approved commit, oldest first, with a `GIT_EDITOR` that overwrites the whole message file so the body is dropped too:
 
 ```bash
 MSG="<new single-line message>" GIT_EDITOR='sh -c "printf %s\\n \"$MSG\" > \"$1\"" --' git history reword <sha>
@@ -81,8 +60,6 @@ If any invocation fails, stop, report the SHA and error, and leave the rest alon
 
 ## Reporting
 
-Wrap up with:
-
-- Commits inspected, commits rewritten (with before/after).
+- Commits inspected and rewritten, with before/after.
 - For "all branches": which branches now point at rewritten history.
-- A note that pushed branches will need a force-push to update the remote. Don't push.
+- A note that pushed branches need a force-push to update the remote. Don't push.

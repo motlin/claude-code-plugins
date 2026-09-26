@@ -5,8 +5,6 @@ description: Rebase all local branches onto the configured upstream branch. Use 
 
 # Rebase All
 
-Keep all branches in a repository up-to-date by rebasing them onto a configurable upstream branch.
-
 Resolve `<plugin-root>` before running plugin scripts:
 
 - In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
@@ -18,13 +16,4 @@ Run:
 <plugin-root>/scripts/git-all
 ```
 
-If it fails with merge conflicts, resolve all conflicts in the affected branch, then run the script again. Either use the `git:conflicts` skill inline or delegate to the `git:conflict-resolver` agent.
-
-Repeat this cycle until the command completes without errors or conflicts.
-
-When communicating:
-
-- Clearly indicate which branch you're working on.
-- Summarize the conflicts found.
-- Report progress after each iteration.
-- Notify when the entire rebase process is complete.
+If it stops on merge conflicts, resolve them in the affected branch with the `git:conflicts` skill or the `git:conflict-resolver` agent, then run the script again. Repeat until it completes without errors or conflicts, naming the branch you're on and summarizing the conflicts after each pass.

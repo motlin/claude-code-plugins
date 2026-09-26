@@ -3,36 +3,28 @@ name: git-workflow
 description: Commit message format and git workflow rules. ALWAYS use this skill for every git commit — no exceptions — and whenever rewording an existing commit message.
 ---
 
-# Git Workflow Best Practices
+# Git Workflow
 
-This skill provides guidelines for git operations including commits, conflict resolution, and branch management.
+Commit with the `git:commit` skill. In Claude Code it may delegate to the `git:commit-handler` agent; in Codex, follow it directly unless the user asks for a subagent.
 
-## Commit Guidelines
+## Commit Message Format
 
-Use the `git:commit` skill for commit operations. In Claude Code this may delegate to the `git:commit-handler` agent; in Codex, follow the `git:commit` skill directly unless the user explicitly asks for a subagent workflow.
+Every commit message is a single line: no body, no bullet list, no extra paragraphs. It:
 
-### Commit Message Format
+- Starts with a present-tense verb (Add, Fix, Replace, Remove, Update, …)
+- Is 60-120 characters
+- Ends with a period
+- Avoids praise adjectives (comprehensive, robust, essential, best practices)
 
-Every commit message is a **single line** — no body, no bullet list, no blank-line-separated paragraphs. It must:
+A task description or prompt is intent, not the message. Distill a long or multi-line prompt to one line; never copy it verbatim. This applies to new commits and to rewording existing ones with `git history reword`.
 
-- Start with a present-tense verb (Add, Fix, Replace, Remove, Update, …)
-- Be 60-120 characters
-- End with a period
-- Avoid praise adjectives (comprehensive, robust, essential, best practices)
+## Conflicts and Rebasing
 
-A task description or prompt is **intent, not the message**. When the prompt is long or multi-line, distill it to one line — never copy it verbatim into the commit message. This rule applies to writing new commits and to rewording existing ones with `git history reword`.
+Resolve conflicts with the `git:conflicts` skill. In Codex, spawn a subagent only when the user asks for subagents or parallel agent work.
 
-## Conflict Resolution
-
-Use the `git:conflicts` skill to resolve git merge or rebase conflicts. In Codex, spawn a subagent only when the user explicitly asks for subagents or parallel agent work.
-
-## Rebasing
-
-Use the `git:git-rebase` skill to rebase the current branch on upstream.
+Rebase the current branch on upstream with the `git:git-rebase` skill.
 
 ## Prefer Modern Git Commands
-
-Use newer git commands instead of their legacy equivalents whenever possible:
 
 - `git switch` instead of `git checkout` for switching branches
 - `git switch -c` instead of `git checkout -b` for creating branches

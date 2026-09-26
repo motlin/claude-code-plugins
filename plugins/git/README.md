@@ -1,57 +1,23 @@
 # git
 
-Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup.
+Commit, rebase, resolve conflicts, and manage branches and worktrees.
 
 ## Skills
 
-Each skill is invoked as `/git:<name>`, and Claude also loads them on its own when a task matches.
-
-### `/git:worktree`
-
-Create a git worktree in a peer directory with project configuration files copied over.
-
-### `/git:commit`
-
-Commit local changes to git with careful file staging and single-line commit messages. When invoked directly, delegates to the `git:commit-handler` agent.
-
-### `/git:commit-chunks`
-
-Split local changes into multiple logical commits, proposing sensible groupings.
-
-### `/git:conflicts`
-
-Fix all merge conflicts and continue the git rebase.
-
-### `/git:rebase-all`
-
-Rebase all branches onto a configurable upstream branch.
-
-### `/git:clean-worktrees`
-
-Remove git worktrees safely without using `--force`.
-
-### `/git:split-branch`
-
-Split a branch with N commits into N branches with one commit each.
-
-### `/git:reword-commits`
-
-Rewrite every in-scope commit message to a single line with `git history reword`.
-
-### `/git:wip`
-
-Whole-repository cleanup: remove stale worktrees, rebase every branch, retest, and push.
-
-### `/git:git-workflow`
-
-Commit message format and git workflow rules shared by every commit and reword.
-
-### `/git:git-rebase`
-
-Rebase the current branch on the configured upstream using the plugin rebase script.
+- `/git:commit` — commit with individual staging and a single-line message
+- `/git:commit-chunks` — split local changes into several commits
+- `/git:git-workflow` — commit message format and preferred git commands
+- `/git:reword-commits` — rewrite commit messages to single lines
+- `/git:git-rebase` — rebase onto the configured upstream
+- `/git:rebase-all` — rebase every branch onto the configured upstream
+- `/git:conflicts` — resolve conflicts and continue
+- `/git:split-branch` — split a branch into one branch per commit
+- `/git:worktree` — create a worktree in a peer directory
+- `/git:clean-worktrees` — remove worktrees without `--force`
+- `/git:wip` — clean up worktrees, rebase, retest, and push every branch
 
 ## Agents
 
-- `git:commit-handler` - Commits local changes following the `git:commit` skill
-- `git:conflict-resolver` - Resolves merge and rebase conflicts
-- `git:rebaser` - Rebases local commits on top of upstream
+- `git:commit-handler` — commits local changes
+- `git:rebaser` — rebases onto the configured upstream
+- `git:conflict-resolver` — resolves conflicts and continues the rebase

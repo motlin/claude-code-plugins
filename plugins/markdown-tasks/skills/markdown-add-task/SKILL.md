@@ -5,13 +5,11 @@ description: Add a self-contained task to .llm/todo.md. Use when the user asks t
 
 # Markdown Add Task
 
-Use the `markdown-tasks:tasks` skill for task format and script path rules.
+Use the `markdown-tasks:tasks` skill for task format and script path rules. `<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}` in Claude Code; in Codex, it is the plugin root that contains this `skills/markdown-add-task/SKILL.md` file.
 
 If the user did not provide a task description, ask for one.
 
-Expand the description into a self-contained task with all necessary context. Use multi-line format with indented details.
-
-Run:
+Expand the description into a self-contained task, with details on indented lines:
 
 ```bash
 python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
