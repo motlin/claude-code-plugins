@@ -6,6 +6,5 @@
 	"license": "Apache-2.0",
 	"author": {
 		"name": "Craig Motlin"
-	},
-	"commands": ["./commands/gha.md"]
+	}
 }

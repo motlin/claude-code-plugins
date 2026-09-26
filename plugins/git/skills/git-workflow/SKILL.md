@@ -5,7 +5,7 @@ description: Commit message format and git workflow rules. ALWAYS use this skill
 
 # Git Workflow
 
-Commit with the `git:commit` skill. In Claude Code it may delegate to the `git:commit-handler` agent; in Codex, follow it directly unless the user asks for a subagent.
+Commit with the `git:commit` skill.
 
 ## Commit Message Format
 
@@ -20,7 +20,7 @@ A task description or prompt is intent, not the message. Distill a long or multi
 
 ## Conflicts and Rebasing
 
-Resolve conflicts with the `git:conflicts` skill. In Codex, spawn a subagent only when the user asks for subagents or parallel agent work.
+Resolve conflicts with the `git:conflicts` skill.
 
 Rebase the current branch on upstream with the `git:git-rebase` skill.
 

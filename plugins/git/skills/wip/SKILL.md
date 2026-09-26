@@ -44,7 +44,7 @@ If the file is missing, only the main worktree is protected, but ask before remo
 
 - Compute the removal set live: `git worktree list --porcelain` minus main minus protected. Use plain `git worktree list`, never a user shell alias like `git worktrees`.
 - Remove them one at a time from the main repo via the `git:clean-worktrees` skill, writing the flag explicitly: `git -C <main> worktree remove --no-force <dir>`.
-- Stop on the first failure and never retry with `--force`. A dirty worktree fails with `fatal: '<dir>' contains modified or untracked files, use --force to delete it` (exit 128). Show `git -C <dir> status --short` and ask whether to **commit** the WIP (single line, via `git:commit-handler`), **stash** it, or **leave** the worktree.
+- Stop on the first failure and never retry with `--force`. A dirty worktree fails with `fatal: '<dir>' contains modified or untracked files, use --force to delete it` (exit 128). Show `git -C <dir> status --short` and ask whether to **commit** the WIP (single line, via `git:commit`), **stash** it, or **leave** the worktree.
 - A brand-new clean, empty worktree (0 commits ahead, no changes) is probably someone about to start work. Surface it rather than deleting it.
 - Finish with `git -C <main> worktree prune --verbose`.
 
@@ -53,7 +53,7 @@ If the file is missing, only the main worktree is protected, but ask before remo
 Use the `git-all` script (`rebase-all` → `git worktree prune` → `delete-merged`; the user may alias it as `j g`) rather than bare `rebase-all`, so merged branches get cleaned up. It needs `UPSTREAM_REMOTE` (default `upstream`; many repos use `origin`, so check `git remote -v` and the project's `.envrc`). `origin/main` in these examples and in `references/pipeline.md` stands for `$UPSTREAM_REMOTE/main`. Substitute it when the upstream isn't `origin`, or every rebase and "all clean" check runs against a stale base and silently reports success.
 
 - **Report the scope first.** Every local branch not containing upstream main can be dozens (stale `dev`, `main4`, experiments, `pr*-fix`). Count them and let the user confirm.
-- **Conflicts.** `git-all` halts on the first conflict mid-rebase. Hand genuine conflicts to the `git:conflict-resolver` agent. Verify `git rerere` replays rather than trusting them, and beware false-positive conflict-marker greps in files that legitimately contain `=======` (ASCII banners, markdown headings).
+- **Conflicts.** `git-all` halts on the first conflict mid-rebase. Resolve genuine conflicts with the `git:conflicts` skill. Verify `git rerere` replays rather than trusting them, and beware false-positive conflict-marker greps in files that legitimately contain `=======` (ASCII banners, markdown headings).
 - **`delete-merged` is outward-facing.** It also runs `git push --delete origin <branch>` for merged remote branches (excluding main/HEAD/`origin/pr/*`). Gate it.
 
 Read `references/pipeline.md` before this phase. It covers the co-pointed-branch fallback (when several branch names point at one commit, `rebase-all` skips them all and you must rebase the leftovers directly) and the worktree-per-branch parallel rebase.

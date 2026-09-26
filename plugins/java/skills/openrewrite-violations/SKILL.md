@@ -7,7 +7,7 @@ description: Apply every configured OpenRewrite recipe with violations on a dedi
 
 Create a branch named `openrewrite-violations` (or the name the user supplies), then apply every configured OpenRewrite recipe that has violations one at a time, one commit per recipe, with the message `Fix violations of OpenRewrite rule: <recipe>.`
 
-Follow the `java:maven-cli` skill for Maven, and the `git:git-workflow` skill for commits; delegate each commit to the `git:commit-handler` agent.
+Follow the `java:maven-cli` skill for Maven, and the `git:commit` skill for commits.
 
 ## Start from a clean checkout
 
@@ -40,7 +40,7 @@ mise exec -- just rewrite <recipe>
 - Skip a recipe that produces no changes; an earlier one may have covered it. Never create an empty commit.
 - Stage only the files that recipe changed.
 - Run the repository's required checks for the change.
-- Commit with `Fix violations of OpenRewrite rule: <fully-qualified-recipe>.` through `git:commit-handler`.
+- Commit with `Fix violations of OpenRewrite rule: <fully-qualified-recipe>.` through `git:commit`.
 
 ## Verify the cumulative branch
 

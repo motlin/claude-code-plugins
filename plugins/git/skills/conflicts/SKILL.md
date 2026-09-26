@@ -14,6 +14,6 @@ git add <resolved-files>
 git rebase --continue
 ```
 
-If the rebase stops on more conflicts, repeat. When the conflicts were delegated to the `git:conflict-resolver` agent, run that agent again instead.
+If the rebase stops on more conflicts, repeat.
 
 Finish by checking `git status` and recent commit history to confirm the operation completed.

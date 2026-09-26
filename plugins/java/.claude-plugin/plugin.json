@@ -7,6 +7,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"agents": ["./agents/liquibase-lock-resolver.md"],
 	"skills": ["./skills/maven-cli", "./skills/openrewrite", "./skills/openrewrite-recipes", "./skills/pom-ordering"]
 }

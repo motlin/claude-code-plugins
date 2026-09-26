@@ -6,7 +6,7 @@ Non-obvious problems that show up on repos with many branches and worktrees. `or
 
 `git-all` rebases serially in the main worktree and halts on the first conflict, leaving it detached and mid-rebase. For a large backlog, rebase each top branch in its own throwaway worktree, in parallel, so the main checkout is untouched and conflicts stay isolated.
 
-For each branch that needs rebasing, spawn a `git:conflict-resolver` agent that:
+For each branch that needs rebasing, spawn a subagent that follows the `git:conflicts` skill and:
 
 - `git -C <main> worktree add <scratch>/wt-<sanitized-branch> <branch>` (sanitize `/` to `-`)
 - `git -C <wt> -c core.editor=true rebase --rebase-merges --update-refs origin/main` with `GIT_EDITOR=true`
@@ -46,7 +46,7 @@ A single transient failure is not a real failure. Integration tests that boot a 
 
 - Force-retest that commit: `git test run --force --tests <config> origin/main..<branch>`.
 - If an interrupted test left the worktree dirty (e.g. a file-match test deleted an expected output), `git -C <wt> reset --hard` and re-detach on origin/main first. git-test refuses to run with unstaged changes.
-- Only a reproducible failure goes to the `build:build-fixer-autosquash` fix loop.
+- Only a reproducible failure goes to the `build:test-all` fix subagent.
 
 ## Moving targets
 

@@ -1,6 +1,6 @@
 ---
 name: do-all-tasks
-description: Work through every incomplete task in .llm/todo.md with one fresh do-task agent and one commit per task, skipping blocked tasks. Use when the user wants the whole task list processed automatically.
+description: Work through every incomplete task in .llm/todo.md with one fresh subagent and one commit per task, skipping blocked tasks. Use when the user wants the whole task list processed automatically.
 ---
 
 # Do All Tasks
@@ -61,8 +61,7 @@ If no task is returned, go to archiving. Otherwise:
 - Report "Starting task: [task description]".
 - If this run already attempted this task, its failure went unrecorded. Mark it blocked (see below) and extract the next task instead of retrying.
 - Record the current `HEAD` commit.
-- In Claude Code, launch the `markdown-tasks:do-task` agent. In Codex, spawn one fresh subagent and direct it to follow the `markdown-tasks:do-one-task` skill.
-- Add no instructions to the worker prompt. The worker extracts its own task, implements only that task, runs the finish workflow, leaves exactly one commit, and marks the task complete itself.
+- Spawn one fresh subagent and direct it to follow the `markdown-tasks:do-one-task` skill. Add no other instructions to the worker prompt. The worker extracts its own task, implements only that task, runs the finish workflow, leaves exactly one commit, and marks the task complete itself.
 - Wait for the worker before starting another. Never run workers concurrently; they share the task file and the Git worktree.
 
 ## Handle the Worker Result
