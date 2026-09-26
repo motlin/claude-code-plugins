@@ -1,5 +1,5 @@
 ---
-name: github-actions-fix
+name: gha
 description: Debug and fix failing GitHub Actions checks for the current commit. Use when asked to fix CI, GHA, or GitHub Actions failures.
 ---
 

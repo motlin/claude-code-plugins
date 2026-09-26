@@ -7,8 +7,6 @@ description: Commit local changes with careful staging and single-line messages.
 
 Use the `code:cli` and `git:git-workflow` skills.
 
-When the user invokes this skill directly (`/git:commit`), delegate to the `git:commit-handler` agent. When the skill is loaded as guidance for a commit you are already making, or no subagent is available (for example in Codex), follow the procedure below inline.
-
 ## Inspect Context
 
 ```bash

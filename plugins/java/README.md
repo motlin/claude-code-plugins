@@ -8,4 +8,4 @@ Java and Maven tooling: OpenRewrite recipes, POM dependency ordering, Maven CLI 
 - `/java:openrewrite-recipes`: recipe authoring patterns
 - `/java:openrewrite-analyze-recipes`: dry-run and rank recipes by violation count
 - `/java:openrewrite-violations`: one commit per recipe on a cleanup branch
-- `/java:liquibase-lock-resolver` (skill and agent): clear stale H2 databases behind Liquibase lock errors
+- `/java:liquibase-lock-resolver`: clear stale H2 databases behind Liquibase lock errors

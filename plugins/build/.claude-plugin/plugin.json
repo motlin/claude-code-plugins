@@ -7,6 +7,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"agents": ["./agents/precommit-runner.md", "./agents/build-fixer-autosquash.md"],
 	"skills": ["./skills/precommit"]
 }

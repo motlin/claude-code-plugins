@@ -16,4 +16,4 @@ Run:
 <plugin-root>/scripts/git-all
 ```
 
-If it stops on merge conflicts, resolve them in the affected branch with the `git:conflicts` skill or the `git:conflict-resolver` agent, then run the script again. Repeat until it completes without errors or conflicts, naming the branch you're on and summarizing the conflicts after each pass.
+If it stops on merge conflicts, resolve them in the affected branch with the `git:conflicts` skill, then run the script again. Repeat until it completes without errors or conflicts, naming the branch you're on and summarizing the conflicts after each pass.

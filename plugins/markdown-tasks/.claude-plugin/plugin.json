@@ -7,7 +7,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"commands": ["./commands/add-one-task.md"],
-	"agents": ["./agents/do-task.md"],
 	"skills": ["./skills/tasks"]
 }

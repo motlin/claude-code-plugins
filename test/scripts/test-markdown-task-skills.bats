@@ -56,19 +56,12 @@ setup() {
 }
 
 @test "converted workflows exist only as short-name skills" {
-  for name in do-all-tasks do-one-task import-plan plan-tasks sweep-todos; do
+  for name in add-one-task do-all-tasks do-one-task import-plan plan-tasks sweep-todos; do
     test ! -e "$PROJECT_ROOT/plugins/markdown-tasks/commands/${name}.md"
     test ! -e "$SKILLS_DIR/markdown-${name}"
     test -f "$SKILLS_DIR/${name}/SKILL.md"
     run rg "^name: ${name}$" "$SKILLS_DIR/${name}/SKILL.md"
     [ "$status" -eq 0 ]
-  done
-}
-
-@test "every remaining markdown task command has a matching skill" {
-  for command in "$PROJECT_ROOT/plugins/markdown-tasks/commands"/*.md; do
-    name="$(basename "$command" .md)"
-    test -f "$SKILLS_DIR/markdown-${name/-one-/-}/SKILL.md"
   done
 }
 

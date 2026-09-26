@@ -15,9 +15,3 @@ Commit, rebase, resolve conflicts, and manage branches and worktrees.
 - `/git:worktree` — create a worktree in a peer directory
 - `/git:clean-worktrees` — remove worktrees without `--force`
 - `/git:wip` — clean up worktrees, rebase, retest, and push every branch
-
-## Agents
-
-- `git:commit-handler` — commits local changes
-- `git:rebaser` — rebases onto the configured upstream
-- `git:conflict-resolver` — resolves conflicts and continues the rebase
