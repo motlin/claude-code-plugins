@@ -10,18 +10,18 @@
 					},
 					{
 						"type": "command",
-						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/sync-claude-title-from-herdr.sh\"",
 						"timeout": 10
 					}
 				]
 			}
 		],
-		"Stop": [
+		"UserPromptSubmit": [
 			{
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\"",
+						"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/sync-claude-title-from-herdr.sh\"",
 						"timeout": 10
 					}
 				]

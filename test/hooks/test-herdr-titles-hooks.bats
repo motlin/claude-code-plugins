@@ -2,7 +2,7 @@
 
 setup() {
   PROJECT_ROOT="$(command cd "$BATS_TEST_DIRNAME/../.." && pwd)"
-  HOOK_SCRIPT="$PROJECT_ROOT/plugins/herdr-titles/scripts/rename-herdr-tab.sh"
+  HOOK_SCRIPT="$PROJECT_ROOT/plugins/herdr-titles/scripts/sync-claude-title-from-herdr.sh"
   SESSION_REPORTER_SCRIPT="$PROJECT_ROOT/plugins/herdr-titles/scripts/report-herdr-agent-session.sh"
   CAPTURE_FILE="$BATS_TEST_TMPDIR/herdr-arguments"
   MOCK_BIN="$BATS_TEST_TMPDIR/bin"
@@ -12,6 +12,11 @@ setup() {
   cat >"$MOCK_BIN/herdr" <<'EOF'
 #!/bin/bash
 printf '%s\n' "$@" >"$HERDR_CAPTURE_FILE"
+if [ -n "${HERDR_FAIL:-}" ]; then
+  exit 1
+fi
+jq --null-input --compact-output --arg tab_id "$3" --arg label "$HERDR_TAB_LABEL" \
+  '{id: "cli:tab:get", result: {tab: {tab_id: $tab_id, label: $label}, type: "tab_info"}}'
 EOF
   chmod +x "$MOCK_BIN/herdr"
 }
@@ -28,7 +33,7 @@ hook_result() {
     }'
 }
 
-@test "herdr-titles exposes SessionStart and Stop hooks to Claude only through the auto-loaded hooks file" {
+@test "herdr-titles exposes SessionStart and UserPromptSubmit hooks to Claude only through the auto-loaded hooks file" {
   claude_manifest="$PROJECT_ROOT/plugins/herdr-titles/.claude-plugin/plugin.json"
   codex_manifest="$PROJECT_ROOT/plugins/herdr-titles/.codex-plugin/plugin.json"
   hooks="$PROJECT_ROOT/plugins/herdr-titles/hooks/hooks.json"
@@ -52,7 +57,7 @@ hook_result() {
       session_start_commands: $session_start_commands
     }')"
 
-  expected="{\"claude_hooks\":\"\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,Stop\",\"session_start_commands\":\"\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh\\\",\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/rename-herdr-tab.sh\\\"\"}"
+  expected="{\"claude_hooks\":\"\",\"codex_hooks\":\"\",\"codex_installation\":\"NOT_AVAILABLE\",\"events\":\"SessionStart,UserPromptSubmit\",\"session_start_commands\":\"\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/report-herdr-agent-session.sh\\\",\\\"\${CLAUDE_PLUGIN_ROOT}/scripts/sync-claude-title-from-herdr.sh\\\"\"}"
   [ "$actual" = "$expected" ]
 }
 
@@ -84,67 +89,65 @@ EOF
   [ "$actual" = '{"status":0,"arguments":"session","input":"{\"hook_event_name\":\"SessionStart\",\"session_id\":\"session-100\"}"}' ]
 }
 
-@test "herdr-titles renames the current tab to the latest custom title" {
-  transcript="$BATS_TEST_TMPDIR/alice-session.jsonl"
-  cat >"$transcript" <<'EOF'
-{"type":"custom-title","customTitle":"Alice starts here","sessionId":"session-100"}
-{"type":"user","sessionId":"session-100"}
-{"type":"custom-title","customTitle":"Alice's \"quoted\" title","sessionId":"session-100"}
-EOF
-  input="$(jq --null-input --compact-output --arg transcript_path "$transcript" \
-    '{transcript_path: $transcript_path}')"
+@test "herdr-titles copies the Herdr tab label into the Claude session title" {
+  input='{"hook_event_name":"UserPromptSubmit","session_id":"session-100"}'
 
   run env \
     PATH="$MOCK_BIN:$PATH" \
     HERDR_CAPTURE_FILE="$CAPTURE_FILE" \
     HERDR_TAB_ID="workspace-100:tab-100" \
+    HERDR_TAB_LABEL="Alice's \"quoted\" title" \
     "$HOOK_SCRIPT" <<<"$input"
 
-  [ "$(hook_result)" = '{"status":0,"output":"","arguments":["tab","rename","workspace-100:tab-100","Alice'"'"'s \"quoted\" title"]}' ]
+  [ "$(hook_result)" = '{"status":0,"output":"{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"sessionTitle\":\"Alice'"'"'s \\\"quoted\\\" title\"}}","arguments":["tab","get","workspace-100:tab-100"]}' ]
 }
 
-@test "herdr-titles does nothing when the session has no custom title" {
-  transcript="$BATS_TEST_TMPDIR/bob-session.jsonl"
-  cat >"$transcript" <<'EOF'
-{"type":"user","sessionId":"session-200"}
-EOF
-  input="$(jq --null-input --compact-output --arg transcript_path "$transcript" \
-    '{transcript_path: $transcript_path}')"
+@test "herdr-titles sets the Claude session title when a session starts" {
+  input='{"hook_event_name":"SessionStart","session_id":"session-200"}'
 
   run env \
     PATH="$MOCK_BIN:$PATH" \
     HERDR_CAPTURE_FILE="$CAPTURE_FILE" \
     HERDR_TAB_ID="workspace-200:tab-200" \
+    HERDR_TAB_LABEL="Bob reviews PRs" \
     "$HOOK_SCRIPT" <<<"$input"
 
-  [ "$(hook_result)" = '{"status":0,"output":"","arguments":[]}' ]
+  [ "$(hook_result)" = '{"status":0,"output":"{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"sessionTitle\":\"Bob reviews PRs\"}}","arguments":["tab","get","workspace-200:tab-200"]}' ]
 }
 
-@test "herdr-titles does nothing before a new session transcript exists" {
-  input="$(jq --null-input --compact-output \
-    --arg transcript_path "$BATS_TEST_TMPDIR/missing-session.jsonl" \
-    '{transcript_path: $transcript_path}')"
+@test "herdr-titles ignores Herdr's default numeric tab labels" {
+  input='{"hook_event_name":"UserPromptSubmit","session_id":"session-300"}'
 
   run env \
     PATH="$MOCK_BIN:$PATH" \
     HERDR_CAPTURE_FILE="$CAPTURE_FILE" \
     HERDR_TAB_ID="workspace-300:tab-300" \
+    HERDR_TAB_LABEL="12" \
     "$HOOK_SCRIPT" <<<"$input"
 
-  [ "$(hook_result)" = '{"status":0,"output":"","arguments":[]}' ]
+  [ "$(hook_result)" = '{"status":0,"output":"","arguments":["tab","get","workspace-300:tab-300"]}' ]
+}
+
+@test "herdr-titles does nothing when Herdr cannot report the tab" {
+  input='{"hook_event_name":"UserPromptSubmit","session_id":"session-400"}'
+
+  run env \
+    PATH="$MOCK_BIN:$PATH" \
+    HERDR_CAPTURE_FILE="$CAPTURE_FILE" \
+    HERDR_TAB_ID="workspace-400:tab-400" \
+    HERDR_FAIL=1 \
+    "$HOOK_SCRIPT" <<<"$input"
+
+  [ "$(hook_result)" = '{"status":0,"output":"","arguments":["tab","get","workspace-400:tab-400"]}' ]
 }
 
 @test "herdr-titles does nothing outside a Herdr tab" {
-  transcript="$BATS_TEST_TMPDIR/charlie-session.jsonl"
-  cat >"$transcript" <<'EOF'
-{"type":"custom-title","customTitle":"Charlie fixes titles","sessionId":"session-300"}
-EOF
-  input="$(jq --null-input --compact-output --arg transcript_path "$transcript" \
-    '{transcript_path: $transcript_path}')"
+  input='{"hook_event_name":"UserPromptSubmit","session_id":"session-500"}'
 
   run env -u HERDR_TAB_ID \
     PATH="$MOCK_BIN:$PATH" \
     HERDR_CAPTURE_FILE="$CAPTURE_FILE" \
+    HERDR_TAB_LABEL="Charlie fixes titles" \
     "$HOOK_SCRIPT" <<<"$input"
 
   [ "$(hook_result)" = '{"status":0,"output":"","arguments":[]}' ]

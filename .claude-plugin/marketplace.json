@@ -219,7 +219,7 @@
 		},
 		{
 			"name": "herdr-titles",
-			"description": "Reports Claude sessions to Herdr and synchronizes custom tab titles",
+			"description": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles",
 			"version": "1.35.2",
 			"author": {
 				"name": "Craig Motlin"

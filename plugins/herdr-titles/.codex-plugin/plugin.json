@@ -1,7 +1,7 @@
 {
 	"name": "herdr-titles",
 	"version": "1.35.2",
-	"description": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
+	"description": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles.",
 	"author": {
 		"name": "Craig Motlin"
 	},
@@ -11,8 +11,8 @@
 	"keywords": ["plugin", "herdr", "claude", "titles"],
 	"interface": {
 		"displayName": "Herdr Titles",
-		"shortDescription": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
-		"longDescription": "Reports Claude sessions to Herdr and synchronizes custom tab titles.",
+		"shortDescription": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles.",
+		"longDescription": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles.",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Workflow"],
