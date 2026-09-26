@@ -5,18 +5,6 @@ description: 'CLI guidelines. Use whenever using the Bash tool, which is almost 
 
 # CLI Guidelines
 
-## Directory Navigation
-
-- I replaced `cd` with `zoxide`. Use `command cd` to change directories
-    - This is the only command that needs to be prefixed with `command`
-    - Don't prefix `git` with `command git`
-- Try not to use `cd` or `zoxide` at all. It's usually not necessary with CLI commands
-    - Don't run `cd <dir> && git <subcommand>`
-    - Prefer `git -C <dir> <subcommand>`
-
-## Flag Names
-
-Prefer long flag names when available:
-
-- Don't run `git commit -m`
-- Run `git commit --message` instead
+- `cd` is replaced with `zoxide`. Use `command cd` to change directories. No other command needs the `command` prefix; don't write `command git`.
+- Avoid changing directories at all. Instead of `cd <dir> && git <subcommand>`, run `git -C <dir> <subcommand>`.
+- Prefer long flag names: `git commit --message`, not `git commit -m`.

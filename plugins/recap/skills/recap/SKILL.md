@@ -31,12 +31,12 @@ Always Markdown link syntax — `🔗 [short label](URL)`. A bare URL, with or w
 
 ```text
 🔗 [CI run](https://github.com/motlin/claude-code-plugins/actions/runs/1234567890)
-🔗 [Plans service](https://plans.m4.notlin.com/)
+🔗 [Dev server](http://localhost:5173/)
 🔗 None
 ```
 
 - Prefer something created or discussed this session, even far earlier in the conversation — that is the case this footer exists for.
-- Keep the label short and recognizable: `PR #42`, `CI run`, `Plans service`.
+- Keep the label short and recognizable: `PR #42`, `CI run`, `Dev server`.
 - Repeat a URL from earlier turns rather than dropping the line. The user has not scrolled up.
 - Write `🔗 None`, with no brackets, only when nothing applies.
 

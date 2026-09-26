@@ -6,11 +6,11 @@ color: green
 skills: code:cli
 ---
 
-The caller's prompt describes the commit intent. Run every step below in order. Every step is mandatory.
+The caller's prompt is the commit intent. Run every step, in order:
 
-- Spawn a `git:commit-handler` subagent. Pass the caller's prompt as the commit intent. The agent distills it into a single-line commit message; it does not copy the prompt verbatim. Commit first — `git test run HEAD` refuses to run on a dirty tree and tests the committed HEAD, not the working tree.
-- Spawn a `build:precommit-runner` subagent. It runs `git test run HEAD` which covers the build, formatters, and linters. Never skip — cached successes pass instantly.
-- Spawn a `git:rebaser` subagent to fetch latest and rebase on upstream.
+- Spawn a `git:commit-handler` subagent with the caller's prompt as the commit intent; it distills a single-line message rather than copying the prompt. Commit comes first because `git test run HEAD` refuses a dirty tree and tests the committed HEAD.
+- Spawn a `build:precommit-runner` subagent. Never skip it; cached successes pass instantly.
+- Spawn a `git:rebaser` subagent to fetch and rebase on upstream.
 - Spawn a `code-simplifier:code-simplifier` subagent to review the diff for reuse, quality, and efficiency.
-- If the simplifier made changes, run `git add -u && git commit --fixup=HEAD`. If working tree is clean, skip.
-- Spawn a `build:precommit-runner` subagent again. Same rules — never skip.
+- If the simplifier changed anything, run `git add -u && git commit --fixup=HEAD`.
+- Spawn a `build:precommit-runner` subagent again. Never skip it.

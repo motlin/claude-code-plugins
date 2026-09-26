@@ -1,13 +1,10 @@
 # Claude Code and Codex Plugins
 
-This repository distributes focused plugins for agent workflows, development tools, terminal
-feedback, and safety checks. Install a plugin through the Claude Code or Codex marketplace when
-you need its full package of skills, hooks, commands, or agents.
+Plugins for agent workflows, development tools, terminal feedback, and safety checks.
 
 ## Plugin Catalog
 
-The catalog follows the checked-in marketplace and plugin manifests. `✅` means the marketplace
-allows installation for that product; `—` means it does not.
+`✅` means the plugin installs on that product; `—` means it does not.
 
 ### Plan and Run Work
 
@@ -72,31 +69,29 @@ claude plugin marketplace add motlin/claude-code-plugins
 claude plugin install markdown-tasks@motlin-claude-code-plugins
 ```
 
-To install the Claude Code variants from a local checkout:
+From a local checkout (the default with no argument):
 
 ```bash
 ./install-local.sh claude
 ```
 
-Running `./install-local.sh` without an argument also selects Claude Code.
-
 ### Codex
 
-Add the marketplace, then install a plugin marked `✅` in the Codex column:
+Install a plugin marked `✅` in the Codex column:
 
 ```bash
 codex plugin marketplace add motlin/claude-code-plugins
 codex plugin add markdown-tasks@motlin-claude-code-plugins
 ```
 
-To install all compatible Codex plugins from a local checkout:
+From a local checkout:
 
 ```bash
 ./install-local.sh codex
 ```
 
-Use `./install-local.sh all` to install both product variants. When developing a plugin locally,
-refresh its Codex installation before starting a new conversation:
+`./install-local.sh all` installs both. After editing a plugin locally, refresh its Codex
+installation before starting a new conversation:
 
 ```bash
 just codex-reinstall --plugin markdown-tasks
@@ -104,8 +99,7 @@ just codex-reinstall --plugin markdown-tasks
 
 ## Install Skills Without a Plugin
 
-The open [`skills`](https://github.com/vercel-labs/skills) CLI can list the Agent Skills in this
-repository and install one for a specific agent:
+The [`skills`](https://github.com/vercel-labs/skills) CLI installs individual skills:
 
 ```bash
 npx skills add motlin/claude-code-plugins --list
@@ -113,6 +107,5 @@ npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent codex
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-code
 ```
 
-From a local checkout, replace the repository name with `.`. This route installs skill
-instructions and bundled resources only; use a product marketplace when the plugin also relies on
-hooks, commands, or custom agents.
+From a local checkout, use `.` as the repository. This installs skills only, not hooks,
+commands, or agents.

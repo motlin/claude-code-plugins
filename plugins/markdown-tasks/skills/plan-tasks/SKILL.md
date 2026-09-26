@@ -5,28 +5,21 @@ description: Convert a planning discussion into self-contained tasks in .llm/tod
 
 # Plan Tasks
 
-Capture conversation planning into self-contained tasks at the end of the discussion.
+Turn the requirements, approaches, and implementation details discussed in this conversation into tasks appended to `.llm/todo.md`. Use this after planning and before any coding.
 
-Use at the **end of a planning conversation** when you have discussed requirements, approaches, and implementation details but have not started coding yet. The input is the current conversation; transform the plans, ideas, and requirements from the discussion into tasks appended to `.llm/todo.md`.
+Use the `markdown-tasks:tasks` skill for task format and script path rules, including archiving any plan file under `.llm/plans/` and putting its path in each task. `<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}` in Claude Code; in Codex, it is the plugin root that contains this `skills/plan-tasks/SKILL.md` file.
 
-Use the `markdown-tasks:tasks` skill for task format and script path rules, including archiving any plan file under `.llm/plans/` before adding tasks and putting the archived path in each task.
+Each task must be readable on its own, from its `- [ ]` to the next one, and include:
 
-Resolve `<plugin-root>` before running plugin scripts:
-
-- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
-- In Codex, use the plugin root that contains this `skills/plan-tasks/SKILL.md` file.
-
-Create tasks that are fully self-contained, readable independently from `- [ ]` to the next `- [ ]`. Each task should include:
-
-- Absolute file paths; never relative paths.
+- Absolute file paths, never relative ones.
 - Exact class, function, or command names.
 - Existing patterns to follow, with analogies to similar code.
-- Concrete implementation details: the specific methods or operations involved.
-- Module/package context: which module or package the work belongs to.
-- Dependencies and prerequisites: what needs to exist or be imported.
-- Expected outcome: what success looks like.
+- The specific methods or operations involved.
+- The module or package the work belongs to.
+- Dependencies and prerequisites.
+- The expected outcome.
 
-Compose every task before writing. Add the complete batch in one shell command by chaining one call per task with `&&`:
+Compose every task first, then add the batch in one shell command, chaining one call per task with `&&` so concurrent sessions are unlikely to interleave their tasks:
 
 ```bash
 python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
@@ -35,8 +28,6 @@ python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
 python <plugin-root>/scripts/task_add.py .llm/todo.md "Another task
   Standalone context"
 ```
-
-Never add a multi-task batch across separate shell commands. Keeping the writes together reduces the chance that concurrent sessions interleave their tasks.
 
 ## Example
 

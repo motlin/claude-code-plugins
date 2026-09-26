@@ -1,19 +1,17 @@
 ---
 name: code-generation
-description: This skill should be used when the user asks to "fix formatter-off", "fix code generation formatting", "fix auto-formatted string concatenation", "add formatter off", or when writing, reviewing, or generating Java code generators that build source code via string concatenation. Also applies proactively when creating new code generation methods or modifying existing ones — always use @formatter:off guards and the one-output-line-per-source-line convention.
+description: Formatting rules for Java code generators that build source code via string concatenation. Use when the user asks to "fix formatter-off", "fix code generation formatting", "fix auto-formatted string concatenation", or "add formatter off", and proactively when writing, reviewing, or modifying a code generation method.
 ---
 
 # Code Generation Formatting
 
-## Purpose
+Java code generators that build source via string concatenation need `// @formatter:off` / `// @formatter:on` guards. Without them, IntelliJ's formatter splits concatenation chains and breaks the correspondence between Java source lines and generated output lines.
 
-Java code generators that build source code via string concatenation must use `// @formatter:off` / `// @formatter:on` guards. Without these, IntelliJ's auto-formatter breaks concatenation chains across multiple lines, destroying the correspondence between Java source lines and generated output lines.
+## The rule
 
-## The Rule
+Each `\n`-terminated line of generated output occupies exactly one Java source line. A Java line break occurs only where the template has a `\n`.
 
-Each line of generated output (terminated by `\n`) must occupy a single Java source line. A new line in the Java source should only occur where there is a `\n` in the template string.
-
-### Bad (auto-formatted)
+Bad (auto-formatted):
 
 ```java
 setterBody = ""
@@ -23,7 +21,7 @@ setterBody = ""
     + "            return;\n";
 ```
 
-### Good (one output line per Java line)
+Good:
 
 ```java
 // @formatter:off
@@ -33,28 +31,19 @@ setterBody = ""
 // @formatter:on
 ```
 
-## How to Identify Violations
+## Finding violations
 
-Search for string concatenation blocks that contain `\n` literals but are NOT wrapped in `// @formatter:off`. Common patterns:
+Look for concatenation blocks containing `\n` literals that are not inside `// @formatter:off`. Typical shapes:
 
-1. **Multi-line `+` chains** where each `+` is on its own line and template variables are separated from their surrounding string literals
-2. **`.collect()` lambdas** producing single-line templates that got broken across multiple lines
-3. **Return statements** wrapped in parentheses `return ( "" + ... )` instead of direct `return "" + ...`
+- Multi-line `+` chains with template variables split from their surrounding string literals.
+- `.collect()` lambdas whose single-line template was broken across lines.
+- `return ( "" + ... )` wrapped in parentheses instead of `return "" + ...`.
 
-## Fix Procedure
+## Fixing
 
-1. Search generator files for string concatenation containing `\n` that lacks `@formatter:off` guards
-2. For each violation:
-    - Add `// @formatter:off` before the block
-    - Collapse string concatenation so each `\n`-terminated segment is on one Java source line
-    - Add `// @formatter:on` after the block
-3. For `.collect()` lambdas that produce single-line templates (one `\n`), collapse the entire template string onto one line
-4. For multi-line templates, each `\n`-terminated segment gets its own line with `+` continuation
-5. Use the same indentation style as existing `@formatter:off` blocks in the file
+Wrap the block in `// @formatter:off` and `// @formatter:on`, and collapse each `\n`-terminated segment onto one line with `+` continuation. A `.collect()` lambda with a single-line template goes entirely on one line. When the strings contain valid Java source, add `// language=JAVA` after `// @formatter:off` for IntelliJ language injection.
 
-## Indentation Style
-
-Match the existing convention in each file. The typical pattern uses tabs with `+` aligned:
+Match the indentation of existing `@formatter:off` blocks in the file. The usual pattern is tabs with aligned `+`:
 
 ```java
 		// @formatter:off
@@ -68,8 +57,6 @@ Match the existing convention in each file. The typical pattern uses tabs with `
 		// @formatter:on
 ```
 
-For `.collect()` lambdas with single-line output, keep it all on one line:
-
 ```java
 		// @formatter:off
 		String fields = properties
@@ -77,7 +64,3 @@ For `.collect()` lambdas with single-line output, keep it all on one line:
 			.makeString("");
 		// @formatter:on
 ```
-
-## Additional Markers
-
-When the string block contains valid Java source, add `// language=JAVA` after `// @formatter:off` to enable IntelliJ language injection for syntax highlighting inside the strings.

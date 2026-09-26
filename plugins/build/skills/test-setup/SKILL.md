@@ -5,21 +5,13 @@ description: Configure git-test for the current repository so the test-branch an
 
 # Test Setup
 
-Configure `git test` in the current repository so that the `build:test-branch` and `build:test-all` skills work.
+Configure `git test` so the `build:test-branch` and `build:test-all` skills work.
 
-## Check Current State
+## Check current state
 
-Run:
+Run `git test list`. If a test is already configured, show it and ask before replacing it.
 
-```bash
-git test list
-```
-
-If it is already configured, show the current configuration and ask the user whether to reconfigure before replacing it.
-
-## Detect Project Capabilities
-
-Check whether a `justfile` exists in the project root, whether it has a `precommit` recipe, and whether `should-skip-commit` is available:
+## Detect project capabilities
 
 ```bash
 ls justfile 2>/dev/null
@@ -27,44 +19,37 @@ just --list 2>/dev/null | grep precommit
 which should-skip-commit 2>/dev/null
 ```
 
-## Choose Test Command
+## Choose the test command
 
-Present the choices with `AskUserQuestion`. The options depend on what was detected.
+If a justfile with a `precommit` recipe exists, offer these with `AskUserQuestion`:
 
-If a justfile with a `precommit` recipe exists, offer three options:
-
-- **Standard (Recommended)**: wraps `just precommit` with clean-tree guards and skip logic
+- **Standard (Recommended)**: clean-tree guards around `just precommit`, with skip logic
 
     ```bash
     just --global-justfile _check-local-modifications && (should-skip-commit || just precommit) && just --global-justfile _check-local-modifications
     ```
 
-- **Without skip**: same guards, but always runs precommit and never skips
+- **Without skip**: same guards, always runs precommit
 
     ```bash
     just --global-justfile _check-local-modifications && just precommit && just --global-justfile _check-local-modifications
     ```
 
-- **Precommit with args**: ask the user what arguments to pass to `just precommit <args>`, then use
+- **Precommit with args**: ask which arguments to pass, then use
 
     ```bash
     just --global-justfile _check-local-modifications && just precommit <args> && just --global-justfile _check-local-modifications
     ```
 
-If no justfile or no `just precommit` recipe exists, tell the user that the `build:test-branch` skill expects `just precommit` to exist and branch testing needs a reliable test command, and ask whether they want to configure a custom test command instead.
+Otherwise, tell the user that `build:test-branch` expects a `just precommit` recipe, and ask whether to configure a custom test command instead.
 
-## Configure
+## Configure and verify
 
-Run the chosen command with `--forget` to clear any stale cached results:
+`--forget` clears stale cached results:
 
 ```bash
 git test add --test default '<chosen command>' --forget
-```
-
-## Verify
-
-Confirm the configuration was saved correctly and show the output to the user:
-
-```bash
 git test list
 ```
+
+Show the `git test list` output to the user.

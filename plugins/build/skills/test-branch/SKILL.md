@@ -5,22 +5,17 @@ description: Test every commit in the current branch with git-test, delegate fai
 
 # Test Branch
 
-Automate the test-fix loop for the current branch against the upstream branch. Test each commit, fix failures, create fixup commits, and repeat until all commits pass. Keep the main thread focused on the loop; fixing is delegated to a subagent.
+Run the test-fix loop for the current branch against upstream until every commit passes. Fixing is delegated to a subagent so the main thread stays on the loop.
 
-Resolve `<plugin-root>` before running plugin scripts:
-
-- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
-- In Codex, use the plugin root that contains this `skills/test-branch/SKILL.md` file.
+Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/test-branch/SKILL.md` file.
 
 ## Setup
 
-Create a temp directory and set `WORKDIR` to it:
-
 ```bash
-WORKDIR=$(mktemp -d)
+WORKDIR=$(mkdir -p .llm && mktemp -d .llm/test-branch.XXXX)
 ```
 
-Initialize a report at `${WORKDIR}/report.md`:
+Initialize `${WORKDIR}/report.md`:
 
 ```markdown
 # Test Branch Report
@@ -28,61 +23,57 @@ Initialize a report at `${WORKDIR}/report.md`:
 Started: [timestamp]
 ```
 
-Set `iteration = 0` and `max_iterations = 10`.
+Allow at most 10 iterations.
 
 ## Loop
 
-The phases below run in order on every iteration: run test-branch, check for auto-formatted changes, identify the failing commit and fix it, run test-fix.
+Each iteration runs these phases in order.
 
 ### Run test-branch
 
-Increment the iteration. Redirect output to a file since build logs can be 10K+ lines:
+Redirect output to a file, since build logs can exceed 10K lines. Use a 30-minute timeout; if it expires, stop with "Stopped: timeout".
 
 ```bash
 <plugin-root>/scripts/test-branch > "${WORKDIR}/build.log" 2>&1; echo $?
 ```
 
-The script writes the branch name to `JUSTFILE_BRANCH` (test-fix reads it later) and runs `git test run --retest --verbose --verbose` over `${UPSTREAM_REMOTE:-upstream}/${UPSTREAM_BRANCH:-main}..<branch>`. Use a 30-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
-
-- Exit code 0: all commits pass. Go to **Done**.
-- Non-zero: continue to the auto-format check.
+The script writes the branch name to `JUSTFILE_BRANCH` (test-fix reads it) and runs `git test run --retest --verbose --verbose` over `${UPSTREAM_REMOTE:-upstream}/${UPSTREAM_BRANCH:-main}..<branch>`. Exit 0 means all commits pass: go to **Done**.
 
 ### Check for auto-formatted changes
 
-Run `git status --porcelain`. If there are local changes, the pre-commit hook already auto-formatted files and there is nothing to fix. Skip straight to test-fix.
+If `git status --porcelain` shows local changes, the pre-commit hook already auto-formatted files and there is nothing to fix. Skip to test-fix.
 
-### Identify the failing commit and fix it
+### Fix the failing commit
 
-The failing commit is HEAD (git-test checks out each commit). Get it with `git log --oneline -1`. Append the iteration to the report. If this is the same commit that failed in the previous iteration, stop and display the report with "Stopped: same commit failed twice".
+The failing commit is HEAD, since git-test checks out each commit; get it with `git log --oneline -1` and append the iteration to the report. If the same commit failed in the previous iteration, stop with "Stopped: same commit failed twice".
 
-When the auto-format check found no local changes, launch a **subagent** to fix the errors. Do NOT fix them yourself; delegate so the main thread stays focused on the loop. Give the subagent this prompt:
+If the auto-format check found no changes, launch a subagent with this prompt instead of fixing the errors yourself:
 
-```
+```text
 Use the build:fix skill to fix the build error toward the end of: ${WORKDIR}/build.log
 ```
 
-Wait for the subagent to complete, then proceed immediately to test-fix. Do not create commits; test-fix handles that.
+Wait for it, then go straight to test-fix without committing.
 
 ### Run test-fix
+
+Use a 30-minute timeout; if it expires, stop with "Stopped: timeout".
 
 ```bash
 <plugin-root>/scripts/test-fix > "${WORKDIR}/test-fix.log" 2>&1; echo $?
 ```
 
-Use a 30-minute timeout. If the timeout expires, stop and display the report with "Stopped: timeout".
+The script stages the changes, runs pre-commit on them, creates a fixup commit for HEAD, refuses to continue if anything is still uncommitted, replays the `JUSTFILE_BRANCH` branch onto the fixup, autosquashes it into the failing commit, and reruns test-branch on all commits.
 
-The script stages the changes, runs pre-commit on them, creates a fixup commit for HEAD, refuses to continue if anything is still uncommitted, replays the branch recorded in `JUSTFILE_BRANCH` onto the fixup, rebases with `--autosquash` onto the upstream branch to squash it into the failing commit, and then re-runs test-branch on all commits.
-
-- Exit code 0: all commits pass. Go to **Done**.
-- Non-zero: **loop back to run test-branch**. The re-test found more failures; continue the loop. Do NOT stop here.
+Exit 0 means all commits pass: go to **Done**. Non-zero means the retest found more failures: loop back to run test-branch rather than stopping.
 
 ## Done
 
-Append success to the report. Display the full report.
+Append the result to the report and display the full report.
 
-## Report Format
+## Report format
 
-Append each iteration to the report as it happens:
+Append each iteration as it happens:
 
 ```markdown
 ## Iteration 1
@@ -100,7 +91,6 @@ Completed: [timestamp]
 
 ## Safety
 
-- Maximum 10 iterations
-- Always display the report when stopping
-- NEVER run `git test forget-results`; the cache is the whole point of git-test, letting it skip already-passing commits
-- NEVER rebase manually; only `<plugin-root>/scripts/test-fix` does rebasing. Do not attempt to resolve conflicts or work around failures yourself.
+- Always display the report when stopping.
+- Never run `git test forget-results`; the cache lets git-test skip already-passing commits.
+- Never rebase manually or resolve conflicts yourself; only `<plugin-root>/scripts/test-fix` rebases.

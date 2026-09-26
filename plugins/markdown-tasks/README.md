@@ -1,135 +1,14 @@
 # markdown-tasks Plugin
 
-`markdown-tasks` manages a repository-local queue in `.llm/todo.md`. Tasks are ordinary Markdown
-checkboxes, while bundled scripts give agents a narrow view of one item at a time. The plugin works
-with Claude Code and Codex.
+A task queue in `.llm/todo.md`, managed through bundled Python scripts, for Claude Code and Codex.
 
-Choose this plugin when you want inspectable task state, a queue scoped to the current checkout, or
-the same task model in both products.
+- `/markdown-tasks:add-one-task` (command) / `markdown-tasks:markdown-add-task`: add one self-contained task
+- `markdown-tasks:plan-tasks`: turn a planning conversation into tasks
+- `markdown-tasks:import-plan`: turn a plan file into one task per step
+- `markdown-tasks:sweep-todos`: add source `TODO` comments as tasks
+- `markdown-tasks:do-one-task`: implement and commit the next task
+- `markdown-tasks:do-all-tasks`: run one fresh `do-task` worker per task until the queue is empty
+- `markdown-tasks:markdown-unblock-tasks`: recover blocked `[!]` tasks from archives
+- `markdown-tasks:tasks`: task format and script reference shared by the other skills
 
-## Install
-
-### Claude Code
-
-```bash
-claude plugin marketplace add motlin/claude-code-plugins
-claude plugin install markdown-tasks@motlin-claude-code-plugins
-```
-
-### Codex
-
-```bash
-codex plugin marketplace add motlin/claude-code-plugins
-codex plugin add markdown-tasks@motlin-claude-code-plugins
-```
-
-The helper scripts run with Python. Task implementation also uses this repository's finish workflow,
-so install `orchestration`, `build`, `git`, and `code` from the same marketplace and configure
-`git-test` in repositories where tasks will be executed.
-
-Keep `.llm/` out of version control when the queue is local agent context. Each Git worktree then
-has an independent task file.
-
-## Choose a Workflow
-
-Each workflow is a skill that Claude Code and Codex both load. Claude Code invokes it as a slash
-command and Codex as a `$` skill under the same name:
-
-| Goal                           | Claude Code                              | Codex skill                              |
-| ------------------------------ | ---------------------------------------- | ---------------------------------------- |
-| Add one task                   | `/markdown-tasks:add-one-task`           | `$markdown-tasks:markdown-add-task`      |
-| Capture the current planning   | `/markdown-tasks:plan-tasks`             | `$markdown-tasks:plan-tasks`             |
-| Import a plan file             | `/markdown-tasks:import-plan <path>`     | `$markdown-tasks:import-plan`            |
-| Collect source `TODO` comments | `/markdown-tasks:sweep-todos`            | `$markdown-tasks:sweep-todos`            |
-| Implement the next task        | `/markdown-tasks:do-one-task`            | `$markdown-tasks:do-one-task`            |
-| Process every incomplete task  | `/markdown-tasks:do-all-tasks`           | `$markdown-tasks:do-all-tasks`           |
-| Recover blocked tasks          | `/markdown-tasks:markdown-unblock-tasks` | `$markdown-tasks:markdown-unblock-tasks` |
-
-`add-one-task` is still a Claude Code command; its Codex counterpart is the
-`markdown-tasks:markdown-add-task` skill.
-
-The `markdown-tasks:tasks` skill supplies the low-level task format and script conventions used by
-the workflow skills. It is not normally the entry point for a queue operation.
-
-## Task File
-
-The scripts create `.llm/todo.md` on the first add operation. A task begins with one of these
-markers:
-
-- `[ ]` is ready.
-- `[x]` completed validation and was committed.
-- `[!]` failed during a batch attempt and is skipped. Marking a task `[!]` requires a reason, which
-  `task_mark.py` appends to the task body so the next attempt sees what failed.
-
-Indent context beneath the checkbox so extraction returns the whole task:
-
-```markdown
-- [ ] Require authentication on API routes.
-      Update `/workspace/project/src/routes/api.ts`.
-      Reuse `validateJwt` from `/workspace/project/src/auth/tokens.ts`.
-      Return 401 before invoking a protected route when validation fails.
-```
-
-Every item should stand alone. Include absolute paths, named code elements, dependencies, examples
-to follow, and the expected result. Workers receive the first incomplete task and its indented
-context, not the rest of the queue.
-
-The bundled scripts are the supported way for agents to change the task file:
-
-| Script            | Operation                                                                     |
-| ----------------- | ----------------------------------------------------------------------------- |
-| `task_add.py`     | Append a self-contained `[ ]` task                                            |
-| `task_get.py`     | Print the first incomplete task and its context                               |
-| `task_mark.py`    | Mark the first incomplete task `[x]` or another state, recording a `--reason` |
-| `task_archive.py` | Move a finished queue to `.llm/YYYY-MM-DD-todo.md`, keeping `[!]` tasks live  |
-| `task_unblock.py` | Move blocked `[!]` tasks from archives back to `.llm/todo.md`                 |
-
-## Populate the Queue
-
-`add-one-task` expands one description into a self-contained item. `markdown-tasks:plan-tasks`
-converts the requirements already discussed in the conversation into a batch and writes that batch in
-one operation.
-
-`markdown-tasks:import-plan` takes a stored plan, places it under `.llm/plans/`, and creates tasks
-for its steps. The generated queue also contains a whole-plan verification task and a final task
-that archives the plan under `.llm/plans/done/`.
-
-`markdown-tasks:sweep-todos` searches for `TODO` comments and adds their paths, line numbers, and
-text to the queue. It captures work; it does not remove comments or implement them.
-
-## Execute the Queue
-
-`markdown-tasks:do-one-task` extracts one `[ ]` item, implements only that item, runs task-specific
-validation, and invokes the finish pipeline. The task is marked `[x]` only after its commit and
-validation succeed.
-
-`markdown-tasks:do-all-tasks` is a sequential coordinator. It starts one fresh worker per task,
-requires one clean task commit, and checks `HEAD` before extracting the next item. A failed worker
-leaves no commit; the coordinator marks that task `[!]` with the reason it failed and continues.
-Ambiguous task state or an unverified commit stops the run instead of stacking more work.
-
-The reason is stored inside the task body rather than in a side file, so it travels with the task
-through archiving and recovery. Without it a recovered task returns with no record of the earlier
-attempt and the next worker repeats the same failing approach.
-
-When no `[ ]` items remain, the all-tasks workflow archives the queue to a dated file. Archived `[!]`
-items are otherwise invisible, so `markdown-tasks:markdown-unblock-tasks` moves them out of every
-dated file and back into `.llm/todo.md` as `[ ]` tasks, stamped with the recovery date. It surveys
-with `--dry-run` and confirms the report before touching anything, since recovery rewrites the
-archives it reads.
-
-Recovery is a move rather than a copy, so a task leaves the archive it came from and repeated runs
-cannot duplicate it. The earlier `Blocked` line survives alongside the new `Recovered` line, so the
-reason the task failed travels with it and the next worker does not repeat that approach.
-
-## Boundaries
-
-- The first `[ ]` item is the next item; the format has no built-in dependency graph or priority
-  field.
-- Batch execution is sequential because every worker shares the same checkout and task file.
-- The task list is not committed automatically. Its persistence and visibility follow how the
-  repository treats `.llm/`.
-- Plan and comment workflows create queue entries but do not guarantee that their source material
-  is complete or deduplicated.
-- Implementation depends on the finish pipeline and stops when the committed `HEAD` cannot be
-  verified.
+Executing tasks needs the `orchestration`, `build`, `git`, and `code` plugins, and `git-test` configured in the repository (see `build:test-setup`).

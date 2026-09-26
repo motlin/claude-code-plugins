@@ -3,17 +3,13 @@ name: openrewrite
 description: OpenRewrite recipe test maintenance. Use when fixing test failures, import ordering issues, type validation problems, IDE warnings, or writing comprehensive recipe tests.
 ---
 
-# OpenRewrite Recipe Development
+# OpenRewrite Recipe Tests
 
-This skill provides guidelines for developing OpenRewrite recipes and maintaining their tests, with a focus on import ordering issues.
+For recipe source code patterns, see the `java:openrewrite-recipes` skill.
 
-## Fixing Import Ordering Test Failures
+## Import ordering failures
 
-🔧 OpenRewrite recipe tests often fail due to import order differences, not actual transformation issues.
-
-### Problem
-
-OpenRewrite recipe tests fail with diffs showing only import order differences:
+Recipe tests often fail on import order alone, not on the transformation:
 
 ```diff
 -import java.util.List;
@@ -22,20 +18,7 @@ OpenRewrite recipe tests fail with diffs showing only import order differences:
 +import java.util.List;
 ```
 
-### Root Cause
-
-OpenRewrite manages imports automatically based on:
-
-- Existing imports in the file
-- JavaTemplate configuration
-- Import optimization rules
-- The order may differ from test expectations
-
-### Solution Approach
-
-#### 1. Fix the Recipe (if imports are missing)
-
-Ensure your JavaTemplate is properly configured:
+If imports are missing entirely, fix the recipe: declare them on the `JavaTemplate` and call `maybeAddImport` / `maybeRemoveImport`. A template that introduces library types also needs `.contextSensitive()` and a parser classpath:
 
 ```java
 JavaTemplate template = JavaTemplate
@@ -44,179 +27,47 @@ JavaTemplate template = JavaTemplate
         "org.assertj.core.api.Assertions",
         "org.eclipse.collections.impl.utility.Iterate"
     )
-    .contextSensitive()  // Important for proper context handling
+    .contextSensitive()
     .javaParser(JavaParser.fromJavaVersion()
         .classpath("assertj-core", "eclipse-collections", "eclipse-collections-api")
     )
     .build();
 ```
 
-Don't forget to call:
+If only the order differs, accept the order OpenRewrite produces rather than forcing your own: copy the actual output from the failure into the expected text, confirm the transformation itself is right, and rerun. OpenRewrite typically orders imports as third-party packages, blank line, `java.*` / `javax.*`, then static imports after another blank line.
 
 ```java
-maybeAddImport("org.assertj.core.api.Assertions");
-maybeAddImport("org.eclipse.collections.impl.utility.Iterate");
-maybeRemoveImport("old.package.OldClass");
+"""
+import org.assertj.core.api.Assertions;
+import org.eclipse.collections.impl.utility.Iterate;
+
+import java.util.List;
+"""
 ```
 
-#### 2. Fix the Test Expectations
+The `~~>` prefix ("ignore everything before this line") is not recognized in every codebase. If it fails, remove it and match exactly.
 
-Accept the actual import order that OpenRewrite produces:
+## Type validation
 
-❌ Instead of forcing a specific order:
+For tests with custom types that lack complete type information, prefer types that exist on the classpath. Disable validation only as a last resort:
 
 ```java
-// DON'T expect a specific order you want
-"import java.util.List;\n" +
-"import org.assertj.core.api.Assertions;\n"
+rewriteRun(
+  spec -> spec.typeValidationOptions(TypeValidation.none()),
+  java(...)
+);
 ```
 
-✅ Use the actual order OpenRewrite produces:
+## IDE warnings
 
-```java
-// DO accept the order OpenRewrite generates
-"import org.assertj.core.api.Assertions;\n" +
-"import org.eclipse.collections.impl.utility.Iterate;\n" +
-"\n" +
-"import java.util.List;\n"
-```
+Test inputs contain intentional issues. Suppress the resulting IDE warnings with `@SuppressWarnings` on the test method, or on the class when several tests share it. Common values: `"RedundantCast"`, `"ConstantConditions"`, `"unused"`, `"unchecked"`.
 
-#### 3. Common Import Ordering Patterns
+## Language comments
 
-OpenRewrite typically orders imports as:
+Add `//language=java` for IDE highlighting. With a plain `java("before", "after")` call, put it before `java`. With a spec customization or several `java()` calls, put it on the individual strings.
 
-1. Third-party packages (org.assertj, org.eclipse.collections, etc.)
-2. Blank line
-3. Java standard library (`java.*`, `javax.*`)
-4. Blank line (if static imports exist)
-5. Static imports
+Do not add `//language=java` to `JavaTemplate` strings containing `#{any()}` or `#{}`; they are not valid Java.
 
-### Quick Fix Steps
+## Coverage
 
-1. Run the failing test and copy the actual output from the error message
-2. Replace the expected output in your test with the actual output
-3. Verify the transformation logic is correct (ignore import order)
-4. Re-run the test to confirm it passes
-
-### Note on ~~> Syntax
-
-The `~~>` prefix in test expectations is not standard in all codebases. It's used in some OpenRewrite projects to indicate "ignore everything before this line" but isn't recognized in all contexts. If you see it failing, remove it and use exact matching instead.
-
-### Example Fix
-
-```java
-@Test
-void replacesVerifyWithAssertJ() {
-    rewriteRun(
-        java(
-            // Input
-            """
-            import org.eclipse.collections.impl.test.Verify;
-            import java.util.List;
-
-            class Test {
-                void test() {
-                    List<String> list = List.of("a", "b", "c");
-                    Verify.assertCount(2, list, each -> each.length() > 0);
-                }
-            }
-            """,
-            // Expected output - use actual order from test failure
-            """
-            import org.assertj.core.api.Assertions;
-            import org.eclipse.collections.impl.utility.Iterate;
-
-            import java.util.List;
-
-            class Test {
-                void test() {
-                    List<String> list = List.of("a", "b", "c");
-                    Assertions.assertThat(Iterate.count(list, each -> each.length() > 0)).isEqualTo(2);
-                }
-            }
-            """
-        )
-    );
-}
-```
-
-## Testing Best Practices
-
-### Type Validation in Tests
-
-For tests involving custom types with incomplete type information, disable type validation as a last resort. Prefer specifying types that exist:
-
-```java
-@Test
-void withCustomType() {
-    rewriteRun(
-      spec -> spec.typeValidationOptions(TypeValidation.none()),
-      java(
-        // test code
-      )
-    );
-}
-```
-
-### Suppressing IDE Warnings in Tests
-
-When testing code with intentional issues (that the recipe will fix), suppress IDE warnings:
-
-```java
-// Single test method
-@SuppressWarnings("RedundantCast")
-@Test
-void testRedundantCast() { ... }
-
-// Multiple tests with same warning - move to class level
-@SuppressWarnings({"ConstantConditions", "RedundantCast"})
-class MyRecipeTest implements RewriteTest { ... }
-```
-
-Common suppressions: `"RedundantCast"`, `"ConstantConditions"`, `"unused"`, `"unchecked"`
-
-### IDE Support with Language Comments
-
-Add `//language=java` before string templates to enable IDE syntax highlighting.
-
-When using `java("before", "after")` with no customization, place the comment before `java`:
-
-```java
-//language=java
-java(
-    """
-      public class Before { }
-      """,
-    """
-      public class After { }
-      """
-)
-```
-
-When there's customization or multiple `java()` calls, place comments on individual strings:
-
-```java
-spec -> spec.typeValidationOptions(TypeValidation.none()),
-//language=java
-java(
-    """
-      public class Test { }
-      """
-)
-```
-
-Do NOT add `//language=java` to JavaTemplate strings containing parameters like `#{any()}` or `#{}` — these aren't valid Java and will cause IDE errors.
-
-### Test Coverage
-
-Ensure comprehensive coverage including:
-
-- Basic cases
-- Edge cases (custom types, fully qualified types)
-- Cases where the recipe should NOT make changes
-- Import handling scenarios
-- Formatting preservation
-
-## Maven POM Dependency Ordering
-
-Maven POM files should follow a consistent dependency ordering structure. See the `java:pom-ordering` skill for detailed guidelines.
+Cover basic cases, edge cases (custom types, fully qualified types), cases where the recipe must not change anything, import handling, and formatting preservation.

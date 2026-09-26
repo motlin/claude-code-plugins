@@ -5,30 +5,26 @@ description: Coordinates other skills and agents. ALWAYS use this skill on start
 
 # Skill Guidelines
 
-Invoke these skills liberally - most tasks use multiple skills:
+Most tasks use several of these skills:
 
 | Skill                              | When to use                           |
 | ---------------------------------- | ------------------------------------- |
 | `code:code-quality`                | Before editing code                   |
 | `code:cli`                         | When running shell commands           |
-| `build:precommit`                  | Before running builds or tests        |
+| `build:precommit`                  | After code changes                    |
 | `git:git-workflow`                 | For all git operations                |
 | `orchestration:conversation-style` | For response guidelines               |
 | `orchestration:llm-context`        | When working with `.llm/` directories |
 | `recap:recap`                      | Before ending a turn                  |
 
-## Git Commits
+## Git
 
-Use the `git:commit` skill for commit operations.
+Use the `git:commit` skill to commit, `git:conflicts` to resolve merge or rebase conflicts, and `git:git-rebase` to rebase the current branch on upstream.
 
-Use the `git:conflicts` skill to resolve git merge or rebase conflicts.
+## Temporary files
 
-Use the `git:git-rebase` skill to rebase the current branch on upstream.
+Write scratch files and temporary output to `.llm/`, not `/tmp` or other system temp directories; reading from `/tmp` triggers permission prompts.
 
-## File Writing Policy
+## Finishing
 
-**NEVER** write files to `/tmp` or other system temporary directories - reading from `/tmp` triggers permission prompts. Write scratch files and temporary outputs to `.llm/` instead.
-
-## Workflow Orchestration
-
-Use the `orchestration:finish` skill before returning control to the user when a task made code or git changes. It handles the case where there is nothing to do.
+Before returning control after a task that made code or git changes, use the `orchestration:finish` skill.

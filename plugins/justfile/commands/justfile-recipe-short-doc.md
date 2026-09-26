@@ -3,16 +3,7 @@ description: Shorten justfile recipe doc comments for simple recipes
 model: haiku
 ---
 
-For very short justfile recipes, change the doc comment string to be the entire command. Before:
-
-```justfile
-# Install dependencies
-[group('setup')]
-install:
-    npm install
-```
-
-After:
+Apply the short-recipe doc comment rule from the `justfile:justfile-style` skill: for each recipe whose body is a single line of roughly 120 characters or less, replace the doc comment with the command itself.
 
 ```justfile
 # npm install
@@ -21,6 +12,4 @@ install:
     npm install
 ```
 
-- The cutoff for when to perform this refactoring should be approximately a single line of 120 characters.
-- If the recipe is a shebang recipe, don't shorten the doc comment
-- If the recipe is multiple lines, or longer than 120 characters, don't shorten the doc comment
+Leave shebang recipes, multi-line recipes, and longer commands unchanged.

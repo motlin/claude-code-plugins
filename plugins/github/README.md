@@ -1,40 +1,7 @@
-# GitHub Plugin
+# github
 
-GitHub Actions troubleshooting and CI/CD automation for Claude Code.
+Diagnose GitHub Actions failures and open pull requests.
 
-## Features
-
-- **GitHub Actions Debugging**: Fix failing CI/CD workflows
-- **Workflow Analysis**: Examine failed runs and logs
-- **Commit-based Fixes**: Target fixes to specific commits
-
-## Commands
-
-- `/gha` - Fix failing GitHub Actions for the current commit
-    - Fetches latest refs from origin
-    - Finds failing checks for HEAD commit
-    - Analyzes failure logs
-    - Fixes identified issues
-    - Creates fixup commit
-
-## Skills
-
-- **github-actions-fix** - Debug and fix failing GitHub Actions checks for the current commit
-- **create-pull-request** - Open a PR the preferred way: title pulled from the commit message, empty body, `--web` when a browser is available
-
-## Usage
-
-When you have a failing GitHub Actions run on your current commit:
-
-```bash
-/gha
-```
-
-The command will:
-
-1. Fetch the latest git refs
-2. List recent workflow runs for your commit
-3. View details of failed runs
-4. Show only failed job logs
-5. Analyze and fix the issues
-6. Create a fixup commit targeting HEAD
+- `/github:gha` — fix failing GitHub Actions for the current commit
+- `github:github-actions-fix` skill — the procedure behind `/github:gha`
+- `github:create-pull-request` skill — open a PR titled from the commit message, with an empty body

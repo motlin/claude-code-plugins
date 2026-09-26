@@ -5,39 +5,11 @@ description: Efficient data loading patterns using system_from/system_to for cac
 
 # Temporal Caching
 
-System-time versioned tables give you a built-in cache validator: `system_from` changes whenever a record is updated. This eliminates the need for separate version columns, ETags tables, or change-tracking infrastructure.
+In a system-time versioned table, `system_from` changes whenever a record changes, so it serves as a built-in cache validator. No separate version columns, ETag tables, or change tracking are needed. See the `temporal-data:temporal-data` skill for the underlying schema and query conventions.
 
-Three patterns leverage this at different granularities:
-
-## Global Watermark
-
-Client stores the maximum `system_from` seen across an entire collection. On each poll, asks "give me everything newer than X." Empty result means nothing changed — no data transfer needed.
-
-**Best for:** feeds, dashboards, lists sorted by recency where you need to detect _any_ change across a large collection.
-
-[Full pattern →](./global-watermark.md)
-
-## Predicate Watermark
-
-The "one" side of a one-to-many relationship stores the maximum `system_from` of its children as a denormalized column. Clients can check this single value before deciding whether to fetch the entire child collection.
-
-**Best for:** parent-child relationships where fetching all children is expensive but checking the parent is cheap.
-
-[Full pattern →](./predicate-watermark.md)
-
-## Item Watermark
-
-Client sends the last-known `system_from` for a specific item in the request header. Server returns HTTP 304 if the item hasn't changed. Maps directly to standard HTTP conditional request semantics (ETags).
-
-**Best for:** individual resource endpoints where clients repeatedly fetch the same item.
-
-[Full pattern →](./item-watermark.md)
-
-## Choosing a Pattern
-
-| Scenario                                      | Pattern             | Why                                            |
-| --------------------------------------------- | ------------------- | ---------------------------------------------- |
-| "Show me what's new since I last checked"     | Global watermark    | One query covers the whole collection          |
-| "Have any of this user's blueprints changed?" | Predicate watermark | Avoids fetching all blueprints to find out     |
-| "Give me blueprint X if it changed"           | Item watermark      | Standard HTTP caching for single resources     |
-| Feed page with detail drill-down              | Global + Item       | Global for the list, item for individual views |
+| Pattern                                         | Mechanism                                                                        | Best for                                             |
+| ----------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [Global watermark](./global-watermark.md)       | Client stores max `system_from` of a collection and polls for newer records      | Feeds, dashboards, "what's new since I last checked" |
+| [Predicate watermark](./predicate-watermark.md) | Parent stores max `system_from` of its children in a denormalized column         | "Have any of this user's blueprints changed?"        |
+| [Item watermark](./item-watermark.md)           | `system_from` of the current row is the ETag; server returns 304 when it matches | Single resources fetched repeatedly                  |
+| Global + item                                   | Global for the list, item for detail views                                       | Feed page with detail drill-down                     |

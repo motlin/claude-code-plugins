@@ -5,49 +5,24 @@ description: Temporal database patterns for system-time versioned tables. Use wh
 
 # Temporal Data Patterns
 
-Patterns for implementing temporal databases with system-time versioning.
-
-## Temporal Dimensions
-
-Temporal databases track data along one or two time dimensions:
-
-- **System time** (transaction time): When the database recorded the fact. Managed automatically; never user-editable. This is the focus of this skill.
-- **Valid time** (business time): When the fact was true in reality. Application-managed; can be backdated or future-dated.
-- **Bitemporal**: Both dimensions. Enables "what did the database think at time T1 about the state at time T2?"
-
-This skill covers **system time only**. For valid time and bitemporal patterns, see [Liftwizard temporal docs](https://liftwizard.io/docs/temporal-data/temporal-data-overview) and the [Klass DSL](https://klass.cool).
+This skill covers system time (transaction time) only. For valid time and bitemporal patterns, see the [Liftwizard temporal docs](https://liftwizard.io/docs/temporal-data/temporal-data-overview) and the [Klass DSL](https://klass.cool).
 
 ## Core Principles
 
-- **Immutability**: All writes into the data store are immutable and append-only, except for the `system_to` value.
-- **Contiguous timeline**: `system_from` of a new row equals `system_to` of the old row. This forms an unbroken chain of versions per entity.
-- **Far-future sentinel over NULL**: Use a far-future date (e.g. `9999-12-31 23:59:59`) instead of NULL for open-ended records. Enables NOT NULL constraints, composite primary keys, and uniform query syntax.
-- **Deduplication**: Before performing a phase-out/phase-in, compare the incoming data with the current row. If unchanged, leave the row untouched. This avoids creating adjacent rows with identical data for different time ranges, which would produce false changes in history queries and diffs.
+- **Immutability**: writes are append-only, except for `system_to`.
+- **Contiguous timeline**: a new row's `system_from` equals the old row's `system_to`, forming an unbroken chain of versions per entity.
+- **Far-future sentinel over NULL**: use `9999-12-31 23:59:59` for open-ended records. This allows NOT NULL constraints, composite primary keys, and uniform queries.
+- **Deduplication**: before a phase-out / phase-in, compare incoming data with the current row and leave it untouched if unchanged. Adjacent identical rows produce false changes in history queries and diffs.
 
 ## Schema Design
 
-### Temporal Columns
+Every temporal table has `system_from` (when this version became current, defaulting to now) and `system_to` (when it was superseded, defaulting to the far-future sentinel), both NOT NULL.
 
-Every temporal table has two additional columns:
+### Primary key on `(id, system_to)`
 
-| Column        | Semantics                        | Default                        |
-| ------------- | -------------------------------- | ------------------------------ |
-| `system_from` | When this version became valid   | Current timestamp (NOT NULL)   |
-| `system_to`   | When this version was superseded | Far-future sentinel (NOT NULL) |
+This is the Reladomo convention. All current rows share `system_to = FAR_FUTURE_DATE`, so a bug that creates two current rows for one ID fails immediately with a PK violation. With `(id, system_from)`, that bug only surfaces if both rows have the exact same start timestamp, so it goes undetected.
 
-### Primary Key
-
-Include a temporal column in the primary key to allow multiple versions per entity.
-
-**Recommended: PK on `(id, system_to)`** (Reladomo convention)
-
-The rationale is bug detection: current records all share `system_to = FAR_FUTURE_DATE`, so a bug that creates duplicate "current" records for the same ID triggers an immediate PK violation. With `(id, system_from)`, duplicate-current-record bugs only surface if two records have the exact same start timestamp — unlikely, so bugs go undetected.
-
-If both constraints are needed, use PK on one and a unique index on the other.
-
-### Indexes
-
-Every temporal table needs an index on `(id, system_to)` for the most common query pattern: finding the current version via `WHERE id = ? AND system_to = FAR_FUTURE_DATE`.
+If both constraints are needed, put the PK on one and a unique index on the other. The `(id, system_to)` index serves the most common query, finding the current version.
 
 ### Example DDL
 
@@ -111,7 +86,7 @@ SELECT * FROM nodes WHERE id = ? AND system_to = '9999-12-31 23:59:59';
 
 ### As-Of Query (Point-in-Time)
 
-**Use strict inequality: `system_from <= T AND system_to > T`**
+Use `system_from <= T AND system_to > T`:
 
 ```sql
 SELECT * FROM nodes
@@ -120,14 +95,7 @@ WHERE id = ?
   AND system_to > '2024-06-15 14:30:00';
 ```
 
-This ensures exactly one row matches at any point in time. When rows have contiguous timestamps (`system_to` of row N = `system_from` of row N+1), `<=` on both sides (`BETWEEN`) would match two rows at the boundary. The strict `>` on `system_to` prevents this.
-
-**WRONG: Do not use BETWEEN for as-of queries.**
-
-```sql
--- WRONG: matches two rows at boundary timestamps
-WHERE system_from BETWEEN '2024-01-01' AND '2024-12-31'
-```
+Exactly one row matches at any instant. Never use `BETWEEN` for as-of queries: with contiguous timestamps it matches two rows at each boundary.
 
 ### History of an Entity
 
@@ -171,7 +139,7 @@ WHERE id = 'node-1' AND system_to = '9999-12-31 23:59:59';
 
 ## Merge List Pattern (Three-Way Sync)
 
-**When syncing from an external source to a temporal cache, implement ALL THREE legs:**
+When syncing from an external source into a temporal cache, implement all three legs:
 
 ```
 External Source         Cache (temporal)
@@ -182,15 +150,9 @@ External Source         Cache (temporal)
 +-------------+         +-------------+  <- LEG 3: Phase out D
 ```
 
-### Leg 1: Sync Existing (matching IDs in both source and cache)
-
-Compare data. If changed, phase out old version and insert new. If unchanged, leave untouched (do nothing).
-
-### Leg 2: Add New (in source but not in cache)
-
-Insert new records with `system_from = now`, `system_to = FAR_FUTURE_DATE`.
-
-### Leg 3: Phase Out Orphaned (in cache but not in source) — COMMONLY FORGOTTEN
+- **Leg 1, in both**: if the data changed, phase out and insert; if unchanged, do nothing.
+- **Leg 2, only in source**: insert with `system_from = now`, `system_to = FAR_FUTURE_DATE`.
+- **Leg 3, only in cache**: phase out.
 
 ```sql
 UPDATE nodes
@@ -199,48 +161,23 @@ WHERE system_to = '9999-12-31 23:59:59'
   AND id NOT IN (SELECT id FROM source_ids);
 ```
 
-### Common Bug: Missing Leg 3
+Leg 3 is the most commonly forgotten. Without it, deleted items stay in the cache forever, the cache grows unbounded, and stale data causes errors when writing back to the source.
 
-The most common temporal sync bug is forgetting Leg 3. Symptoms:
+Wrap all three legs in one transaction, and make sure an empty source list phases out every cached record.
 
-- Deleted items remain in cache forever
-- Cache grows unbounded
-- Stale data causes errors when writing back to source
-
-### Sync Checklist
-
-Before considering a sync function complete:
-
-- [ ] **Leg 1:** Updates existing records when data changes
-- [ ] **Leg 2:** Inserts records not in cache
-- [ ] **Leg 3:** Phases out cached records not in source
-- [ ] Transaction wraps all three legs atomically
-- [ ] Handles empty source list (phases out all cached records)
-
-## Bulk Import Pattern
-
-For bulk imports from an external source, apply the same compare-before-cut logic as the Merge List Pattern:
-
-For each imported record, compare it against the current row in the temporal table:
-
-- **Data changed** — phase out the old row and insert a new version
-- **Data unchanged** — do nothing (leave the existing row untouched)
-- **New record** (no current row) — insert it
-- **Missing from import** (current row has no match in the import) — phase out
-
-This avoids creating unnecessary versions for unchanged data and provides clear categorization: added / updated / unchanged / deleted.
+Bulk imports use the same compare-before-cut logic, and can report each record as added, updated, unchanged, or deleted.
 
 ## Multi-Table / Parent-Child
 
-Each temporal table must independently track its own `system_from`/`system_to` columns. You cannot derive a child table's `system_to` by joining on the parent's `system_from`, because deduplication means the parent row may not change when only child data changes (and vice versa).
+Each temporal table tracks its own `system_from`/`system_to`. Don't derive a child's `system_to` by joining on the parent's `system_from`: with deduplication, the parent row may not change when only child data changes, and vice versa.
 
-When several tables are edited within a single transaction, all `system_from`/`system_to` values use the same timestamp. This keeps the temporal timeline consistent across related tables and allows as-of queries at that timestamp to return a coherent snapshot.
+All tables edited in one transaction use the same timestamp, so an as-of query at that timestamp returns a coherent snapshot.
 
-Unchanged data is copied from the old row to the new row. For very wide columns that don't change frequently, it may be more efficient to split them out into a separate table. This reduces row duplication overhead when only a small part of the entity changes.
+Each new version copies the unchanged columns. Consider splitting very wide, rarely changing columns into a separate table to reduce duplication.
 
 ## Temporal Rollback (Disaster Recovery)
 
-To roll back the database to a previous point in time, apply two operations per table:
+Apply both operations to every table:
 
 ```sql
 -- 1. Purge: Delete rows created after the rollback point
@@ -253,17 +190,13 @@ WHERE system_from <= @target_timestamp
   AND system_to > @target_timestamp;
 ```
 
-This is a **destructive operation** that violates the immutability principle. Use only for disaster recovery.
+This is destructive and violates immutability. Use it only for disaster recovery.
 
 ## Composites
 
-A composite is an entity composed of multiple tables. For example, a `Blueprint` composite might include `Blueprint`, `BlueprintTag`, and `ImgurImage` tables.
+A composite is an entity spanning multiple tables, e.g. a `Blueprint` composite of `Blueprint`, `BlueprintTag`, and `ImgurImage`.
 
-Ownership direction matters. `BlueprintTag` is part of the `Blueprint` composite, but it is NOT part of the `Tag` composite. A tag is a standalone entity that exists independently; `BlueprintTag` is a join table owned by `Blueprint`.
-
-When any part of a composite is edited, the version number for the entire composite bumps once. A change to `BlueprintTag` bumps the `Blueprint` version, not the `Tag` version. The version number applies to the composite as a whole, not to individual tables within it.
-
-This ownership model determines which version table gets updated during writes and which set of tables participate in as-of-by-version queries.
+Ownership direction matters. `BlueprintTag` belongs to the `Blueprint` composite, not the `Tag` composite: a tag is standalone, and `BlueprintTag` is a join table owned by `Blueprint`. Editing any part of a composite bumps the whole composite's version once, so a `BlueprintTag` change bumps the `Blueprint` version, not the `Tag` version. Ownership determines which version table a write updates and which tables participate in as-of-by-version queries.
 
 ## Versioning
 
@@ -279,12 +212,7 @@ CREATE TABLE question_version (
 );
 ```
 
-Version queries work in two steps:
-
-1. Look up the version number in the version table to get `system_from`
-2. Use that timestamp for as-of queries on all related tables in the composite
-
-The version table is the entry point for as-of-by-version queries. Without it, callers would need to know the exact timestamp for a given version.
+The version table is the entry point for as-of-by-version queries: look up the version's `system_from`, then run as-of queries at that timestamp on every table in the composite.
 
 ```sql
 -- Step 1: Find the timestamp for version 1
@@ -299,11 +227,9 @@ SELECT * FROM question_tag
 WHERE question_id = ? AND system_from <= @version_timestamp AND system_to > @version_timestamp;
 ```
 
-Editing any table in the composite bumps the version once. The version number applies to the entire composite, not individual tables. See the Composites section above for ownership semantics.
-
 ## Auditing
 
-Auditing adds tracking of who made each change. Requires temporal support as a prerequisite.
+Auditing records who made each change, and builds on temporal support.
 
 ```sql
 CREATE TABLE question (
@@ -319,15 +245,11 @@ CREATE TABLE question (
 );
 ```
 
-- `created_by_id` and `created_on` are set once on creation and never change
-- `last_updated_by_id` is updated on each new version
-- These properties should appear on both the main table and the version table
+`created_by_id` and `created_on` are set once on creation. `last_updated_by_id` changes with each version. Put these columns on both the main table and the version table.
 
 ## Optimistic Locking
 
-APIs that perform edits require a version number as input and fail if the input version number doesn't match the current version. This prevents multiple users from accidentally overwriting each other's changes. When two users load the same entity, both see version N. The first user's edit succeeds and bumps the version to N+1. The second user's edit sends version N, which no longer matches, so the API rejects it with a conflict error.
-
-See [Liftwizard temporal documentation](https://liftwizard.io/docs/temporal-data/temporal-data-overview) for more details.
+Edit APIs take the version number as input and reject the edit with a conflict error when it doesn't match the current version.
 
 ## Framework-Specific Patterns
 
@@ -351,7 +273,7 @@ class Question
 
 ### Reladomo (Liftwizard)
 
-[Liftwizard](https://liftwizard.io) uses [Reladomo](https://github.com/goldmansachs/reladomo) for temporal support. Reladomo manages `system_from`/`system_to` automatically through `AsOfAttribute` declarations in XML object definitions. The ORM handles phase-out/phase-in within transactions, contiguous timelines, and as-of query generation.
+[Liftwizard](https://liftwizard.io) uses [Reladomo](https://github.com/goldmansachs/reladomo) for temporal support. Reladomo manages `system_from`/`system_to` through `AsOfAttribute` declarations in XML object definitions, and handles phase-out / phase-in, contiguous timelines, and as-of queries.
 
 See [Liftwizard temporal documentation](https://liftwizard.io/docs/temporal-data/temporal-data-overview) for non-destructive updates, as-of queries, versioning, auditing, optimistic locking, diffs, and maker/checker workflows.
 
@@ -375,11 +297,6 @@ export const nodes = sqliteTable(
 );
 ```
 
-## Best Practices
+## Testing
 
-- **Always use transactions** for temporal operations involving multiple statements
-- **Compare data before inserting** to avoid duplicate versions when data hasn't changed
-- **Index `(id, system_to)`** for current-record queries — this is the most important index
-- **Monitor database size** — temporal tables grow with every change; deduplicate unchanged data to minimize bloat
-- **Test as-of queries** to ensure correct temporal semantics — off-by-one at boundaries is a common bug
-- **Use prepared statements** for better performance in bulk operations
+Test as-of queries at version boundaries; off-by-one errors there are common.

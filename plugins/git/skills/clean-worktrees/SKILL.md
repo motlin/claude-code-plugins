@@ -5,19 +5,12 @@ description: Remove git worktrees safely without force. Use when the user asks t
 
 # Clean Worktrees
 
-🧹 Remove the worktrees the user named, as long as Git can do so without the `--force` flag.
+Remove exactly the worktrees the user named. If they named none, ask which ones.
 
-If the user passed worktree paths, remove exactly those. Otherwise ask which worktrees to remove.
-
-Do not pre-check the worktree first:
-
-- Don't check for local changes with `git -C <worktree> status --porcelain`
-- Don't check for unpushed commits with `git -C <worktree> log`
-
-Just run the removal and let Git refuse when it is not safe:
+Don't pre-check for local changes or unpushed commits (`git status`, `git log`). Run the removal and let Git refuse when it is unsafe:
 
 ```bash
 git worktree remove <worktree>
 ```
 
-Git exits with an error when the worktree has modified or untracked files, as long as `--force` is omitted. If Git refuses, report the error. Never add `--force`.
+Without `--force`, Git exits with an error when the worktree has modified or untracked files. If Git refuses, report the error. Never add `--force`.

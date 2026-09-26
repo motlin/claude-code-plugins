@@ -1,7 +1,5 @@
-# Plugin and Skill Dev
+# plugin-and-skill-dev
 
-Development guidelines for writing stable, maintainable skills, agents, and commands.
+Guidelines for writing skills, agents, and commands.
 
-## Skills
-
-- `@plugin-and-skill-dev:writing-instructions` - Guidelines for writing instructions that remain stable over time (e.g., avoid numbered steps)
+- `plugin-and-skill-dev:writing-instructions`: formatting and privacy rules for skill, agent, and command files

@@ -5,7 +5,7 @@ description: Diagnose Liquibase change-log lock failures in Maven tests and remo
 
 # Resolve Liquibase Test Locks
 
-Follow the Maven CLI skill whenever invoking Maven.
+Follow the `java:maven-cli` skill whenever invoking Maven.
 
 ## Confirm the failure
 

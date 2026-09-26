@@ -1,10 +1,8 @@
 # Global Watermark
 
-The client stores a single timestamp — the maximum `system_from` seen across all records in a collection. On each poll, it queries for records newer than that timestamp. If nothing comes back, nothing changed.
+The client stores one timestamp, the maximum `system_from` seen across a collection, and polls for records newer than it. An empty result means nothing changed.
 
-## Server Side
-
-### Query: fetch records newer than watermark
+## Server
 
 ```sql
 SELECT * FROM blueprints
@@ -14,15 +12,11 @@ ORDER BY system_from DESC
 LIMIT @page_size;
 ```
 
-This returns only current records (`system_to = FAR_FUTURE`) that were created or updated after the client's watermark. The `system_from > @high_watermark` condition is strict (not `>=`) to avoid re-fetching the record that set the watermark.
+Use strict `>` so the record that set the watermark is not re-fetched.
 
-### Detecting deletions
+### Deletions
 
-In a temporal table, "deleting" a record means setting `system_to` to the current timestamp. The record is no longer current, but the phase-out doesn't change `system_from` — it changes `system_to`. A global watermark query on `system_from` alone will miss deletions.
-
-Two approaches:
-
-**Option A: Query both created and phased-out records**
+A phase-out changes `system_to`, not `system_from`, so a query on `system_from` alone misses deletions. Either query both:
 
 ```sql
 -- New or updated records
@@ -34,7 +28,7 @@ SELECT id, 'delete' AS change_type FROM blueprints
 WHERE system_to > @high_watermark AND system_to != '9999-12-31 23:59:59';
 ```
 
-**Option B: Dedicated change log table**
+Or keep a dedicated change log:
 
 ```sql
 CREATE TABLE change_log (
@@ -46,13 +40,9 @@ CREATE TABLE change_log (
 );
 ```
 
-### REST endpoint
+### Endpoint
 
-```
-GET /api/blueprints?since=2024-06-15T14:30:00Z&limit=100
-```
-
-Returns an array of changed records plus metadata:
+`GET /api/blueprints?since=2024-06-15T14:30:00Z&limit=100` returns the changed records plus metadata. `highWatermark` is the max `system_from` in the result set.
 
 ```json
 {
@@ -64,87 +54,22 @@ Returns an array of changed records plus metadata:
 }
 ```
 
-The server computes `highWatermark` as the max `system_from` in the result set. The client stores this for the next poll.
+## Client
 
-## Client Side
+Store the watermark durably (localStorage in browsers, a database row in backend services). On each poll, if data comes back, save `_metadata.highWatermark` and invalidate the relevant caches (e.g. `queryClient.invalidateQueries({queryKey: ['blueprints']})`). If nothing comes back, do nothing.
 
-### Storage
+With no watermark yet, fetch the first page normally and seed the watermark from the max `systemFrom` in it. Only ever advance the watermark, never move it backward.
 
-Store the watermark durably — localStorage for browsers, a database row for backend services:
+## Example: Factorio Prints
 
-```typescript
-interface HighWatermarkData {
-	lastSystemFrom: string; // ISO timestamp
-	lastChecked: number; // Date.now() of last poll
-}
-```
+[Factorio Prints](https://www.factorio.school) keeps its blueprint feed current this way.
 
-### Polling loop
+- `fetchSummariesNewerThan` in `src/api/firebase.ts` queries `/blueprintSummaries/` with `orderByChild('lastUpdatedDate')`, `startAt(highWatermark + 1)`, `limitToLast(100)`.
+- `useHighWatermarkSync` in `src/hooks/useHighWatermarkSync.ts` polls every 5 minutes via React Query's `refetchInterval`, reads the watermark from localStorage, and on new summaries advances it and invalidates the paginated query cache. No new summaries returns `[]` with no UI update.
+- `useRawPaginatedBlueprintSummaries` seeds the watermark on each page load with `Math.max(...lastUpdatedDate)` via `updateHighWatermark()`, which only advances.
 
-```typescript
-async function pollForChanges(watermark: string): Promise<ChangeResult> {
-	const response = await fetch(`/api/blueprints?since=${watermark}&limit=100`);
-	const {data, _metadata} = await response.json();
+## Edge cases
 
-	if (data.length === 0) {
-		// Nothing changed — no cache invalidation needed
-		return {changed: false, newWatermark: watermark};
-	}
-
-	// Advance the watermark
-	return {changed: true, data, newWatermark: _metadata.highWatermark};
-}
-```
-
-### Cache invalidation
-
-When new records arrive, invalidate or update the relevant client-side caches:
-
-```typescript
-if (result.changed) {
-	saveWatermark(result.newWatermark);
-	queryClient.invalidateQueries({queryKey: ['blueprints']});
-}
-```
-
-### Initial load (no watermark yet)
-
-On first load, the client has no watermark. Fetch the full first page normally and seed the watermark from the results:
-
-```typescript
-const maxSystemFrom = Math.max(...records.map((r) => new Date(r.systemFrom).getTime()));
-saveWatermark(new Date(maxSystemFrom).toISOString());
-```
-
-## Real-World Example: Factorio Prints
-
-[Factorio Prints](https://www.factorio.school) implements this pattern to keep its blueprint feed current without re-fetching the entire list.
-
-**Server query** (`fetchSummariesNewerThan` in `src/api/firebase.ts`):
-
-```typescript
-const summariesQuery = query(
-	ref(db, '/blueprintSummaries/'),
-	orderByChild('lastUpdatedDate'),
-	startAt(highWatermark + 1),
-	limitToLast(100),
-);
-```
-
-**Client polling** (`useHighWatermarkSync` in `src/hooks/useHighWatermarkSync.ts`):
-
-- Polls every 5 minutes via React Query's `refetchInterval`
-- Reads the stored watermark from localStorage
-- If new summaries arrive, advances the watermark and invalidates the paginated query cache
-- If no new summaries, returns `[]` — no UI update, no wasted bandwidth
-
-**Watermark seeding** (`useRawPaginatedBlueprintSummaries`):
-
-- On each page load, extracts `Math.max(...lastUpdatedDate)` and calls `updateHighWatermark()`
-- `updateHighWatermark` only advances (never goes backward)
-
-## Edge Cases
-
-- **Clock skew**: If server clocks are not synchronized, records may appear to have `system_from` values in the past relative to the watermark. Use strict `>` (not `>=`) and accept that briefly-skewed records will be caught on the next poll cycle.
-- **Bulk imports**: A bulk import may create many records with the same `system_from`. The limit/pagination in the query handles this — if `hasMore` is true, the client should continue polling.
-- **Watermark corruption**: If the stored watermark is somehow in the future, the client will miss records. Consider a periodic full refresh (e.g., daily) as a safety net.
+- **Clock skew**: records may land with `system_from` slightly behind the watermark. Keep strict `>` and accept that they are caught on a later poll.
+- **Bulk imports**: many records can share one `system_from`. Keep polling while `hasMore` is true.
+- **Watermark in the future**: the client misses records. A periodic full refresh (e.g. daily) is a safety net.
