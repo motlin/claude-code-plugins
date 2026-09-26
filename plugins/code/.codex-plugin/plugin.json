@@ -1,7 +1,7 @@
 {
 	"name": "code",
 	"version": "1.35.2",
-	"description": "Code quality tools for comment cleanup and emoji enhancement",
+	"description": "Code quality, CLI, and test-writing guidelines with emoji enhancement",
 	"author": {
 		"name": "Craig Motlin"
 	},
@@ -11,8 +11,8 @@
 	"keywords": ["codex", "plugin", "code"],
 	"interface": {
 		"displayName": "Code",
-		"shortDescription": "Code quality tools for comment cleanup and emoji enhancement",
-		"longDescription": "Code quality tools for comment cleanup and emoji enhancement",
+		"shortDescription": "Code quality, CLI, and test-writing guidelines with emoji enhancement",
+		"longDescription": "Code quality, CLI, and test-writing guidelines with emoji enhancement",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Skills"],
