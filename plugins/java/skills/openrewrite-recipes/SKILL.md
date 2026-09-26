@@ -74,7 +74,7 @@ TypeUtils.isOfType(currentType, targetType)
 
 ### Handle inheritance with `isAssignableTo()`
 
-When matching a member's declaring type against the current class, check both exact match and subtype relationship. Without this, inherited members get incorrectly attributed to the superclass:
+When matching a member's declaring type against the current class, check both exact match and subtype. Otherwise inherited members get attributed to the superclass:
 
 ```java
 // BAD: misses inherited members
@@ -89,15 +89,7 @@ Use the FQN-based `isAssignableTo` overload to handle parameterized types correc
 
 ### Use `instanceof JavaType.FullyQualified` not `JavaType.Class`
 
-`JavaType.Class` extends `JavaType.FullyQualified`, so checking for the parent type is broader and more correct:
-
-```java
-// BAD: too narrow
-if (fieldType.getOwner() instanceof JavaType.Class)
-
-// GOOD: covers more cases
-if (fieldType.getOwner() instanceof JavaType.FullyQualified)
-```
+`JavaType.Class` extends `JavaType.FullyQualified`, so `instanceof JavaType.Class` is too narrow for checks like `fieldType.getOwner()`.
 
 ## ListUtils for Statement Transformations
 
@@ -141,13 +133,9 @@ return ListUtils.mapFirst(bodyStatements,
 
 ### Don't duplicate logic handled by earlier recipes
 
-When recipes run in a composition (e.g., `Slf4jBestPractices`), earlier recipes transform the code before later ones see it. Don't handle cases that earlier recipes already cover.
+In a composition (e.g., `Slf4jBestPractices`), earlier recipes transform the code before later ones see it. Don't handle cases an earlier recipe already covers.
 
-Example: `RemoveUnnecessaryLogLevelGuards` should NOT treat string concatenation (`"Name: " + name`) as safe to unguard. The `ParameterizedLogging` recipe runs first and converts concatenation to parameterized form. If concatenation still exists when the guard-removal recipe runs, the guard is still needed for performance.
-
-### Add test cases for edge cases where transformation should NOT apply
-
-Always test that the recipe correctly _preserves_ code that should not be changed, not just that it transforms code that should be changed.
+Example: `RemoveUnnecessaryLogLevelGuards` should not treat string concatenation (`"Name: " + name`) as safe to unguard. The `ParameterizedLogging` recipe runs first and converts concatenation to parameterized form. If concatenation still exists when the guard-removal recipe runs, the guard is still needed for performance.
 
 ## AST Construction
 
@@ -176,7 +164,7 @@ method.hasModifier(J.Modifier.Type.Static)
 
 ### Exclude non-target languages from Java-specific recipes
 
-Java-specific recipes will also run on Kotlin files unless explicitly excluded:
+Java-specific recipes also run on Kotlin files unless excluded:
 
 ```java
 @Override
@@ -194,53 +182,26 @@ public TreeVisitor<?, ExecutionContext> getVisitor() {
 
 ```java
 JavaTemplate template = JavaTemplate.builder("#{any()}.toArray(new #{}[0])")
-        .imports(fqn)  // Declare the import
+        .imports(fqn)
         .build();
 ```
 
-### Always call `maybeAddImport()` after applying a template
-
-After applying a template that uses a type, add the import to the compilation unit:
+### Call `maybeAddImport()` after applying a template
 
 ```java
 Expression result = template.apply(...);
-maybeAddImport(fqn);  // Add the import to the source file
+maybeAddImport(fqn);
 ```
 
 ## Visitor Patterns
 
 ### JavaVisitor vs JavaIsoVisitor
 
-Use `JavaIsoVisitor` when returning the same LST element type you're visiting (most common for simple transformations):
+Use `JavaIsoVisitor` when returning the same LST element type you visit. Use `JavaVisitor` when returning a different type, such as unwrapping `J.Parentheses` into its inner expression.
 
-```java
-@Override
-public J.TypeCast visitTypeCast(J.TypeCast typeCast, ExecutionContext ctx) {
-    J.TypeCast tc = super.visitTypeCast(typeCast, ctx);
-    // ... transform ...
-    return tc;  // Still a J.TypeCast
-}
-```
+### Handle parenthesized expressions
 
-Use `JavaVisitor` when you need to return a different LST element type (e.g., unwrapping parentheses):
-
-```java
-@Override
-public J visitParentheses(J.Parentheses parentheses, ExecutionContext ctx) {
-    // ... some logic ...
-    return someExpression;  // Not a J.Parentheses
-}
-```
-
-### Handle parenthesized expressions explicitly
-
-When dealing with expressions that might be parenthesized, visit `J.Parentheses` nodes too.
-
-### Preserve formatting when replacing expressions
-
-```java
-return visitedParentheses.withTree(result);  // Preserves parentheses structure and prefix
-```
+When an expression might be parenthesized, visit `J.Parentheses` nodes too. To replace the inner expression while keeping the parentheses and prefix, use `visitedParentheses.withTree(result)`.
 
 ## Recipe Metadata
 
@@ -253,9 +214,7 @@ public Set<String> getTags() {
 }
 ```
 
-### Provide accurate time estimates
-
-Use the same time estimate from the SonarQube definition:
+### Use the SonarQube time estimate
 
 ```java
 @Override
@@ -266,9 +225,7 @@ public Duration getEstimatedEffortPerOccurrence() {
 
 ## YAML Configuration
 
-### Add recipes to appropriate recipe collections
-
-Don't forget to add new recipes to relevant YAML files:
+### Add new recipes to recipe collections
 
 ```yaml
 recipeList:
@@ -283,9 +240,7 @@ Common collections:
 
 ## At-Scale Validation
 
-### Test recipes against real-world codebases
-
-Before submitting, run at scale against large codebases (e.g., Spring, Netflix orgs). This catches bugs unit tests miss:
+Before submitting, run recipes at scale against large codebases (e.g., the Spring or Netflix orgs). This catches bugs unit tests miss:
 
 - Inherited members being incorrectly qualified (e.g., `SuperClass.this.method()` instead of `this.method()`)
 - Recipes accidentally modifying Kotlin files (see Language Scoping above)

@@ -1,23 +1,19 @@
 ---
 name: finish
-description: This skill should be used after completing any task, before returning control to the user. Always run this skill — it handles the case where there's nothing to do.
+description: Run the completion pipeline (commit, precommit, rebase, simplify) after completing any task, before returning control to the user. Always run this skill; it handles the case where there's nothing to do.
 ---
 
 # Finish Workflow
 
-Run the completion pipeline before returning control to the user. If the working tree is clean and there is nothing to verify, report that there is nothing to finish.
+If the working tree is clean and there is nothing to verify, report that there is nothing to finish.
 
-In Claude Code, this may spawn the `orchestration:finish` agent. In Codex, run the equivalent workflow directly unless the user explicitly asks for subagents.
+In Claude Code, this may spawn the `orchestration:finish` agent. In Codex, run the workflow directly unless the user asks for subagents.
 
-Use the caller's prompt as the commit intent.
+Use the caller's prompt as the commit intent. Run every applicable step, in order:
 
-## Standard Mode
-
-Run every applicable step below in order. Commit before precommit because `git test run HEAD` refuses to run on a dirty tree and tests the committed `HEAD`, not the working tree.
-
-- Commit first with the `git:commit` skill when there are changes to commit. Pass the caller's prompt as the commit intent; distill it into a single-line commit message instead of copying it verbatim.
-- Run precommit checks with the `build:precommit` skill. It runs `git test run HEAD` on the now-clean tree and cached successes pass quickly.
-- Rebase with the `git:git-rebase` skill after committing.
-- Review the committed diff for reuse, quality, and efficiency. Make cleanup changes when warranted.
-- If cleanup changes were made, create a fixup commit for `HEAD`.
-- Run precommit checks again. Same rule: use `git test run HEAD` through the `build:precommit` skill.
+- Commit with the `git:commit` skill, distilling the caller's prompt into a single-line message. Commit before precommit because `git test run HEAD` refuses a dirty tree and tests the committed `HEAD`.
+- Run the `build:precommit` skill. Cached successes pass quickly.
+- Rebase with the `git:git-rebase` skill.
+- Review the committed diff for reuse, quality, and efficiency, and make cleanup changes when warranted.
+- If cleanup changed anything, create a fixup commit for `HEAD`.
+- Run the `build:precommit` skill again.

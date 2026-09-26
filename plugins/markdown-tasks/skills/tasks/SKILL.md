@@ -5,30 +5,23 @@ description: Work with markdown-based task lists in .llm/todo.md files. Use when
 
 # Markdown Task Management
 
-This skill enables working with the markdown task list stored in `.llm/todo.md`.
+The task list lives in `.llm/todo.md`. Never use the `Read` tool on it; change and inspect it only through the scripts below.
 
-Resolve `<plugin-root>` before running plugin scripts:
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}` in Claude Code. In Codex, it is the plugin root that contains this `skills/tasks/SKILL.md` file.
 
-- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
-- In Codex, use the plugin root that contains this `skills/tasks/SKILL.md` file.
+Every script exits 0 on success and 1 on error.
 
 ## Scripts
 
 ### task_get.py - Extract Next Task
 
-Extract the first incomplete task with its context:
-
 ```bash
 python <plugin-root>/scripts/task_get.py .llm/todo.md
 ```
 
-Returns the first `[ ]` checkbox line with all indented context lines below it.
-
-**Exit codes**: 0 (success), 1 (file not found or error)
+Prints the first `[ ]` task with all indented context lines below it. Exits 1 when the file does not exist.
 
 ### task_add.py - Add New Task
-
-Add a new task:
 
 ```bash
 python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
@@ -36,33 +29,26 @@ python <plugin-root>/scripts/task_add.py .llm/todo.md "Task description
   Context line 2"
 ```
 
-When adding more than one task, chain the calls into a single bash command with `&&` rather than running a separate command per task:
+Appends a `[ ]` task, creating `.llm/todo.md` if needed and preserving indentation in multi-line strings.
+
+Add a batch of tasks in one shell command, chaining one call per task with `&&`, so concurrent sessions writing the same file are unlikely to interleave:
 
 ```bash
 python <plugin-root>/scripts/task_add.py .llm/todo.md "First task
   Context line 1" && \
-python <plugin-root>/scripts/task_add.py .llm/todo.md "Second task" && \
-python <plugin-root>/scripts/task_add.py .llm/todo.md "Third task"
+python <plugin-root>/scripts/task_add.py .llm/todo.md "Second task"
 ```
 
-Running the whole batch as one command keeps the write window to `.llm/todo.md` extremely short, so concurrent sessions writing to the same file are far less likely to interleave their tasks.
-
-Creates the `.llm/` directory and `todo.md` file if they do not exist, and appends the new task with a `[ ]` checkbox. The script preserves all indentation in multi-line strings.
-
-**Exit codes**: 0 (success), 1 (error)
-
 ### task_mark.py - Mark Task
-
-Mark the first incomplete task with a marker character:
 
 ```bash
 python <plugin-root>/scripts/task_mark.py .llm/todo.md
 python <plugin-root>/scripts/task_mark.py .llm/todo.md --marker='!' --reason='precommit failed on the parser rewrite'
 ```
 
-Changes the first `[ ]` to `[x]` by default. Pass `--marker` with any single non-space character (e.g. `!`, `>`, `-`) to use a different marker.
+Changes the first `[ ]` to `[x]`, or to any single non-space character passed as `--marker`. Exits 1 when no incomplete task remains.
 
-`--reason` appends the failure as an indented context line at the end of the task body, above any trailing blank line:
+`--reason` appends an indented line to the end of the task body:
 
 ```markdown
 - [!] Require authentication on API routes.
@@ -70,78 +56,47 @@ Changes the first `[ ]` to `[x]` by default. Pass `--marker` with any single non
   Blocked 2026-08-19 session 94aec27b: validateJwt does not exist; the repo uses `verifyToken`
 ```
 
-The reason lives in the task body so it survives archive, recovery, and reinstatement, and so `task_get.py` hands it to the next attempt along with the rest of the context. Quote the concrete failure — the failing command, the assertion, the missing symbol — rather than restating the task.
+The reason travels with the task through archive and recovery, and `task_get.py` hands it to the next attempt. Quote the concrete failure (the failing command, the assertion, the missing symbol) rather than restating the task.
 
-`--reason` is **required** with `--marker='!'`; blocking a task without one exits 1 and leaves the file untouched. It is optional for every other marker.
-
-**Exit codes**: 0 (success), 1 (no incomplete tasks, missing reason for `!`, or error)
+`--reason` is required with `--marker='!'`; without it the script exits 1 and leaves the file untouched.
 
 ### task_archive.py - Archive Task List
-
-Archive a completed task list:
 
 ```bash
 python <plugin-root>/scripts/task_archive.py .llm/todo.md
 ```
 
-Moves the file to `.llm/YYYY-MM-DD-todo.md` where YYYY-MM-DD is today's date.
-
-Blocked `[!]` tasks never reach the archive. Each one moves into a fresh `.llm/todo.md` with its indented context, still marked `[!]`, so `task_get.py` keeps skipping it and `task_unblock.py` stays the deliberate way to reopen it. The script prints the archive path and how many blocked tasks it carried forward.
-
-**Exit codes**: 0 (success), 1 (file not found or error)
+Moves the file to `.llm/YYYY-MM-DD-todo.md`. Blocked `[!]` tasks are carried forward into a fresh `.llm/todo.md`, still marked `[!]`. Prints the archive path and the carried-forward count.
 
 ### task_unblock.py - Recover Blocked Tasks
-
-Move blocked `[!]` tasks out of archived task lists and back into `.llm/todo.md`:
 
 ```bash
 python <plugin-root>/scripts/task_unblock.py .llm --dry-run
 python <plugin-root>/scripts/task_unblock.py .llm
 ```
 
-Scans every `.llm/*todo*.md`, including the live `.llm/todo.md`, and moves each `[!]` task with its indented context into `.llm/todo.md` as an open `[ ]` task, stamped with an indented `Recovered <yyyy-mm-dd> session <session-id>` line. Recovery is a move, so the task disappears from the archive it came from and re-running the script cannot duplicate it. Emptied archive files stay on disk, and existing `Blocked` lines are preserved so a task's full round-trip history stays readable.
+Scans every `.llm/*todo*.md`, including the live `.llm/todo.md`, and moves each `[!]` task into `.llm/todo.md` as an open `[ ]` task stamped with an indented `Recovered <yyyy-mm-dd> session <session-id>` line. Existing `Blocked` lines are kept. Recovery is a move, so re-running cannot duplicate a task; emptied archive files stay on disk. Exits 0 when nothing is blocked.
 
-Recovery rewrites historical archive files. Always run `--dry-run` first and confirm the report with the user before running it for real.
-
-**Exit codes**: 0 (success, including when nothing is blocked), 1 (directory not found or error)
+Recovery rewrites historical archives. Always run `--dry-run` first and confirm the report with the user.
 
 ## Task Format
 
-The task list is in `.llm/todo.md`.
+A task starts with one of these markers:
 
-NEVER use the `Read` tool on `.llm/todo.md`. Always interact with the task list exclusively through the Python scripts.
-
-### Task States
-
-- `[ ]` - Not started (ready to work on)
+- `[ ]` - Ready
 - `[x]` - Completed
-- `[!]` - Blocked after failed attempt
+- `[!]` - Blocked after a failed attempt
 
-### Task Structure
-
-Each task includes indented context lines with full implementation details:
+Each task is extracted and executed in isolation, so it must carry all the context needed to implement it in indented lines:
 
 - Absolute file paths
 - Exact function/class names
-- Code analogies to existing patterns
+- Existing patterns to follow
 - Dependencies and prerequisites
-- Expected outcomes
+- Expected outcome
 
-### Standalone Context
+Repeat shared context in every related task. Never reference other tasks.
 
-Each task is extracted and executed in isolation. Every task must contain ALL context needed to implement it. Repeat shared context in every related task. Never reference other tasks.
+## Plan Files
 
-If tasks were created from a plan file, include the plan file path in each task so the implementing agent can read the full context.
-
-## Plan Mode
-
-When using Claude Code's native plan mode to design an implementation before creating tasks:
-
-1. The plan file is written to `~/.claude/plans/<auto-generated-name>.md` (e.g., `~/.claude/plans/abstract-knitting-garden.md`)
-2. **Before adding any tasks**, archive the plan locally:
-    - Create the `.llm/plans/` directory if it does not exist
-    - Move the file from `~/.claude/plans/<auto-generated-name>.md` to `.llm/plans/<yyyy-mm-dd>-<descriptive-name>.md`
-    - Choose a concise, meaningful name that describes the plan's purpose (e.g., `2025-12-04-thread-safety-tests.md`, `2025-12-04-plugin-hook-system.md`)
-3. Include the **absolute path** to the archived `.llm/plans/` file in each task so the implementing agent can read the full context
-
-When using Codex planning, store the plan under `.llm/plans/<yyyy-mm-dd>-<descriptive-name>.md` before adding tasks, then include that absolute path in each task.
+Before adding tasks from a plan, store the plan at `.llm/plans/<yyyy-mm-dd>-<descriptive-name>.md` (for example, `2025-12-04-thread-safety-tests.md`), creating the directory if needed. A Claude Code plan-mode file under `~/.claude/plans/` is moved there, not copied. Include the archived plan's absolute path in every task.

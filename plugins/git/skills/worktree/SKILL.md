@@ -5,34 +5,26 @@ description: Create a git worktree in a peer directory using the plugin worktree
 
 # Worktree
 
-Create a git worktree in a peer directory.
-
 Resolve `<plugin-root>` before running plugin scripts:
 
 - In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
 - In Codex, use the plugin root that contains this `skills/worktree/SKILL.md` file.
 
-## Branch Name
-
-The user supplies a kebab-case task name (e.g., "auth-feature", "database-migration"). If the text they passed is already kebab-case, use it directly as the branch name. Otherwise derive a short kebab-case name from what they passed in.
-
 ## Create the Worktree
 
-From the repository root, run:
+Use the user's text as the branch name if it is already kebab-case (e.g., `auth-feature`); otherwise derive a short kebab-case name from it. From the repository root, run:
 
 ```bash
 <plugin-root>/scripts/worktree.sh <branch-name>
 ```
 
-If the command exits with a non-success exit code, stop here and give a good summary to the user.
-
-If it succeeds, report the created worktree path.
+On failure, stop and summarize the error. On success, report the worktree path.
 
 ## Opening a Terminal Tab
 
-Open a new terminal tab in the worktree only if the user explicitly asks.
+Open a terminal tab in the worktree only if the user explicitly asks.
 
-If running in iTerm:
+In iTerm:
 
 ```bash
 osascript -e 'tell application "iTerm"
@@ -47,7 +39,7 @@ osascript -e 'tell application "iTerm"
 end tell'
 ```
 
-If running in xfce4-terminal:
+In xfce4-terminal:
 
 ```bash
 xfce4-terminal --tab --working-directory="<worktree-absolute-path>" -x bash -c "cd <worktree-absolute-path>; exec bash"

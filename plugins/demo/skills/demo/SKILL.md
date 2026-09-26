@@ -5,42 +5,26 @@ description: 'Demo working software by showing real data crossing real IO bounda
 
 # Demo
 
-A demo answers one question: does the system really do this? Code is not the answer,
-and neither is a summary of the code. The answer is data — a real request, a real row,
-a real file, a real command and what it printed.
+A demo shows data, not code or a summary of code: a real request, a real row, a real file, a real command and what it printed. Demo what the user named; with no target, demo the work done so far in this session.
 
-Demo what the user asked to see: a feature, a fix, a command, a page. When no target is
-named, demo the work done so far in this session.
-
-## Read before designing an interactive demo
-
-Read [Red Blob Games' Making of: Circle drawing tutorial](https://www.redblobgames.com/making-of/circle-drawing/)
-as a benchmark for demo and tutorial quality. Use it to inform your approach to teaching
-through interaction.
+Before designing an interactive demo, read [Red Blob Games' Making of: Circle drawing tutorial](https://www.redblobgames.com/making-of/circle-drawing/) as the quality benchmark for teaching through interaction.
 
 ## What counts as a demo
 
-Show the data crossing the boundaries of the system, in the order it crosses them.
-Everything else is commentary.
+Show the data crossing the system's boundaries, in the order it crosses them:
 
-- **In at the edge** — the actual HTTP request and response on the wire, the CLI invocation, the file a user would really drop in, the message off the queue
+- **In at the edge** — the HTTP request and response on the wire, the CLI invocation, the input file, the message off the queue
 - **Through the work** — the command that does the thing, run for real
-- **Into storage** — the SQL that executed, the rows before and after, and the on-disk representation
+- **Into storage** — the SQL that executed, the rows before and after, the on-disk representation
 - **Out to the human** — the page, the terminal, the report, the screenshot
 
-Reading code aloud is not a demo. Neither is a table of what changed, a test-passed
-count, or a paragraph beginning "the system now correctly". Those describe. A demo shows.
+Reading code aloud, a table of what changed, a test-passed count, or "the system now correctly…" is not a demo.
 
 ## Capture with Showboat, never author
 
-Every byte of output in a demo comes from a tool that recorded it while the command
-ran. Write the command; let the tool capture the result. Never retype output, tidy it,
-reconstruct it from memory, or predict what it would say.
+Every byte of output comes from a tool that recorded it while the command ran. Never retype, tidy, reconstruct, or predict output. If it was typed, it is prose; evidence comes from a capture tool.
 
-The rule: if it was typed, it is prose. If it is evidence, a capture tool produced it.
-
-[Showboat](https://github.com/simonw/showboat) builds the document. It runs with no
-install through `uvx showboat`, or `uv tool install showboat` to keep it around.
+[Showboat](https://github.com/simonw/showboat) builds the document, via `uvx showboat` (or `uv tool install showboat`):
 
 ```console
 uvx showboat init demo.md 'One POST, end to end'
@@ -49,45 +33,29 @@ uvx showboat exec demo.md bash 'sqlite3 app.db "SELECT count(*) FROM note;"'
 uvx showboat image demo.md screenshot.png
 ```
 
-- `exec` appends the command and its captured output, prints that output, and exits with the command's own status — so a failure is visible immediately and still recorded
-- `note` carries every word you write: the framing, what to look for, the caveats
+- `exec` appends the command and its captured output, prints it, and exits with the command's status
+- `note` carries all prose: framing, what to look for, caveats
 - `image` copies a screenshot or recording into the document
-- `pop` removes the most recent entry, for a step that went wrong in a way worth re-running rather than keeping
+- `pop` removes the most recent entry
 
 ### Make it verifiable
 
-`showboat verify demo.md` re-runs every code block and fails if any output has drifted.
-That is the difference between a document that claims something and one that keeps
-proving it, so aim for a demo that passes.
-
-A demo only passes verification if it is idempotent. Reset state **inside** a captured
-step rather than before the recording starts — a first block that empties the table is
-part of the proof, while a reset you did off-camera makes the second run disagree with
-the first. When a demo genuinely cannot be idempotent, run `verify` anyway and write
-down in the document which blocks drift and why.
+`showboat verify demo.md` re-runs every block and fails if output drifted. Aim for a demo that passes, which requires idempotence: reset state inside a captured step (a first block that empties the table), not off-camera before recording. When a demo cannot be idempotent, run `verify` anyway and note in the document which blocks drift and why.
 
 ### Look at the rendered page before handing it over
 
-Command output tells you the commands worked. It cannot tell you the document reads
-correctly. Screenshot the rendered page once — with Rodney, or by opening it — and read
-it as the recipient will. Defects that only appear there are common: a duplicated
-section, a block in the wrong order, a fence that closed in the wrong place.
+Screenshot the rendered page once (Rodney, or open it) and read it as the recipient will. Look for duplicated sections, misordered blocks, and broken fences. Two known traps:
 
-Two that bite in practice:
-
-- **End captured output with a newline.** A command whose last byte is not a newline puts Showboat's closing fence on the same line as the output, and the stray ` ``` ` shows up in the page. Prefer `cat file` or add an `echo` rather than a bare `printf` without a trailing newline.
-- **`pop` removes one entry, not one section.** A failed `exec` usually has a `note` in front of it; popping the exec leaves the note stranded, and re-adding both duplicates the heading. Pop the note too, or rebuild the document.
+- **End captured output with a newline.** Otherwise Showboat's closing fence lands on the output line and a stray ` ``` ` shows in the page. Prefer `cat file` or add an `echo` over a bare `printf`.
+- **`pop` removes one entry, not one section.** A failed `exec` usually follows a `note`; pop both or rebuild, or the heading gets duplicated.
 
 ### Redaction stays visible
 
-Never hand-edit a secret out of captured output. Put the redaction in the command
-itself, where it is part of the evidence:
+Never hand-edit a secret out of captured output. Redact inside the command so the redaction is part of the evidence:
 
 ```console
 uvx showboat exec demo.md bash 'curl -sS -D- "$URL" | sed -E "s/Bearer [A-Za-z0-9._-]+/Bearer «redacted»/"'
 ```
-
-The reader can see exactly what was removed and that nothing else was.
 
 ## Pick the capture tool for what you are showing
 
@@ -99,132 +67,87 @@ The reader can see exactly what was removed and that nothing else was.
 | Charts from data                                                        | `chartroom`, then `showboat image`                                                                                |
 | Anything only visible on a screen                                       | a screenshot, then `showboat image`                                                                               |
 
-Rodney drives one persistent headless Chrome across many short commands, so a page can
-be opened, waited on, asserted against and photographed as separate captured steps. Its
-`exists`, `visible` and `assert` subcommands exit non-zero on failure, which makes them
-evidence rather than narration. When Rodney is not installed, any browser-automation MCP
-that produces a real screenshot file will do — what matters is that the image comes from
-the running page, not from a description of it.
-
-Reach for VHS when a still frame would lose the point: a progress display, a TUI, a
-keystroke sequence, anything where the reader needs to see it move.
+Rodney drives one persistent headless Chrome across short commands, so opening, waiting, asserting, and photographing are separate captured steps. Its `exists`, `visible` and `assert` subcommands exit non-zero on failure, which makes them evidence. Without Rodney, any browser-automation MCP that writes a real screenshot file works.
 
 ## Boundaries worth capturing
 
-Reach for the command that shows the boundary itself, not a friendly summary of it.
+Capture the boundary itself, not a friendly summary of it.
 
-- **HTTP** — `curl -sS -D- -X POST -H 'content-type: application/json' -d @request.json <url>`, so headers and status are in the capture. Capture the request body as its own step; both sides of the wire are the point.
-- **SQL** — the statement and its result. Turn on statement logging where the system generates the SQL, and capture the generated statement rather than describing it.
-- **Schema** — `.schema`, `\d+`, `SHOW CREATE TABLE`. Show what the database stored, which is not always what the migration said.
-- **On disk** — show the **representation**, not the file's metadata. `sqlite3 db .dump`, `git cat-file -p`, `xxd` at the offset where the record actually sits, an archive listing. Size, mtime and page counts are trivia: they change nothing the reader understands, and a step that only reports them should be cut.
-- **CLI** — the exact invocation including flags, and `--help` when the flags are the thing being demoed.
-- **Web UI** — the screenshot, paired with the network request behind it, so the picture is backed by the payload.
-- **Library** — a short script that imports the published entry point and prints results, run for real. Not the test suite; a caller.
-- **Background work** — the log lines the job wrote, read from the real log file, plus the row or file it produced.
+- **HTTP** — `curl -sS -D- -X POST -H 'content-type: application/json' -d @request.json <url>`, so headers and status are captured. Capture the request body as its own step.
+- **SQL** — the statement and its result. Where the system generates SQL, turn on statement logging and capture the generated statement.
+- **Schema** — `.schema`, `\d+`, `SHOW CREATE TABLE`: what the database stored, not what the migration said.
+- **On disk** — the representation, not metadata: `sqlite3 db .dump`, `git cat-file -p`, `xxd` at the record's offset, an archive listing. Cut steps that only report size, mtime, or page counts.
+- **CLI** — the exact invocation with flags, and `--help` when the flags are the point.
+- **Web UI** — the screenshot plus the network request behind it.
+- **Library** — a short script that imports the published entry point and prints results. A caller, not the test suite.
+- **Background work** — the log lines from the real log file, plus the row or file it produced.
 
 ## Use real data
 
-A demo built on data seeded for the demo proves the demo. Use records the system
-actually holds, exports the user actually has.
+Use records the system actually holds and exports the user actually has. When only fixture data exists, say so in a `note` before the output. Never hand-seed a clean happy path and present it as evidence.
 
-When only fixture data exists, say so in a `note`, out loud, before the output — and
-prefer a real record over an invented one even when it is messier. Never hand-seed a
-clean happy path and present it as evidence.
+## Start from a known state, then show before and after
 
-## Start from a known state
+Prove the starting point first: the empty table, the missing directory, the zero-row query. Then the command, then the same query again.
 
-Prove the starting point before proving the change. An empty table shown empty, a
-directory shown missing, a query returning zero rows — then the command, then the same
-query again. Otherwise the reader cannot tell what the command did from what was
-already there.
-
-## Before and after is the proof
-
-For a fix, capture the same command on both sides of it and let the difference speak.
-Build the old binary in a worktree at the parent commit, or drive the flag that disables
-the change, and run the identical input through each. Two screenshots, two dumps, two
-row sets. Assertion is not evidence; a diff is.
+For a fix, run the identical input on both sides of it: build the old binary in a worktree at the parent commit, or drive the flag that disables the change. Two screenshots, two dumps, two row sets.
 
 ## Pace it one at a time
 
-One at a time is literal. Present one step, stop, and wait. Do not deliver a list of ten
-things and ask for sign-off on all of them — every step earns its own follow-up
-questions, and a wall of text gets skipped instead of read.
+Present one step, stop, and wait. Never deliver a list of steps for sign-off in one go.
 
-- Keep the remaining steps in internal todos so nothing is lost across the pauses
-- At each pause, ask whether to continue to the named next step. Follow the session's question-routing rules and use a question mechanism callable in the current mode: for example, `AskUserQuestion` in Claude Code or a suitable Codex question tool. Use `request_user_input` only when the current mode permits it. Offer options to continue, revisit the step, or stop when the mechanism supports them.
-- If no suitable question tool is callable, or the tool call fails, ask the question in plain text and end the turn to wait for the user's response.
-- Wait for explicit user sign-off before moving to the next step. Silence, a timeout, or an empty tool response is not approval. If the user requests an explanation or change, address it and ask again before continuing.
-- Demo before opening a pull request, and before calling anything done
+- Track the remaining steps in internal todos across pauses.
+- At each pause, ask whether to continue to the named next step, following the session's question-routing rules with a question tool callable in the current mode (`AskUserQuestion` in Claude Code, a suitable Codex question tool; `request_user_input` only when the mode permits it). Offer continue, revisit, or stop when the tool supports options.
+- If no question tool is callable or the call fails, ask in plain text and end the turn.
+- Continue only on explicit sign-off. Silence, a timeout, or an empty tool response is not approval. After addressing a question or change request, ask again.
 
 ## Annotate the output
 
-The output is only evidence if the reader can read it.
-
-- Map console columns to the fields they came from — this column is that JSON key
-- Put headers on tables; an unlabelled column is not proof of anything
-- Define units, and say what a number is denominated in
-- Explain any term the reader has not used themselves; jargon in a demo reads as evasion
-- Name where the data lives — the file path, the table, the endpoint — so the reader can go look
+- Map console columns to the fields they came from
+- Put headers on tables
+- Define units and denominations
+- Explain terms the reader has not used themselves
+- Name where the data lives — file path, table, endpoint
 
 ## Offer choices when taste is the question
 
-When the demo exists to settle how something looks or feels, build several real variants
-and show them side by side rather than one and a description of the others. Push each
-variant to its limit — the longest text, the fullest screen, the widest table — because
-the interesting failure is at the edge.
+When the demo settles how something looks or feels, build several real variants side by side, and push each to its limit (longest text, fullest screen, widest table).
 
 ## Say what it does not prove
 
-Close with the honest caveats: what the demo covers, what it does not, which inputs were
-pinned, which conditions were not exercised, which blocks fail `verify` and why. A demo
-that overclaims costs more trust than one that admits a gap.
+Close with caveats: what the demo covers and does not, which inputs were pinned, which conditions were not exercised, which blocks fail `verify` and why.
 
 ## Deliver it where the user is
 
-`open` puts the demo on the screen of the machine running the command. The person asking
-for it is often somewhere else — on a phone, on a tablet, driving the session from
-another device. A demo delivered to an empty desk is not delivered.
+The user is often on another device, so a local `open` may land on an empty desk. Resolve `<plugin-root>` before running plugin scripts: `${CLAUDE_PLUGIN_ROOT}` in Claude Code; in Codex, the plugin root containing this `skills/demo/SKILL.md`.
 
-Check, rather than assume:
+Check presence rather than assuming:
 
 ```console
 <plugin-root>/scripts/demo-presence
 ```
 
-Resolve `<plugin-root>` before running plugin scripts:
+It reports idle seconds, screen lock, Tailscale state, and active tailnet peers, then exits `0` present, `1` away, `2` can't tell.
 
-- In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`.
-- In Codex, use the plugin root that contains this `skills/demo/SKILL.md` file.
-
-It reports idle seconds, whether the screen is locked, whether Tailscale is up and which
-tailnet peers are active, then exits `0` present, `1` away, `2` can't tell. Treat that
-output like any other captured evidence — a reading, not a guess.
-
-Render the document to a page first, since Showboat writes markdown:
+Render the document to a page:
 
 ```console
 <plugin-root>/scripts/demo-render.py demo.md -o demo.html
 ```
 
-Then deliver by whichever of these the environment offers, best first, and send the file
-as well whichever one you use:
+Deliver by the best option the environment offers, and send the file as well whichever you use:
 
-- **A Claude Artifact**, when the Artifact tool is available. It reaches any device with no VPN and no network of the user's involved. Render with `--fragment`, since the artifact host supplies its own document skeleton.
-- **A URL on the tailnet**, otherwise, with `<plugin-root>/scripts/demo-publish demo-dir/`. It copies the document, its images and the rendered page into the publish root and prints the URL. `DEMO_PUBLISH_DIR` sets where published demos live (default `${XDG_DATA_HOME:-$HOME/.local/share}/demos`) and `DEMO_PUBLISH_URL` the base URL that root is served at. Serve that root however the machine already serves things to the tailnet, and reuse the existing gateway rather than standing up something new. With `DEMO_PUBLISH_URL` unset it still publishes and says plainly that there is no URL.
-- **The file itself**, sent to the user directly. A URL needs them on the tailnet; a delivered file does not.
-- **`open`**, but only when the presence check says they are here.
+- **A Claude Artifact**, when the Artifact tool is available. It reaches any device with no VPN. Render with `--fragment`, since the artifact host supplies the document skeleton.
+- **A tailnet URL**, otherwise, via `<plugin-root>/scripts/demo-publish demo-dir/`, which copies the document, images, and rendered page into the publish root and prints the URL. `DEMO_PUBLISH_DIR` sets the root (default `${XDG_DATA_HOME:-$HOME/.local/share}/demos`) and `DEMO_PUBLISH_URL` its base URL. Reuse the machine's existing tailnet gateway rather than standing up a new server. With `DEMO_PUBLISH_URL` unset it still publishes and says there is no URL.
+- **The file itself**, sent directly. It does not need the tailnet.
+- **`open`**, only when the presence check says the user is here.
 
 Never end a demo with only a local `open` and a path on this machine.
 
 ## Finish with verification
 
-Always finish by running `uvx showboat verify demo.md` and reporting the result honestly,
-including which blocks drift and why when it does not pass.
+Run `uvx showboat verify demo.md` and report the result, including which blocks drift and why.
 
 ## Keep proof that outlives the session
 
-A demo directory under `.llm/` is scratch. When the demo is the evidence for a change —
-a pull request, a behaviour claim, a bug that must stay fixed — copy the document and its
-images somewhere durable and committed, next to the code it vouches for, so
-`showboat verify` can be run against it again later.
+A demo under `.llm/` is scratch. When the demo is evidence for a change (a pull request, a behavior claim, a regression that must stay fixed), copy the document and images somewhere committed next to the code, so `showboat verify` can run again later.

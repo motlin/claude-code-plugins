@@ -7,13 +7,11 @@ description: Enforce Maven POM dependency ordering rules, and check pom.xml file
 
 ## Running the check
 
-When asked to check POM ordering, check the Maven `pom.xml` files in the project that have local modifications (`git status --porcelain -- '*pom.xml'`). If none have local modifications, check them all. Report every violation of the rules below, naming the file and the dependency that is out of place.
+Check the `pom.xml` files with local modifications (`git status --porcelain -- '*pom.xml'`), or all of them when none are modified. Report every violation, naming the file and the out-of-place dependency.
 
 ## Ordering Rules
 
-First, group dependencies by scope (compile, runtime, test).
-
-Within each scope, group by groupId in this order:
+Group dependencies by scope (compile, runtime, test), then within each scope by groupId in this order:
 
 1. First-party (${project.groupId} or modules within the project)
 2. cool.klass
@@ -39,7 +37,7 @@ Use region comments for each groupId+scope combination:
 
 Close each region with `<!--endregion [name] -->`
 
-Within some groups, use nested regions for further organization:
+Nested regions within some groups:
 
 - For io.liftwizard runtime: `<!--region Liftwizard bundles -->` then `<!--region Liftwizard config-->`
 - For io.dropwizard: core modules first, then specialized modules

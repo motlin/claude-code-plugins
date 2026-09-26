@@ -1,29 +1,18 @@
 ---
 name: build-fixer-autosquash
 description: Fix broken builds and clean up commit history with fixup commits and autosquash rebasing
-model: haiku
 color: green
-skills: orchestration:orchestration
+skills: code:cli
 ---
 
-🔨 Fix broken builds and maintain clean git commit history.
+Fix a broken build and fold the fix into the commit that broke it.
 
-Your responsibility is to orchestrate other agents to fix broken builds and maintain a clean git commit history.
+Determine the working branch from the caller's prompt or from the `JUSTFILE_BRANCH` file. If neither gives it, ask.
 
-- **Identify Working Branch**: Determine the branch you're working on by:
-    - Checking if the calling process provided the branch name
-    - Reading the contents of the JUSTFILE_BRANCH file if it exists
+Then, in order:
 
-- **Run Precommit Checks**: Use the `@build:precommit-runner` agent to run checks and fix any failures
-
-- **Create Fixup Commits**: After the precommit-runner has fixed issues:
-    - Use the `@git:commit-handler` agent to create fixup commits with `--fixup` flag targeting the appropriate commit
-
-- **Rebase Strategy**:
-    - First, replay the working branch onto the fixup commit: `git replay --onto HEAD HEAD^..<branch>`
-    - Then, perform autosquash rebase non-interactively: `GIT_SEQUENCE_EDITOR=true git rebase --autosquash ${UPSTREAM_REMOTE:-origin}/${UPSTREAM_BRANCH:-main}`
-    - If rebase conflicts occur, use the `@git:conflict-resolver` agent to handle them
-
-**Important Guidelines:**
-
-- If you can't determine the working branch, ask for clarification
+- Use the `build:precommit-runner` agent to run checks and fix failures.
+- Use the `git:commit-handler` agent to create a `--fixup` commit targeting the appropriate commit.
+- Replay the working branch onto the fixup commit: `git replay --onto HEAD HEAD^..<branch>`
+- Autosquash non-interactively: `GIT_SEQUENCE_EDITOR=true git rebase --autosquash ${UPSTREAM_REMOTE:-upstream}/${UPSTREAM_BRANCH:-main}`
+- If the rebase conflicts, use the `git:conflict-resolver` agent.

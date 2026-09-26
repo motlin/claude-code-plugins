@@ -7,11 +7,9 @@ description: Commit local changes with careful staging and single-line messages.
 
 Use the `code:cli` and `git:git-workflow` skills.
 
-When the user invokes this skill directly (`/git:commit`), delegate to the `git:commit-handler` agent to commit the local changes. When this skill is loaded as guidance for a commit you are already making, or no subagent is available (for example in Codex), follow the procedure below inline.
+When the user invokes this skill directly (`/git:commit`), delegate to the `git:commit-handler` agent. When the skill is loaded as guidance for a commit you are already making, or no subagent is available (for example in Codex), follow the procedure below inline.
 
 ## Inspect Context
-
-Run:
 
 ```bash
 git status
@@ -23,31 +21,19 @@ git log --oneline -10
 
 ## Stage Files
 
-Stage files individually:
+Stage only the files modified for the current task, individually:
 
 ```bash
 git add <file1> <file2>
 ```
 
-Never use `git add .`, `git add -A`, `git commit -am`, or other commands that stage unrelated changes. Only stage files that were explicitly modified for the current task.
+Never use `git add .`, `git add -A`, `git commit -am`, or anything else that stages unrelated changes.
 
 ## Commit Message
 
-If the user pasted a compiler or linter error, or the task is explicitly a fixup for a known commit, use:
+If the user pasted a compiler or linter error, or the task is explicitly a fixup for a known commit, use `git commit --fixup <sha>`.
 
-```bash
-git commit --fixup <sha>
-```
-
-Otherwise write one single-line message that follows `git:git-workflow`:
-
-- Present-tense verb first.
-- 60-120 characters.
-- Ends with a period.
-- No body.
-- Borrow language from the prompt, but avoid praise adjectives.
-
-The prompt is the intent, not the message text. Distill a long or multi-line prompt to one line rather than copying it.
+Otherwise write one line following the format in `git:git-workflow`. The prompt is the intent, not the message text: borrow its language, but distill a long or multi-line prompt to one line.
 
 Echo exactly:
 
@@ -55,7 +41,7 @@ Echo exactly:
 Running: `git commit --message "<message>"`
 ```
 
-Then run `git commit` without confirming again with the user:
+Then commit without confirming again with the user:
 
 ```bash
 git commit --message "<message>"

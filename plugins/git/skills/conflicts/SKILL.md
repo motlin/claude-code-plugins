@@ -5,26 +5,15 @@ description: Resolve git merge or rebase conflicts and continue the operation. U
 
 # Conflicts
 
-🔀 Fix all merge conflicts and continue the git rebase.
-
 Use the `code:cli` skill.
 
-Run `git status` to understand the merge or rebase state and identify conflicted files.
-
-For each conflicted file:
-
-- Read the file and inspect the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
-- Understand the HEAD side and incoming side.
-- Resolve by choosing the correct version or combining changes.
-- Remove all conflict markers.
-
-✅ After resolving all conflicts:
+Run `git status` to see the operation in progress and the conflicted files. Resolve each file by keeping the correct side or combining both, and remove every conflict marker. Then:
 
 ```bash
 git add <resolved-files>
 git rebase --continue
 ```
 
-If the rebase continues with more conflicts, repeat the process inline, or run the `git:conflict-resolver` subagent again when the conflicts were delegated to it in the first place.
+If the rebase stops on more conflicts, repeat. When the conflicts were delegated to the `git:conflict-resolver` agent, run that agent again instead.
 
-✔️ Verify successful completion with `git status` and recent commit history.
+Finish by checking `git status` and recent commit history to confirm the operation completed.

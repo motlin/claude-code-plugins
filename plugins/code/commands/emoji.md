@@ -4,23 +4,12 @@ description: Add appropriate emoji to make content more engaging
 model: haiku
 ---
 
-😊 Add appropriate emoji to the content we're working on to make it more engaging and easier to scan.
+Add emoji to the content we're working on to make it easier to scan.
 
 $ARGUMENTS
 
-## 📍 Placement
+Put emoji at the start of headers, in lists and navigation elements, and in code comments.
 
-- Add emoji at the beginning of headers before the text
-- Include emoji in lists and navigation elements
-- Code comments
+Pick the best-fitting emoji for each element, then make a second pass replacing duplicates with suitable alternatives.
 
-## 🔄 Two-pass approach
-
-1. First pass: Add the most fitting emoji for each element
-2. Second pass: Replace duplicates with suitable alternatives
-
-# 🎯 Patterns for consistency
-
-- Match emoji to content's tone and purpose (🎉 celebrations, 🔧 technical, 📚 documentation)
-- Use emoji for status indicators (✅ complete, ⏳ in progress, ❌ error, ⚠️ warning)
-- Establish patterns for consistency (📝 for "Notes", 🔗 for "Links", etc.)
+Keep usage consistent: match the content's tone (🎉 celebrations, 🔧 technical, 📚 documentation), use status indicators (✅ complete, ⏳ in progress, ❌ error, ⚠️ warning), and reuse one emoji per recurring label (📝 Notes, 🔗 Links).
