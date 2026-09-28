@@ -1,5 +1,3 @@
-set dotenv-filename := ".envrc"
-
 formatted_shell_scripts := "plugins/*/scripts/*.sh test/*.sh test/lib/*.sh install-local.sh"
 shellcheck_scripts := `plugins/build/scripts/list-shell-files`
 
