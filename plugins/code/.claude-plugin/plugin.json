@@ -7,6 +7,12 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": ["./skills/code-quality", "./skills/cli", "./skills/code-generation", "./skills/test-data"],
+	"skills": [
+		"./skills/code-quality",
+		"./skills/cli",
+		"./skills/code-generation",
+		"./skills/test-data",
+		"./skills/markdown-authoring"
+	],
 	"commands": ["./commands/emoji.md", "./commands/formatter-off.md"]
 }
