@@ -90,8 +90,7 @@ From a local checkout:
 ./install-local.sh codex
 ```
 
-`./install-local.sh all` installs both. After editing a plugin locally, refresh its Codex
-installation before starting a new conversation:
+`./install-local.sh all` installs both. After editing a plugin locally, refresh its Codex installation before starting a new conversation:
 
 ```bash
 just codex-reinstall --plugin markdown-tasks
@@ -107,5 +106,4 @@ npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent codex
 npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-code
 ```
 
-From a local checkout, use `.` as the repository. This installs skills only, not hooks,
-commands, or agents.
+From a local checkout, use `.` as the repository. This installs skills only, not hooks, commands, or agents.

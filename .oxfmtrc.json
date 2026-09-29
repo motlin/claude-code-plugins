@@ -7,5 +7,14 @@
 	"bracketSpacing": false,
 	"trailingComma": "all",
 	"arrowParens": "always",
-	"proseWrap": "preserve"
+	"proseWrap": "never",
+	"embeddedLanguageFormatting": "off",
+	"overrides": [
+		{
+			"files": ["*.md"],
+			"options": {
+				"printWidth": 320
+			}
+		}
+	]
 }
