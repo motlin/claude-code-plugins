@@ -71,6 +71,8 @@ jobs:
                   python3 -m venv .llm/walkthrough-tests
                   .llm/walkthrough-tests/bin/pip install -r plugins/code-walkthrough/scripts/requirements.txt
                   .llm/walkthrough-tests/bin/python -m unittest discover -s plugins/code-walkthrough/tests
+            - name: Test narration script
+              run: python3 -m unittest discover -s plugins/narration/tests
 
     all-checks:
         name: All checks

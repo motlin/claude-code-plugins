@@ -29,6 +29,7 @@ Plugins for agent workflows, development tools, terminal feedback, and safety ch
 | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
 | [demo](plugins/demo/README.md)                                                            | Demo real IO — wire, SQL, DDL, commands — captured, not authored | ✅          | ✅    |
 | [code-walkthrough](plugins/code-walkthrough/skills/code-walkthrough/SKILL.md)             | Teach source with ordered explanations and scrolling highlights  | ✅          | ✅    |
+| [narration](plugins/narration/skills/narration/SKILL.md)                                  | Narrate text and books as audio with Gemini text-to-speech       | ✅          | ✅    |
 | [investigation-report](plugins/investigation-report/skills/investigation-report/SKILL.md) | Turn terminal investigations into explanatory HTML reports       | ✅          | ✅    |
 | [orchestration](plugins/orchestration/README.md)                                          | Coordinate shared conversation, testing, and finish conventions  | ✅          | ✅    |
 | [plugin-and-skill-dev](plugins/plugin-and-skill-dev/README.md)                            | Write durable skills, agents, and commands                       | ✅          | ✅    |

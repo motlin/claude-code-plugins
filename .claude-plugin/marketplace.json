@@ -236,6 +236,16 @@
 			},
 			"source": "./plugins/code-walkthrough",
 			"category": "productivity"
+		},
+		{
+			"name": "narration",
+			"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
+			"version": "1.35.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/narration",
+			"category": "productivity"
 		}
 	]
 }

@@ -1,0 +1,23 @@
+{
+	"name": "narration",
+	"version": "1.35.2",
+	"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/narration",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "narration", "text-to-speech", "audiobook"],
+	"interface": {
+		"displayName": "Narration",
+		"shortDescription": "Turn text into narrated audio and chaptered audiobooks",
+		"longDescription": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Narrate this text as audio."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
