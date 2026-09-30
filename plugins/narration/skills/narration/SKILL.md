@@ -1,6 +1,6 @@
 ---
 name: narration
-description: Narrate text, an article, or a whole book as audio with Gemini text-to-speech - voice comparison samples, style directions that are never spoken, per-chapter MP3s, and a chaptered M4B audiobook. Use when the user asks to convert text or a URL to audio, make an audiobook, read something aloud to a file, or compare text-to-speech voices.
+description: Narrate text as audio with Gemini text-to-speech. Use when asked to turn text or a URL into audio, make an audiobook, or compare text-to-speech voices.
 ---
 
 # Narration
@@ -9,9 +9,9 @@ Turn text into narrated audio with the bundled `scripts/narrate.py`. It calls th
 
 The script needs `ffmpeg` on the path and `GEMINI_API_KEY` in the environment. If the key is missing, ask where it lives; never print it or write it to a file.
 
-## Never put directions in the text
+## Pass directions with `--style`
 
-Everything in the text is read aloud. A prompt such as "Read this warmly:" placed before a passage is spoken at the start of every chunk, and a long narration repeats it every few minutes. Pass delivery directions only through `--style`, which the script sends as speech metadata. Pass no style at all for the voice's neutral delivery.
+Everything in the text is read aloud. Pass delivery directions through `--style`, which the script sends as speech metadata, and omit it for the voice's neutral delivery.
 
 Pace words are strong. "Unhurried" made a narration about 15% slower than neutral, and "brisk quick pace" made it 11% to 24% faster. Neutral delivery is already close to a typical audiobook pace, so add a pace word only when the user asks for one, and use their wording.
 
