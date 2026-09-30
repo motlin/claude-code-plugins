@@ -1,0 +1,11 @@
+{
+	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+	"name": "narration",
+	"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
+	"version": "1.35.2",
+	"license": "Apache-2.0",
+	"author": {
+		"name": "Craig Motlin"
+	},
+	"skills": ["./skills/narration"]
+}
