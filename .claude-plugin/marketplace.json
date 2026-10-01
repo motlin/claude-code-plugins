@@ -246,6 +246,16 @@
 			},
 			"source": "./plugins/narration",
 			"category": "productivity"
+		},
+		{
+			"name": "upstream-sync",
+			"description": "Investigate a local web app against the upstream product it clones, feature by feature, producing gap files with TDD tasks and a roadmap",
+			"version": "1.35.2",
+			"author": {
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/upstream-sync",
+			"category": "productivity"
 		}
 	]
 }
