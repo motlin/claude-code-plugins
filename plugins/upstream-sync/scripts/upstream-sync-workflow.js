@@ -56,6 +56,11 @@ const SURVEY_SCHEMA = {
 const INVESTIGATION_SCHEMA = {
 	type: 'object',
 	properties: {
+		investigated: {
+			type: 'boolean',
+			description:
+				'true only if you actually investigated both sides and wrote the feature file; false if you declined or could not',
+		},
 		localStatus: {type: 'string', enum: ['missing', 'partial', 'equivalent', 'better-locally', 'not-applicable']},
 		featureFile: {type: 'string'},
 		summary: {type: 'string', description: 'one or two sentences: biggest gaps'},
@@ -68,7 +73,16 @@ const INVESTIGATION_SCHEMA = {
 		safetyIncidents: {type: 'array', items: {type: 'string'}},
 		sandboxClean: {type: 'boolean'},
 	},
-	required: ['localStatus', 'featureFile', 'summary', 'taskCount', 'discovered', 'safetyIncidents', 'sandboxClean'],
+	required: [
+		'investigated',
+		'localStatus',
+		'featureFile',
+		'summary',
+		'taskCount',
+		'discovered',
+		'safetyIncidents',
+		'sandboxClean',
+	],
 };
 
 const CRITIC_SCHEMA = {
@@ -216,14 +230,19 @@ Read ${DIR}/README.md, ${DIR}/local-inventory.md, ${DIR}/upstream-survey.md, and
 
 Write ${DIR}/features/${item.slug}.md following the README template, with self-contained red/green TDD proposed tasks (exact files, exact class names and values). If the feature has no local meaning, write a short file with localStatus not-applicable. Append any new general lesson to the README Tips section. Return the structured result.`;
 		const opts = {label: `investigate:${item.slug}`, phase: 'Investigate', schema: INVESTIGATION_SCHEMA};
-		let r = await agent(prompt, opts);
-		// A null result is a dead agent (network drop, terminal API error). The
-		// retry prompt differs so a resumed run doesn't replay the failure.
+		// A null result is a dead agent (network drop, terminal API error);
+		// investigated: false is an agent that declined, e.g. one that judged the
+		// run unauthorized. Neither is a finding. The retry prompt differs so a
+		// resumed run doesn't replay the failure.
+		const usable = (res) => (res && res.investigated !== false ? res : null);
+		let r = usable(await agent(prompt, opts));
 		if (!r) {
 			log(`${item.slug}: agent failed, retrying once`);
-			r = await agent(
-				`${prompt}\n\nThis is a retry: an earlier attempt died mid-run. Reuse any ${DIR}/dumps/${item.slug}-* or partial feature file it left, and finish the job.`,
-				opts,
+			r = usable(
+				await agent(
+					`${prompt}\n\nThis is a retry: an earlier attempt died mid-run or declined. Reuse any ${DIR}/dumps/${item.slug}-* or partial feature file it left, and finish the job.`,
+					opts,
+				),
 			);
 		}
 

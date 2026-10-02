@@ -63,6 +63,8 @@ Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js`
 | `maxCriticRounds`             | Default 3                                                                                                                                       |
 | `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                 |
 
+Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving. When that message was an unrelated question, investigators declined the browser work and returned placeholder results, wasting a hundred investigations. They now report `investigated: false`, which counts as a failure, but the cost is still a retry per feature. If the run needs relaunching after the user asked something else, ask them to say so first.
+
 The run is long. Tell the user the run id, that `/workflows` shows progress, and that `features.md` plus the `features/` file count are the live progress readout.
 
 ## Run it in Codex

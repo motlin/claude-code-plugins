@@ -19,6 +19,7 @@ const BASE_ARGS = {
 const feature = (slug, priority) => ({slug, name: `Feature ${slug}`, priority, notes: `notes ${slug}`});
 
 const investigation = (discovered = [], safetyIncidents = []) => ({
+	investigated: true,
 	localStatus: 'partial',
 	featureFile: 'features/x.md',
 	summary: 'gaps',
@@ -146,6 +147,19 @@ test('a failed investigator (null result, e.g. a network drop) is retried once, 
 			retryPromptsDiffer: alphaPrompts[0] !== alphaPrompts[1],
 		},
 		{investigated: ['alpha', 'beta'], failed: ['beta'], retryPromptsDiffer: true},
+	);
+});
+
+test('an investigator that declines (investigated: false) counts as a failure: retried once, then failed, never done', async () => {
+	const {result, calls} = await runWorkflow(BASE_ARGS, {
+		'upstream-survey': () => ({features: [feature('alpha', 'P1')], safetyIncidents: []}),
+		'investigate:': () => ({...investigation(), investigated: false}),
+		'critic-': () => ({missing: []}),
+	});
+
+	assert.deepEqual(
+		{attempts: investigated(calls), failed: result.failed, byStatus: result.byStatus},
+		{attempts: ['alpha', 'alpha'], failed: ['alpha'], byStatus: {}},
 	);
 });
 
