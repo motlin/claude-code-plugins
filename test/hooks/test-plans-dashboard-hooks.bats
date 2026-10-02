@@ -18,13 +18,13 @@ captured_payload() {
 
 @test "Codex hooks use the supported lifecycle subset" {
   hooks="$(jq --raw-output '.hooks | keys[]' \
-    "$PROJECT_ROOT/plugins/claude-code-plans/hooks/hooks.json" | sort | tr '\n' ',')"
+    "$PROJECT_ROOT/plugins/plans-dashboard/hooks/hooks.json" | sort | tr '\n' ',')"
   [ "$hooks" = "PostToolUse,SessionStart,Stop," ]
 }
 
 @test "Claude manifest loads the complete lifecycle hook set" {
-  manifest="$PROJECT_ROOT/plugins/claude-code-plans/.claude-plugin/plugin.json"
-  hooks="$PROJECT_ROOT/plugins/claude-code-plans/hooks/claude-hooks.json"
+  manifest="$PROJECT_ROOT/plugins/plans-dashboard/.claude-plugin/plugin.json"
+  hooks="$PROJECT_ROOT/plugins/plans-dashboard/hooks/claude-hooks.json"
   [ "$(jq --raw-output '.hooks' "$manifest")" = "./hooks/claude-hooks.json" ]
   jq --exit-status '.hooks.SessionEnd and .hooks.TaskCompleted and .hooks.WorktreeCreate' \
     "$hooks" >/dev/null
@@ -39,7 +39,7 @@ captured_payload() {
   }')"
 
   run env PATH="$mock_bin:$PATH" CURL_CAPTURE_FILE="$capture_file" \
-    "$PROJECT_ROOT/plugins/claude-code-plans/scripts/post-hook.sh" SessionStart <<<"$input"
+    "$PROJECT_ROOT/plugins/plans-dashboard/scripts/post-hook.sh" SessionStart <<<"$input"
   [ "$status" -eq 0 ]
   payload="$(captured_payload)"
   [ "$(jq --raw-output '.session_id' <<<"$payload")" = "codex-test-session" ]
@@ -56,7 +56,7 @@ captured_payload() {
   }')"
 
   run env PATH="$mock_bin:$PATH" CURL_CAPTURE_FILE="$capture_file" \
-    "$PROJECT_ROOT/plugins/claude-code-plans/scripts/post-hook.sh" PostToolUse <<<"$input"
+    "$PROJECT_ROOT/plugins/plans-dashboard/scripts/post-hook.sh" PostToolUse <<<"$input"
   [ "$status" -eq 0 ]
   payload="$(captured_payload)"
   [ "$(jq --raw-output '.tool_name' <<<"$payload")" = "Bash" ]

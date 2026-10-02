@@ -149,10 +149,10 @@
 			"category": "Productivity"
 		},
 		{
-			"name": "claude-code-plans",
+			"name": "plans-dashboard",
 			"source": {
 				"source": "local",
-				"path": "./plugins/claude-code-plans"
+				"path": "./plugins/plans-dashboard"
 			},
 			"policy": {
 				"installation": "AVAILABLE",

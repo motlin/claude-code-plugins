@@ -118,13 +118,13 @@
 			"category": "productivity"
 		},
 		{
-			"name": "claude-code-plans",
+			"name": "plans-dashboard",
 			"description": "Send session lifecycle events to the claude-code-plans dashboard",
 			"version": "1.35.2",
 			"author": {
 				"name": "Craig Motlin"
 			},
-			"source": "./plugins/claude-code-plans",
+			"source": "./plugins/plans-dashboard",
 			"category": "productivity"
 		},
 		{
