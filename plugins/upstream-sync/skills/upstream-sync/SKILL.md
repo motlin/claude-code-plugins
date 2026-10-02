@@ -1,13 +1,13 @@
 ---
 name: upstream-sync
-description: 'Investigate a local web app against the upstream product it clones (a local claude.ai/code browser, a Workflowy replica), feature by feature, with serial browser subagents in a recursive Workflow, and produce per-feature gap files with red/green TDD tasks plus a prioritized roadmap. Use when the user wants to sync, diff, or reach parity with upstream, or to find everything upstream has that the local app lacks.'
+description: 'Investigate a local web app against the upstream product it clones (a local claude.ai/code browser, a Workflowy replica), feature by feature, with serial browser investigators (a recursive Workflow in Claude Code, a hand-run loop in Codex), and produce per-feature gap files with red/green TDD tasks plus a prioritized roadmap. Use when the user wants to sync, diff, or reach parity with upstream, or to find everything upstream has that the local app lacks.'
 ---
 
 # Upstream sync
 
 Bring a local app to near-exact parity with the upstream product it mirrors: same features, DOM structure, class names and CSS values, minus anything with no local meaning. The output is investigation only, written under `.llm/upstream-sync/`. Implementation comes afterward, from the roadmap.
 
-The engine is a Workflow script, `<plugin-root>/scripts/upstream-sync-workflow.js`. Resolve `<plugin-root>` as `${CLAUDE_PLUGIN_ROOT}`. The script runs:
+The engine is a Workflow script, `<plugin-root>/scripts/upstream-sync-workflow.js`. Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/upstream-sync/SKILL.md` file. Codex has no Workflow tool, so it runs the same phases by hand; see the Codex section below. The script runs:
 
 - **Broad:** a code-only local inventory and a browser survey of upstream, in parallel. The survey seeds the feature queue.
 - **Investigate:** one browser investigator per feature, strictly serial because they share Chrome. Priority order is P1, then P2, then P3. Each investigator writes `features/<slug>.md` and returns any new features it discovered, which join the queue, so the investigation recurses.
@@ -18,7 +18,7 @@ The orchestrator owns `features.md` and rewrites it every `registryEvery` invest
 
 ## Settle the safety model before anything else
 
-Find out whether interacting with upstream or the local app changes real data. For example, both sides may write to the user's real account, or opening a page may create a record. Ask the user with AskUserQuestion, with these options:
+Find out whether interacting with upstream or the local app changes real data. For example, both sides may write to the user's real account, or opening a page may create a record. Ask the user (with AskUserQuestion in Claude Code), offering these options:
 
 - **Sandbox:** create one dedicated container, such as a top-level node, a scratch project or a test document. Investigators may edit only inside it, and may only read everywhere else.
 - **Strictly read-only:** no edits anywhere. Editing behavior is decoded from the DOM and the JS bundle.
@@ -40,7 +40,7 @@ If an earlier sync left this directory behind, read its `README.md` Tips and `SU
 
 ## Verify the local app is running
 
-Check that the local dev server is listening on the expected port and that an HTTP request returns a non-error response, before launching. Also confirm the user is logged in to upstream in the Chrome profile that claude-in-chrome drives.
+Check that the local dev server is listening on the expected port and that an HTTP request returns a non-error response, before launching. Also confirm the user is logged in to upstream in the browser profile your browser tools drive: claude-in-chrome in Claude Code, or whichever browser MCP is connected in Codex. If no browser tool is available, stop and tell the user; the investigation can't run on code alone.
 
 ## Launch the workflow
 
@@ -64,6 +64,18 @@ Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js`
 | `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                 |
 
 The run is long. Tell the user the run id, that `/workflows` shows progress, and that `features.md` plus the `features/` file count are the live progress readout.
+
+## Run it in Codex
+
+Codex has no Workflow tool, so you are the orchestrator and do by hand what the script does. The script stays the single source of truth for the briefs: read `<plugin-root>/scripts/upstream-sync-workflow.js` and reuse its local-inventory, survey, investigator, critic and summary prompts verbatim, filling each `${...}` from the same args you would have passed.
+
+- Run the broad phase: the local inventory (code only), then the upstream survey.
+- Keep the queue in `features.md` yourself, as the script's `writeRegistry` does: dedup slugs case-insensitively, and always take the next `todo` row in P1, then P2, then P3 order.
+- Investigate one feature at a time. If Codex can start subagents, give each investigator its own subagent so the browser dumps stay out of your context. Otherwise investigate in your own context and keep only the feature file's summary line. Never run two browser investigations at once.
+- After each investigation, add the features it discovered to `features.md`, and check its safety report. Stop at the first incident, exactly as the script would.
+- A dead investigator gets one retry with the script's retry note; after that, mark it `failed`.
+- When the queue is empty, run critic rounds until one adds nothing (at most 3), then write `SUMMARY.md` with the summary prompt.
+- Long runs outlive one Codex session. `features.md` is the resume point: a fresh session continues from the first `todo` row.
 
 ## While it runs
 

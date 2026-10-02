@@ -21,11 +21,11 @@ Rules that apply to every project:
 
 ## Protocol for investigator subagents
 
-Investigations run ONE AT A TIME because they share the Chrome browser. Each agent:
+Investigations run ONE AT A TIME because they share the browser. Each agent:
 
 - Reads this README, `features.md`, `local-inventory.md` and `upstream-survey.md` first.
 - Investigates exactly its assigned feature on BOTH sides:
-    - Upstream: {{UPSTREAM_URL}} in its OWN new Chrome tab (claude-in-chrome tools: call tabs_context_mcp first, create a tab, close it when done). Extract real `outerHTML`, matched CSS rules and computed styles with javascript_tool; never describe from screenshots alone. Save large dumps to `dumps/<slug>-*.html|json|txt`. Fetch and grep the upstream JS bundle to decode behavior that is hard to trigger, and save excerpts to `dumps/`.
+    - Upstream: {{UPSTREAM_URL}} in its OWN new browser tab, closed when done (in Claude Code, the claude-in-chrome tools: call tabs_context_mcp first, then create a tab). Extract real `outerHTML`, matched CSS rules and computed styles by running JavaScript in the page; never describe from screenshots alone. Save large dumps to `dumps/<slug>-*.html|json|txt`. Fetch and grep the upstream JS bundle to decode behavior that is hard to trigger, and save excerpts to `dumps/`.
     - Local: the source in `{{LOCAL_SOURCE}}` and the running app at {{LOCAL_URL}} (its own tab, closed when done).
 - Writes `features/<slug>.md` using the template below.
 - Does NOT edit `features.md`; the orchestrating workflow owns the queue. It reports discovered features in its structured output instead.
@@ -61,8 +61,8 @@ Local-only adaptation: <how it maps to the local app, or "n/a">
 
 ## Tips (agents: append new lessons here)
 
-- javascript_tool output is capped at about 1000 characters. For large dumps, write the text into a hidden element and read it with get_page_text, or chunk it.
+- claude-in-chrome: javascript_tool output is capped at about 1000 characters. For large dumps, write the text into a hidden element and read it with get_page_text, or chunk it.
 - Synthetic KeyboardEvents dispatched from JS usually don't trigger app handlers. Press real keys with the computer tool's `key` action.
-- If the Chrome tab group vanishes, call tabs_context_mcp with createIfEmpty and continue in a fresh tab; report orphaned tab IDs.
+- claude-in-chrome: if the Chrome tab group vanishes, call tabs_context_mcp with createIfEmpty and continue in a fresh tab; report orphaned tab IDs.
 - Navigation can create data. Some buttons that look read-only (a "Today" button, a "new draft" route) create records as a side effect. Read the bundle before clicking anything that might.
 - A local dev server hot-reloads, so local behavior can change under you if someone edits the source during the run. Report anything that looks like that.

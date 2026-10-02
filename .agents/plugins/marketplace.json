@@ -291,6 +291,18 @@
 				"authentication": "ON_INSTALL"
 			},
 			"category": "Productivity"
+		},
+		{
+			"name": "upstream-sync",
+			"source": {
+				"source": "local",
+				"path": "./plugins/upstream-sync"
+			},
+			"policy": {
+				"installation": "AVAILABLE",
+				"authentication": "ON_INSTALL"
+			},
+			"category": "Productivity"
 		}
 	]
 }
