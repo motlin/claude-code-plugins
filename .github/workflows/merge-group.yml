@@ -68,9 +68,8 @@ jobs:
             - run: just test
             - name: Test source-backed walkthrough renderer
               run: |
-                  python3 -m venv .llm/walkthrough-tests
-                  .llm/walkthrough-tests/bin/pip install -r plugins/code-walkthrough/scripts/requirements.txt
-                  .llm/walkthrough-tests/bin/python -m unittest discover -s plugins/code-walkthrough/tests
+                  python3 plugins/code-walkthrough/scripts/setup.py --runtime .llm/code-walkthrough
+                  .llm/code-walkthrough/.venv/bin/python -m unittest discover -s plugins/code-walkthrough/tests
             - name: Test narration script
               run: python3 -m unittest discover -s plugins/narration/tests
 

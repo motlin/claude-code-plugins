@@ -1,6 +1,12 @@
 # Source-backed authoring
 
-The plugin root contains `scripts/build.py` and `assets/template.html`. Resolve that root from this file or the loaded skill location. Do not hardcode a plugin cache version. Install `scripts/requirements.txt` in an appropriate Python environment if needed.
+The plugin root contains `scripts/build.py` and `assets/astro/`. Resolve that root from this file or the loaded skill location. Do not hardcode a plugin cache version. The bundled Astro components own presentation; the project specification owns teaching order and explanations. Node 22.12 or newer and Python 3 are required. Install pinned dependencies in a project-owned runtime:
+
+```sh
+python3 /path/to/plugin/scripts/setup.py --runtime .llm/code-walkthrough
+```
+
+This leaves the plugin unchanged. The runtime contains npm dependencies and a Python virtual environment.
 
 Keep a JSON specification in the target repository, for example `docs/walkthrough.json`. Paths inside it are relative to the `--root` directory. CLI specification and output paths are relative to the command's working directory.
 
@@ -33,14 +39,14 @@ Use stable, unique, lowercase hyphenated step IDs; they become shareable URL fra
 ## Build and review
 
 ```sh
-python3 /path/to/plugin/scripts/build.py --root . \
+.llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
   --spec docs/walkthrough.json --output docs/walkthrough.html
 ```
 
 New or changed excerpts render with a visible review notice. Read the current code and its explanation, revise as needed, then record the reviewed step:
 
 ```sh
-python3 /path/to/plugin/scripts/build.py --root . \
+.llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
   --spec docs/walkthrough.json --output docs/walkthrough.html \
   --review frame-dispatch
 ```
@@ -48,16 +54,16 @@ python3 /path/to/plugin/scripts/build.py --root . \
 Repeat `--review` for several reviewed steps. Use `--review all` only after reviewing all explanations, such as the initial authoring pass. The command records excerpt hashes in the JSON. Moving unchanged code updates line numbers without invalidating its review. Changing code within the highlighted range flags that explanation. Missing, duplicate, or reversed anchors fail before overwriting output.
 
 ```sh
-python3 /path/to/plugin/scripts/build.py --root . \
+.llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
   --spec docs/walkthrough.json --output docs/walkthrough.html --check
 ```
 
-`--check` writes nothing and fails if output is stale or excerpts need review. Add it to the project's existing validation workflow when appropriate. Reproducibility assumes the same specification, sources, renderer, and pinned Pygments version. A passing check verifies source alignment, not correctness of the authored explanation.
+`--check` leaves the specification and output unchanged (Astro builds in disposable runtime scratch space) and fails if output is stale or excerpts need review. Add it to the project's existing validation workflow when appropriate. Reproducibility assumes the same specification, sources, renderer, and pinned Astro and Pygments dependencies. Use `--runtime` to override the default `<root>/.llm/code-walkthrough` directory. A passing check verifies source alignment, not correctness of the authored explanation.
 
 ## Experiments and trusted content
 
-An optional section `experiment` path points to a local HTML fragment placed after that source panel. Include its styles/scripts inline and scope selectors to its own container. Keep the generated page self-contained; do not introduce external assets unless requested. The renderer treats explanation HTML and experiment fragments as trusted author input; it escapes source code, titles, and paths. Review authored HTML before publishing it.
+An optional section `experiments` array contains objects with `id`, `title`, explanatory `html`, and `file` (a local HTML fragment). Each appears after its source panel. Scope styles and selectors to its container. Optional root `scripts` lists local JavaScript paths to inline, and `references` supplies footer HTML. Keep the generated page self-contained; do not introduce external assets unless requested. The renderer treats explanation HTML and experiment fragments as trusted author input; it escapes source code, titles, and paths. Review authored HTML before publishing it.
 
 ## Reading layout
 
-The template synchronizes page scrolling with a sticky code panel. Desktop explanations are on the left; mobile places the code above them. Readers can turn off automatic code scrolling to inspect the full file. Step links and the selector jump to explanations; Next/Previous use the same geometry as scroll activation. Honor reduced-motion settings. Test actual navigation, not only screenshots. Browser automation that scrolls a sticky button into view may itself change the active section; check real click behavior before mistaking that for a navigation defect.
+The Astro page synchronizes page scrolling with a sticky code panel. Desktop explanations are on the left; mobile places the code above them. Readers can turn off automatic code scrolling to inspect the full file. Step links and the selector jump to explanations; Next/Previous use the same geometry as scroll activation. Honor reduced-motion settings. Test actual navigation, not only screenshots. Browser automation that scrolls a sticky button into view may itself change the active section; check real click behavior before mistaking that for a navigation defect.

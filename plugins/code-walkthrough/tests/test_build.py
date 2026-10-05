@@ -10,6 +10,7 @@ import tempfile
 import unittest
 
 PLUGIN = Path(__file__).resolve().parents[1]
+RUNTIME = PLUGIN.parents[1] / '.llm/code-walkthrough'
 spec = importlib.util.spec_from_file_location('walkthrough_build', PLUGIN / 'scripts/build.py')
 build = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build)
@@ -59,7 +60,7 @@ class RendererTests(unittest.TestCase):
         self.spec_path.write_text(json.dumps(self.spec))
 
     def cli(self, *arguments):
-        return subprocess.run([sys.executable, str(PLUGIN / 'scripts/build.py'), '--root', str(self.root), '--spec', str(self.spec_path), '--output', str(self.output), *arguments], capture_output=True, text=True)
+        return subprocess.run([sys.executable, str(PLUGIN / 'scripts/build.py'), '--runtime', str(RUNTIME), '--root', str(self.root), '--spec', str(self.spec_path), '--output', str(self.output), *arguments], capture_output=True, text=True)
 
     def test_anchor_range_and_review_survive_line_insertion(self):
         first, last, digest = build.resolve(self.source, 'function tick()', 'end -- tick')
@@ -79,10 +80,26 @@ class RendererTests(unittest.TestCase):
         (self.root / 'sample.lua').write_text(source)
         self.spec['sections'][0]['steps'][0].update(start='return text', end='return text')
         sections = build.prepare(self.spec, self.root)
-        page, warnings = build.render(self.spec, sections, self.root)
+        page, warnings = build.render(self.spec, sections, self.root, RUNTIME)
         parser = CodeText()
         parser.feed(page)
         self.assertEqual((parser.lines, warnings), (source.splitlines(), ['tick']))
+
+    def test_python_experiment_and_scripts_are_embedded(self):
+        (self.root / 'sample.py').write_text('def tick():\n    return 1\n')
+        (self.root / 'experiment.html').write_text('<div class="lab">A counter experiment</div>')
+        (self.root / 'experiment.js').write_text('window.exampleCounter = 0;')
+        self.spec['sections'] = [{'file': 'sample.py', 'title': 'Counter', 'steps': [
+            {'id': 'tick', 'title': 'Return one', 'start': 'return 1', 'html': '<p>Return one.</p>'}
+        ], 'experiments': [{'id': 'counter', 'title': 'Try a counter', 'html': '<p>Increment the count.</p>', 'file': 'experiment.html'}]}]
+        self.spec['scripts'] = ['experiment.js']
+        self.spec_path.write_text(json.dumps(self.spec))
+        result = self.cli('--review', 'all')
+        self.assertEqual((result.returncode, result.stderr), (0, ''))
+        page = self.output.read_text()
+        for text in ['Astro v7.3.5', 'Python · Complete file', 'A counter experiment', 'window.exampleCounter = 0;']:
+            with self.subTest(text=text):
+                self.assertIn(text, page)
 
     def test_changed_excerpt_requires_review_but_relocation_does_not(self):
         self.assertEqual(self.cli('--review', 'tick').returncode, 0)

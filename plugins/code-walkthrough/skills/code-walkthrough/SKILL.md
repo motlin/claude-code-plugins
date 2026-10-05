@@ -5,7 +5,7 @@ description: Create and maintain an HTML codebase walkthrough with ordered expla
 
 # Code Walkthrough
 
-Build a reading experience around the actual source: concise explanations on the left, sticky syntax-highlighted code on the right. Scrolling selects the corresponding lines. Use the bundled renderer; keep the walkthrough specification in the target repository. Read [authoring.md](../../references/authoring.md) for the format and rebuild commands.
+Build a reading experience around the actual source: concise explanations on the left, sticky syntax-highlighted code on the right. Scrolling selects the corresponding lines. Use the bundled Astro components and pinned build dependencies; do not recreate the layout for each codebase. Keep the walkthrough specification in the target repository. Read [authoring.md](../../references/authoring.md) for the format and rebuild commands.
 
 ## Choose the teaching order
 
@@ -29,6 +29,6 @@ Make authorized code changes with appropriate verification, or record tasks when
 
 Resolve highlights from unique start/end source anchors, not stored line numbers or fixed line counts. Rebuild source listings deterministically. A changed excerpt must trigger editorial review; do not accept a new digest merely to silence a warning. Source outside the highlighted excerpt can also change its meaning: review related behavior and tests rather than treating a matching digest as semantic proof.
 
-Use the dark template with a separate line-number gutter and mobile layout. Verify repeated Next/Previous navigation, deep links, wrapping, and highlight visibility at a phone width and a short desktop viewport. Keep full files readable without JavaScript.
+Use the bundled dark Astro layout, bright syntax colors, separate line-number gutter, and mobile layout. Preserve full-height blank code rows (`min-height: 1.8em`) and the opaque amber selected-line background (`#584820`); keep surrounding code at full brightness. Verify repeated Next/Previous navigation, deep links, wrapping, and highlight visibility at a phone width and a short desktop viewport. Keep full files readable without JavaScript.
 
 Use ordinary conversation for questions. Do not add in-page submission boxes or a chat backend by default. A source path and stable step link supply the discussion context. Deliver the generated file and rebuild command. If hosting is requested, use the user's chosen environment and verify its URL; do not assume localhost is reachable from a phone.

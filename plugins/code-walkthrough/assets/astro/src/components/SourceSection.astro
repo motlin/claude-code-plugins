@@ -1,0 +1,18 @@
+---
+import CodePanel from './CodePanel.astro';
+const { section, index } = Astro.props;
+---
+<section class="section" id={`section-${index + 1}`} data-file={section.file}>
+  <div class="explanations">
+    <h2><span>{String(index + 1).padStart(2, '0')}</span> {section.title}</h2>
+    {section.steps.map(step => <article class="step" id={step.id} data-first={step.first} data-last={step.last}>
+      <p class="location">{section.file}<br/><a href={`#${step.id}`}>Lines {step.first}–{step.last}</a></p>
+      <h3>{step.title}</h3>{step.stale && <p class="warning">Source changed or explanation not yet reviewed. Check this explanation against the highlighted code.</p>}<Fragment set:html={step.html}/>
+    </article>)}
+  </div>
+  <CodePanel section={section}/>
+</section>
+{section.experiments.map(experiment => <section class="lab-section" id={`lab-${experiment.id}`}>
+  <div class="lab-intro"><p class="location">{section.file} · Interactive model</p><h2>{experiment.title}</h2><Fragment set:html={experiment.html}/></div>
+  <Fragment set:html={experiment.markup}/>
+</section>)}

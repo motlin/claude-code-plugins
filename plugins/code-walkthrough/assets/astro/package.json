@@ -1,0 +1,11 @@
+{
+	"name": "code-walkthrough-renderer",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"astro": "7.3.5"
+	},
+	"engines": {
+		"node": ">=22.12.0"
+	}
+}

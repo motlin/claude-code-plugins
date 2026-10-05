@@ -1,10 +1,12 @@
-"""Render a source-backed walkthrough; requires Pygments (see requirements.txt)."""
+"""Render a source-backed walkthrough; built with bundled Astro components."""
 import argparse
 import hashlib
-import html
 import json
 from pathlib import Path
 import sys
+import shutil
+import subprocess
+import tempfile
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -59,36 +61,35 @@ def prepare(spec, root):
     return sections
 
 
-def render(spec, sections, root):
+def render(spec, sections, root, runtime=None):
+    runtime = (runtime or root / '.llm/code-walkthrough').resolve()
+    cli = runtime / 'node_modules/astro/bin/astro.mjs'
+    if not cli.exists():
+        raise ValueError(f'Run scripts/setup.py --runtime {runtime} before building')
     formatter = HtmlFormatter(nowrap=True, style='native')
-    panels = []
-    options = []
     warnings = []
-    for number, section in enumerate(sections, 1):
-        path = html.escape(section['file'])
+    rendered = []
+    for section in sections:
         lexer = get_lexer_by_name(section['language'], stripnl=False) if 'language' in section else get_lexer_for_filename(section['file'], stripnl=False)
-        colored = highlight(section['source'], lexer, formatter).removesuffix('\n').split('\n')
-        rows = ''.join(f'<span class="line" data-line="{i}"><span class="number" aria-hidden="true">{i}</span>{row}</span>' for i, row in enumerate(colored, 1))
-        articles = []
-        for step in section['steps']:
-            title = html.escape(step['title'])
-            options.append(f'<option value="{step["id"]}">{number}. {title}</option>')
-            status = ''
-            if step['stale']:
-                warnings.append(step['id'])
-                status = '<p class="warning">Source changed or explanation not yet reviewed. Check this explanation against the highlighted code.</p>'
-            articles.append(f'<article class="step" id="{step["id"]}" data-first="{step["first"]}" data-last="{step["last"]}"><p class="location">{path} · <a href="#{step["id"]}">Lines {step["first"]}–{step["last"]}</a></p><h3>{title}</h3>{status}{step["html"]}</article>')
-        experiment = ''
-        if 'experiment' in section:
-            experiment = '<section class="experiment">' + within(root, section['experiment']).read_text() + '</section>'
-        panels.append(f'<section class="section"><div class="explanations"><h2>{html.escape(section["title"])}</h2>{"".join(articles)}</div><aside class="code-panel"><header><strong>{path}</strong><span>{html.escape(lexer.name)} · Complete file · {len(colored)} lines</span><output></output></header><pre class="source" tabindex="0" aria-label="Complete {path}"><code>{rows}</code></pre><footer><button class="follow" aria-pressed="true">Follow highlights: on</button></footer></aside></section>{experiment}')
-    template = (PLUGIN / 'assets/template.html').read_text()
-    replacements = {'TITLE': html.escape(spec['title']), 'OPTIONS': ''.join(options),
-                    'SECTIONS': ''.join(panels), 'SYNTAX': formatter.get_style_defs('.source'),
-                    'STATUS': f'{len(warnings)} explanations need source review.' if warnings else 'Source anchors and reviewed excerpts match.'}
-    # A single substitution pass: source text cannot introduce template placeholders.
-    import re
-    page = re.sub(r'\{\{(TITLE|OPTIONS|SECTIONS|SYNTAX|STATUS)\}\}', lambda m: replacements[m[1]], template)
+        lines = highlight(section['source'], lexer, formatter).removesuffix('\n').split('\n')
+        experiments = [dict(experiment, markup=within(root, experiment['file']).read_text())
+                       for experiment in section.get('experiments', [])]
+        rendered.append(dict(section, language=lexer.name, lines=lines, experiments=experiments))
+        warnings.extend(step['id'] for step in section['steps'] if step['stale'])
+    data = dict(title=spec['title'], sections=rendered,
+                scripts=[within(root, path).read_text() for path in spec.get('scripts', [])],
+                references=spec.get('references', ''),
+                status=f'{len(warnings)} explanations need source review.' if warnings else 'Source anchors and reviewed excerpts match.')
+    with tempfile.TemporaryDirectory(prefix='build-', dir=runtime) as temporary:
+        project = Path(temporary)
+        shutil.copytree(PLUGIN / 'assets/astro', project, dirs_exist_ok=True)
+        (project / 'node_modules').symlink_to(runtime / 'node_modules', target_is_directory=True)
+        (project / 'src/data.json').write_text(json.dumps(data, ensure_ascii=False))
+        (project / 'src/styles/syntax.css').write_text(formatter.get_style_defs('.source'))
+        result = subprocess.run(['node', str(cli), 'build'], cwd=project, capture_output=True, text=True)
+        if result.returncode:
+            raise ValueError(f'Astro build failed:\n{result.stdout}\n{result.stderr}')
+        page = (project / 'dist/index.html').read_text()
     return page, warnings
 
 
@@ -97,7 +98,8 @@ def main():
     parser.add_argument('--root', type=Path, default=Path.cwd())
     parser.add_argument('--spec', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--check', action='store_true', help='Fail on stale HTML or unreviewed excerpts; write nothing')
+    parser.add_argument('--runtime', type=Path, help='Renderer runtime installed by setup.py; defaults to ROOT/.llm/code-walkthrough')
+    parser.add_argument('--check', action='store_true', help='Fail on stale HTML or unreviewed excerpts; leave specification and output unchanged')
     parser.add_argument('--review', action='append', default=[], metavar='STEP_ID', help='Record a reviewed excerpt; repeat for specific steps, or use all after reviewing every explanation')
     args = parser.parse_args()
     if args.check and args.review:
@@ -115,7 +117,7 @@ def main():
                 if 'all' in args.review or step['id'] in args.review:
                     step['reviewed_sha256'] = current['digest']
         sections = prepare(spec, root)
-    page, warnings = render(spec, sections, root)
+    page, warnings = render(spec, sections, root, args.runtime)
     if args.check:
         matches = args.output.exists() and args.output.read_text() == page
         if warnings or not matches:

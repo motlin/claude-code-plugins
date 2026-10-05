@@ -1,0 +1,12 @@
+---
+const { section } = Astro.props;
+const split = section.file.lastIndexOf('/') + 1;
+---
+<aside class="code-panel">
+  <header class="file-header">
+    <div class="file-path"><span>{section.file.slice(0, split)}</span><strong>{section.file.slice(split)}</strong></div>
+    <div class="file-meta"><span>{section.language} · Complete file · {section.lines.length} lines</span><output class="range">Lines {section.steps[0].first}–{section.steps[0].last}</output></div>
+  </header>
+  <pre class="source" tabindex="0" aria-label={`Complete ${section.file}`}><code>{section.lines.map((line, index) => <span class="line" data-line={index + 1}><span class="number" aria-hidden="true">{index + 1}</span><Fragment set:html={line} /></span>)}</code></pre>
+  <footer class="code-footer"><span class="focus-label">Highlighted lines follow the explanation</span><button class="follow" aria-pressed="true">Follow scroll: on</button></footer>
+</aside>

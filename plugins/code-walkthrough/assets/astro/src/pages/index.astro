@@ -1,0 +1,20 @@
+---
+import SourceSection from '../components/SourceSection.astro';
+import data from '../data.json';
+import '../styles/walkthrough.css';
+import '../styles/syntax.css';
+import navigation from '../navigation.js?raw';
+---
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="color-scheme" content="dark"/><meta name="generator" content={Astro.generator}/><title>{data.title} — Code walkthrough</title></head>
+<body>
+<a class="skip" href="#section-1">Skip to code</a>
+<header class="topbar"><h1>{data.title}<span>Code walkthrough</span></h1>
+<nav class="navigation" aria-label="Walkthrough"><select id="sections" aria-label="Code section">{data.sections.map((section, index) => <option value={`section-${index + 1}`}>{String(index + 1).padStart(2, '0')} {section.title} — {section.file}</option>)}</select><button id="previous" aria-label="Previous explanation">←</button><button id="next" aria-label="Next explanation">→</button></nav><div class="progress" aria-hidden="true"></div></header>
+<noscript><p class="no-script">Complete source and explanations are readable below. Enable JavaScript for synchronized highlights and experiments.</p></noscript>
+<main>{data.sections.map((section, index) => <SourceSection section={section} index={index}/>)}
+<footer class="references"><Fragment set:html={data.references}/><p>{data.status}</p></footer></main>
+<script is:inline set:html={navigation}/>
+{data.scripts.map(script => <script is:inline set:html={script}/>)}
+</body></html>
