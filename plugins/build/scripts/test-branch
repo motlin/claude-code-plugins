@@ -18,26 +18,31 @@ upstream_remote="${UPSTREAM_REMOTE:-upstream}"
 upstream_branch="${UPSTREAM_BRANCH:-main}"
 git_tests="${GIT_TESTS:-default}"
 
-BRANCH="${1:-HEAD}"
-TESTS="${2:-$git_tests}"
-shift 2 2>/dev/null || true
-FLAGS="${*:---retest --verbose --verbose}"
+branch="${1:-HEAD}"
+if [ "$#" -gt 0 ]; then shift; fi
+tests="${1:-$git_tests}"
+if [ "$#" -gt 0 ]; then shift; fi
+flags=("$@")
+if [ "${#flags[@]}" -eq 0 ]; then
+    flags=(--retest --verbose --verbose)
+fi
 
-if [ "$BRANCH" = "HEAD" ]; then
-    BRANCH=$(git branch --show-current)
-    if [ -z "$BRANCH" ]; then
-        BRANCH=$(git rev-parse HEAD)
+if [ "$branch" = "HEAD" ]; then
+    branch=$(git branch --show-current)
+    if [ -z "$branch" ]; then
+        echo "Detached HEAD: pass the original branch explicitly; JUSTFILE_BRANCH was not changed." >&2
+        exit 2
     fi
 fi
 
-# Save the branch name for test-fix to use
-echo "$BRANCH" > JUSTFILE_BRANCH
+git show-ref --verify --quiet "refs/heads/$branch"
+git rev-parse --verify "${upstream_remote}/${upstream_branch}^{commit}" >/dev/null
 
-tests_arg=""
-if [ -n "$TESTS" ]; then
-    tests_arg="--tests $TESTS"
-fi
+# Save only a validated local branch, never a detached commit.
+printf '%s\n' "$branch" >JUSTFILE_BRANCH
 
-echo "Running: git test run $tests_arg $FLAGS ${upstream_remote}/${upstream_branch}..${BRANCH}"
-# shellcheck disable=SC2086
-git test run $tests_arg $FLAGS "${upstream_remote}/${upstream_branch}..${BRANCH}"
+command=(git test run --tests "$tests" "${flags[@]}" "${upstream_remote}/${upstream_branch}..${branch}")
+printf 'Running:'
+printf ' %q' "${command[@]}"
+printf '\n'
+"${command[@]}"

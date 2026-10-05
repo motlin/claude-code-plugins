@@ -27,7 +27,7 @@ If `git test` is not configured for this repository, say so and suggest the `bui
 
 Fix the failures and rerun. With fixes in the working tree, `git test run HEAD` refuses the dirty tree, so rerun without a commit argument: `git test run --retest --verbose --verbose` tests the working copy (uncached). Repeat until it exits 0.
 
-Don't commit the fixes or create fixup commits. Callers such as `build:test-branch` run the plugin's `scripts/test-fix`, which stages the working tree and runs `git commit --fixup HEAD` itself.
+Don't commit the fixes or create fixup commits. Callers such as `build:test-branch` run the plugin's `scripts/test-fix`, which stages tracked repairs, amends the detached failing commit, and replays the tested branch onto it.
 
 ## Report
 

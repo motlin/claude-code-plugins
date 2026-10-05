@@ -1,59 +1,76 @@
 #!/usr/bin/env bash
-# Fix the current commit with staged changes and rebase
+# Fold a repair into the failing commit, then retest the saved branch.
 # Usage: test-fix
-#
-# This script:
-# 1. Stages modified files
-# 2. Runs pre-commit hooks on changed files
-# 3. Creates a fixup commit for HEAD
-# 4. Rebases to squash the fixup
-#
-# Environment variables:
-#   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
-#   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
+# Exit 2 means setup, hooks, commit, or replay failed before retesting.
+# Otherwise return test-branch's status; inspect its log for a failing test.
 
 set -Eeuo pipefail
 
-upstream_remote="${UPSTREAM_REMOTE:-upstream}"
-upstream_branch="${UPSTREAM_BRANCH:-main}"
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+phase="validation"
+trap 'echo "test-fix failed during $phase; stopped before retesting. Inspect Git state before retrying." >&2; exit 2' ERR
 
-echo "Staging changes."
-git add --update
-
-echo "Running pre-commit checks."
-# Run pre-commit on changed files, allowing it to fail (it may make changes)
-uv tool run pre-commit run --files "$(git diff --cached --name-only | tr '\n' ' ')" || true
-git add --update
-
-echo "Committing fixup."
-git commit --quiet --fixup HEAD --no-verify
-
-echo "Checking for unstaged files."
-# Check for local modifications
-ERRORS=""
-git diff --ignore-submodules --quiet || ERRORS+="- Working tree has uncommitted changes\n"
-git diff --ignore-submodules --staged --quiet || ERRORS+="- Index has staged changes\n"
-git status --porcelain --ignore-submodules | grep -q '^??' && ERRORS+="- Untracked files exist\n" || true
-
-if [ -n "$ERRORS" ]; then
-    echo "Local modifications found:"
-    echo -e "$ERRORS"
-    git status --ignore-submodules
-    exit 1
+branch=$(cat JUSTFILE_BRANCH)
+git show-ref --verify --quiet "refs/heads/$branch"
+failing_commit=$(git rev-parse HEAD)
+git merge-base --is-ancestor "$failing_commit" "$branch"
+if [ -n "$(git branch --show-current)" ]; then
+    echo "test-fix requires detached HEAD at the failing commit." >&2
+    exit 2
+fi
+if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    echo "Stage intended new files and remove unrelated untracked files before test-fix." >&2
+    exit 2
 fi
 
-BRANCH=$(cat JUSTFILE_BRANCH)
-echo "Replaying the last branch used with test-fix: $BRANCH"
-git replay --onto HEAD HEAD^.."$BRANCH"
-git checkout --quiet "$BRANCH"
+phase="staging"
+git add --update
+if git diff --cached --quiet; then
+    echo "No staged repair to fold into the failing commit." >&2
+    exit 2
+fi
 
-echo "Squashing changes."
-git rebase --autosquash --rebase-merges --update-refs "${upstream_remote}/${upstream_branch}"
+phase="pre-commit hooks"
+files=()
+while IFS= read -r -d '' file; do
+    files+=("$file")
+done < <(git diff --cached --name-only -z)
 
-echo "Cleaning up."
-rm JUSTFILE_BRANCH
+# A formatter can modify files and return nonzero. Retry once after staging
+# those edits; a persistent failure must never become a fixup commit.
+if ! uv tool run pre-commit run --files "${files[@]}"; then
+    if git diff --quiet; then
+        echo "Pre-commit failed without formatting changes; no repair commit was created." >&2
+        exit 2
+    fi
+    git add --update
+    uv tool run pre-commit run --files "${files[@]}"
+fi
+if ! git diff --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    echo "Pre-commit left unstaged or untracked changes; no repair commit was created." >&2
+    exit 2
+fi
 
-# Now run test-branch again
-"$SCRIPT_DIR/test-branch"
+phase="repair commit"
+# Replace only this detached commit, preserving its message and author. Keep an
+# empty result if the repair removes the entire change; no descendants are squashed.
+git commit --quiet --amend --no-edit --allow-empty
+git diff --quiet
+git diff --cached --quiet
+
+phase="replay"
+echo "Replaying $branch onto the repair for $failing_commit."
+if [ "$(git rev-parse "$branch")" = "$failing_commit" ]; then
+    git update-ref "refs/heads/$branch" HEAD "$failing_commit"
+else
+    # Consume replay's documented update-ref protocol explicitly. Older Git
+    # prints it by default; newer Git also supports automatic ref updates.
+    updates=$(git -c replay.refAction=print replay --onto HEAD "$failing_commit..$branch")
+    printf '%s\n' "$updates" | git update-ref --stdin
+fi
+git merge-base --is-ancestor HEAD "$branch"
+git switch --quiet "$branch"
+
+trap - ERR
+# Keep the branch marker and use an explicit target even if the test detaches HEAD.
+exec "$SCRIPT_DIR/test-branch" "$branch" "${GIT_TESTS:-default}"
