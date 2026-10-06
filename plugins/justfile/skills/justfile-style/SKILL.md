@@ -1,9 +1,24 @@
 ---
 name: justfile-style
-description: Style guidelines for justfile recipe documentation. Use when writing or editing justfiles to keep recipe doc comments consistent and concise.
+description: Style guidelines for justfile recipes, extracted scripts and configuration, documentation, and dependencies. Use when writing or editing justfiles.
 ---
 
 # Justfile Style
+
+## Extract scripts and configuration
+
+Keep recipes focused on orchestration. Do not embed script bodies in heredocs or multiline quoted strings; even short SSH status or provisioning blocks belong in standalone script files. Keep structured configuration payloads such as JSON and JQ in separate configuration or template files.
+
+Pass runtime values as arguments or environment variables instead of interpolating them into script source. For remote execution, stream the script to the appropriate interpreter, for example:
+
+```justfile
+    ssh "${SSH_TARGET}" bash -s -- "${CONTAINER}" \
+        < "{{ justfile_directory() }}/.just/scripts/container-status.sh"
+```
+
+Preserve quoting, stdin usage, exit codes, and execution order when extracting. Keep secrets out of process arguments. Validate the extracted scripts locally without invoking deployment or provisioning as a test.
+
+Within the requested scope, scan related recipes for remaining heredocs and multiline script or configuration strings rather than stopping after the first named example.
 
 ## Doc comments for short recipes
 
