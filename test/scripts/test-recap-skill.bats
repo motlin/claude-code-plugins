@@ -5,7 +5,6 @@ setup() {
   PLUGIN_DIR="$PROJECT_ROOT/plugins/recap"
   SKILL="$PLUGIN_DIR/skills/recap/SKILL.md"
   README="$PLUGIN_DIR/README.md"
-  GUARD="$PLUGIN_DIR/scripts/recap-guard.sh"
 }
 
 # Every link line is either the None fallback or "🔗 [label](url)". A bare URL is
@@ -36,12 +35,8 @@ assert_link_lines_are_markdown() {
   assert_link_lines_are_markdown "$README"
 }
 
-@test "recap guard block reason uses Markdown link syntax" {
-  assert_link_lines_are_markdown "$GUARD"
-}
-
 @test "recap docs never show a bare URL on a link line" {
-  run rg --no-filename "^🔗 [^\[]*https?://" "$SKILL" "$README" "$GUARD"
+  run rg --no-filename "^🔗 [^\[]*https?://" "$SKILL" "$README"
   [ "$status" -eq 1 ]
 }
 

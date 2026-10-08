@@ -7,5 +7,6 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": ["./skills/recap"]
+	"skills": ["./skills/recap"],
+	"hooks": "./mod/hooks.json"
 }
