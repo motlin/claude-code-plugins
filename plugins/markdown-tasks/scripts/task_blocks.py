@@ -1,13 +1,43 @@
 """Shared parsing rules for the markdown checkbox task lists in .llm/."""
 
+import argparse
 import os
 import re
+import sys
 from datetime import date
 
 CHECKBOX_PATTERN = re.compile(r"^- \[.\]")
 HEADING_PATTERN = re.compile(r"^#")
 INDENT_PATTERN = re.compile(r"^[\s\t]+")
 BLOCKED_PATTERN = re.compile(r"^- \[!\]")
+INCOMPLETE_PATTERN = re.compile(r"^- \[ \]")
+OPEN_PATTERN = re.compile(r"^- \[[ >]\]")
+
+
+class TaskArgumentParser(argparse.ArgumentParser):
+    """Exit 1 on usage errors, matching every other failure from these scripts."""
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        print(f"{self.prog}: error: {message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def fail(message):
+    print(f"Error: {message}", file=sys.stderr)
+    sys.exit(1)
+
+
+def positive_int(value):
+    try:
+        number = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"'{value}' is not a whole number")
+
+    if number < 1:
+        raise argparse.ArgumentTypeError(f"'{value}' must be 1 or greater")
+
+    return number
 
 
 def stamp(label, detail=None):
@@ -48,6 +78,20 @@ def collect_context(lines, start):
         index += 1
 
     return context
+
+
+def incomplete_task_starts(lines):
+    """Return the line indexes of every [ ] task, in file order."""
+    return [index for index, line in enumerate(lines) if INCOMPLETE_PATTERN.match(line)]
+
+
+def task_title(line):
+    """Return the text after the checkbox, without surrounding whitespace."""
+    return line[len("- [ ]") :].strip()
+
+
+def describe_incomplete(count):
+    return f"{count} incomplete task" if count == 1 else f"{count} incomplete tasks"
 
 
 def trim_trailing_blanks(lines):

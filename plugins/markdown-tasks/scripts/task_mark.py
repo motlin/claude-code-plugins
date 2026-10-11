@@ -3,10 +3,19 @@
 import sys
 import os
 import subprocess
-import re
-import argparse
 
-from task_blocks import collect_context, stamp, trim_trailing_blanks
+from task_blocks import (
+    OPEN_PATTERN,
+    TaskArgumentParser,
+    collect_context,
+    describe_incomplete,
+    fail,
+    incomplete_task_starts,
+    positive_int,
+    stamp,
+    task_title,
+    trim_trailing_blanks,
+)
 
 
 def find_git_root(start_path):
@@ -96,57 +105,68 @@ def insert_reason(lines, start, context, reason):
     lines.insert(position, stamp("Blocked", reason) + "\n")
 
 
-def mark_first_task(filename, marker, reason):
-    try:
-        if not os.path.exists(filename):
-            print(f"No tasks found (file doesn't exist)", file=sys.stderr)
-            sys.exit(1)
+def find_task(lines, index, title):
+    """Return the line index of the task to mark, or exit when there is none."""
+    if title is not None:
+        for position, line in enumerate(lines):
+            if OPEN_PATTERN.match(line) and task_title(line) == title:
+                return position
+        fail(f"no [ ] or [>] task titled '{title}'")
 
-        with open(filename, "r") as file:
-            lines = file.readlines()
+    starts = incomplete_task_starts(lines)
 
-        modified = False
-        task_lines = []
-
-        for index, line in enumerate(lines):
-            if re.match(r"^- \[ \]", line):
-                lines[index] = f"- [{marker}]" + line[len("- [ ]") :]
-                context = collect_context(lines, index)
-
-                if reason:
-                    insert_reason(lines, index, context, reason)
-                    context = collect_context(lines, index)
-
-                task_lines = [lines[index]] + context
-                modified = True
-                break
-
-        if modified:
-            with open(filename, "w") as file:
-                file.writelines(lines)
-
-            verify_gitignored(filename)
-
-            trim_trailing_blanks(task_lines)
-
-            print("".join(task_lines), end="")
-        else:
+    if index is None:
+        if not starts:
             print("No incomplete tasks found", file=sys.stderr)
             sys.exit(1)
+        return starts[0]
 
-    except FileNotFoundError:
-        print(f"Error: File '{filename}' not found", file=sys.stderr)
+    if index > len(starts):
+        fail(f"--index {index} is out of range; {describe_incomplete(len(starts))}")
+
+    return starts[index - 1]
+
+
+def mark_task(filename, marker, reason, index, title):
+    if not os.path.exists(filename):
+        print("No tasks found (file doesn't exist)", file=sys.stderr)
         sys.exit(1)
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+
+    with open(filename, "r") as file:
+        lines = file.readlines()
+
+    position = find_task(lines, index, title)
+
+    lines[position] = f"- [{marker}]" + lines[position][len("- [ ]") :]
+    context = collect_context(lines, position)
+
+    if reason:
+        insert_reason(lines, position, context, reason)
+        context = collect_context(lines, position)
+
+    with open(filename, "w") as file:
+        file.writelines(lines)
+
+    verify_gitignored(filename)
+
+    print("".join(trim_trailing_blanks([lines[position]] + context)), end="")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Mark the first incomplete task with a marker character"
+    parser = TaskArgumentParser(
+        description="Mark the first incomplete task, or a chosen one, with a marker character"
     )
     parser.add_argument("filename", help="File containing tasks")
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument(
+        "--index",
+        type=positive_int,
+        help="Mark the Nth incomplete [ ] task (1-based)",
+    )
+    target.add_argument(
+        "--title",
+        help="Mark the first [ ] or [>] task whose text after the checkbox equals TITLE",
+    )
     parser.add_argument(
         "--marker",
         default="x",
@@ -176,4 +196,7 @@ if __name__ == "__main__":
         )
         sys.exit(1)
 
-    mark_first_task(args.filename, args.marker, reason)
+    try:
+        mark_task(args.filename, args.marker, reason, args.index, args.title)
+    except Exception as e:
+        fail(e)

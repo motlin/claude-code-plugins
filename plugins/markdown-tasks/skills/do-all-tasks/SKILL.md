@@ -25,9 +25,9 @@ If either capability is missing, stop. Report which one is unavailable and that 
 
 The leader (this agent) coordinates and never implements. It uses only Bash and the agent-spawning tool, never Read, Edit, Write, Grep, or Glob. With Bash it may only:
 
-- Extract work with `task_get.py`.
+- Extract work with `task_get.py`, including `--index`, `--range`, or `--limit` to preview the queue beyond the next task.
 - Survey blocked work with `task_unblock.py --dry-run`.
-- Record a failed attempt with `task_mark.py --marker='!' --reason='<what failed>'`.
+- Record a failed attempt with `task_mark.py --marker='!' --reason='<what failed>'`, adding `--title '<task title>'` when the failed task is not the first incomplete one.
 - Inspect Git status and commit boundaries.
 - Run the test gate against `HEAD`.
 - Archive the task list with `task_archive.py`.

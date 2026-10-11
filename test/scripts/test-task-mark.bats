@@ -233,3 +233,159 @@ EOF
   [[ "$output" == *"- [ ] Next task"* ]]
   [[ "$output" != *"Blocked task"* ]]
 }
+
+@test "--index marks the Nth incomplete task, skipping [!] and [>]" {
+  write_todo <<'EOF'
+- [!] Blocked task
+- [ ] First task
+- [>] Claimed task
+- [ ] Second task
+      Second context
+- [ ] Third task
+EOF
+
+  cat >"$TODO.expected" <<'EOF'
+- [!] Blocked task
+- [ ] First task
+- [>] Claimed task
+- [>] Second task
+      Second context
+- [ ] Third task
+EOF
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --index 2 --marker='>'
+  [ "$status" -eq 0 ]
+  [ "$output" = "$(printf -- '- [>] Second task\n      Second context')" ]
+
+  run diff "$TODO" "$TODO.expected"
+  [ "$status" -eq 0 ]
+}
+
+@test "--index past the last incomplete task exits 1 and leaves the file byte-identical" {
+  write_todo <<'EOF'
+- [ ] First task
+- [>] Claimed task
+EOF
+  cp "$TODO" "$TODO.expected"
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --index 2
+  [ "$status" -eq 1 ]
+  [ "$output" = "Error: --index 2 is out of range; 1 incomplete task" ]
+
+  run diff "$TODO.expected" "$TODO"
+  [ "$status" -eq 0 ]
+}
+
+@test "--index 0 exits 1" {
+  write_todo <<'EOF'
+- [ ] First task
+EOF
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --index 0
+  [ "$status" -eq 1 ]
+}
+
+@test "--title marks the [ ] task with that exact title" {
+  write_todo <<'EOF'
+- [ ] First task
+- [ ] Second task
+      Second context
+EOF
+
+  cat >"$TODO.expected" <<'EOF'
+- [ ] First task
+- [>] Second task
+      Second context
+EOF
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'Second task' --marker='>'
+  [ "$status" -eq 0 ]
+
+  run diff "$TODO" "$TODO.expected"
+  [ "$status" -eq 0 ]
+}
+
+@test "--title completes a claimed [>] task out of order" {
+  write_todo <<'EOF'
+- [ ] First task
+- [>] Claimed task
+      Claimed context
+EOF
+
+  cat >"$TODO.expected" <<'EOF'
+- [ ] First task
+- [x] Claimed task
+      Claimed context
+EOF
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'Claimed task'
+  [ "$status" -eq 0 ]
+  [ "$output" = "$(printf -- '- [x] Claimed task\n      Claimed context')" ]
+
+  run diff "$TODO" "$TODO.expected"
+  [ "$status" -eq 0 ]
+}
+
+@test "--title blocks a claimed task with a reason" {
+  write_todo <<'EOF'
+- [>] Claimed task
+      Claimed context
+- [ ] Next task
+EOF
+
+  cat >"$TODO.expected" <<'EOF'
+- [!] Claimed task
+      Claimed context
+  Blocked 2020-01-02 session test-session-id: worker failed
+- [ ] Next task
+EOF
+
+  run env CLAUDE_CODE_SESSION_ID=test-session-id \
+    python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'Claimed task' \
+    --marker='!' --reason='worker failed'
+  [ "$status" -eq 0 ]
+
+  run diff <(sed -E 's/Blocked [0-9]{4}-[0-9]{2}-[0-9]{2} /Blocked 2020-01-02 /' "$TODO") "$TODO.expected"
+  [ "$status" -eq 0 ]
+}
+
+@test "--title ignores [x] and [!] tasks and exits 1 when nothing open matches" {
+  write_todo <<'EOF'
+- [x] Done task
+- [!] Blocked task
+- [ ] Open task
+EOF
+  cp "$TODO" "$TODO.expected"
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'Done task'
+  [ "$status" -eq 1 ]
+  [ "$output" = "Error: no [ ] or [>] task titled 'Done task'" ]
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'Blocked task'
+  [ "$status" -eq 1 ]
+
+  run diff "$TODO.expected" "$TODO"
+  [ "$status" -eq 0 ]
+}
+
+@test "--title requires an exact match, not a prefix" {
+  write_todo <<'EOF'
+- [ ] First task with more words
+EOF
+  cp "$TODO" "$TODO.expected"
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --title 'First task'
+  [ "$status" -eq 1 ]
+
+  run diff "$TODO.expected" "$TODO"
+  [ "$status" -eq 0 ]
+}
+
+@test "--index and --title are mutually exclusive" {
+  write_todo <<'EOF'
+- [ ] First task
+EOF
+
+  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --index 1 --title 'First task'
+  [ "$status" -ne 0 ]
+}

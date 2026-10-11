@@ -21,6 +21,16 @@ python <plugin-root>/scripts/task_get.py .llm/todo.md
 
 Prints the first `[ ]` task with all indented context lines below it. Exits 1 when the file does not exist.
 
+To see more of the queue, select incomplete tasks by 1-based position. Positions count only `[ ]` tasks; `[x]`, `[!]`, and `[>]` tasks are skipped.
+
+```bash
+python <plugin-root>/scripts/task_get.py .llm/todo.md --index 3
+python <plugin-root>/scripts/task_get.py .llm/todo.md --range 1-10
+python <plugin-root>/scripts/task_get.py .llm/todo.md --limit 10
+```
+
+Each selected task prints as its checkbox line and context, with a blank line between tasks. `--index` and a `--range` that starts past the last incomplete task exit 1; a `--range` or `--limit` that runs past the end prints the tasks that exist.
+
 ### task_add.py - Add New Task
 
 ```bash
@@ -59,6 +69,15 @@ Changes the first `[ ]` to `[x]`, or to any single non-space character passed as
 The reason travels with the task through archive and recovery, and `task_get.py` hands it to the next attempt. Quote the concrete failure (the failing command, the assertion, the missing symbol) rather than restating the task.
 
 `--reason` is required with `--marker='!'`; without it the script exits 1 and leaves the file untouched.
+
+To mark a task other than the first, name it:
+
+```bash
+python <plugin-root>/scripts/task_mark.py .llm/todo.md --index 3 --marker='>'
+python <plugin-root>/scripts/task_mark.py .llm/todo.md --title 'Require authentication on API routes.'
+```
+
+`--index` counts `[ ]` tasks the same way `task_get.py` does. `--title` matches the first `[ ]` or `[>]` task whose text after the checkbox equals the title exactly, so it can complete or block a task that was claimed with `[>]`. Positions shift once a task is marked, so prefer `--title` when marking several tasks in turn. A missing title or out-of-range index exits 1 and leaves the file untouched.
 
 ### task_archive.py - Archive Task List
 
