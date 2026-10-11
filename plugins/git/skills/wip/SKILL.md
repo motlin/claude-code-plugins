@@ -25,7 +25,7 @@ Opening PRs, CI, review, and merging are the user's call. If the repo or user do
 
 - **Never `--force`.** Remove worktrees with `git worktree remove --no-force` (write the flag explicitly) and push with a pinned `--force-with-lease`. Git's refusal is the safety net for uncommitted work and unexpected remote changes.
 - **The worktree and branch set is a moving target.** Other agents and the user create, switch, and merge while you work. Recompute with `git worktree list --porcelain` / `git for-each-ref` immediately before each action, and re-`git fetch` before testing and pushing.
-- **Gate irreversible and outward-facing steps.** Removing a worktree with WIP, force-pushing, and `delete-merged` (which deletes remote branches) need the user's OK. Until the flow is proven smooth in a repo, ask at each phase boundary.
+- **Gate irreversible and outward-facing steps.** Removing a worktree with WIP, force-pushing, and `delete-merged` (which deletes remote branches) need the user's OK. Ask at each phase boundary unless the user pre-authorized the whole flow.
 - **Keep the main checkout clean.** Rebases and tests check out commits, so run them in throwaway worktrees (`git worktree add`) and tear those down afterward.
 
 ## Protected Worktrees
