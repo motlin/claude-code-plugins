@@ -31,6 +31,20 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "do-one-task folds fixup commits before marking the task complete" {
+  SKILL="$SKILLS_DIR/do-one-task/SKILL.md"
+
+  run rg --line-number "fixup!.*git:git-rebase" "$SKILL"
+  [ "$status" -eq 0 ]
+  autosquash_line="${output%%:*}"
+
+  run rg --line-number "task_mark[.]py" "$SKILL"
+  [ "$status" -eq 0 ]
+  mark_line="${output%%:*}"
+
+  [ "$autosquash_line" -lt "$mark_line" ]
+}
+
 @test "do-all-tasks reports blocked tasks before the loop starts" {
   SKILL="$SKILLS_DIR/do-all-tasks/SKILL.md"
 

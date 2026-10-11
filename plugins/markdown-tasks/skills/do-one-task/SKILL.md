@@ -19,6 +19,8 @@ Implement only the extracted task. Ignore unrelated TODO/TASK comments in source
 
 Run appropriate tests and validation, then complete the repository's finish workflow so the task has its own commit, precommit passes against that commit, and the branch is rebased when required. When the build, git, and orchestration plugins are installed, use the `build:precommit`, `git:commit`, `git:git-rebase`, and `orchestration:finish` skills; in Claude Code, `/orchestration:finish` runs the full pipeline. Commit before running `git test run HEAD`, which refuses a dirty tree.
 
+The task must end as exactly one new commit. Finish can leave a cleanup `fixup!` commit on top of the task commit, so after it returns, check the commits between the rebase target (`${UPSTREAM_REMOTE:-upstream}/${UPSTREAM_BRANCH:-main}`) and `HEAD` for `fixup!` commits and fold any into the task commit with the `git:git-rebase` skill, which autosquashes. Run precommit again if the squash changed `HEAD`.
+
 Mark the task complete only after implementation, commit, and validation succeed:
 
 ```bash
