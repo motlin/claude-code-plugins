@@ -1,6 +1,6 @@
 ---
 name: finish
-description: Run the completion pipeline (commit, precommit, rebase, simplify) after completing any task, before returning control to the user. Always run this skill; it handles the case where there's nothing to do.
+description: Run the completion pipeline (commit, precommit, rebase, simplify) after a task that changed files or git state, before returning control to the user.
 ---
 
 # Finish Workflow

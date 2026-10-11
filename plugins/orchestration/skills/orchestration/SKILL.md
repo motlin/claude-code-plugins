@@ -27,4 +27,4 @@ Write scratch files and temporary output to the session scratchpad directory whe
 
 ## Finishing
 
-Before returning control after a task that made code or git changes, use the `orchestration:finish` skill.
+Before returning control after a task that changed files or git state, use the `orchestration:finish` skill.
