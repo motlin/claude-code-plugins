@@ -25,14 +25,16 @@ Count the commits the branch adds with `git rev-list --count "${UPSTREAM_REMOTE:
 
 ## Create the PR
 
-Always pass an explicit empty body so `gh` doesn't prompt or auto-fill. When a browser is available, use `--web` to open the prefilled page for final review:
+Always pass an explicit empty body so `gh` doesn't prompt or auto-fill. When a browser is available, use `--web` to open the prefilled page for final review. On a headless system, drop `--web`.
+
+For a single-commit branch, read the title from git:
 
 ```bash
 gh pr create --web --title "$(git log -1 --pretty=%s)" --body ""
 ```
 
-On a headless system, drop `--web`:
+For a multi-commit branch, pass the summary title you wrote:
 
 ```bash
-gh pr create --title "$(git log -1 --pretty=%s)" --body ""
+gh pr create --web --title "Summary of the branch in commit message style" --body ""
 ```
