@@ -27,12 +27,12 @@
 
 	// MD007/ul-indent : Unordered list indentation : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md007.md
 	"MD007": {
-		// Spaces for indent (this repo uses 4-space indent for nested lists)
+		// Spaces for indent (4 to match oxfmt's markdown list formatting)
 		"indent": 4,
 		// Whether to indent the first level of the list
 		"start_indented": false,
 		// Spaces for first level indent (when start_indented is set)
-		"start_indent": 4,
+		"start_indent": 2,
 	},
 
 	// MD009/no-trailing-spaces : Trailing spaces : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md009.md
@@ -47,7 +47,12 @@
 
 	// MD010/no-hard-tabs : Hard tabs : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md010.md
 	"MD010": {
+		// Don't check code blocks: oxfmt uses useTabs: true (including in markdown content)
 		"code_blocks": false,
+		// Don't set ignore_code_languages here: with code_blocks false it acts as a
+		// whitelist, re-enabling tab checks inside every fence not in the list
+		// Number of spaces for each hard tab
+		"spaces_per_tab": 1,
 	},
 
 	// MD011/no-reversed-links : Reversed link syntax : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md011.md
