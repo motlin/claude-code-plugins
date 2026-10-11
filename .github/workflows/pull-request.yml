@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: motlin/forbid-merge-commits-action@49483ed78d3c59ae66e338ad12edd34c6dac7fdf # v1.0.8
 
-  automerge-dependabot:
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+  automerge-bots:
+    if: contains(fromJSON('["dependabot[bot]", "renovate[bot]"]'), github.event.pull_request.user.login)
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -28,7 +28,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Enable auto-merge for Dependabot PR
+      - name: Enable auto-merge for bot PR
         run: gh pr merge --rebase --auto "${{ github.event.pull_request.number }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,9 +44,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           persist-credentials: false
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           cache: true
         env:
@@ -60,8 +59,12 @@ jobs:
           git config --global user.email "github-actions@github.com"
 
       - name: Run pre-commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          pre-commit run --all-files || true
+          CHECK_STATUS=0
+          pre-commit run --all-files || CHECK_STATUS=$?
 
           if [[ -n $(git status --porcelain) ]]; then
             FIX_BRANCH="fix-${{ github.event.pull_request.number }}-pre-commit"
@@ -69,12 +72,21 @@ jobs:
 
             git add --all
             git commit --message "Apply pre-commit fixes."
-            git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git" "$FIX_BRANCH"
+            git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${HEAD_REPO}" "$FIX_BRANCH"
 
             echo "pre-commit fixes have been pushed to the $FIX_BRANCH branch."
             exit 1
           else
-            echo "No changes needed by pre-commit"
+            echo "pre-commit exited with status $CHECK_STATUS without changing files."
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          exit "$CHECK_STATUS"
+
+  all-pr-checks:
+    name: All PR checks
+    if: ${{ !cancelled() }}
+    needs: [forbid-merge-commits, pre-commit-fix]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}
