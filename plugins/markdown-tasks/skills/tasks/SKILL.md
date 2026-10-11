@@ -5,7 +5,7 @@ description: Work with markdown-based task lists in .llm/todo.md files. Use when
 
 # Markdown Task Management
 
-The task list lives in `.llm/todo.md`. Never use the `Read` tool on it; change and inspect it only through the scripts below.
+The task list lives in `.llm/todo.md`. Inspect and change it only through the scripts below: the file grows large, and the scripts return just the task you need instead of loading the whole list into context.
 
 `<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}` in Claude Code. In Codex, it is the plugin root that contains this `skills/tasks/SKILL.md` file.
 
