@@ -6,6 +6,7 @@ repos:
         args: ["--allow-multiple-documents"]
       - id: check-json
       - id: check-toml
+      - id: check-xml
       - id: end-of-file-fixer
         exclude: "^\\.idea/"
       - id: trailing-whitespace
@@ -20,6 +21,14 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
 
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: ["--strict"]
+        types: [yaml]
+        exclude: "^(\\.serena/|\\.llm/|\\.remember/)"
+
   - repo: local
     hooks:
       - id: just-fmt
@@ -32,17 +41,9 @@ repos:
         name: oxfmt
         entry: oxfmt --no-error-on-unmatched-pattern
         language: system
-
-      - id: markdownlint
-        name: markdownlint
+      - id: markdownlint-cli2
+        name: markdownlint-cli2
         entry: markdownlint-cli2
         language: system
         types: [markdown]
         exclude: "^(\\.llm/|\\.remember/|plugins/.+/\\.llm/|plugins/offline-claude-code-guide/docs/)"
-
-      - id: yamllint
-        name: yamllint
-        entry: yamllint --strict
-        language: system
-        types: [yaml]
-        exclude: "^(\\.serena/|\\.llm/|\\.remember/)"
