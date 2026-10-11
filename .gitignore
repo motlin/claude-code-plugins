@@ -1,6 +1,28 @@
+# dependencies
+/node_modules/
+
+# misc
 .DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+JUSTFILE_BRANCH
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.envrc
+
+# Python
 *.pyc
 __pycache__/
-/node_modules/
-JUSTFILE_BRANCH
+
+# Local documentation and context
 /.llm/
+/.claude/*
+!/.claude/commands/
+!/.claude/includes/
+!/.claude/settings.json
+/.claude/settings.local.json
