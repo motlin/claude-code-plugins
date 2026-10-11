@@ -15,7 +15,7 @@ gh run view <run-id>
 gh run view <run-id> --log-failed
 ```
 
-Fix the failures and verify locally when practical. Stage only the files changed to fix CI, then commit:
+Fix the failures and reproduce and verify the fix locally; if the failure can't be reproduced locally (e.g. it depends on CI-only secrets or runners), say so in the report. Stage only the files changed to fix CI, then commit:
 
 ```bash
 git commit --fixup HEAD
