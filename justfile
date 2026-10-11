@@ -3,11 +3,13 @@ shellcheck_scripts := `plugins/build/scripts/list-shell-files`
 
 codex_marketplace := "motlin-claude-code-plugins"
 
-# `just --list--unsorted`
+# `just --list --unsorted`
+[group('default')]
 default:
     @just --list --unsorted
 
 # Install pinned tools
+[group('setup')]
 install:
     mise install
 
@@ -32,7 +34,14 @@ pre-commit: install
     pre-commit run --all-files
 
 # Run all pre-commit checks
-precommit: format lint test pre-commit
+[arg("quick", long, value="true", help="Skip tests")]
+verify quick="": format lint pre-commit
+    {{ if quick != "true" { "just test" } else { "true" } }}
+    @echo "All pre-commit checks passed!"
+
+# Deprecated alias for `verify`
+[arg("quick", long, value="true", help="Skip tests")]
+precommit quick="": (verify quick)
 
 # Refresh one Codex plugin from the local marketplace and clear its cached copy
 [arg("PLUGIN", long="plugin", help="Plugin name")]
