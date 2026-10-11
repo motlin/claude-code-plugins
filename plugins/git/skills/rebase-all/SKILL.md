@@ -13,7 +13,9 @@ Resolve `<plugin-root>` before running plugin scripts:
 Run:
 
 ```bash
-<plugin-root>/scripts/git-all
+<plugin-root>/scripts/rebase-all
 ```
 
 If it stops on merge conflicts, resolve them in the affected branch with the `git:conflicts` skill, then run the script again. Repeat until it completes without errors or conflicts, naming the branch you're on and summarizing the conflicts after each pass.
+
+Once every branch is rebased, offer to clean up merged branches with `<plugin-root>/scripts/delete-merged`. It deletes local branches merged into upstream main and also runs `git push --delete origin` for merged remote branches, so it is outward-facing. Ask the user before running it, and skip it if they decline.
