@@ -28,8 +28,8 @@ Show the proposal:
 ```text
 Splitting branch `<current-branch>` into <N> branches:
 
-1. <short-sha> <commit-subject> → <semantic-branch-name>
-2. <short-sha> <commit-subject> → <semantic-branch-name>
+- <short-sha> <commit-subject> → <semantic-branch-name>
+- <short-sha> <commit-subject> → <semantic-branch-name>
 ...
 ```
 

@@ -11,15 +11,15 @@ Check the `pom.xml` files with local modifications (`git status --porcelain -- '
 
 ## Ordering Rules
 
-Group dependencies by scope (compile, runtime, test), then within each scope by groupId in this order:
+Group dependencies by scope (compile, runtime, test), then within each scope by groupId in this order, top to bottom:
 
-1. First-party (${project.groupId} or modules within the project)
-2. cool.klass
-3. io.liftwizard
-4. org.eclipse.collections
-5. io.dropwizard
-6. Other third-party libraries
-7. Jakarta
+- First-party (${project.groupId} or modules within the project)
+- cool.klass
+- io.liftwizard
+- org.eclipse.collections
+- io.dropwizard
+- Other third-party libraries
+- Jakarta
 
 ## Region Comment Structure
 

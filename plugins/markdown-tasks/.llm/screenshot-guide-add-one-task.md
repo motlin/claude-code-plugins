@@ -78,12 +78,12 @@ Save screenshots with descriptive names:
 
 ## Tips for Good Screenshots
 
-1. **Use a clean environment**: Start with no existing `.llm/todo.md` file to show the creation flow
-2. **Clear terminal**: Clear your terminal before each screenshot for clarity
-3. **Readable font size**: Ensure text is large enough to read
-4. **Full context**: Include enough surrounding UI to show the environment (terminal, editor, etc.)
-5. **Highlight key elements**: Circle or highlight important parts if needed
-6. **Show file paths**: Include file paths in screenshots to show where `.llm/todo.md` is located
+- **Use a clean environment**: Start with no existing `.llm/todo.md` file to show the creation flow
+- **Clear terminal**: Clear your terminal before each screenshot for clarity
+- **Readable font size**: Ensure text is large enough to read
+- **Full context**: Include enough surrounding UI to show the environment (terminal, editor, etc.)
+- **Highlight key elements**: Circle or highlight important parts if needed
+- **Show file paths**: Include file paths in screenshots to show where `.llm/todo.md` is located
 
 ## Documentation Goals
 
@@ -97,7 +97,7 @@ The screenshots should demonstrate:
 
 ## Before Starting
 
-1. Navigate to a test project directory
-2. Ensure `.llm/todo.md` doesn't exist (or delete it)
-3. Start a fresh Claude Code session
-4. Have your screenshot tool ready (macOS: Cmd+Shift+4, Windows: Snipping Tool, Linux: gnome-screenshot)
+- Navigate to a test project directory
+- Ensure `.llm/todo.md` doesn't exist (or delete it)
+- Start a fresh Claude Code session
+- Have your screenshot tool ready (macOS: Cmd+Shift+4, Windows: Snipping Tool, Linux: gnome-screenshot)
