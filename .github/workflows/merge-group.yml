@@ -72,6 +72,8 @@ jobs:
                   .llm/code-walkthrough/.venv/bin/python -m unittest discover -s plugins/code-walkthrough/tests
             - name: Test narration script
               run: python3 -m unittest discover -s plugins/narration/tests
+            - name: Test herdr-reboot scripts
+              run: python3 -m unittest discover -s plugins/herdr-reboot/tests
 
     all-checks:
         name: All checks

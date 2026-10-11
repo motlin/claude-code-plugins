@@ -73,8 +73,12 @@ GIT_READ_ONLY = {
 GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
 
+# The environment herdr runs under; None inherits ours. move.py points it at another session.
+HERDR_ENV = None
+
+
 def sh(args):
-    return subprocess.run(args, capture_output=True, text=True)
+    return subprocess.run(args, capture_output=True, text=True, env=HERDR_ENV)
 
 
 def herdr_json(args):
@@ -527,18 +531,13 @@ def all_leaves(workspaces):
     return [leaf for w in workspaces for t in w["tabs"] for leaf in walk(t["layout"])]
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--output", help="write the state JSON here instead of stdout")
-    parser.add_argument("--session", help="session name to record (default: the running one)")
-    args = parser.parse_args()
-
-    snap = live_snapshot()
-    state = {
+def build_state(snap, session):
+    """The state document for a live `herdr api snapshot`, recorded under `session`."""
+    return {
         "schema": SCHEMA,
         "captured": datetime.now().astimezone().isoformat(timespec="seconds"),
         "backend": "herdr",
-        "session": args.session or running_session(),
+        "session": session,
         "focus": {
             "workspace_id": snap.get("focused_workspace_id"),
             "tab_id": snap.get("focused_tab_id"),
@@ -546,6 +545,15 @@ def main():
         },
         "workspaces": build_workspaces(snap),
     }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--output", help="write the state JSON here instead of stdout")
+    parser.add_argument("--session", help="session name to record (default: the running one)")
+    args = parser.parse_args()
+
+    state = build_state(live_snapshot(), args.session or running_session())
     text = json.dumps(state, indent=2) + "\n"
     if args.output:
         with open(args.output, "w") as fh:
