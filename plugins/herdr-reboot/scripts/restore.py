@@ -43,8 +43,12 @@ IDLE_TIMEOUT_SECONDS = 2.0
 IDLE_POLL_SECONDS = 0.1
 
 
+# The environment herdr runs under; None inherits ours. move.py points it at another session.
+HERDR_ENV = None
+
+
 def sh(args):
-    return subprocess.run(args, capture_output=True, text=True)
+    return subprocess.run(args, capture_output=True, text=True, env=HERDR_ENV)
 
 
 def herdr_json(args):
@@ -399,21 +403,10 @@ def restore_focus(state, restored, go):
             herdr_run(["workspace", "focus", workspace_id])
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("state", nargs="?", default=DEFAULT_STATE,
-                        help=f"state file to restore (default: {DEFAULT_STATE})")
-    parser.add_argument("--go", action="store_true", help="create and fire, instead of previewing")
-    parser.add_argument("--limit", type=int, help="restore only the first N workspaces")
-    parser.add_argument("--skip", default="", help="comma-separated slots to leave out entirely")
-    parser.add_argument("--no-commands", action="store_true",
-                        help="leave dev-server `command` panes alone; viewers still re-run")
-    parser.add_argument("--delay", type=float, default=0.4,
-                        help="seconds between agent launches (default: 0.4)")
-    args = parser.parse_args()
+def run(state, args, skip=frozenset()):
+    """Preview or rebuild `state` in the session herdr is pointed at.
 
-    skip = {int(s) for s in args.skip.split(",") if s.strip()}
-    state = load_state(args.state)
+    Returns captured workspace_id -> (rebuilt workspace_id, its active tab id)."""
     workspaces = select(state, args.limit, skip)
     live, agents, tabs_live = live_state()
 
@@ -448,6 +441,24 @@ def main():
               f"{restorer.running} already running; {restorer.skipped} skipped.")
     else:
         print("\nNothing sent. Re-run with --go to restore these workspaces.")
+    return restored
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("state", nargs="?", default=DEFAULT_STATE,
+                        help=f"state file to restore (default: {DEFAULT_STATE})")
+    parser.add_argument("--go", action="store_true", help="create and fire, instead of previewing")
+    parser.add_argument("--limit", type=int, help="restore only the first N workspaces")
+    parser.add_argument("--skip", default="", help="comma-separated slots to leave out entirely")
+    parser.add_argument("--no-commands", action="store_true",
+                        help="leave dev-server `command` panes alone; viewers still re-run")
+    parser.add_argument("--delay", type=float, default=0.4,
+                        help="seconds between agent launches (default: 0.4)")
+    args = parser.parse_args()
+
+    skip = {int(s) for s in args.skip.split(",") if s.strip()}
+    run(load_state(args.state), args, skip)
 
 
 if __name__ == "__main__":

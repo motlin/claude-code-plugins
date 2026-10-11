@@ -45,13 +45,13 @@ Plugins for agent workflows, development tools, terminal feedback, and safety ch
 
 ### Track Sessions and Terminal Activity
 
-| Plugin                                             | Use it to                                                       | Claude Code | Codex |
-| -------------------------------------------------- | --------------------------------------------------------------- | ----------- | ----- |
-| [plans-dashboard](plugins/plans-dashboard/)        | Publish session lifecycle events to a claude-code-plans service | ✅          | ✅    |
-| [ghostty-titles](plugins/ghostty-titles/README.md) | Show agent activity in a Ghostty tab title                      | ✅          | ✅    |
-| [herdr-reboot](plugins/herdr-reboot/)              | Snapshot and restore agent sessions across herdr restarts       | ✅          | ✅    |
-| `herdr-titles`                                     | Report Claude sessions and copy Herdr tab titles into Claude    | ✅          | —     |
-| [tmux-titles](plugins/tmux-titles/README.md)       | Show agent activity in the tmux window status                   | ✅          | ✅    |
+| Plugin                                             | Use it to                                                        | Claude Code | Codex |
+| -------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
+| [plans-dashboard](plugins/plans-dashboard/)        | Publish session lifecycle events to a claude-code-plans service  | ✅          | ✅    |
+| [ghostty-titles](plugins/ghostty-titles/README.md) | Show agent activity in a Ghostty tab title                       | ✅          | ✅    |
+| [herdr-reboot](plugins/herdr-reboot/)              | Snapshot, restore, and move agent sessions across herdr sessions | ✅          | ✅    |
+| `herdr-titles`                                     | Report Claude sessions and copy Herdr tab titles into Claude     | ✅          | —     |
+| [tmux-titles](plugins/tmux-titles/README.md)       | Show agent activity in the tmux window status                    | ✅          | ✅    |
 
 ### Work with Specialized Technologies
 
