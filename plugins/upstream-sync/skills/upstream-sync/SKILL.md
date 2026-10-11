@@ -1,11 +1,11 @@
 ---
 name: upstream-sync
-description: 'Investigate a local web app against the upstream product it clones (a local claude.ai/code browser, a Workflowy replica), feature by feature, with serial browser investigators (a recursive Workflow in Claude Code, a hand-run loop in Codex), and produce per-feature gap files with red/green TDD tasks plus a prioritized roadmap. Use when the user wants to sync, diff, or reach parity with upstream, or to find everything upstream has that the local app lacks.'
+description: 'Investigate a local web app against the upstream product it clones (a local claude.ai/code browser, a Workflowy replica), feature by feature, with serial browser investigators (a recursive Workflow in Claude Code, a hand-run loop in Codex), produce per-feature gap files with red/green TDD tasks plus a prioritized roadmap, then implement the roadmap on agent branches gated into a known-good local main. Use when the user wants to sync, diff, or reach parity with upstream, or to find everything upstream has that the local app lacks.'
 ---
 
 # Upstream sync
 
-Bring a local app to near-exact parity with the upstream product it mirrors: same features, DOM structure, class names and CSS values, minus anything with no local meaning. The output is investigation only, written under `.llm/upstream-sync/`. Implementation comes afterward, from the roadmap.
+Bring a local app to near-exact parity with the upstream product it mirrors: same features, DOM structure, class names and CSS values, minus anything with no local meaning. The investigation only writes under `.llm/upstream-sync/`. Implementation comes afterward, from the roadmap, on agent branches that each pass a per-commit gate before local `main` moves.
 
 The engine is a Workflow script, `<plugin-root>/scripts/upstream-sync-workflow.js`. Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/upstream-sync/SKILL.md` file. Codex has no Workflow tool, so it runs the same phases by hand; see the Codex section below. The script runs:
 
@@ -23,6 +23,8 @@ Find out whether interacting with upstream or the local app changes real data. F
 - **Sandbox:** create one dedicated container, such as a top-level node, a scratch project or a test document. Investigators may edit only inside it, and may only read everywhere else.
 - **Strictly read-only:** no edits anywhere. Editing behavior is decoded from the DOM and the JS bundle.
 - **User performs edits:** investigators stop and ask the user to take any action that mutates data.
+
+Also check whether an upstream page is bridged to something live outside the browser. Existing claude.ai sessions, for example, may be connected to running local terminals, so a keystroke in the wrong tab acts on the user's machine. The rules must then name the only pages where writes are allowed (for claude.ai: the bare new-session page, or a session the agent created itself), and every agent must re-read `location.href` in the same step as any type, click or key action. A screenshot taken before an earlier action proves nothing about where the next one lands.
 
 Create the sandbox through the project's own write path (its CLI or API), never by editing a cache or database directly. Then verify that it exists, and that it exists exactly once.
 
@@ -97,6 +99,28 @@ An investigator whose agent dies (a network drop, a terminal API error) is retri
 
 ## After the run
 
-Read `SUMMARY.md` and the result's `notInvestigated` and `failed` lists, and report them. The usual next step is to import the roadmap into `.llm/todo.md` with the markdown-tasks import-plan skill, and work it with do-all-tasks.
+Read `SUMMARY.md` and the result's `notInvestigated` and `failed` lists, and report them. The usual next step is to import the roadmap into `.llm/todo.md` with the markdown-tasks import-plan skill, then implement it.
+
+## Implement the roadmap
+
+Implementers may run in parallel, each on its own branch. Local `main` is the base every new worktree starts from, so it must always be known-good: it only fast-forwards, and only to commits that are already rebased onto it and already pass `git test run` per commit. Never cherry-pick work onto main and gate it afterwards.
+
+Integrate each implementer branch with the same loop as the git plugin's rebase-all skill and the build plugin's test-all skill, scoped to one branch with local `main` as the base:
+
+1. Create the branch and its worktree from local `main` (`git worktree add -b <branch> <path> main`). Agent worktree isolation branches from `origin/main` instead, so don't rely on it.
+2. When the implementer finishes, rebase the branch onto `main` and run `git test run main..<branch>`.
+3. Repair each failure in a subagent, as test-all does: fix it, commit with `git commit --fixup <breaking sha>`, replay the rest of the branch with `git replay --onto HEAD HEAD^..<branch>`, then `GIT_SEQUENCE_EDITOR=true git rebase --autosquash main`. Rerun `git test run main..<branch>` until every commit passes. Never run `git test forget-results`.
+4. From main's worktree, `git merge --ff-only <branch>`.
+5. Delete the branch and its worktree.
+
+If a commit doesn't rebase or cherry-pick cleanly, abort. Don't rescue it by resolving the conflict, and don't read the conflicting diff. Wait until no other branch is integrating, then redo that task serially in a fresh subagent from its task description, on a new branch from `main`.
+
+Tests that validate the user's live on-disk data, such as a schema check against real files, fail on every commit before the schema-drift fix that makes them pass. Put schema-drift fixes first, or fold them into the branch's first commit, before gating; otherwise every earlier commit reports a failure that isn't its own.
+
+When `origin/main` moves, rebase promptly, while the gap is a few commits rather than dozens. git-test caches results per tree, so a rebase invalidates every result on the rebased commits and a long-diverged one forces a full re-gate. Rebase main's unpushed commits onto `origin/main` on a temporary branch, gate it with `git test run origin/main..<temp>`, and only then move `main` to it; then rebase the in-flight work branches onto the new `main`.
+
+Keep the branch count minimal so the user can follow the state: delete merged, backup and leftover branches as soon as they stop being needed. Report the state as "`main` (known good, N ahead of `origin/main`) + these work branches".
+
+Parity checks in the browser during implementation follow the same data-safety rules as the investigation, including the `location.href` check before every write action.
 
 Append any lesson that would help the next project to the Tips section of `protocol-template.md` in this plugin, not only to the project's README.

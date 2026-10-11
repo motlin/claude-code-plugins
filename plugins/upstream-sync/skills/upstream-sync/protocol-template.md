@@ -17,6 +17,7 @@ Rules that apply to every project:
 - Never change settings, themes, account, sharing or billing on either side.
 - Open menus, dialogs and pickers freely, but close them ONLY with Escape. A click inside an open list selects an item.
 - Upstream UI preferences often live in localStorage or IndexedDB. If you toggle one to test it, restore the original value before finishing.
+- Before any write action (typing, clicking, pressing a key), re-read `location.href` in the same step and act only on a page the rules allow. Pages can be bridged to live processes (a claude.ai session may drive a local terminal), and a screenshot taken before an earlier action doesn't show where the next one lands.
 - If you change something the rules forbid, undo it at once and report it in `safetyIncidents`. The orchestrator halts the run on any incident.
 
 ## Protocol for investigator subagents
