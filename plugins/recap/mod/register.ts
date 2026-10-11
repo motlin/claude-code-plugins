@@ -1,4 +1,4 @@
-import type {Register, SessionMessage} from 'claude-code';
+import type {Register, SessionMessage} from "claude-code";
 
 // Draws the end-of-turn footer beneath the model's answer:
 //
@@ -10,20 +10,20 @@ import type {Register, SessionMessage} from 'claude-code';
 // Drawing it here, instead of blocking the stop until the model writes it,
 // costs no extra main-model turn and never shows a stop-hook error.
 
-const RECAP_MODEL = 'claude-haiku-4-5';
+const RECAP_MODEL = "claude-haiku-4-5";
 
 const RECAP_SYSTEM =
-	'You write one line that reminds a returning user what they asked for in a coding session. ' +
+	"You write one line that reminds a returning user what they asked for in a coding session. " +
 	"Restate the request currently being worked, in the user's framing, as one imperative sentence. " +
-	'Describe the request, not what the assistant did. Reply with the sentence alone.';
+	"Describe the request, not what the assistant did. Reply with the sentence alone.";
 
 // Most specific first: the first pattern with a match anywhere in the
 // conversation wins, newest match within it.
 const LINKS: readonly {pattern: RegExp; label: (match: RegExpMatchArray) => string}[] = [
 	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/(\d+)/g, label: (m) => `PR #${m[1]}`},
-	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+/g, label: () => 'CI run'},
+	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+/g, label: () => "CI run"},
 	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/(\d+)/g, label: (m) => `Issue #${m[1]}`},
-	{pattern: /http:\/\/(?:localhost|127\.0\.0\.1):\d+\/?[^\s)\]>'"`]*/g, label: () => 'Dev server'},
+	{pattern: /http:\/\/(?:localhost|127\.0\.0\.1):\d+\/?[^\s)\]>'"`]*/g, label: () => "Dev server"},
 ];
 
 const hasFooter = (text: string) => /^📌 /m.test(text) && /^🔗 /m.test(text);
@@ -32,15 +32,15 @@ const hasFooter = (text: string) => /^📌 /m.test(text) && /^🔗 /m.test(text)
 // engine's injected tags stripped.
 const typedPrompts = (messages: readonly SessionMessage[]) =>
 	messages
-		.filter((m) => m.role === 'user' && m.text !== '' && (m.toolResults ?? []).length === 0)
+		.filter((m) => m.role === "user" && m.text !== "" && (m.toolResults ?? []).length === 0)
 		.map((m) =>
 			m.text
-				.replace(/<system-reminder>[\s\S]*?<\/system-reminder>/g, '')
-				.replace(/<\/?[\w-]+>/g, ' ')
-				.replace(/\s+/g, ' ')
+				.replace(/<system-reminder>[\s\S]*?<\/system-reminder>/g, "")
+				.replace(/<\/?[\w-]+>/g, " ")
+				.replace(/\s+/g, " ")
 				.trim(),
 		)
-		.filter((text) => text !== '');
+		.filter((text) => text !== "");
 
 const findLink = (messages: readonly SessionMessage[]) => {
 	const texts = messages.map((m) => m.text).reverse();
@@ -50,13 +50,13 @@ const findLink = (messages: readonly SessionMessage[]) => {
 			if (match) return `[${label(match)}](${match[0]})`;
 		}
 	}
-	return 'None';
+	return "None";
 };
 
 export const register: Register = (on) => {
-	on('turn.complete', async ($, e, next) => {
+	on("turn.complete", async ($, e, next) => {
 		const result = await next(e);
-		if (e.agentId !== undefined || e.reason !== 'answer' || hasFooter(e.answer)) return result;
+		if (e.agentId !== undefined || e.reason !== "answer" || hasFooter(e.answer)) return result;
 
 		const messages = await $.session.messages();
 		const prompts = typedPrompts(messages);
@@ -68,12 +68,12 @@ export const register: Register = (on) => {
 			prompt: prompts
 				.slice(-5)
 				.map((p, i) => `Prompt ${i + 1}: ${p.slice(0, 2000)}`)
-				.join('\n\n'),
+				.join("\n\n"),
 			maxTokens: 120,
 			timeoutMs: 10_000,
 		});
 		const fallback = prompts.at(-1)!.slice(0, 160);
-		const recap = (reply.isAnswered && reply.text.trim().split('\n')[0]) || fallback;
+		const recap = (reply.isAnswered && reply.text.trim().split("\n")[0]) || fallback;
 
 		return {...result, text: `📌 You asked: ${recap}\n🔗 ${findLink(messages)}`};
 	});

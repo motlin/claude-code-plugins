@@ -1,29 +1,29 @@
 # Jobs that run on push to main, after pull requests are merged. Jobs here can be a subset of the jobs that run on merge_group. These jobs should never fail since the jobs in merge_group already passed.
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 permissions:
-    contents: read
+  contents: read
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  persist-credentials: false
-            - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
-              with:
-                  cache: true
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
-            # The bats suite runs `claude plugin validate`, which needs the claude CLI.
-            - run: npm install --global @anthropic-ai/claude-code
-            - run: just test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # The bats suite runs `claude plugin validate`, which needs the claude CLI.
+      - run: npm install --global @anthropic-ai/claude-code
+      - run: just test

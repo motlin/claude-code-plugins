@@ -1,86 +1,86 @@
 # Jobs that run on merge_group, meaning they must pass before changes land. They also run on pull_request.
 
 on:
-    pull_request:
-    merge_group:
+  pull_request:
+  merge_group:
 
 permissions:
-    contents: read
+  contents: read
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    pre-commit:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  persist-credentials: false
-            - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
-              with:
-                  cache: true
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
-            - run: just install
-            - run: pre-commit run --all-files
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: just install
+      - run: pre-commit run --all-files
 
-    lint:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  persist-credentials: false
-            - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
-              with:
-                  cache: true
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
-            - run: just lint
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: just lint
 
-    format:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  persist-credentials: false
-            - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
-              with:
-                  cache: true
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
-            - run: just format
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - run: just format
 
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  persist-credentials: false
-            - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
-              with:
-                  cache: true
-              env:
-                  GITHUB_TOKEN: ${{ github.token }}
-            # The bats suite runs `claude plugin validate`, which needs the claude CLI.
-            - run: npm install --global @anthropic-ai/claude-code
-            - run: just test
-            - name: Test source-backed walkthrough renderer
-              run: |
-                  python3 plugins/code-walkthrough/scripts/setup.py --runtime .llm/code-walkthrough
-                  .llm/code-walkthrough/.venv/bin/python -m unittest discover -s plugins/code-walkthrough/tests
-            - name: Test narration script
-              run: python3 -m unittest discover -s plugins/narration/tests
-            - name: Test herdr-reboot scripts
-              run: python3 -m unittest discover -s plugins/herdr-reboot/tests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # The bats suite runs `claude plugin validate`, which needs the claude CLI.
+      - run: npm install --global @anthropic-ai/claude-code
+      - run: just test
+      - name: Test source-backed walkthrough renderer
+        run: |
+          python3 plugins/code-walkthrough/scripts/setup.py --runtime .llm/code-walkthrough
+          .llm/code-walkthrough/.venv/bin/python -m unittest discover -s plugins/code-walkthrough/tests
+      - name: Test narration script
+        run: python3 -m unittest discover -s plugins/narration/tests
+      - name: Test herdr-reboot scripts
+        run: python3 -m unittest discover -s plugins/herdr-reboot/tests
 
-    all-checks:
-        name: All checks
-        if: ${{ !cancelled() }}
-        needs: [pre-commit, lint, format, test]
-        runs-on: ubuntu-latest
-        steps:
-            - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # release/v1
-              with:
-                  jobs: ${{ toJSON(needs) }}
+  all-checks:
+    name: All checks
+    if: ${{ !cancelled() }}
+    needs: [pre-commit, lint, format, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

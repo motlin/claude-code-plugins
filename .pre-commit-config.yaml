@@ -1,48 +1,48 @@
 repos:
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v6.0.0
-      hooks:
-          - id: check-yaml
-            args: ['--allow-multiple-documents']
-          - id: check-json
-          - id: check-toml
-          - id: end-of-file-fixer
-            exclude: "^\\.idea/"
-          - id: trailing-whitespace
-            exclude: "^\\.idea/"
-          - id: check-added-large-files
-            args: ['--maxkb=1000']
-          - id: check-case-conflict
-          - id: check-merge-conflict
-          - id: detect-private-key
-          - id: mixed-line-ending
-            args: ['--fix=lf']
-          - id: check-executables-have-shebangs
-          - id: check-shebang-scripts-are-executable
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+        args: ["--allow-multiple-documents"]
+      - id: check-json
+      - id: check-toml
+      - id: end-of-file-fixer
+        exclude: "^\\.idea/"
+      - id: trailing-whitespace
+        exclude: "^\\.idea/"
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
 
-    - repo: local
-      hooks:
-          - id: just-fmt
-            name: just --fmt
-            entry: sh -c 'for file do just --fmt --justfile "$file" || exit; done' --
-            language: system
-            files: '(?i)(^|/)\.?justfile$|\.just$'
-            types: [file]
-          - id: oxfmt
-            name: oxfmt
-            entry: oxfmt --no-error-on-unmatched-pattern
-            language: system
+  - repo: local
+    hooks:
+      - id: just-fmt
+        name: just --fmt
+        entry: sh -c 'for file do just --fmt --justfile "$file" || exit; done' --
+        language: system
+        files: '(?i)(^|/)\.?justfile$|\.just$'
+        types: [file]
+      - id: oxfmt
+        name: oxfmt
+        entry: oxfmt --no-error-on-unmatched-pattern
+        language: system
 
-          - id: markdownlint
-            name: markdownlint
-            entry: markdownlint-cli2
-            language: system
-            types: [markdown]
-            exclude: "^(\\.llm/|\\.remember/|plugins/.+/\\.llm/|plugins/offline-claude-code-guide/docs/)"
+      - id: markdownlint
+        name: markdownlint
+        entry: markdownlint-cli2
+        language: system
+        types: [markdown]
+        exclude: "^(\\.llm/|\\.remember/|plugins/.+/\\.llm/|plugins/offline-claude-code-guide/docs/)"
 
-          - id: yamllint
-            name: yamllint
-            entry: yamllint --strict
-            language: system
-            types: [yaml]
-            exclude: "^(\\.serena/|\\.llm/|\\.remember/)"
+      - id: yamllint
+        name: yamllint
+        entry: yamllint --strict
+        language: system
+        types: [yaml]
+        exclude: "^(\\.serena/|\\.llm/|\\.remember/)"
