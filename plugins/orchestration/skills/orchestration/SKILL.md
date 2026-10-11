@@ -23,7 +23,7 @@ Use the `git:commit` skill to commit, `git:conflicts` to resolve merge or rebase
 
 ## Temporary files
 
-Write scratch files and temporary output to `.llm/`, not `/tmp` or other system temp directories; reading from `/tmp` triggers permission prompts.
+Write scratch files and temporary output to the session scratchpad directory when the harness provides one, and otherwise to `.llm/scratch/`. Avoid `/tmp` and other system temp directories; reading from them triggers permission prompts.
 
 ## Finishing
 
