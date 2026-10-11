@@ -1,6 +1,6 @@
 {
 	"name": "herdr-titles",
-	"version": "1.36.0",
+	"version": "1.36.1",
 	"description": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles.",
 	"author": {
 		"name": "Craig Motlin"
