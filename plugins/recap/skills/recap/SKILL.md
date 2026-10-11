@@ -44,4 +44,4 @@ Always Markdown link syntax — `🔗 [short label](URL)`. A bare URL, with or w
 
 Emit the footer on every turn: trivial answers, questions back to the user, refusals, and turns that changed nothing. Both lines are always present, even when the recap is short and the link is `None`.
 
-The footer is the whole ending — do not follow it with more prose.
+The footer is the whole ending — do not follow it with more prose. A closing question to the user, or an AskUserQuestion call, comes before the footer.
