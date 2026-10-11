@@ -18,7 +18,7 @@ Then run exactly this, with no added arguments or environment overrides:
 <plugin-root>/scripts/rebase
 ```
 
-The script reads the project's configured upstream remote and branch (usually `origin/main`). Other rebase commands pick the wrong base: `git rebase` and `git replay` don't know the upstream, and `git pull --rebase` and `git rebase @{upstream}` use the branch's tracking info, such as `origin/<current-branch>`.
+The script reads the project's configured upstream remote and branch. Other rebase commands pick the wrong base: `git rebase` and `git replay` don't know the upstream, and `git pull --rebase` and `git rebase @{upstream}` use the branch's tracking info, such as `origin/<current-branch>`.
 
 ## Outcomes
 
