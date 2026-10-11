@@ -25,5 +25,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       # The bats suite runs `claude plugin validate`, which needs the claude CLI.
-      - run: npm install --global @anthropic-ai/claude-code
+      - run: npm install --global @anthropic-ai/claude-code # zizmor: ignore[adhoc-packages] the claude CLI has no lockfile here
       - run: just test
