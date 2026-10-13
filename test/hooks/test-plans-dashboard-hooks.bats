@@ -61,3 +61,25 @@ captured_payload() {
   payload="$(captured_payload)"
   [ "$(jq --raw-output '.tool_name' <<<"$payload")" = "Bash" ]
 }
+
+@test "SessionEnd returns before a slow dashboard responds" {
+  cat >"$mock_bin/curl" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' "$@" >"$CURL_CAPTURE_FILE"
+sleep 3
+MOCK
+  input="$(jq --null-input '{session_id: "exiting-session", hook_event_name: "SessionEnd"}')"
+
+  SECONDS=0
+  run env PATH="$mock_bin:$PATH" CURL_CAPTURE_FILE="$capture_file" \
+    "$PROJECT_ROOT/plugins/plans-dashboard/scripts/post-hook.sh" SessionEnd <<<"$input"
+  elapsed="$SECONDS"
+  [ "$status" -eq 0 ]
+  [ "$elapsed" -lt 2 ]
+
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ -s "$capture_file" ] && break
+    sleep 0.1
+  done
+  [ "$(captured_payload)" = '{"session_id":"exiting-session","hook_event_name":"SessionEnd"}' ]
+}

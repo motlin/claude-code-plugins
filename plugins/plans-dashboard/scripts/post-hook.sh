@@ -23,8 +23,18 @@ payload="$(printf '%s' "$json" | jq --compact-output --arg event "$event_name" '
     } else {} end
 ')"
 
-curl -sX POST http://localhost:8899/api/hook \
-    --connect-timeout 1 --max-time 2 \
-    -H 'Content-Type: application/json' \
-    -d "$payload" \
-    >/dev/null 2>&1 || true
+post() {
+    curl -sX POST http://localhost:8899/api/hook \
+        --connect-timeout 1 --max-time 2 \
+        -H 'Content-Type: application/json' \
+        -d "$payload" \
+        >/dev/null 2>&1 || true
+}
+
+# Claude Code cancels SessionEnd hooks that outlive its brief exit window, so detach the POST.
+if [[ $event_name == "SessionEnd" ]]; then
+    post </dev/null >/dev/null 2>&1 &
+    disown
+else
+    post
+fi
