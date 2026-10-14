@@ -7,5 +7,5 @@
 	"author": {
 		"name": "Craig Motlin"
 	},
-	"skills": ["./skills/maven-cli", "./skills/openrewrite", "./skills/openrewrite-recipes", "./skills/pom-ordering"]
+	"skills": ["./skills/maven-cli", "./skills/openrewrite", "./skills/pom-ordering"]
 }

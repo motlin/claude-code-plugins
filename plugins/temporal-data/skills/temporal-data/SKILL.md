@@ -1,6 +1,6 @@
 ---
 name: temporal-data
-description: Temporal database patterns for system-time versioned tables. Use when working with tables that have system_from/system_to columns, temporal queries, non-destructive updates, merge/sync logic, rollback, or schema migrations involving temporal data.
+description: System-time versioned (temporal) table patterns. Use when working with system_from/system_to columns, as-of queries, non-destructive updates, or temporal migrations.
 ---
 
 # Temporal Data Patterns

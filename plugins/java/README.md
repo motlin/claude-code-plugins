@@ -4,8 +4,7 @@ Java and Maven tooling: OpenRewrite recipes, POM dependency ordering, Maven CLI 
 
 - `/java:maven-cli`: when to use `-am`, and why to avoid `-o`
 - `/java:pom-ordering`: check or enforce POM dependency order and region comments
-- `/java:openrewrite`: fix OpenRewrite recipe tests
-- `/java:openrewrite-recipes`: recipe authoring patterns
+- `/java:openrewrite`: write OpenRewrite recipes and their tests
 - `/java:openrewrite-analyze-recipes`: dry-run and rank recipes by violation count
 - `/java:openrewrite-violations`: one commit per recipe on a cleanup branch
 - `/java:liquibase-lock-resolver`: clear stale H2 databases behind Liquibase lock errors
