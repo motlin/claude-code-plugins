@@ -36,6 +36,28 @@ local_marketplace_sources() {
   fi
 }
 
+# Strict validation accepts these top-level fields but does not require them, so
+# dropping one still passes. They give editors schema completion and record the
+# release version, so their presence is asserted here.
+@test "marketplace.json declares \$schema, version, and description" {
+  run jq --raw-output '[."$schema", .version, .description] | map(type) | join(" ")' "$MARKETPLACE"
+  [ "$status" -eq 0 ]
+  [ "$output" = "string string string" ]
+}
+
+@test "every plugin.json declares \$schema" {
+  missing=()
+  for manifest in "$PROJECT_ROOT"/plugins/*/.claude-plugin/plugin.json; do
+    jq --exit-status 'has("$schema")' "$manifest" >/dev/null || missing+=("${manifest#"$PROJECT_ROOT/"}")
+  done
+
+  if [ "${#missing[@]}" -ne 0 ]; then
+    printf "plugin manifests without \$schema:\n"
+    printf '  %s\n' "${missing[@]}"
+    return 1
+  fi
+}
+
 @test "marketplace sources and plugin directories have one-to-one parity" {
   source_paths="$(local_marketplace_sources | sed 's|^\./||' | sort)"
   directory_paths="$({
