@@ -1,6 +1,6 @@
 {
 	"name": "code-walkthrough",
-	"version": "1.36.1",
+	"version": "1.36.2",
 	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
 	"author": {
 		"name": "Craig Motlin"

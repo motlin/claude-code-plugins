@@ -1,6 +1,6 @@
 {
 	"name": "narration",
-	"version": "1.36.1",
+	"version": "1.36.2",
 	"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
 	"author": {
 		"name": "Craig Motlin"
