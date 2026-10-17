@@ -1,6 +1,6 @@
 {
 	"name": "upstream-sync",
-	"version": "1.36.2",
+	"version": "1.37.0",
 	"description": "Investigate a local web app against the upstream product it clones, feature by feature, producing gap files with TDD tasks and a roadmap",
 	"author": {
 		"name": "Craig Motlin"
