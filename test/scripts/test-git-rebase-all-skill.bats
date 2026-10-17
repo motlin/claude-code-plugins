@@ -20,3 +20,8 @@ setup() {
     run rg --fixed-strings "Ask the user before running" "$SKILL"
     [ "$status" -eq 0 ]
 }
+
+@test "rebase-all skill says the script replays before it rebases" {
+    run rg --fixed-strings "replay-all" "$SKILL"
+    [ "$status" -eq 0 ]
+}

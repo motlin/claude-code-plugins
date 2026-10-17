@@ -2,6 +2,9 @@
 # Rebase all branches onto upstream/main or matching up-to-date origin branch
 # Usage: rebase-all
 #
+# Runs `replay-all` first, which moves every cleanly replayable branch without a
+# checkout, then rebases only the branches that replay left behind.
+#
 # Environment variables:
 #   UPSTREAM_REMOTE - Remote to rebase onto (default: upstream)
 #   UPSTREAM_BRANCH - Branch to rebase onto (default: main)
@@ -19,6 +22,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Fetch upstream
 "$SCRIPT_DIR/fetch"
+
+# Replay first since it is much faster and leaves the checkout alone
+OFFLINE=true KEEP_GOING=true "$SCRIPT_DIR/replay-all"
 
 # Get branches that are not ancestors of upstream/main
 mapfile -t branches < <(git for-each-ref --format='%(refname:short)' refs/heads/ --sort -committerdate --no-contains "${upstream_remote}/${upstream_branch}")
