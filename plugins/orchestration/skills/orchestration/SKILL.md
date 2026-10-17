@@ -15,6 +15,7 @@ Most tasks use several of these skills:
 | `git:git-workflow`                 | For all git operations                |
 | `orchestration:conversation-style` | For response guidelines               |
 | `orchestration:llm-context`        | When working with `.llm/` directories |
+| `orchestration:memory`             | Before saving a memory                |
 | `recap:recap`                      | Before ending a turn                  |
 
 ## Git

@@ -6,6 +6,7 @@ Startup guidelines and the finish pipeline (commit, precommit, rebase, simplify,
 - `orchestration:finish`: the finish pipeline
 - `orchestration:conversation-style`: response style
 - `orchestration:llm-context`: working with `.llm/`
+- `orchestration:memory`: fix the owning skill or CLAUDE.md instead of saving a memory
 
 The pipeline uses skills from the `build` and `git` plugins; install them too.
 
