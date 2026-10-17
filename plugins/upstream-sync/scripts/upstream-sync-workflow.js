@@ -16,7 +16,7 @@ export const meta = {
 //   dir, upstreamName, upstreamUrl, localName, localUrl, localSource,
 //   context, safety, approvedExceptions, acknowledgeSurveyIncidents,
 //   surveyFocus, inventoryFocus, maxInvestigations, maxCriticRounds,
-//   registryEvery
+//   registryEvery, only, seed
 const A = args || {};
 const DIR = A.dir;
 const MAX_INVESTIGATIONS = A.maxInvestigations ?? 150;
@@ -26,6 +26,11 @@ const REGISTRY_EVERY = A.registryEvery ?? 6;
 // failed) without the broad phase or critic rounds, then merge their rows
 // into the existing features.md instead of rewriting it.
 const ONLY = Array.isArray(A.only) && A.only.length ? A.only : null;
+// Seed mode: start the queue from an earlier run's registry instead of a fresh
+// survey, keeping critic rounds so the queue can still grow. Features marked
+// `existing: true` already have a feature file, which the investigator
+// re-verifies rather than rebuilding.
+const SEED = !ONLY && Array.isArray(A.seed) && A.seed.length ? A.seed : null;
 
 const BROWSER = `Use the claude-in-chrome tools (load every one you need in ONE ToolSearch call: tabs_context_mcp, tabs_create_mcp, tabs_close_mcp, navigate, computer, read_page, get_page_text, javascript_tool, find). Call tabs_context_mcp first, open your OWN tabs, close them when done. Investigations run one at a time because they share the browser.`;
 
@@ -171,6 +176,10 @@ let survey = null;
 if (ONLY) {
 	ONLY.forEach((f) => enqueue(f, "only"));
 	log(`Only mode: ${queue.map((q) => q.slug).join(", ")}`);
+} else if (SEED) {
+	SEED.forEach((f) => enqueue(f));
+	log(`Seed mode: queue seeded with ${queue.length} features`);
+	await writeRegistry("seed");
 } else {
 	phase("Broad");
 	[inventory, survey] = await parallel([
@@ -228,7 +237,7 @@ Project context: ${A.context || ""}
 
 Read ${DIR}/README.md, ${DIR}/local-inventory.md, ${DIR}/upstream-survey.md, and any related ${DIR}/features/*.md first. ${BROWSER} Investigate this feature exhaustively on BOTH sides: upstream ${A.upstreamUrl} and local ${A.localUrl} plus source in ${A.localSource}. Goal is near-exact parity: same DOM structure, class names, CSS values, behavior and keyboard handling, minus what has no local meaning. Extract real outerHTML, matched CSS rules and computed styles (never describe from screenshots alone); save large dumps to ${DIR}/dumps/${item.slug}-*. Test every interaction, state, empty state and edge case. Every sub-surface may reveal another feature: report those in "discovered" (skip anything already queued: ${others}).
 
-Write ${DIR}/features/${item.slug}.md following the README template, with self-contained red/green TDD proposed tasks (exact files, exact class names and values). If the feature has no local meaning, write a short file with localStatus not-applicable. Append any new general lesson to the README Tips section. Return the structured result.`;
+${item.existing ? `A feature file from an earlier run exists at ${DIR}/features/${item.slug}.md. Re-verify every claim in it against today's upstream and local app: drop tasks the local app now satisfies, correct anything upstream changed, and add new gaps. Update it in place rather than starting over.\n\n` : ""}Write ${DIR}/features/${item.slug}.md following the README template, with self-contained red/green TDD proposed tasks (exact files, exact class names and values). If the feature has no local meaning, write a short file with localStatus not-applicable. Append any new general lesson to the README Tips section. Return the structured result.`;
 		const opts = {label: `investigate:${item.slug}`, phase: "Investigate", schema: INVESTIGATION_SCHEMA};
 		// A null result is a dead agent (network drop, terminal API error);
 		// investigated: false is an agent that declined, e.g. one that judged the

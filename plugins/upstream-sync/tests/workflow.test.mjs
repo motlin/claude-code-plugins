@@ -187,6 +187,46 @@ test("only mode re-investigates the given features, recursing into discoveries, 
 	);
 });
 
+test("seed mode skips the broad phase, re-verifies existing feature files, recurses, and keeps critic rounds", async () => {
+	const {result, calls} = await runWorkflow(
+		{
+			...BASE_ARGS,
+			seed: [{...feature("alpha", "P1"), existing: true}, feature("beta", "P2"), feature("ALPHA", "P1")],
+		},
+		{
+			"investigate:": (label) =>
+				label === "investigate:alpha" ? investigation([feature("gamma", "P3")]) : investigation(),
+			"critic-": () => ({missing: []}),
+			summary: () => "summary digest",
+		},
+	);
+	const prompt = (label) => calls.find((c) => c.label === label).prompt;
+	const reverify = `A feature file from an earlier run exists at ${BASE_ARGS.dir}/features/`;
+
+	assert.deepEqual(
+		calls.map((c) => c.label),
+		[
+			"registry:seed",
+			"investigate:alpha",
+			"investigate:beta",
+			"investigate:gamma",
+			"registry:critic-1",
+			"critic-1",
+			"registry:final",
+			"summary",
+		],
+	);
+	assert.deepEqual(
+		{
+			investigated: result.investigated,
+			criticRounds: result.criticRounds,
+			alphaReverifies: prompt("investigate:alpha").includes(`${reverify}alpha.md`),
+			betaReverifies: prompt("investigate:beta").includes(reverify),
+		},
+		{investigated: ["alpha", "beta", "gamma"], criticRounds: 1, alphaReverifies: true, betaReverifies: false},
+	);
+});
+
 test("the investigation cap leaves the rest reported as not investigated", async () => {
 	const {result} = await runWorkflow(
 		{...BASE_ARGS, maxInvestigations: 1},

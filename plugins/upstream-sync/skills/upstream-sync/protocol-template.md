@@ -67,3 +67,4 @@ Local-only adaptation: <how it maps to the local app, or "n/a">
 - claude-in-chrome: if the Chrome tab group vanishes, call tabs_context_mcp with createIfEmpty and continue in a fresh tab; report orphaned tab IDs.
 - Navigation can create data. Some buttons that look read-only (a "Today" button, a "new draft" route) create records as a side effect. Read the bundle before clicking anything that might.
 - A local dev server hot-reloads, so local behavior can change under you if someone edits the source during the run. Report anything that looks like that.
+- Registry rows from runs before declines counted as failures can say `done` while holding a placeholder ("NOT INVESTIGATED… the user asked …"). Treat a `done` row as real only when its feature file exists.

@@ -29,7 +29,7 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "memory skill sends skill-owned lessons to the skill source, not the plugin cache" {
-  run rg "plugins/cache" "$SKILL"
+@test "memory skill sends skill-owned lessons to the plugin's git repository source" {
+  run rg "edit its source in the plugin's git repository" "$SKILL"
   [ "$status" -eq 0 ]
 }

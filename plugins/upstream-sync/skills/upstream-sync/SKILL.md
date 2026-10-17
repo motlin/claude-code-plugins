@@ -40,6 +40,8 @@ Create `.llm/upstream-sync/` and confirm it is gitignored. Then fill it:
 
 If an earlier sync left this directory behind, read its `README.md` Tips and `SUMMARY.md` first. Carry the lessons forward instead of starting over.
 
+To reuse an earlier run's queue, pass it as `seed` instead of re-surveying. Audit `features.md` first: a row marked `done` is only real if its `features/<slug>.md` exists and its notes describe findings. A row whose notes say the agent declined, answered another question, or did not investigate is a placeholder; seed it without `existing`. Seed real rows with `existing: true`, and seed `todo` and `failed` rows as they are.
+
 ## Verify the local app is running
 
 Check that the local dev server is listening on the expected port and that an HTTP request returns a non-error response, before launching. Also confirm the user is logged in to upstream in the browser profile your browser tools drive: claude-in-chrome in Claude Code, or whichever browser MCP is connected in Codex. If no browser tool is available, stop and tell the user; the investigation can't run on code alone.
@@ -48,22 +50,23 @@ Check that the local dev server is listening on the expected port and that an HT
 
 Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js` and these `args`:
 
-| Arg                           | Meaning                                                                                                                                         |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dir`                         | Absolute path of the sync directory                                                                                                             |
-| `upstreamName`, `upstreamUrl` | The product being cloned and where to reach it                                                                                                  |
-| `localName`, `localUrl`       | The local app and its running dev URL                                                                                                           |
-| `localSource`                 | Absolute path of the local source                                                                                                               |
-| `context`                     | Intentional differences, as in `{{CONTEXT}}`                                                                                                    |
-| `safety`                      | The concrete safety rules; this text goes into every browser prompt                                                                             |
-| `surveyFocus`                 | Optional: surfaces and features to make sure the survey covers                                                                                  |
-| `inventoryFocus`              | Optional: local areas to make sure the inventory covers                                                                                         |
-| `approvedExceptions`          | Optional: actions the user approved after an incident; this text goes only into investigator prompts                                            |
-| `acknowledgeSurveyIncidents`  | Optional: true once the user has reviewed a survey incident, so a resumed run continues                                                         |
-| `only`                        | Optional: a list of `{slug, name, priority, notes}` to re-investigate, skipping the broad and critic phases and merging rows into `features.md` |
-| `maxInvestigations`           | Default 150; anything left over is listed as not investigated                                                                                   |
-| `maxCriticRounds`             | Default 3                                                                                                                                       |
-| `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                 |
+| Arg                           | Meaning                                                                                                                                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dir`                         | Absolute path of the sync directory                                                                                                                                                                                   |
+| `upstreamName`, `upstreamUrl` | The product being cloned and where to reach it                                                                                                                                                                        |
+| `localName`, `localUrl`       | The local app and its running dev URL                                                                                                                                                                                 |
+| `localSource`                 | Absolute path of the local source                                                                                                                                                                                     |
+| `context`                     | Intentional differences, as in `{{CONTEXT}}`                                                                                                                                                                          |
+| `safety`                      | The concrete safety rules; this text goes into every browser prompt                                                                                                                                                   |
+| `surveyFocus`                 | Optional: surfaces and features to make sure the survey covers                                                                                                                                                        |
+| `inventoryFocus`              | Optional: local areas to make sure the inventory covers                                                                                                                                                               |
+| `approvedExceptions`          | Optional: actions the user approved after an incident; this text goes only into investigator prompts                                                                                                                  |
+| `acknowledgeSurveyIncidents`  | Optional: true once the user has reviewed a survey incident, so a resumed run continues                                                                                                                               |
+| `only`                        | Optional: a list of `{slug, name, priority, notes}` to re-investigate, skipping the broad and critic phases and merging rows into `features.md`                                                                       |
+| `seed`                        | Optional: a list of `{slug, name, priority, notes, existing?}` that replaces the broad phase; critic rounds still run. `existing: true` makes the investigator re-verify that feature's file instead of rebuilding it |
+| `maxInvestigations`           | Default 150; anything left over is listed as not investigated                                                                                                                                                         |
+| `maxCriticRounds`             | Default 3                                                                                                                                                                                                             |
+| `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                                                                                       |
 
 Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving. When that message was an unrelated question, investigators declined the browser work and returned placeholder results, wasting a hundred investigations. They now report `investigated: false`, which counts as a failure, but the cost is still a retry per feature. If the run needs relaunching after the user asked something else, ask them to say so first.
 
