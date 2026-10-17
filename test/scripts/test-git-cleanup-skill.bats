@@ -41,3 +41,18 @@ setup() {
     run rg --fixed-strings "Never switch branches while a rebase is stopped" "$SKILL"
     [ "$status" -eq 0 ]
 }
+
+# rebase-all skips branches checked out in other worktrees, so removing the
+# worktrees first lets their branches be rebased.
+@test "git-cleanup skill removes worktrees through clean-worktrees before rebasing" {
+    run rg --fixed-strings "git:clean-worktrees" "$SKILL"
+    [ "$status" -eq 0 ]
+    worktrees_line="$(rg --line-number --fixed-strings "git:clean-worktrees" "$SKILL" | head -1 | cut -d: -f1)"
+    rebase_line="$(rg --line-number --fixed-strings "Rebase with the \`git:rebase-all\` skill" "$SKILL" | cut -d: -f1)"
+    [ "$worktrees_line" -lt "$rebase_line" ]
+}
+
+@test "git-cleanup skill never removes worktrees with --force" {
+    run rg --fixed-strings "never \`--force\`" "$SKILL"
+    [ "$status" -eq 0 ]
+}

@@ -35,6 +35,7 @@ Summarize the findings in a few short lines, then ask with `AskUserQuestion`, on
 
 - **Uncommitted changes**: commit on the current branch, commit on a new branch, or discard.
 - **Untracked files**: add to `.gitignore`, add to `.git/info/exclude` for files that are local to this machine (IDE folders, `.llm/`), commit them, or leave them.
+- **Worktrees**: for each worktree other than the main one, remove it, keep it, or decide each one. Show each worktree's branch and `git -C <worktree> status --short`. A branch checked out in a worktree is skipped by the rebase.
 - **Branches**: rebase all, review each branch, or delete the backups and duplicates. Point out the likely candidates: names with `backup`, near-identical names such as `fix-login` and `login-fix`, and branches whose patches all appear in another branch.
 
 ## Configure the Upstream Remote
@@ -53,6 +54,8 @@ The scripts rebase onto the remote branch, not local main. If local main has com
 ## Apply the Choices
 
 Commit with the `git:commit` skill. Edit `.gitignore` or `.git/info/exclude` as chosen.
+
+Remove the chosen worktrees with the `git:clean-worktrees` skill before rebasing, so their branches get rebased too, then run `git worktree prune --verbose`. Removal is `git worktree remove`, never `--force`. When Git refuses because a worktree has changes, report it and ask whether to commit, stash, or keep that worktree.
 
 Rebase with the `git:rebase-all` skill. It replays every branch it can, then rebases the rest.
 
