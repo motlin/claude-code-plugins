@@ -46,3 +46,5 @@ git commit --message "<message>"
 ```
 
 If pre-commit hooks modify files, stage those files individually and retry. Never use `git commit --no-verify`.
+
+A commit that a hook stopped was never made, so fix the problem, stage the files, and run `git commit` again. Never run `git commit --amend`: after a failed commit, `--amend` rewrites the previous commit, which usually belongs to an earlier task. To change a commit that already exists, make a new commit or a `git commit --fixup <sha>` commit. A stray fixup that never folds in is easy to clean up later with `git history reword`, and a wrongly amended commit is not.
