@@ -57,6 +57,38 @@ describe("recap footer", () => {
 		expect(result.text).toBe("📌 You asked: Fix the merge conflicts\n🔗 None");
 	});
 
+	test("keeps the footer on two lines when the recap reply uses CRLF line endings", async ($, on) => {
+		on("session.messages", () => ({
+			value: [user("Fix the CLI so it can target the top level"), assistant(ANSWER)],
+		}));
+		on("model.complete", () => ({
+			value: {
+				isAnswered: true,
+				text: "Fix the CLI so it can target the top level.\r\nThat is the request.",
+				usage: USAGE,
+			},
+		}));
+		on("turn.complete", ($, e) => ({text: e.answer}));
+
+		const result = await $.turn.complete(turn());
+
+		expect(result.text).toBe("📌 You asked: Fix the CLI so it can target the top level.\n🔗 None");
+	});
+
+	test("never cuts an emoji in half when truncating the fallback prompt", async ($, on) => {
+		on("session.messages", () => ({
+			value: [user(`${"a".repeat(159)}📌 tail`), assistant(ANSWER)],
+		}));
+		on("model.complete", () => ({
+			value: {isAnswered: false, reason: "empty-reply", usage: USAGE},
+		}));
+		on("turn.complete", ($, e) => ({text: e.answer}));
+
+		const result = await $.turn.complete(turn());
+
+		expect(result.text).toBe(`📌 You asked: ${"a".repeat(159)}📌\n🔗 None`);
+	});
+
 	test("leaves an answer that already ends with the footer alone", async ($, on) => {
 		const answer = `${ANSWER}\n\n📌 You asked: Fix the merge conflicts.\n🔗 None`;
 		on("turn.complete", ($, e) => ({text: e.answer}));

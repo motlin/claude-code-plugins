@@ -26,6 +26,18 @@ const LINKS: readonly {pattern: RegExp; label: (match: RegExpMatchArray) => stri
 	{pattern: /http:\/\/(?:localhost|127\.0\.0\.1):\d+\/?[^\s)\]>'"`]*/g, label: () => "Dev server"},
 ];
 
+// Slices by code point so a truncated emoji never leaves a lone surrogate,
+// which renders as U+FFFD.
+const truncate = (text: string, length: number) => Array.from(text).slice(0, length).join("");
+
+// The first line of the model's reply. A CRLF reply split on "\n" alone keeps a
+// trailing "\r", and "\r\n" renders as U+FFFD in place of the footer's newline.
+const firstLine = (text: string) =>
+	text
+		.trim()
+		.split(/\r\n|[\r\n\u2028\u2029]/)[0]
+		.trim();
+
 const hasFooter = (text: string) => /^📌 /m.test(text) && /^🔗 /m.test(text);
 
 // Prompts the person typed: user rows with text and no tool results, with the
@@ -67,13 +79,13 @@ export const register: Register = (on) => {
 			system: RECAP_SYSTEM,
 			prompt: prompts
 				.slice(-5)
-				.map((p, i) => `Prompt ${i + 1}: ${p.slice(0, 2000)}`)
+				.map((p, i) => `Prompt ${i + 1}: ${truncate(p, 2000)}`)
 				.join("\n\n"),
 			maxTokens: 120,
 			timeoutMs: 10_000,
 		});
-		const fallback = prompts.at(-1)!.slice(0, 160);
-		const recap = (reply.isAnswered && reply.text.trim().split("\n")[0]) || fallback;
+		const fallback = truncate(prompts.at(-1)!, 160);
+		const recap = (reply.isAnswered && firstLine(reply.text)) || fallback;
 
 		return {...result, text: `📌 You asked: ${recap}\n🔗 ${findLink(messages)}`};
 	});
