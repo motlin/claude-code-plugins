@@ -30,8 +30,11 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-@test "git-cleanup skill asks before delete-merged" {
-    run rg --fixed-strings "Ask the user before running" "$SKILL"
+@test "git-cleanup skill runs delete-merged without asking" {
+    run rg --fixed-strings "Do these without asking" "$SKILL"
+    [ "$status" -eq 0 ]
+
+    run rg --fixed-strings "Run \`<plugin-root>/scripts/delete-merged\`" "$SKILL"
     [ "$status" -eq 0 ]
 }
 
