@@ -5,7 +5,7 @@ description: Snapshot running herdr workspaces, tabs, pane splits, and their cla
 
 # Snapshot Herdr Workspaces
 
-Capture the live herdr session so `/herdr-reboot:restore` can rebuild it after a reboot; nothing in it survives the reboot.
+Capture every running herdr session so `/herdr-reboot:restore` can rebuild them after a reboot; nothing in them survives the reboot. Each session is its own server, so the script captures each one `herdr session list` reports as `running` through that session's socket. Stopped sessions are skipped, and the script fails when no session is running.
 
 Resolve `<plugin-root>`: `${CLAUDE_PLUGIN_ROOT}` in Claude Code; in Codex, the plugin root containing this loaded `skills/snapshot/SKILL.md`, even when installed outside the repository.
 
@@ -13,9 +13,9 @@ Resolve `<plugin-root>`: `${CLAUDE_PLUGIN_ROOT}` in Claude Code; in Codex, the p
 python3 "<plugin-root>/scripts/snapshot.py" --output .llm/resume-after-reboot-state.json
 ```
 
-Show the user the tree and confirm it before the reboot. The state file holds machine-specific session ids, so keep it in the gitignored `.llm/` directory.
+Show the user each session's tree and confirm it before the reboot. The state file holds machine-specific session ids, so keep it in the gitignored `.llm/` directory.
 
-The file is JSON, schema `resume-after-reboot/v2`, mirroring the session: workspaces (label, number, active tab) hold tabs (label, number, zoom, focused pane), and each tab holds a `layout` tree of `split` nodes (`direction`, `ratio`) ending in `pane` leaves. It also records which workspace, tab, and pane held focus. `slot` numbers panes by workspace, then tab, then layout order.
+The file is JSON, schema `resume-after-reboot/v3`, with one entry per session under `sessions`, each mirroring its session: the session name, then workspaces (label, number, active tab) hold tabs (label, number, zoom, focused pane), and each tab holds a `layout` tree of `split` nodes (`direction`, `ratio`) ending in `pane` leaves. It also records which workspace, tab, and pane held focus. `slot` numbers panes by session, then workspace, then tab, then layout order, running on across sessions so each slot names one pane in the whole file.
 
 Review these caveats with the user when they affect the panes:
 

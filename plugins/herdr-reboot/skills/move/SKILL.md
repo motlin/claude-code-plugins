@@ -28,6 +28,6 @@ Tell the user before running `--go`:
 - The target session must already be running. If it is not, the script says so and prints the `herdr session attach <name>` command; the user starts it in a terminal, then re-run. Never start it yourself.
 - A selected pane whose agent is `working` refuses the whole move, since closing it interrupts the turn. Wait for it to finish. A `blocked` pane is moved with a warning: its pending prompt is dropped.
 - The move refuses to include the pane it runs from. Run it from a pane outside the selection.
-- The full source snapshot is backed up to `.llm/herdr-move-backup-<session>-<timestamp>.json` before anything closes. Restoring that file with `restore.py` (run with `HERDR_SESSION=<source>`) recovers from a failed move.
+- The full source snapshot is backed up to `.llm/herdr-move-backup-<session>-<timestamp>.json` before anything closes. Restoring that file with `restore.py` rebuilds it in the source session and recovers from a failed move.
 - `--no-commands` leaves dev-server command panes at a shell in the target, for when the source still holds their ports.
 - After the move, a summary counts the moved panes by agent and status in the target. Agents still starting may show `unknown`.

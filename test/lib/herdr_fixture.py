@@ -11,7 +11,13 @@ A test describes the tree once:
 and this renders it two ways:
 
     snapshot  what `herdr api snapshot` would report for that tree, rects and splits included
-    state     what snapshot.py would write for it, the `resume-after-reboot/v2` state file
+    state     what snapshot.py would write for it, the `resume-after-reboot/v3` state file
+
+A state description may instead hold several herdr sessions, each its own tree:
+
+    {"sessions": [{"name": "default", "workspaces": [...]}, {"name": "later", "workspaces": [...]}]}
+
+A bare tree is one session named `testsession`, the session the test herdr stub reports.
 
 Layout nodes are either a pane leaf or a split with exactly two children. Everything except
 `id` has a default: labels, numbers, active tab, focused pane, and focus all follow the first
@@ -22,7 +28,7 @@ Usage:
 """
 import json, sys
 
-SCHEMA = "resume-after-reboot/v2"
+SCHEMA = "resume-after-reboot/v3"
 AREA = {"x": 0, "y": 1, "width": 120, "height": 40}
 
 
@@ -141,7 +147,7 @@ def state_layout(node, slots):
                 "children": [state_layout(kid, slots) for kid in node["children"]]}
     built = {
         "type": "pane",
-        "slot": slots[node["pane"]],
+        "slot": slots[id(node)],
         "pane_id": node["pane"],
         "tool": node.get("tool", node.get("agent") or "shell"),
         "command": node.get("command"),
@@ -154,15 +160,11 @@ def state_layout(node, slots):
     return built
 
 
-def state(doc):
-    """The `resume-after-reboot/v2` state file snapshot.py writes for this tree."""
-    slots = {leaf["pane"]: slot for slot, (_, _, leaf) in enumerate(walk(doc), 1)}
+def session_state(doc, slots):
+    """One session of the state file: its focus and its workspace tree."""
     where = focus(doc)
     return {
-        "schema": SCHEMA,
-        "captured": "2026-07-29T20:22:47-04:00",
-        "backend": "herdr",
-        "session": doc.get("session", "testsession"),
+        "session": doc.get("name", "testsession"),
         "focus": {"workspace_id": where["workspace"], "tab_id": where["tab"],
                   "pane_id": where["pane"]},
         "workspaces": [{
@@ -179,6 +181,21 @@ def state(doc):
                 "layout": state_layout(tab["layout"], slots),
             } for tab_number, tab in enumerate(workspace["tabs"], 1)],
         } for number, workspace in enumerate(doc["workspaces"], 1)],
+    }
+
+
+def state(doc):
+    """The `resume-after-reboot/v3` state file snapshot.py writes for these sessions.
+
+    Slots run on across sessions, so a slot names one pane in the whole file."""
+    sessions = doc.get("sessions", [doc])
+    leaves_in_order = [leaf for session in sessions for _, _, leaf in walk(session)]
+    slots = {id(leaf): slot for slot, leaf in enumerate(leaves_in_order, 1)}
+    return {
+        "schema": SCHEMA,
+        "captured": "2026-07-29T20:22:47-04:00",
+        "backend": "herdr",
+        "sessions": [session_state(session, slots) for session in sessions],
     }
 
 

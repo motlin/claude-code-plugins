@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Restore a herdr session from a snapshot, rebuilding its workspaces, tabs, splits, and agents.
+"""Restore herdr sessions from a snapshot, rebuilding their workspaces, tabs, splits, and agents.
 
-Reads a `resume-after-reboot/v2` state file written by this plugin's snapshot.py and rebuilds the
-tree it describes: one workspace per captured workspace with its label, one tab per captured tab
+Reads a `resume-after-reboot/v3` state file written by this plugin's snapshot.py and rebuilds,
+through each captured session's own server, the tree it describes: one workspace per captured workspace with its label, one tab per captured tab
 with its label, the panes inside each tab split at the captured direction and ratio, then the
 captured focus and zoom. Dry-run by default; pass --go to actually create and fire.
 
-The document is herdr-shaped. An older flat `resume-after-reboot/v1` document has no workspaces,
-tabs, or splits to rebuild, so it is rejected rather than half-restored.
+herdr cannot start a session server without a terminal attached to it, so a captured session
+that is not running is named along with the `herdr session attach` that starts it, the others are
+restored, and the run fails. Re-running once it is up restores it and leaves the rest alone.
+
+Any other schema is rejected rather than half-restored.
 
 `herdr pane run` types into whatever the pane currently holds — there is no idle-shell guard in
 herdr itself. Firing into a pane that already held a resumed claude submits the text as a PROMPT
@@ -25,16 +28,16 @@ bringing them back is most of what a restore is for. --no-commands leaves the de
 for when one outlived the reboot and still holds its port.
 
 Usage:
-    restore.py [state_file] [--go] [--limit N] [--skip SLOT[,SLOT...]] [--no-commands]
+    restore.py [state_file] [--go] [--skip SLOT[,SLOT...]] [--no-commands]
 Defaults state_file to .llm/resume-after-reboot-state.json and to dry-run.
 """
 import argparse, json, os, shlex, subprocess, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from snapshot import layout_tree  # noqa: E402
+from snapshot import layout_tree, running_sessions, session_env  # noqa: E402
 
 HOME = os.path.expanduser("~")
-SCHEMA = "resume-after-reboot/v2"
+SCHEMA = "resume-after-reboot/v3"
 DEFAULT_STATE = ".llm/resume-after-reboot-state.json"
 AGENT_TOOLS = ("claude", "claude-rc", "codex")
 
@@ -43,7 +46,7 @@ IDLE_TIMEOUT_SECONDS = 2.0
 IDLE_POLL_SECONDS = 0.1
 
 
-# The environment herdr runs under; None inherits ours. move.py points it at another session.
+# The environment herdr runs under; None inherits ours. main and move.py point it at a session.
 HERDR_ENV = None
 
 
@@ -190,7 +193,7 @@ def prune(node, skip):
     return {**node, "children": kept}
 
 
-def select(state, limit, skip):
+def select(state, skip):
     """The captured workspaces, minus skipped panes and the tabs and workspaces they empty."""
     chosen = []
     for workspace in state.get("workspaces", []):
@@ -201,7 +204,7 @@ def select(state, limit, skip):
                 tabs.append({**tab, "layout": layout})
         if tabs:
             chosen.append({**workspace, "tabs": tabs})
-    return chosen[:limit] if limit else chosen
+    return chosen
 
 
 def fires_by_default(leaf):
@@ -407,7 +410,7 @@ def run(state, args, skip=frozenset()):
     """Preview or rebuild `state` in the session herdr is pointed at.
 
     Returns captured workspace_id -> (rebuilt workspace_id, its active tab id)."""
-    workspaces = select(state, args.limit, skip)
+    workspaces = select(state, skip)
     live, agents, tabs_live = live_state()
 
     adopted, paired = {}, {}
@@ -444,12 +447,18 @@ def run(state, args, skip=frozenset()):
     return restored
 
 
+def restore_session(session, args, skip):
+    """Rebuild one captured session through that session's own server."""
+    global HERDR_ENV
+    HERDR_ENV = session_env(session["session"], os.environ)
+    run(session, args, skip)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("state", nargs="?", default=DEFAULT_STATE,
                         help=f"state file to restore (default: {DEFAULT_STATE})")
     parser.add_argument("--go", action="store_true", help="create and fire, instead of previewing")
-    parser.add_argument("--limit", type=int, help="restore only the first N workspaces")
     parser.add_argument("--skip", default="", help="comma-separated slots to leave out entirely")
     parser.add_argument("--no-commands", action="store_true",
                         help="leave dev-server `command` panes alone; viewers still re-run")
@@ -458,7 +467,21 @@ def main():
     args = parser.parse_args()
 
     skip = {int(s) for s in args.skip.split(",") if s.strip()}
-    run(load_state(args.state), args, skip)
+    state = load_state(args.state)
+    running = running_sessions(sh(["herdr", "session", "list"]).stdout)
+    stopped = []
+    for session in state["sessions"]:
+        name = session["session"]
+        if name in running:
+            print(f"== herdr session {name} ==")
+            restore_session(session, args, skip)
+        else:
+            print(f'herdr session "{name}" is not running. Start it in a terminal with '
+                  f"`herdr session attach {name}`, then re-run this restore.")
+            stopped.append(name)
+        print()
+    if stopped:
+        sys.exit(f"not restored, not running: {', '.join(stopped)}")
 
 
 if __name__ == "__main__":

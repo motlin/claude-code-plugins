@@ -26,6 +26,7 @@ write_herdr_stub() {
     cat >"$STUB_BIN/herdr" <<'STUB'
 #!/bin/bash
 printf '%s\n' "$*" >>"$HERDR_LOG"
+printf '%s %s\n' "${HERDR_SESSION:-}" "$*" >>"$HERDR_LOG.sessions"
 next_id() {
     local n
     n=$(($(cat "$HERDR_FIXTURES/counter" 2>/dev/null || echo 0) + 1))
@@ -42,10 +43,18 @@ option() {
 }
 case "$1 $2" in
     "api snapshot")
-        cat "$HERDR_FIXTURES/snapshot.json"
+        if [ -f "$HERDR_FIXTURES/snapshot-$HERDR_SESSION.json" ]; then
+            cat "$HERDR_FIXTURES/snapshot-$HERDR_SESSION.json"
+        else
+            cat "$HERDR_FIXTURES/snapshot.json"
+        fi
         ;;
     "session list")
-        printf '%s\n' 'name status directory socket' 'testsession running /tmp /tmp/herdr.sock'
+        if [ -f "$HERDR_FIXTURES/sessions.txt" ]; then
+            cat "$HERDR_FIXTURES/sessions.txt"
+        else
+            printf '%s\n' 'name status directory socket' 'testsession running /tmp /tmp/herdr.sock'
+        fi
         ;;
     "pane process-info")
         pane="$3"
@@ -87,8 +96,22 @@ STUB
 }
 
 # Both fixtures come from one description of the session tree; see test/lib/herdr_fixture.py.
+# write_snapshot <description> [session] — what `herdr api snapshot` reports, for one named
+# session when given, else for whichever session asks.
 write_snapshot() {
-    printf '%s' "$1" | "$PYTHON3" "$FIXTURE" snapshot - >"$FIXTURES/snapshot.json"
+    local file="$FIXTURES/snapshot.json"
+    [ -n "${2:-}" ] && file="$FIXTURES/snapshot-$2.json"
+    printf '%s' "$1" | "$PYTHON3" "$FIXTURE" snapshot - >"$file"
+}
+
+# write_sessions <name:status>... — the sessions `herdr session list` reports.
+write_sessions() {
+    local entry
+    printf '%s\n' 'name status directory socket' >"$FIXTURES/sessions.txt"
+    for entry in "$@"; do
+        printf '%s %s /tmp/%s /tmp/%s.sock\n' "${entry%%:*}" "${entry#*:}" "${entry%%:*}" "${entry%%:*}" \
+            >>"$FIXTURES/sessions.txt"
+    done
 }
 
 write_state() {
@@ -179,7 +202,8 @@ def leaves(node):
     return [node] if node["type"] == "pane" else [l for c in node["children"] for l in leaves(c)]
 
 doc = json.loads(sys.stdin.read())
-panes = [p for w in doc["workspaces"] for t in w["tabs"] for p in leaves(t["layout"])]
+panes = [p for s in doc["sessions"] for w in s["workspaces"] for t in w["tabs"]
+         for p in leaves(t["layout"])]
 print(next(p for p in panes if p["slot"] == int(sys.argv[1])).get(sys.argv[2]))
 ' "$1" "$2"
 }
@@ -191,14 +215,14 @@ codex_rollout() {
     printf '{"payload":{"cwd":"%s"}}\n' "$cwd" >"$dir/rollout-2026-07-29T10-00-00-$uuid.jsonl"
 }
 
-@test "snapshot writes the v2 schema envelope" {
+@test "snapshot writes the v3 schema envelope" {
     write_snapshot "$(one_pane w6 toolkit "$FAKE_HOME/work/toolkit")"
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['schema']")" = "resume-after-reboot/v2" ]
+    [ "$(json_field "['schema']")" = "resume-after-reboot/v3" ]
     [ "$(json_field "['backend']")" = "herdr" ]
-    [ "$(json_field "['session']")" = "testsession" ]
+    [ "$(json_field "['sessions'][0]['session']")" = "testsession" ]
     [ "$(json_field "['captured'][4]")" = "-" ]
 }
 
@@ -209,11 +233,11 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['workspaces'][0]['label']")" = "webapp" ]
-    [ "$(json_field "['workspaces'][0]['workspace_id']")" = "w8" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['tab_id']")" = "w8:t1" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][1]['tab_id']")" = "w8:t2" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][1]['layout']['pane_id']")" = "w8:p2" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['label']")" = "webapp" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['workspace_id']")" = "w8" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['tab_id']")" = "w8:t1" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][1]['tab_id']")" = "w8:t2" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][1]['layout']['pane_id']")" = "w8:p2" ]
 }
 
 @test "snapshot keeps a tab label that differs from its workspace label" {
@@ -222,7 +246,7 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['label']")" = "just dev" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['label']")" = "just dev" ]
 }
 
 @test "snapshot records a split with its direction and ratio" {
@@ -233,11 +257,11 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['type']")" = "split" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['direction']")" = "right" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['ratio']")" = "0.6" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['children'][0]['pane_id']")" = "wA:p1" ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['layout']['children'][1]['pane_id']")" = "wA:p2" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['type']")" = "split" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['direction']")" = "right" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['ratio']")" = "0.6" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['children'][0]['pane_id']")" = "wA:p1" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['children'][1]['pane_id']")" = "wA:p2" ]
     [ "$(pane_field 1 tool)" = "claude" ]
     [ "$(pane_field 2 tool)" = "shell" ]
 }
@@ -252,7 +276,7 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    right="['workspaces'][0]['tabs'][0]['layout']['children'][1]"
+    right="['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['children'][1]"
     [ "$(json_field "${right}['type']")" = "split" ]
     [ "$(json_field "${right}['direction']")" = "down" ]
     [ "$(json_field "${right}['ratio']")" = "0.3" ]
@@ -270,11 +294,11 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['focus']['workspace_id']")" = "wB" ]
-    [ "$(json_field "['focus']['tab_id']")" = "wB:t1" ]
-    [ "$(json_field "['focus']['pane_id']")" = "wB:p2" ]
-    [ "$(json_field "['workspaces'][1]['active_tab_id']")" = "wB:t1" ]
-    [ "$(json_field "['workspaces'][1]['tabs'][0]['focused_pane_id']")" = "wB:p2" ]
+    [ "$(json_field "['sessions'][0]['focus']['workspace_id']")" = "wB" ]
+    [ "$(json_field "['sessions'][0]['focus']['tab_id']")" = "wB:t1" ]
+    [ "$(json_field "['sessions'][0]['focus']['pane_id']")" = "wB:p2" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][1]['active_tab_id']")" = "wB:t1" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][1]['tabs'][0]['focused_pane_id']")" = "wB:p2" ]
 }
 
 @test "snapshot records a zoomed tab" {
@@ -284,7 +308,7 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['workspaces'][0]['tabs'][0]['zoomed']")" = "True" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['zoomed']")" = "True" ]
 }
 
 @test "snapshot numbers slots by workspace order, then tab order, then layout order" {
@@ -312,8 +336,8 @@ codex_rollout() {
 
     run_snapshot
     [ "$status" -eq 0 ]
-    [ "$(json_field "['workspaces'][0]['label']")" = "first" ]
-    [ "$(json_field "['workspaces'][1]['tabs'][0]['tab_id']")" = "wB:t1" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['label']")" = "first" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][1]['tabs'][0]['tab_id']")" = "wB:t1" ]
     [ "$(pane_field 1 pane_id)" = "w6:p1" ]
 }
 
@@ -593,7 +617,7 @@ transcript() {
     [ -z "$output" ]
 
     run "$PYTHON3" -c "import json,sys; print(json.load(open(sys.argv[1]))['schema'])" "$STATE"
-    [ "$output" = "resume-after-reboot/v2" ]
+    [ "$output" = "resume-after-reboot/v3" ]
 }
 
 @test "restore rejects the flat v1 schema and names the one it wants" {
@@ -601,7 +625,7 @@ transcript() {
 
     run_restore "$STATE"
     [ "$status" -ne 0 ]
-    [[ "$output" == *"resume-after-reboot/v2"* ]]
+    [[ "$output" == *"resume-after-reboot/v3"* ]]
 }
 
 @test "restore dry run reports the plan and touches nothing" {
@@ -893,20 +917,14 @@ transcript() {
     [ "$output" = "0" ]
 }
 
-@test "restore --limit keeps only the first N workspaces" {
+@test "restore has no --limit option" {
     write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
-    write_state '{"workspaces":[
-        {"id":"w1","label":"webapp","tabs":[
-            {"id":"w1:t1","layout":{"pane":"w1:p1","cwd":"~/projects/webapp"}}]},
-        {"id":"w2","label":"api-server","tabs":[
-            {"id":"w2:t1","layout":{"pane":"w2:p1","cwd":"~/projects/api-server"}}]},
-        {"id":"w3","label":"notes","tabs":[
-            {"id":"w3:t1","layout":{"pane":"w3:p1","cwd":"~/projects/notes"}}]}]}'
+    write_state '{"workspaces":[{"id":"w1","label":"webapp","tabs":[
+        {"id":"w1:t1","layout":{"pane":"w1:p1","cwd":"~/projects/webapp"}}]}]}'
 
     run_restore "$STATE" --limit 2
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"2 workspaces"* ]]
-    [[ "$output" != *notes* ]]
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"unrecognized arguments: --limit 2"* ]]
 }
 
 @test "restore --skip drops a pane and collapses the split that held it" {
@@ -1159,4 +1177,77 @@ stub_command() {
     [ "$status" -eq 0 ]
     [[ "$output" == *"0 panes to fire"* ]]
     [[ "$output" == *"1 already running"* ]]
+}
+
+@test "snapshot captures every running herdr session through its own server" {
+    write_sessions default:running later:running demo:stopped
+    write_snapshot "$(one_pane wA kalshi /w/kalshi)" default
+    write_snapshot '{"workspaces":[{"id":"wA","label":"webapp","tabs":[
+        {"id":"wA:t1","layout":{"split":"right","ratio":0.5,"children":[
+            {"pane":"wA:p1","cwd":"/w/webapp"},{"pane":"wA:p2","cwd":"/w/webapp"}]}}]}]}' later
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['sessions'][0]['session']")" = "default" ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['label']")" = "kalshi" ]
+    [ "$(json_field "['sessions'][1]['session']")" = "later" ]
+    [ "$(json_field "['sessions'][1]['workspaces'][0]['label']")" = "webapp" ]
+    [ "$(printf '%s' "$output" | "$PYTHON3" -c 'import json,sys; print(len(json.load(sys.stdin)["sessions"]))')" = "2" ]
+}
+
+@test "snapshot numbers slots across sessions so each names one pane in the file" {
+    write_sessions default:running later:running
+    write_snapshot "$(one_pane wA kalshi /w/kalshi)" default
+    write_snapshot "$(one_pane wA webapp /w/webapp)" later
+
+    run_snapshot
+    [ "$status" -eq 0 ]
+    [ "$(json_field "['sessions'][0]['workspaces'][0]['tabs'][0]['layout']['slot']")" = "1" ]
+    [ "$(json_field "['sessions'][1]['workspaces'][0]['tabs'][0]['layout']['slot']")" = "2" ]
+}
+
+@test "snapshot refuses when no herdr session is running" {
+    write_sessions default:stopped
+
+    run_snapshot
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"no herdr session is running"* ]]
+}
+
+@test "restore rebuilds each captured session through its own server" {
+    write_sessions default:running later:running
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"sessions":[
+        {"name":"default","workspaces":[{"id":"wA","label":"kalshi","tabs":[
+            {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"/w/kalshi"}}]}]},
+        {"name":"later","workspaces":[{"id":"wA","label":"webapp","tabs":[
+            {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"/w/webapp"}}]}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -eq 0 ]
+
+    run grep -F -- "default workspace create --cwd /w/kalshi --label kalshi" "$HERDR_LOG.sessions"
+    [ "$status" -eq 0 ]
+    run grep -F -- "later workspace create --cwd /w/webapp --label webapp" "$HERDR_LOG.sessions"
+    [ "$status" -eq 0 ]
+}
+
+@test "restore names a stopped session and how to start it, restores the rest, and fails" {
+    write_sessions default:running later:stopped
+    write_snapshot "$(one_pane wS toolkit "$FAKE_HOME/work/toolkit")"
+    write_state '{"sessions":[
+        {"name":"default","workspaces":[{"id":"wA","label":"kalshi","tabs":[
+            {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"/w/kalshi"}}]}]},
+        {"name":"later","workspaces":[{"id":"wA","label":"webapp","tabs":[
+            {"id":"wA:t1","layout":{"pane":"wA:p1","cwd":"/w/webapp"}}]}]}]}'
+
+    run_restore "$STATE" --go
+    [ "$status" -ne 0 ]
+    [[ "$output" == *'herdr session "later" is not running'* ]]
+    [[ "$output" == *"herdr session attach later"* ]]
+
+    run grep -c "workspace create" "$HERDR_LOG"
+    [ "$output" = "1" ]
+    run grep -F -- "--label webapp" "$HERDR_LOG"
+    [ "$status" -ne 0 ]
 }

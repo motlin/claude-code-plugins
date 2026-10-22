@@ -24,11 +24,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import restore  # noqa: E402
 import snapshot  # noqa: E402
-
-# A pane inherits these from its herdr server, and HERDR_SOCKET_PATH beats HERDR_SESSION, so
-# they must go before a child herdr call can reach any other session.
-PANE_BINDINGS = ("HERDR_SOCKET_PATH", "HERDR_CLIENT_SOCKET_PATH", "HERDR_WORKSPACE_ID",
-                 "HERDR_TAB_ID", "HERDR_PANE_ID", "HERDR_SESSION")
+from snapshot import session_env  # noqa: E402
 
 # How long resumed agents get to report a status before the summary reads them.
 SETTLE_SECONDS = 3.0
@@ -36,13 +32,6 @@ SETTLE_SECONDS = 3.0
 
 class MoveError(Exception):
     pass
-
-
-def session_env(session, environ):
-    """A copy of `environ` whose herdr calls reach `session` rather than the caller's own."""
-    env = {key: value for key, value in environ.items() if key not in PANE_BINDINGS}
-    env["HERDR_SESSION"] = session
-    return env
 
 
 def caller_session(environ, session_list):
@@ -184,7 +173,7 @@ def backup(state, source):
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     path = os.path.join(directory, f"herdr-move-backup-{source}-{stamp}.json")
     with open(path, "w") as fh:
-        fh.write(json.dumps(state, indent=2) + "\n")
+        fh.write(json.dumps(snapshot.build_state([state]), indent=2) + "\n")
     return path
 
 
@@ -198,7 +187,7 @@ def move(args):
     require_running(args.to, target_env)
     snapshot.HERDR_ENV = source_env
     snap = snapshot.live_snapshot()
-    full = snapshot.build_state(snap, source)
+    full = snapshot.build_session(snap, source)
     filtered, closes = filter_state(full, args.selectors, args.to)
     statuses = {p["pane_id"]: p.get("agent_status") for p in snap.get("panes", [])}
     caller_pane = os.environ.get("HERDR_PANE_ID") if source == caller else None
@@ -212,7 +201,7 @@ def move(args):
     print()
 
     restore.HERDR_ENV = target_env
-    options = argparse.Namespace(go=args.go, limit=None, no_commands=args.no_commands,
+    options = argparse.Namespace(go=args.go, no_commands=args.no_commands,
                                  delay=args.delay)
     if not args.go:
         restore.run(filtered, options)

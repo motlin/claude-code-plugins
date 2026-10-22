@@ -139,6 +139,16 @@ class CallerSession(unittest.TestCase):
         self.assertEqual(move.caller_session({}, SESSION_LIST), 'default')
 
 
+class RunningSessions(unittest.TestCase):
+    LIST = SESSION_LIST + 'demo                 stopped  /h/.config/herdr/sessions/demo /h/.config/herdr/sessions/demo/herdr.sock\n'
+
+    def test_lists_running_sessions_in_order_and_skips_stopped(self):
+        self.assertEqual(move.snapshot.running_sessions(self.LIST), ['default', 'later'])
+
+    def test_header_alone_has_no_running_sessions(self):
+        self.assertEqual(move.snapshot.running_sessions('name status directory socket\n'), [])
+
+
 class ServerState(unittest.TestCase):
     def test_reads_server_not_running(self):
         stdout = ('{"id":"cli:api:snapshot","error":{"code":"server_not_running",'

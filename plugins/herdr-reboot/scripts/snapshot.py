@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Snapshot the running herdr session so claude/codex agents can be resumed after a reboot.
+"""Snapshot every running herdr session so claude/codex agents can be resumed after a reboot.
 
-Nothing survives a reboot: the workspaces, the tabs, and the agents inside them all go away.
-This captures the whole tree — workspaces with their labels, their tabs with theirs, the split
+Nothing survives a reboot: the sessions, their workspaces, the tabs, and the agents inside them
+all go away. Each herdr session is its own server, so every one `herdr session list` reports as
+running is captured through its own socket. For each, this captures the whole tree — workspaces with their labels, their tabs with theirs, the split
 layout inside each tab, which pane held focus — and, per pane, the tool (claude/codex), its cwd,
 and the exact session id to resume.
 
@@ -17,11 +18,11 @@ A pane sitting at an idle shell has nothing running to capture, but its tab labe
 what belongs there (`just dev`, `rc`). Those labels are recorded as commands, under the same
 allowlist the running-process capture uses, so a tab named `reboot` is never replayed.
 
-The state file is JSON, schema `resume-after-reboot/v2`. It is herdr-shaped and NOT interchangeable
-with the older flat `resume-after-reboot/v1`.
+The state file is JSON, schema `resume-after-reboot/v3`: one entry per session under `sessions`,
+with slots numbered across all of them so a slot names one pane in the whole file.
 
 Usage:
-    snapshot.py [--output PATH] [--session NAME]
+    snapshot.py [--output PATH]
 Prints the state JSON to stdout unless --output is given, e.g.:
     snapshot.py > .llm/resume-after-reboot-state.json
 """
@@ -30,7 +31,7 @@ from datetime import datetime
 
 HOME = os.path.expanduser("~")
 CODEX_SESSIONS = os.path.join(HOME, ".codex", "sessions")
-SCHEMA = "resume-after-reboot/v2"
+SCHEMA = "resume-after-reboot/v3"
 
 SHELLS = {"zsh", "bash", "sh", "fish", "dash", "ksh", "tcsh"}
 
@@ -73,8 +74,20 @@ GIT_READ_ONLY = {
 GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
 
-# The environment herdr runs under; None inherits ours. move.py points it at another session.
+# A pane inherits these from its herdr server, and HERDR_SOCKET_PATH beats HERDR_SESSION, so
+# they must go before a child herdr call can reach any other session.
+PANE_BINDINGS = ("HERDR_SOCKET_PATH", "HERDR_CLIENT_SOCKET_PATH", "HERDR_WORKSPACE_ID",
+                 "HERDR_TAB_ID", "HERDR_PANE_ID", "HERDR_SESSION")
+
+# The environment herdr runs under; None inherits ours. main and move.py point it at a session.
 HERDR_ENV = None
+
+
+def session_env(session, environ):
+    """A copy of `environ` whose herdr calls reach `session` rather than the caller's own."""
+    env = {key: value for key, value in environ.items() if key not in PANE_BINDINGS}
+    env["HERDR_SESSION"] = session
+    return env
 
 
 def sh(args):
@@ -99,14 +112,10 @@ def live_snapshot():
     return result["snapshot"]
 
 
-def running_session():
-    """The name of the running herdr session, per `herdr session list`."""
-    p = sh(["herdr", "session", "list"])
-    for line in p.stdout.splitlines()[1:]:
-        fields = line.split()
-        if len(fields) >= 2 and fields[1] == "running":
-            return fields[0]
-    return "default"
+def running_sessions(session_list):
+    """The names of the running sessions in `herdr session list` output, in listed order."""
+    return [fields[0] for fields in (line.split() for line in session_list.splitlines()[1:])
+            if len(fields) >= 2 and fields[1] == "running"]
 
 
 def program_name(proc):
@@ -531,12 +540,9 @@ def all_leaves(workspaces):
     return [leaf for w in workspaces for t in w["tabs"] for leaf in walk(t["layout"])]
 
 
-def build_state(snap, session):
-    """The state document for a live `herdr api snapshot`, recorded under `session`."""
+def build_session(snap, session):
+    """One session of the state document, built from its live `herdr api snapshot`."""
     return {
-        "schema": SCHEMA,
-        "captured": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "backend": "herdr",
         "session": session,
         "focus": {
             "workspace_id": snap.get("focused_workspace_id"),
@@ -547,13 +553,35 @@ def build_state(snap, session):
     }
 
 
+def build_state(sessions):
+    """The state document holding `sessions`, with slots renumbered to run on across them."""
+    leaves = [leaf for session in sessions for leaf in all_leaves(session["workspaces"])]
+    for slot, leaf in enumerate(leaves, 1):
+        leaf["slot"] = slot
+    return {
+        "schema": SCHEMA,
+        "captured": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "backend": "herdr",
+        "sessions": sessions,
+    }
+
+
+def capture(session):
+    """Build one session from a snapshot taken through that session's own server."""
+    global HERDR_ENV
+    HERDR_ENV = session_env(session, os.environ)
+    return build_session(live_snapshot(), session)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--output", help="write the state JSON here instead of stdout")
-    parser.add_argument("--session", help="session name to record (default: the running one)")
     args = parser.parse_args()
 
-    state = build_state(live_snapshot(), args.session or running_session())
+    names = running_sessions(sh(["herdr", "session", "list"]).stdout)
+    if not names:
+        sys.exit("no herdr session is running; nothing to snapshot")
+    state = build_state([capture(name) for name in names])
     text = json.dumps(state, indent=2) + "\n"
     if args.output:
         with open(args.output, "w") as fh:
