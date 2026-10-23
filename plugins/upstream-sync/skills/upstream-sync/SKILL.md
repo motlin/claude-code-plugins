@@ -60,6 +60,7 @@ Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js`
 | `safety`                      | The concrete safety rules; this text goes into every browser prompt                                                                                                                                                   |
 | `surveyFocus`                 | Optional: surfaces and features to make sure the survey covers                                                                                                                                                        |
 | `inventoryFocus`              | Optional: local areas to make sure the inventory covers                                                                                                                                                               |
+| `acknowledgedIncidents`       | Optional: slugs whose investigator incidents the user has reviewed, so a resumed run records them and continues                                                                                                       |
 | `approvedExceptions`          | Optional: actions the user approved after an incident; this text goes only into investigator prompts                                                                                                                  |
 | `acknowledgeSurveyIncidents`  | Optional: true once the user has reviewed a survey incident, so a resumed run continues                                                                                                                               |
 | `only`                        | Optional: a list of `{slug, name, priority, notes}` to re-investigate, skipping the broad and critic phases and merging rows into `features.md`                                                                       |
@@ -94,7 +95,7 @@ The workflow stops at the first reported incident. A survey incident stops it be
 
 - Verify the damage independently through a primary source, such as the upstream API or the project's CLI. An agent's report that it undid something is not proof.
 - Report what happened and what you verified, and ask the user how to continue.
-- To resume, re-invoke Workflow with the persisted script path from the original result and `resumeFromRunId`, so completed agents replay from cache. Keep `safety`, `context` and the survey args unchanged: changing any text in a cached prompt re-runs that agent and everything after it. Put newly approved actions in `approvedExceptions`, and set `acknowledgeSurveyIncidents: true` when the incident came from the survey. Update the README's Tips to match the decision.
+- To resume, re-invoke Workflow with the persisted script path from the original result and `resumeFromRunId`, so completed agents replay from cache. Keep `safety`, `context` and the survey args unchanged: changing any text in a cached prompt re-runs that agent and everything after it. Put newly approved actions in `approvedExceptions`, set `acknowledgeSurveyIncidents: true` when the incident came from the survey, and add the investigator's slug to `acknowledgedIncidents` when it came from an investigator; neither changes a prompt, so the cache still replays. Update the README's Tips to match the decision.
 
 ## When investigators fail
 

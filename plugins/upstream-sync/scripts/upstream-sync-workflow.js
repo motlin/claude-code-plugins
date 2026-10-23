@@ -15,6 +15,7 @@ export const meta = {
 // args (see the upstream-sync skill for how to fill them):
 //   dir, upstreamName, upstreamUrl, localName, localUrl, localSource,
 //   context, safety, approvedExceptions, acknowledgeSurveyIncidents,
+//   acknowledgedIncidents,
 //   surveyFocus, inventoryFocus, maxInvestigations, maxCriticRounds,
 //   registryEvery, only, seed
 const A = args || {};
@@ -272,7 +273,9 @@ ${item.existing ? `A feature file from an earlier run exists at ${DIR}/features/
 		if (!r.sandboxClean) log(`${item.slug}: sandbox not clean`);
 		if (r.safetyIncidents.length) {
 			incidents.push(...r.safetyIncidents.map((s) => `${item.slug}: ${s}`));
-			throw new SafetyStop(`safety: ${item.slug}`);
+			// A resumed run replays this cached result; slugs the user has
+			// reviewed are recorded without stopping again.
+			if (!(A.acknowledgedIncidents || []).includes(item.slug)) throw new SafetyStop(`safety: ${item.slug}`);
 		}
 		if (order.length % REGISTRY_EVERY === 0) await writeRegistry(`after-${order.length}`);
 	}

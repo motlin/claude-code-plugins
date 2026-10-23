@@ -126,6 +126,23 @@ test("an investigator safety incident stops the queue but still writes the summa
 	assert.deepEqual(calls.at(-1).label, "summary");
 });
 
+test("an acknowledged investigator incident is recorded but the queue continues, so a resumed run gets past it", async () => {
+	const {result, calls} = await runWorkflow(
+		{...BASE_ARGS, acknowledgedIncidents: ["alpha"]},
+		{
+			"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P1")], safetyIncidents: []}),
+			"investigate:": (label) =>
+				label === "investigate:alpha" ? investigation([], ["edited outside sandbox"]) : investigation(),
+			"critic-": () => ({missing: []}),
+		},
+	);
+
+	assert.deepEqual(
+		{investigated: investigated(calls), stopped: result.stopped, incidents: result.incidents},
+		{investigated: ["alpha", "beta"], stopped: null, incidents: ["alpha: edited outside sandbox"]},
+	);
+});
+
 test("a failed investigator (null result, e.g. a network drop) is retried once, then reported as failed", async () => {
 	const {result, calls} = await runWorkflow(BASE_ARGS, {
 		"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P1")], safetyIncidents: []}),
