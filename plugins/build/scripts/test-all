@@ -35,11 +35,19 @@ total_branches=${#branches[@]}
 echo "Found ${total_branches} branches containing remote ref ${upstream_remote}/${upstream_branch} as ancestor: ${branches[*]}"
 
 current=1
+failure_status=0
 for branch in "${branches[@]}"
 do
     echo -n "[${current}/${total_branches}] "
     echo "Running: test-branch \"${branch}\" '${TESTS}' ${FLAGS}"
     # shellcheck disable=SC2086
-    "$SCRIPT_DIR/test-branch" "$branch" "$TESTS" $FLAGS
+    "$SCRIPT_DIR/test-branch" "$branch" "$TESTS" $FLAGS || {
+        failure_status=$?
+        if [ "$fail_fast" = "true" ]; then
+            exit "$failure_status"
+        fi
+    }
     ((current++))
 done
+
+exit "$failure_status"
