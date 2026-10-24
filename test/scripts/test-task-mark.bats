@@ -145,18 +145,52 @@ EOF
   [[ "$output" == "  Blocked "*"session test-session-id: nothing worked" ]]
 }
 
-@test "--reason is accepted for markers other than '!'" {
+@test "--reason with --marker='x' writes a Completed line" {
   write_todo <<'EOF'
 - [ ] First task
       Context line one
 EOF
 
-  run python "$SCRIPTS_DIR/task_mark.py" "$TODO" --marker='x' --reason='done the hard way'
+  run env CLAUDE_CODE_SESSION_ID=test-session-id \
+    python "$SCRIPTS_DIR/task_mark.py" "$TODO" --marker='x' --reason='done the hard way'
   [ "$status" -eq 0 ]
 
-  run cat "$TODO"
-  [[ "$output" == *"- [x] First task"* ]]
-  [[ "$output" == *": done the hard way"* ]]
+  run sed -E 's/ [0-9]{4}-[0-9]{2}-[0-9]{2} session / 2020-01-02 session /' "$TODO"
+  [ "$output" = "- [x] First task
+      Context line one
+  Completed 2020-01-02 session test-session-id: done the hard way" ]
+}
+
+@test "--reason with --marker='>' writes a Claimed line" {
+  write_todo <<'EOF'
+- [ ] First task
+      Context line one
+EOF
+
+  run env CLAUDE_CODE_SESSION_ID=test-session-id \
+    python "$SCRIPTS_DIR/task_mark.py" "$TODO" --marker='>' --reason='picked up by a worker'
+  [ "$status" -eq 0 ]
+
+  run sed -E 's/ [0-9]{4}-[0-9]{2}-[0-9]{2} session / 2020-01-02 session /' "$TODO"
+  [ "$output" = "- [>] First task
+      Context line one
+  Claimed 2020-01-02 session test-session-id: picked up by a worker" ]
+}
+
+@test "--reason with --marker='c' writes a Marked [c] line" {
+  write_todo <<'EOF'
+- [ ] First task
+      Context line one
+EOF
+
+  run env CLAUDE_CODE_SESSION_ID=test-session-id \
+    python "$SCRIPTS_DIR/task_mark.py" "$TODO" --marker='c' --reason='custom state'
+  [ "$status" -eq 0 ]
+
+  run sed -E 's/ [0-9]{4}-[0-9]{2}-[0-9]{2} session / 2020-01-02 session /' "$TODO"
+  [ "$output" = "- [c] First task
+      Context line one
+  Marked [c] 2020-01-02 session test-session-id: custom state" ]
 }
 
 @test "omitting --reason leaves the file byte-identical apart from the checkbox" {

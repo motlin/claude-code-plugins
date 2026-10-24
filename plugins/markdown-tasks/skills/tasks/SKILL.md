@@ -68,6 +68,8 @@ Changes the first `[ ]` to `[x]`, or to any single non-space character passed as
 
 The reason travels with the task through archive and recovery, and `task_get.py` hands it to the next attempt. Quote the concrete failure (the failing command, the assertion, the missing symbol) rather than restating the task.
 
+The line's label follows the marker: `Blocked` for `!`, `Completed` for `x`, `Claimed` for `>`, and `Marked [<marker>]` for any other.
+
 `--reason` is required with `--marker='!'`; without it the script exits 1 and leaves the file untouched.
 
 To mark a task other than the first, name it:

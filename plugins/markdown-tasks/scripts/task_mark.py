@@ -94,7 +94,10 @@ def verify_gitignored(filename):
         )
 
 
-def insert_reason(lines, start, context, reason):
+REASON_LABELS = {"!": "Blocked", "x": "Completed", ">": "Claimed"}
+
+
+def insert_reason(lines, start, context, marker, reason):
     """Insert the reason below the task body, above any trailing blank lines."""
     body_length = len(trim_trailing_blanks(list(context)))
     position = start + 1 + body_length
@@ -102,7 +105,8 @@ def insert_reason(lines, start, context, reason):
     if not lines[position - 1].endswith("\n"):
         lines[position - 1] += "\n"
 
-    lines.insert(position, stamp("Blocked", reason) + "\n")
+    label = REASON_LABELS.get(marker, f"Marked [{marker}]")
+    lines.insert(position, stamp(label, reason) + "\n")
 
 
 def find_task(lines, index, title):
@@ -141,7 +145,7 @@ def mark_task(filename, marker, reason, index, title):
     context = collect_context(lines, position)
 
     if reason:
-        insert_reason(lines, position, context, reason)
+        insert_reason(lines, position, context, marker, reason)
         context = collect_context(lines, position)
 
     with open(filename, "w") as file:
