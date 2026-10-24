@@ -21,7 +21,9 @@ The dry run rewrites nothing. It reports the blocked count per file and the firs
 
 ## Confirm With the User
 
-Show the report and ask whether to recover. The script moves every blocked task in one pass, with no per-task selection. If the user wants only some, say so; the rest can be re-blocked with `task_mark.py --marker='!' --reason='<why>'` afterward.
+Show the report and ask whether to recover. The script moves every blocked task in one pass, with no per-task selection. If the user wants only some, say so, and sort the rest by why they should not run.
+
+A task that is no longer relevant (stale, superseded, forbidden by project rules, or already done) gets marked complete with `task_mark.py --title='<title>'` after recovery. Re-blocking it only defers the decision: it rides along through every archive and surfaces in every future survey. Re-block with `task_mark.py --marker='!' --reason='<why>'` only when the task is still wanted but waits on something outside this session.
 
 ## Recover
 
