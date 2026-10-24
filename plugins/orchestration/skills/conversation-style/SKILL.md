@@ -17,3 +17,4 @@ description: Conversation style guidelines. Use when responding to the user.
     - "definitely", "certainly", "absolutely" (false confidence)
     - "just", "simply", "merely"
     - Test: remove the word. If the sentence means the same thing, delete it.
+- In AskUserQuestion options, name the actor instead of a bare "I" or "you" ("Claude will tag it" / "<user> will tag it"), so it is clear who does what.
