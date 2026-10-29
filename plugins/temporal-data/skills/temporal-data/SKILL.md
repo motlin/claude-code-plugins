@@ -13,16 +13,18 @@ This skill covers system time (transaction time) only. For valid time and bitemp
 - **Contiguous timeline**: a new row's `system_from` equals the old row's `system_to`, forming an unbroken chain of versions per entity.
 - **Far-future sentinel over NULL**: use `9999-12-31 23:59:59` for open-ended records. This allows NOT NULL constraints, composite primary keys, and uniform queries.
 - **Deduplication**: before a phase-out / phase-in, compare incoming data with the current row and leave it untouched if unchanged. Adjacent identical rows produce false changes in history queries and diffs.
+- **Universal**: every table is temporal, with no domain exceptions. Temporality sits outside the domain model, so rollback restores everything (data, settings, account state) to the same instant.
+- **No JSON columns**: model every field as a typed column or child table, including upstream fields the app does not read yet. Unread fields point at unimplemented features.
+- **One timestamp per unit of work**: the application takes the current UTC time once per logical unit of work and stamps every `system_from`/`system_to` it writes with that identical value, even when the ORM splits the unit across several transactions (a self-referential hierarchy, a bulk update). The database does not issue timestamps.
+- **No artificial ordering**: two units may share a timestamp, and timestamps need not increase in commit order; units that take different amounts of time land out of order. Never bump a timestamp (for example `max(now, last + 1)`) to make it unique or monotonic.
 
 ## Schema Design
 
-Every temporal table has `system_from` (when this version became current, defaulting to now) and `system_to` (when it was superseded, defaulting to the far-future sentinel), both NOT NULL.
+Every temporal table has `system_from` (when this version became current, set by the application) and `system_to` (when it was superseded, defaulting to the far-future sentinel), both NOT NULL.
 
-### Primary key on `(id, system_to)`
+### Primary key on `(id, system_to)` or `(id, system_from)`, unique index on the other
 
-This is the Reladomo convention. All current rows share `system_to = FAR_FUTURE_DATE`, so a bug that creates two current rows for one ID fails immediately with a PK violation. With `(id, system_from)`, that bug only surfaces if both rows have the exact same start timestamp, so it goes undetected.
-
-If both constraints are needed, put the PK on one and a unique index on the other. The `(id, system_to)` index serves the most common query, finding the current version.
+Either works, and they are equivalent as long as the other pair has a unique index. The `(id, system_to)` constraint is the one that catches a bug that creates two current rows for one ID: all current rows share `system_to = FAR_FUTURE_DATE`, so the second insert fails immediately. Reladomo puts the PK on `(id, system_to)`. The `(id, system_to)` index also serves the most common query, finding the current version.
 
 ### Example DDL
 
@@ -30,12 +32,12 @@ If both constraints are needed, put the PK on one and a unique index on the othe
 CREATE TABLE nodes (
   id TEXT NOT NULL,
   name TEXT,
-  system_from TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
+  system_from TEXT NOT NULL, -- set by the application, once per unit of work
   system_to TEXT NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (id, system_to)
 );
 
-CREATE INDEX nodes_system_from_idx ON nodes(id, system_from);
+CREATE UNIQUE INDEX nodes_system_from_idx ON nodes(id, system_from);
 ```
 
 ### Adding Temporal Columns to Existing Table
@@ -177,7 +179,7 @@ Each new version copies the unchanged columns. Consider splitting very wide, rar
 
 ## Temporal Rollback (Disaster Recovery)
 
-Apply both operations to every table:
+Apply both operations to every table, including settings and account state, so the whole database returns to the same instant:
 
 ```sql
 -- 1. Purge: Delete rows created after the rollback point
@@ -191,6 +193,10 @@ WHERE system_from <= @target_timestamp
 ```
 
 This is destructive and violates immutability. Use it only for disaster recovery.
+
+## Derived Data
+
+Data rebuilt entirely from temporal tables (full-text search indexes, caches, materialized views) may be non-temporal. Rebuild it after a rollback instead of rolling it back. Framework bookkeeping such as a migrations table is not data and is exempt.
 
 ## Composites
 
@@ -296,6 +302,8 @@ export const nodes = sqliteTable(
 	}),
 );
 ```
+
+Take the timestamp in application code once per unit of work (for example `new Date()` formatted as UTC) and pass it to every insert and update in that unit. Do not keep a clock table or let the database default `system_from`.
 
 ## Testing
 
