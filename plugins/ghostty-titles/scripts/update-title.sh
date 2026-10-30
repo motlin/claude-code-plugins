@@ -25,13 +25,13 @@ tty_device=""
 pid=$$
 while [ "$pid" -gt 1 ]; do
     tty_device=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
-    if [ -n "$tty_device" ] && [ "$tty_device" != "??" ]; then
+    if [ -n "$tty_device" ] && [ "$tty_device" != "??" ] && [ "$tty_device" != "?" ]; then
         break
     fi
     pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
 done
 
-if [ -z "$tty_device" ] || [ "$tty_device" = "??" ]; then
+if [ -z "$tty_device" ] || [ "$tty_device" = "??" ] || [ "$tty_device" = "?" ]; then
     exit 0
 fi
 
