@@ -3,7 +3,8 @@
 	"name": "motlin-claude-code-plugins",
 	"version": "1.40.0",
 	"description": "Collection of Claude Code plugins for task management, workflow automation, and productivity",
-	"owner": {
+	"owner":
+	{
 		"name": "Craig Motlin"
 	},
 	"plugins": [
@@ -11,7 +12,8 @@
 			"name": "markdown-tasks",
 			"description": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/markdown-tasks",
@@ -21,7 +23,8 @@
 			"name": "tmux-titles",
 			"description": "Updates tmux window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/tmux-titles",
@@ -31,7 +34,8 @@
 			"name": "build",
 			"description": "Test and build automation tools that loop until all commits pass",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/build",
@@ -41,7 +45,8 @@
 			"name": "code",
 			"description": "Code quality, CLI, and test-writing guidelines with emoji enhancement",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/code",
@@ -51,7 +56,8 @@
 			"name": "ghostty-titles",
 			"description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/ghostty-titles",
@@ -61,7 +67,8 @@
 			"name": "git",
 			"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/git",
@@ -71,7 +78,8 @@
 			"name": "github",
 			"description": "GitHub Actions troubleshooting and CI/CD automation",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/github",
@@ -81,7 +89,8 @@
 			"name": "java",
 			"description": "Java and Maven tools for OpenRewrite import ordering and POM dependency management",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/java",
@@ -91,7 +100,8 @@
 			"name": "justfile",
 			"description": "Utilities for working with justfiles, including doc comment optimization",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/justfile",
@@ -101,7 +111,8 @@
 			"name": "orchestration",
 			"description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/orchestration",
@@ -111,7 +122,8 @@
 			"name": "worktree-setup",
 			"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/worktree-setup",
@@ -121,7 +133,8 @@
 			"name": "plans-dashboard",
 			"description": "Send session lifecycle events to the claude-code-plans dashboard",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/plans-dashboard",
@@ -131,7 +144,8 @@
 			"name": "git-guards",
 			"description": "Block dangerous git commands before they execute",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/git-guards",
@@ -141,7 +155,8 @@
 			"name": "plugin-and-skill-dev",
 			"description": "Development guidelines for writing stable, maintainable skills, agents, and commands",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/plugin-and-skill-dev",
@@ -151,7 +166,8 @@
 			"name": "temporal-data",
 			"description": "Temporal database patterns for system-time versioned tables",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/temporal-data",
@@ -161,7 +177,8 @@
 			"name": "stop-phrase-guard",
 			"description": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/stop-phrase-guard",
@@ -171,7 +188,8 @@
 			"name": "bash-guards",
 			"description": "Block dangerous bash commands before they execute",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/bash-guards",
@@ -181,7 +199,8 @@
 			"name": "investigation-report",
 			"description": "Explain a command-line investigation as a single self-contained HTML report: the commands run, their real output, and just enough reasoning to teach it",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/investigation-report",
@@ -191,7 +210,8 @@
 			"name": "demo",
 			"description": "Demo working software by showing real data crossing real IO boundaries, with command output captured deterministically instead of written by hand",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/demo",
@@ -201,7 +221,8 @@
 			"name": "herdr-reboot",
 			"description": "Snapshot the running herdr workspaces, tabs, and claude/codex agents before a reboot and rebuild them afterward, resuming each agent's exact session",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/herdr-reboot",
@@ -211,7 +232,8 @@
 			"name": "recap",
 			"description": "Ends every turn with a one-sentence recap of what the user asked for and the URL they are most likely to want next",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/recap",
@@ -221,7 +243,8 @@
 			"name": "herdr-titles",
 			"description": "Reports Claude sessions to Herdr and copies Herdr tab titles into Claude session titles",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/herdr-titles",
@@ -231,7 +254,8 @@
 			"name": "code-walkthrough",
 			"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/code-walkthrough",
@@ -241,7 +265,8 @@
 			"name": "narration",
 			"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/narration",
@@ -251,7 +276,8 @@
 			"name": "upstream-sync",
 			"description": "Investigate a local web app against the upstream product it clones, feature by feature, producing gap files with TDD tasks and a roadmap",
 			"version": "1.40.0",
-			"author": {
+			"author":
+			{
 				"name": "Craig Motlin"
 			},
 			"source": "./plugins/upstream-sync",

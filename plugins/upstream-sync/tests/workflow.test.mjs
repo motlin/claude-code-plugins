@@ -5,7 +5,8 @@ import {test} from "node:test";
 const SCRIPT = readFileSync(new URL("../scripts/upstream-sync-workflow.js", import.meta.url), "utf8");
 const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
 
-const BASE_ARGS = {
+const BASE_ARGS =
+{
 	dir: "/repo/.llm/upstream-sync",
 	upstreamName: "Example upstream",
 	upstreamUrl: "https://example.com/app",
@@ -16,9 +17,16 @@ const BASE_ARGS = {
 	safety: "SAFETY-RULES-MARKER",
 };
 
-const feature = (slug, priority) => ({slug, name: `Feature ${slug}`, priority, notes: `notes ${slug}`});
+const feature = (slug, priority) => (
+{
+	slug,
+	name: `Feature ${slug}`,
+	priority,
+	notes: `notes ${slug}`,
+});
 
-const investigation = (discovered = [], safetyIncidents = []) => ({
+const investigation = (discovered = [], safetyIncidents = []) => (
+{
 	investigated: true,
 	localStatus: "partial",
 	featureFile: "features/x.md",
@@ -31,12 +39,19 @@ const investigation = (discovered = [], safetyIncidents = []) => ({
 
 // Runs the workflow script with stubbed hooks. `responders` maps a label (or
 // label prefix ending in ':' or '-') to a function returning the agent's result.
-async function runWorkflow(args, responders) {
+async function runWorkflow(args, responders)
+{
 	const calls = [];
 	const phases = [];
 	const exportsBox = {};
-	const agent = async (prompt, opts) => {
-		calls.push({label: opts.label, prompt});
+	const agent = async (prompt, opts) =>
+	{
+		calls.push(
+			{
+				label: opts.label,
+				prompt,
+			},
+		);
 		const key = Object.keys(responders).find((k) =>
 			/[:-]$/.test(k) ? opts.label.startsWith(k) : opts.label === k,
 		);
@@ -54,51 +69,79 @@ async function runWorkflow(args, responders) {
 		args,
 		exportsBox,
 	);
-	return {result, calls, phases, meta: exportsBox.meta};
+	return {
+		result,
+		calls,
+		phases,
+		meta: exportsBox.meta,
+	};
 }
 
 const investigated = (calls) =>
 	calls.filter((c) => c.label.startsWith("investigate:")).map((c) => c.label.slice("investigate:".length));
 
-test("investigates by priority, recursing into discoveries, dedups slugs, then runs critic rounds until dry", async () => {
-	const {result, calls, phases, meta} = await runWorkflow(BASE_ARGS, {
-		"local-inventory": () => "inventory digest",
-		"upstream-survey": () => ({
-			features: [feature("beta", "P2"), feature("alpha", "P1"), feature("ALPHA", "P1")],
-			safetyIncidents: [],
-		}),
-		"investigate:": (label) =>
-			label === "investigate:alpha"
-				? investigation([feature("delta", "P1"), feature("beta", "P1")])
-				: investigation(),
-		"critic-": (_label, n) => ({missing: n === 1 ? [feature("gamma", "P3")] : []}),
-		summary: () => "summary digest",
-	});
+test("investigates by priority, recursing into discoveries, dedups slugs, then runs critic rounds until dry", async () =>
+{
+	const {result, calls, phases, meta} = await runWorkflow(
+		BASE_ARGS,
+		{
+			"local-inventory": () => "inventory digest",
+			"upstream-survey": () => (
+			{
+				features: [feature("beta", "P2"), feature("alpha", "P1"), feature("ALPHA", "P1")],
+				safetyIncidents: [],
+			}),
+			"investigate:": (label) =>
+				label === "investigate:alpha"
+					? investigation([feature("delta", "P1"), feature("beta", "P1")])
+					: investigation(),
+			"critic-": (_label, n) => (
+			{
+				missing: n === 1 ? [feature("gamma", "P3")] : [],
+			}),
+			summary: () => "summary digest",
+		},
+	);
 
 	assert.deepEqual(investigated(calls), ["alpha", "delta", "beta", "gamma"]);
-	assert.deepEqual(result, {
-		stopped: null,
-		incidents: [],
-		investigations: 4,
-		criticRounds: 2,
-		investigated: ["alpha", "delta", "beta", "gamma"],
-		notInvestigated: [],
-		failed: [],
-		byStatus: {partial: 4},
-		inventoryDigest: "inventory digest",
-		summaryDigest: "summary digest",
-	});
+	assert.deepEqual(
+		result,
+		{
+			stopped: null,
+			incidents: [],
+			investigations: 4,
+			criticRounds: 2,
+			investigated: ["alpha", "delta", "beta", "gamma"],
+			notInvestigated: [],
+			failed: [],
+			byStatus:
+			{
+				partial: 4,
+			},
+			inventoryDigest: "inventory digest",
+			summaryDigest: "summary digest",
+		},
+	);
 	assert.deepEqual(
 		[...new Set(phases)].filter((p) => !meta.phases.some((m) => m.title === p)),
 		[],
 	);
 });
 
-test("a survey safety incident halts before any investigation unless acknowledged", async () => {
-	const responders = {
-		"upstream-survey": () => ({features: [feature("alpha", "P1")], safetyIncidents: ["changed a real node"]}),
+test("a survey safety incident halts before any investigation unless acknowledged", async () =>
+{
+	const responders =
+	{
+		"upstream-survey": () => (
+		{
+			features: [feature("alpha", "P1")],
+			safetyIncidents: ["changed a real node"],
+		}),
 		"investigate:": () => investigation(),
-		"critic-": () => ({missing: []}),
+		"critic-": () => (
+		{
+			missing: [],
+		}),
 	};
 
 	const halted = await runWorkflow(BASE_ARGS, responders);
@@ -106,18 +149,32 @@ test("a survey safety incident halts before any investigation unless acknowledge
 	assert.deepEqual(halted.result.stopped, "safety: survey");
 	assert.deepEqual(halted.result.notInvestigated, ["alpha"]);
 
-	const acknowledged = await runWorkflow({...BASE_ARGS, acknowledgeSurveyIncidents: true}, responders);
+	const acknowledged = await runWorkflow(
+		{
+			...BASE_ARGS,
+			acknowledgeSurveyIncidents: true,
+		},
+		responders,
+	);
 	assert.deepEqual(investigated(acknowledged.calls), ["alpha"]);
 	assert.deepEqual(acknowledged.result.stopped, null);
 	assert.deepEqual(acknowledged.result.incidents, ["survey: changed a real node"]);
 });
 
-test("an investigator safety incident stops the queue but still writes the summary", async () => {
-	const {result, calls} = await runWorkflow(BASE_ARGS, {
-		"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P1")], safetyIncidents: []}),
-		"investigate:": (label) =>
-			label === "investigate:alpha" ? investigation([], ["edited outside sandbox"]) : investigation(),
-	});
+test("an investigator safety incident stops the queue but still writes the summary", async () =>
+{
+	const {result, calls} = await runWorkflow(
+		BASE_ARGS,
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1"), feature("beta", "P1")],
+				safetyIncidents: [],
+			}),
+			"investigate:": (label) =>
+				label === "investigate:alpha" ? investigation([], ["edited outside sandbox"]) : investigation(),
+		},
+	);
 
 	assert.deepEqual(investigated(calls), ["alpha"]);
 	assert.deepEqual(result.stopped, "safety: alpha");
@@ -126,33 +183,64 @@ test("an investigator safety incident stops the queue but still writes the summa
 	assert.deepEqual(calls.at(-1).label, "summary");
 });
 
-test("an acknowledged investigator incident is recorded but the queue continues, so a resumed run gets past it", async () => {
+test("an acknowledged investigator incident is recorded but the queue continues, so a resumed run gets past it", async () =>
+{
 	const {result, calls} = await runWorkflow(
-		{...BASE_ARGS, acknowledgedIncidents: ["alpha"]},
 		{
-			"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P1")], safetyIncidents: []}),
+			...BASE_ARGS,
+			acknowledgedIncidents: ["alpha"],
+		},
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1"), feature("beta", "P1")],
+				safetyIncidents: [],
+			}),
 			"investigate:": (label) =>
 				label === "investigate:alpha" ? investigation([], ["edited outside sandbox"]) : investigation(),
-			"critic-": () => ({missing: []}),
+			"critic-": () => (
+			{
+				missing: [],
+			}),
 		},
 	);
 
 	assert.deepEqual(
-		{investigated: investigated(calls), stopped: result.stopped, incidents: result.incidents},
-		{investigated: ["alpha", "beta"], stopped: null, incidents: ["alpha: edited outside sandbox"]},
+		{
+			investigated: investigated(calls),
+			stopped: result.stopped,
+			incidents: result.incidents,
+		},
+		{
+			investigated: ["alpha", "beta"],
+			stopped: null,
+			incidents: ["alpha: edited outside sandbox"],
+		},
 	);
 });
 
-test("a failed investigator (null result, e.g. a network drop) is retried once, then reported as failed", async () => {
-	const {result, calls} = await runWorkflow(BASE_ARGS, {
-		"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P1")], safetyIncidents: []}),
-		"investigate:": (label, n) => {
-			if (label === "investigate:alpha" && n === 1) return null;
-			if (label.startsWith("investigate:beta")) return null;
-			return investigation();
+test("a failed investigator (null result, e.g. a network drop) is retried once, then reported as failed", async () =>
+{
+	const {result, calls} = await runWorkflow(
+		BASE_ARGS,
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1"), feature("beta", "P1")],
+				safetyIncidents: [],
+			}),
+			"investigate:": (label, n) =>
+			{
+				if (label === "investigate:alpha" && n === 1) return null;
+				if (label.startsWith("investigate:beta")) return null;
+				return investigation();
+			},
+			"critic-": () => (
+			{
+				missing: [],
+			}),
 		},
-		"critic-": () => ({missing: []}),
-	});
+	);
 
 	const alphaPrompts = calls.filter((c) => c.label === "investigate:alpha").map((c) => c.prompt);
 
@@ -163,26 +251,57 @@ test("a failed investigator (null result, e.g. a network drop) is retried once, 
 			failed: result.failed,
 			retryPromptsDiffer: alphaPrompts[0] !== alphaPrompts[1],
 		},
-		{investigated: ["alpha", "beta"], failed: ["beta"], retryPromptsDiffer: true},
+		{
+			investigated: ["alpha", "beta"],
+			failed: ["beta"],
+			retryPromptsDiffer: true,
+		},
 	);
 });
 
-test("an investigator that declines (investigated: false) counts as a failure: retried once, then failed, never done", async () => {
-	const {result, calls} = await runWorkflow(BASE_ARGS, {
-		"upstream-survey": () => ({features: [feature("alpha", "P1")], safetyIncidents: []}),
-		"investigate:": () => ({...investigation(), investigated: false}),
-		"critic-": () => ({missing: []}),
-	});
+test("an investigator that declines (investigated: false) counts as a failure: retried once, then failed, never done", async () =>
+{
+	const {result, calls} = await runWorkflow(
+		BASE_ARGS,
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1")],
+				safetyIncidents: [],
+			}),
+			"investigate:": () => (
+			{
+				...investigation(),
+				investigated: false,
+			}),
+			"critic-": () => (
+			{
+				missing: [],
+			}),
+		},
+	);
 
 	assert.deepEqual(
-		{attempts: investigated(calls), failed: result.failed, byStatus: result.byStatus},
-		{attempts: ["alpha", "alpha"], failed: ["alpha"], byStatus: {}},
+		{
+			attempts: investigated(calls),
+			failed: result.failed,
+			byStatus: result.byStatus,
+		},
+		{
+			attempts: ["alpha", "alpha"],
+			failed: ["alpha"],
+			byStatus: {},
+		},
 	);
 });
 
-test("only mode re-investigates the given features, recursing into discoveries, and merges rows instead of rewriting the registry", async () => {
+test("only mode re-investigates the given features, recursing into discoveries, and merges rows instead of rewriting the registry", async () =>
+{
 	const {result, calls} = await runWorkflow(
-		{...BASE_ARGS, only: [feature("alpha", "P1"), feature("beta", "P2")]},
+		{
+			...BASE_ARGS,
+			only: [feature("alpha", "P1"), feature("beta", "P2")],
+		},
 		{
 			"investigate:": (label) =>
 				label === "investigate:alpha" ? investigation([feature("gamma", "P3")]) : investigation(),
@@ -200,20 +319,35 @@ test("only mode re-investigates the given features, recursing into discoveries, 
 			criticRounds: result.criticRounds,
 			mergeNamesAll: ["alpha", "beta", "gamma"].every((s) => merge.prompt.includes(`| ${s} |`)),
 		},
-		{investigated: ["alpha", "beta", "gamma"], criticRounds: 0, mergeNamesAll: true},
+		{
+			investigated: ["alpha", "beta", "gamma"],
+			criticRounds: 0,
+			mergeNamesAll: true,
+		},
 	);
 });
 
-test("seed mode skips the broad phase, re-verifies existing feature files, recurses, and keeps critic rounds", async () => {
+test("seed mode skips the broad phase, re-verifies existing feature files, recurses, and keeps critic rounds", async () =>
+{
 	const {result, calls} = await runWorkflow(
 		{
 			...BASE_ARGS,
-			seed: [{...feature("alpha", "P1"), existing: true}, feature("beta", "P2"), feature("ALPHA", "P1")],
+			seed: [
+				{
+					...feature("alpha", "P1"),
+					existing: true,
+				},
+				feature("beta", "P2"),
+				feature("ALPHA", "P1"),
+			],
 		},
 		{
 			"investigate:": (label) =>
 				label === "investigate:alpha" ? investigation([feature("gamma", "P3")]) : investigation(),
-			"critic-": () => ({missing: []}),
+			"critic-": () => (
+			{
+				missing: [],
+			}),
 			summary: () => "summary digest",
 		},
 	);
@@ -240,15 +374,28 @@ test("seed mode skips the broad phase, re-verifies existing feature files, recur
 			alphaReverifies: prompt("investigate:alpha").includes(`${reverify}alpha.md`),
 			betaReverifies: prompt("investigate:beta").includes(reverify),
 		},
-		{investigated: ["alpha", "beta", "gamma"], criticRounds: 1, alphaReverifies: true, betaReverifies: false},
+		{
+			investigated: ["alpha", "beta", "gamma"],
+			criticRounds: 1,
+			alphaReverifies: true,
+			betaReverifies: false,
+		},
 	);
 });
 
-test("the investigation cap leaves the rest reported as not investigated", async () => {
+test("the investigation cap leaves the rest reported as not investigated", async () =>
+{
 	const {result} = await runWorkflow(
-		{...BASE_ARGS, maxInvestigations: 1},
 		{
-			"upstream-survey": () => ({features: [feature("alpha", "P1"), feature("beta", "P2")], safetyIncidents: []}),
+			...BASE_ARGS,
+			maxInvestigations: 1,
+		},
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1"), feature("beta", "P2")],
+				safetyIncidents: [],
+			}),
 			"investigate:": () => investigation(),
 		},
 	);
@@ -257,13 +404,24 @@ test("the investigation cap leaves the rest reported as not investigated", async
 	assert.deepEqual(result.notInvestigated, ["beta"]);
 });
 
-test("safety rules reach every browser prompt; approved exceptions reach only investigators so the survey stays cached", async () => {
+test("safety rules reach every browser prompt; approved exceptions reach only investigators so the survey stays cached", async () =>
+{
 	const {calls} = await runWorkflow(
-		{...BASE_ARGS, approvedExceptions: "EXCEPTION-MARKER"},
 		{
-			"upstream-survey": () => ({features: [feature("alpha", "P1")], safetyIncidents: []}),
+			...BASE_ARGS,
+			approvedExceptions: "EXCEPTION-MARKER",
+		},
+		{
+			"upstream-survey": () => (
+			{
+				features: [feature("alpha", "P1")],
+				safetyIncidents: [],
+			}),
 			"investigate:": () => investigation(),
-			"critic-": () => ({missing: []}),
+			"critic-": () => (
+			{
+				missing: [],
+			}),
 		},
 	);
 	const prompt = (label) => calls.find((c) => c.label === label).prompt;
@@ -275,6 +433,11 @@ test("safety rules reach every browser prompt; approved exceptions reach only in
 			investigatorSafety: prompt("investigate:alpha").includes("SAFETY-RULES-MARKER"),
 			investigatorException: prompt("investigate:alpha").includes("EXCEPTION-MARKER"),
 		},
-		{surveySafety: true, surveyException: false, investigatorSafety: true, investigatorException: true},
+		{
+			surveySafety: true,
+			surveyException: false,
+			investigatorSafety: true,
+			investigatorException: true,
+		},
 	);
 });

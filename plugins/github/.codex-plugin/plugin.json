@@ -2,14 +2,16 @@
 	"name": "github",
 	"version": "1.40.0",
 	"description": "GitHub Actions troubleshooting and CI/CD automation",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/github",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "github"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Github",
 		"shortDescription": "GitHub Actions troubleshooting and CI/CD automation",
 		"longDescription": "GitHub Actions troubleshooting and CI/CD automation",

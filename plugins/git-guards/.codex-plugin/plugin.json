@@ -2,14 +2,16 @@
 	"name": "git-guards",
 	"version": "1.40.0",
 	"description": "Block dangerous git commands before they execute",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/git-guards",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "git", "guards"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Git Guards",
 		"shortDescription": "Block dangerous git commands before they execute",
 		"longDescription": "Block dangerous git commands before they execute",

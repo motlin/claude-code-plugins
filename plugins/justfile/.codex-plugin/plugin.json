@@ -2,14 +2,16 @@
 	"name": "justfile",
 	"version": "1.40.0",
 	"description": "Utilities for working with justfiles, including doc comment optimization",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/justfile",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "justfile"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Justfile",
 		"shortDescription": "Utilities for working with justfiles, including doc comment optimization",
 		"longDescription": "Utilities for working with justfiles, including doc comment optimization",

@@ -4,7 +4,8 @@
 	"description": "Narrate text, articles, and books as audio with Gemini text-to-speech, with voice samples, style directions, and chaptered audiobooks",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/narration"]

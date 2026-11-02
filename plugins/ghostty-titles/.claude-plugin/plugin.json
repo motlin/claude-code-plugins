@@ -4,7 +4,8 @@
 	"description": "Updates Ghostty window title with Claude Code status indicators showing current activity (working, editing files, running commands, etc.)",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"hooks": "./hooks/claude-hooks.json"

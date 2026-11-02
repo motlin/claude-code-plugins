@@ -4,7 +4,8 @@
 	"description": "Snapshot the running herdr workspaces, tabs, and claude/codex agents before a reboot and rebuild them afterward, resuming each agent's exact session. Also moves workspaces and tabs between herdr sessions.",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	}
 }

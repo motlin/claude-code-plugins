@@ -4,7 +4,8 @@
 	"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/git-workflow"]

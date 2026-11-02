@@ -1,5 +1,6 @@
 {
-	"permissions": {
+	"permissions":
+	{
 		"deny": [
 			"Bash(git add --all:*)",
 			"Bash(git add -A:*)",

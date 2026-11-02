@@ -1,10 +1,15 @@
+[settings]
+# Skip releases younger than 24 hours when mise chooses a version (`mise upgrade`, `latest`, ranges),
+# enforcing the 24-hour version policy. An exact version pinned here still installs.
+minimum_release_age = "1d"
+
 [tools]
 python = "3.12.11"
 just = "1.58.0"
 pre-commit = "4.6.2"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
-"npm:oxfmt" = "0.56.0"
+"npm:oxfmt-next-line" = { version = "0.75.0", allow_low_downloads = true }
 bats = "1.13.0"
 ripgrep = "15.2.0"
 "npm:markdownlint-cli2" = "0.23.3"

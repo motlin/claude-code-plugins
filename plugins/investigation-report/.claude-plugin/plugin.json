@@ -4,7 +4,8 @@
 	"description": "Explain a command-line investigation as a single self-contained HTML report: the commands run, their real output, and just enough reasoning to teach it",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/investigation-report"]

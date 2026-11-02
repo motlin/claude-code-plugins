@@ -8,7 +8,8 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 let active = null;
 let navigating = false;
 let navigationTimer;
-function threshold() {
+function threshold()
+{
 	const header = document.querySelector(".topbar").getBoundingClientRect().height;
 	document.documentElement.style.setProperty("--header", `${header}px`);
 	const panel = document.querySelector(".code-panel");
@@ -19,7 +20,8 @@ function threshold() {
 	document.documentElement.style.setProperty("--reading-line", `${line}px`);
 	return line;
 }
-function focusCode(step) {
+function focusCode(step)
+{
 	const panel = step.closest(".section").querySelector(".code-panel");
 	const first = Number(step.dataset.first),
 		last = Number(step.dataset.last);
@@ -36,8 +38,10 @@ function focusCode(step) {
 		start.offsetTop - Math.max(8, (pre.clientHeight - (end.offsetTop + end.offsetHeight - start.offsetTop)) / 2),
 	);
 }
-function activate(step) {
-	if (active !== step) {
+function activate(step)
+{
+	if (active !== step)
+	{
 		active?.classList.remove("is-active");
 		active = step;
 		active.classList.add("is-active");
@@ -48,66 +52,83 @@ function activate(step) {
 	next.disabled = index === steps.length - 1;
 	focusCode(step);
 }
-function update() {
+function update()
+{
 	const height = document.documentElement.scrollHeight - innerHeight;
 	document.querySelector(".progress").style.transform = `scaleX(${height > 0 ? scrollY / height : 0})`;
 	if (navigating) return;
 	const limit = threshold();
 	let candidate = steps[0];
-	for (const step of steps) {
+	for (const step of steps)
+	{
 		if (step.getBoundingClientRect().top <= limit) candidate = step;
 		else break;
 	}
 	if (candidate !== active) activate(candidate);
 }
-function goTo(step, push = true, behavior = "smooth") {
+function goTo(step, push = true, behavior = "smooth")
+{
 	navigating = true;
 	clearTimeout(navigationTimer);
 	activate(step);
 	if (push) history.pushState(null, "", `#${step.id}`);
-	window.scrollTo({
-		top: scrollY + step.getBoundingClientRect().top - threshold() + 2,
-		behavior: reduced.matches ? "instant" : behavior,
-	});
-	navigationTimer = setTimeout(() => {
+	window.scrollTo(
+		{
+			top: scrollY + step.getBoundingClientRect().top - threshold() + 2,
+			behavior: reduced.matches ? "instant" : behavior,
+		},
+	);
+	navigationTimer = setTimeout(() =>
+	{
 		navigating = false;
 	}, 600);
 }
 let scheduled = false;
 window.addEventListener(
 	"scroll",
-	() => {
-		if (!scheduled) {
+	() =>
+	{
+		if (!scheduled)
+		{
 			scheduled = true;
-			requestAnimationFrame(() => {
+			requestAnimationFrame(() =>
+			{
 				scheduled = false;
 				update();
 			});
 		}
 	},
-	{passive: true},
+	{
+		passive: true,
+	},
 );
-window.addEventListener("resize", () => {
+window.addEventListener("resize", () =>
+{
 	threshold();
 	if (active) goTo(active, false, "instant");
 });
 for (const event of ["wheel", "touchstart"])
 	window.addEventListener(
 		event,
-		() => {
+		() =>
+		{
 			navigating = false;
 			clearTimeout(navigationTimer);
 		},
-		{passive: true},
+		{
+			passive: true,
+		},
 	);
 select.addEventListener("change", () => goTo(document.getElementById(select.value).querySelector(".step")));
 previous.addEventListener("click", () => goTo(steps[Math.max(0, steps.indexOf(active) - 1)]));
 next.addEventListener("click", () => goTo(steps[Math.min(steps.length - 1, steps.indexOf(active) + 1)]));
-for (const section of document.querySelectorAll(".section")) {
+for (const section of document.querySelectorAll(".section"))
+{
 	focusCode(section.querySelector(".step"));
 	const panel = section.querySelector(".code-panel"),
 		button = panel.querySelector(".follow");
-	button.addEventListener("click", () => {
+	button.addEventListener("click", () =>
+	{
 		const enabled = panel.dataset.follow === "off";
 		panel.dataset.follow = enabled ? "on" : "off";
 		button.setAttribute("aria-pressed", String(enabled));
@@ -115,14 +136,17 @@ for (const section of document.querySelectorAll(".section")) {
 		if (enabled) focusCode(section.querySelector(".is-active") || section.querySelector(".step"));
 	});
 }
-document.addEventListener("click", (event) => {
+document.addEventListener("click", (event) =>
+{
 	const link = event.target.closest(".location a");
-	if (link) {
+	if (link)
+	{
 		event.preventDefault();
 		goTo(document.getElementById(link.hash.slice(1)));
 	}
 });
-function fromHash() {
+function fromHash()
+{
 	const target = document.getElementById(location.hash.slice(1));
 	if (target?.classList.contains("step")) goTo(target, false, "instant");
 	else update();
@@ -132,7 +156,8 @@ threshold();
 activate(steps[0]);
 fromHash();
 
-document.querySelectorAll(".lab canvas").forEach((canvas) => {
+document.querySelectorAll(".lab canvas").forEach((canvas) =>
+{
 	const wrapper = document.createElement("div");
 	wrapper.className = "diagram-scroll";
 	wrapper.tabIndex = 0;

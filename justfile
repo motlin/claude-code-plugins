@@ -27,7 +27,7 @@ lint: install
 format: install
     pre-commit run just-fmt --all-files
     shfmt -d -i 4 -ci {{ formatted_shell_scripts }}
-    oxfmt --check
+    oxfmt-next-line --check
 
 # Run configured pre-commit hooks on every tracked file
 pre-commit: install

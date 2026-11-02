@@ -4,7 +4,8 @@
 	"description": "Test and build automation tools that loop until all commits pass",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/precommit"]

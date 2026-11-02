@@ -2,14 +2,16 @@
 	"name": "bash-guards",
 	"version": "1.40.0",
 	"description": "Block dangerous bash commands before they execute",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/bash-guards",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "bash", "guards"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Bash Guards",
 		"shortDescription": "Block dangerous bash commands before they execute",
 		"longDescription": "Block dangerous bash commands before they execute",

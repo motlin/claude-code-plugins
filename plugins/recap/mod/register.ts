@@ -19,11 +19,27 @@ const RECAP_SYSTEM =
 
 // Most specific first: the first pattern with a match anywhere in the
 // conversation wins, newest match within it.
-const LINKS: readonly {pattern: RegExp; label: (match: RegExpMatchArray) => string}[] = [
-	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/(\d+)/g, label: (m) => `PR #${m[1]}`},
-	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+/g, label: () => "CI run"},
-	{pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/(\d+)/g, label: (m) => `Issue #${m[1]}`},
-	{pattern: /http:\/\/(?:localhost|127\.0\.0\.1):\d+\/?[^\s)\]>'"`]*/g, label: () => "Dev server"},
+const LINKS: readonly
+{
+	pattern: RegExp;
+	label: (match: RegExpMatchArray) => string;
+}[] = [
+	{
+		pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/(\d+)/g,
+		label: (m) => `PR #${m[1]}`,
+	},
+	{
+		pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/actions\/runs\/\d+/g,
+		label: () => "CI run",
+	},
+	{
+		pattern: /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/(\d+)/g,
+		label: (m) => `Issue #${m[1]}`,
+	},
+	{
+		pattern: /http:\/\/(?:localhost|127\.0\.0\.1):\d+\/?[^\s)\]>'"`]*/g,
+		label: () => "Dev server",
+	},
 ];
 
 // Slices by code point so a truncated emoji never leaves a lone surrogate,
@@ -54,10 +70,13 @@ const typedPrompts = (messages: readonly SessionMessage[]) =>
 		)
 		.filter((text) => text !== "");
 
-const findLink = (messages: readonly SessionMessage[]) => {
+const findLink = (messages: readonly SessionMessage[]) =>
+{
 	const texts = messages.map((m) => m.text).reverse();
-	for (const {pattern, label} of LINKS) {
-		for (const text of texts) {
+	for (const {pattern, label} of LINKS)
+	{
+		for (const text of texts)
+		{
 			const match = [...text.matchAll(pattern)].at(-1);
 			if (match) return `[${label(match)}](${match[0]})`;
 		}
@@ -65,8 +84,10 @@ const findLink = (messages: readonly SessionMessage[]) => {
 	return "None";
 };
 
-export const register: Register = (on) => {
-	on("turn.complete", async ($, e, next) => {
+export const register: Register = (on) =>
+{
+	on("turn.complete", async ($, e, next) =>
+	{
 		const result = await next(e);
 		if (e.agentId !== undefined || e.reason !== "answer" || hasFooter(e.answer)) return result;
 
@@ -74,19 +95,24 @@ export const register: Register = (on) => {
 		const prompts = typedPrompts(messages);
 		if (prompts.length === 0) return result;
 
-		const reply = await $.model.complete({
-			model: RECAP_MODEL,
-			system: RECAP_SYSTEM,
-			prompt: prompts
-				.slice(-5)
-				.map((p, i) => `Prompt ${i + 1}: ${truncate(p, 2000)}`)
-				.join("\n\n"),
-			maxTokens: 120,
-			timeoutMs: 10_000,
-		});
+		const reply = await $.model.complete(
+			{
+				model: RECAP_MODEL,
+				system: RECAP_SYSTEM,
+				prompt: prompts
+					.slice(-5)
+					.map((p, i) => `Prompt ${i + 1}: ${truncate(p, 2000)}`)
+					.join("\n\n"),
+				maxTokens: 120,
+				timeoutMs: 10_000,
+			},
+		);
 		const fallback = truncate(prompts.at(-1)!, 160);
 		const recap = (reply.isAnswered && firstLine(reply.text)) || fallback;
 
-		return {...result, text: `📌 You asked: ${recap}\n🔗 ${findLink(messages)}`};
+		return {
+			...result,
+			text: `📌 You asked: ${recap}\n🔗 ${findLink(messages)}`,
+		};
 	});
 };

@@ -2,14 +2,16 @@
 	"name": "code-walkthrough",
 	"version": "1.40.0",
 	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/code-walkthrough",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "code", "walkthrough"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Code Walkthrough",
 		"shortDescription": "Explore code with scroll-linked explanations and source",
 		"longDescription": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",

@@ -1,16 +1,19 @@
 {
 	"name": "motlin-claude-code-plugins",
-	"interface": {
+	"interface":
+	{
 		"displayName": "Motlin Claude Code Plugins"
 	},
 	"plugins": [
 		{
 			"name": "markdown-tasks",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/markdown-tasks"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -18,11 +21,13 @@
 		},
 		{
 			"name": "tmux-titles",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/tmux-titles"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -30,11 +35,13 @@
 		},
 		{
 			"name": "build",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/build"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -42,11 +49,13 @@
 		},
 		{
 			"name": "code",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/code"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -54,11 +63,13 @@
 		},
 		{
 			"name": "demo",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/demo"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -66,11 +77,13 @@
 		},
 		{
 			"name": "ghostty-titles",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/ghostty-titles"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -78,11 +91,13 @@
 		},
 		{
 			"name": "git",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/git"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -90,11 +105,13 @@
 		},
 		{
 			"name": "github",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/github"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -102,11 +119,13 @@
 		},
 		{
 			"name": "java",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/java"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -114,11 +133,13 @@
 		},
 		{
 			"name": "justfile",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/justfile"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -126,11 +147,13 @@
 		},
 		{
 			"name": "orchestration",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/orchestration"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -138,11 +161,13 @@
 		},
 		{
 			"name": "worktree-setup",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/worktree-setup"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "NOT_AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -150,11 +175,13 @@
 		},
 		{
 			"name": "plans-dashboard",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/plans-dashboard"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -162,11 +189,13 @@
 		},
 		{
 			"name": "git-guards",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/git-guards"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -174,11 +203,13 @@
 		},
 		{
 			"name": "plugin-and-skill-dev",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/plugin-and-skill-dev"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -186,11 +217,13 @@
 		},
 		{
 			"name": "temporal-data",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/temporal-data"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -198,11 +231,13 @@
 		},
 		{
 			"name": "stop-phrase-guard",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/stop-phrase-guard"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -210,11 +245,13 @@
 		},
 		{
 			"name": "bash-guards",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/bash-guards"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -222,11 +259,13 @@
 		},
 		{
 			"name": "investigation-report",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/investigation-report"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -234,11 +273,13 @@
 		},
 		{
 			"name": "herdr-reboot",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/herdr-reboot"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -246,11 +287,13 @@
 		},
 		{
 			"name": "recap",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/recap"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -258,11 +301,13 @@
 		},
 		{
 			"name": "herdr-titles",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/herdr-titles"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "NOT_AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -270,11 +315,13 @@
 		},
 		{
 			"name": "code-walkthrough",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/code-walkthrough"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -282,11 +329,13 @@
 		},
 		{
 			"name": "narration",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/narration"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},
@@ -294,11 +343,13 @@
 		},
 		{
 			"name": "upstream-sync",
-			"source": {
+			"source":
+			{
 				"source": "local",
 				"path": "./plugins/upstream-sync"
 			},
-			"policy": {
+			"policy":
+			{
 				"installation": "AVAILABLE",
 				"authentication": "ON_INSTALL"
 			},

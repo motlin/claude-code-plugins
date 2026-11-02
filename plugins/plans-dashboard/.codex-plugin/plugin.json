@@ -2,14 +2,16 @@
 	"name": "plans-dashboard",
 	"version": "1.40.0",
 	"description": "Send session lifecycle events to the claude-code-plans dashboard",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/plans-dashboard",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "claude", "code", "plans"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Plans Dashboard",
 		"shortDescription": "Send session lifecycle events to the claude-code-plans dashboard",
 		"longDescription": "Send session lifecycle events to the claude-code-plans dashboard",

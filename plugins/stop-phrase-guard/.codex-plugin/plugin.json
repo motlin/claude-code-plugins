@@ -2,14 +2,16 @@
 	"name": "stop-phrase-guard",
 	"version": "1.40.0",
 	"description": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/stop-phrase-guard",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "stop", "phrase", "guard"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Stop Phrase Guard",
 		"shortDescription": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",
 		"longDescription": "Stop hook that catches ownership-dodging and session-quitting phrases and forces the assistant to keep working",

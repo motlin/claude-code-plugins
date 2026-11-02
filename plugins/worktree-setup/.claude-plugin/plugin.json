@@ -4,7 +4,8 @@
 	"description": "Automatically copies gitignored files and configures direnv/mise when agent worktree isolation creates a worktree",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	}
 }

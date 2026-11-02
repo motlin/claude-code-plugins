@@ -1,5 +1,6 @@
 {
-	"permissions": {
+	"permissions":
+	{
 		"allow": [
 			"Bash(mvn:*)",
 			"Bash(mvnd:*)",

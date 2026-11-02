@@ -4,7 +4,8 @@
 	"description": "Temporal database patterns for system-time versioned tables",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/temporal-data", "./skills/temporal-caching"]

@@ -4,7 +4,8 @@
 	"description": "Task management system using markdown checkboxes in .llm/todo.md with skills for planning, implementing, and tracking tasks across git worktrees",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/tasks"]

@@ -4,7 +4,8 @@
 	"description": "Core orchestration guidelines for conversation style, code style, testing, tool conventions, and workflow automation",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": [

@@ -2,14 +2,16 @@
 	"name": "demo",
 	"version": "1.40.0",
 	"description": "Demo working software by showing real data crossing real IO boundaries, captured with Showboat and friends rather than written by hand, then delivered where the user actually is",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/demo",
 	"repository": "https://github.com/motlin/claude-code-plugins",
 	"keywords": ["codex", "plugin", "demo", "evidence"],
-	"interface": {
+	"interface":
+	{
 		"displayName": "Demo",
 		"shortDescription": "Demo real IO, captured with Showboat, delivered where you are",
 		"longDescription": "Demo working software by showing real data crossing real IO boundaries, captured with Showboat and friends rather than written by hand, then delivered where the user actually is",

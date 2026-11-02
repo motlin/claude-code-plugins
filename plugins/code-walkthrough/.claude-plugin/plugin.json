@@ -4,7 +4,8 @@
 	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	},
 	"skills": ["./skills/code-walkthrough"]

@@ -4,7 +4,8 @@
 	"description": "Block dangerous git commands before they execute",
 	"version": "1.40.0",
 	"license": "Apache-2.0",
-	"author": {
+	"author":
+	{
 		"name": "Craig Motlin"
 	}
 }
