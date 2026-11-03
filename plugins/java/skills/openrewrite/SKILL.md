@@ -186,7 +186,7 @@ JavaTemplate template = JavaTemplate.builder("#{any()}.toArray(new #{}[0])")
         .build();
 ```
 
-A template that introduces library types also needs `.contextSensitive()` and a parser classpath:
+A template that introduces library types also needs a parser classpath:
 
 ```java
 JavaTemplate template = JavaTemplate
@@ -195,12 +195,15 @@ JavaTemplate template = JavaTemplate
         "org.assertj.core.api.Assertions",
         "org.eclipse.collections.impl.utility.Iterate"
     )
-    .contextSensitive()
     .javaParser(JavaParser.fromJavaVersion()
         .classpath("assertj-core", "eclipse-collections", "eclipse-collections-api")
     )
     .build();
 ```
+
+### Add `.contextSensitive()` only when the snippet needs its surroundings
+
+Use it when the template refers to local variables, fields, or methods of the enclosing class. A self-contained snippet such as `@BeforeAll static void setUp() {}` should stay context-free: context-free templates are faster and can be cached.
 
 ### Call `maybeAddImport()` after applying a template
 
@@ -220,6 +223,67 @@ Use `JavaIsoVisitor` when returning the same LST element type you visit. Use `Ja
 ### Handle parenthesized expressions
 
 When an expression might be parenthesized, visit `J.Parentheses` nodes too. To replace the inner expression while keeping the parentheses and prefix, use `visitedParentheses.withTree(result)`.
+
+### Use `reduce` for searches inside a tree
+
+To ask "does this subtree contain X", pass the accumulator as the visitor's parameter and call `reduce`, rather than capturing a holder and calling `visitNonNull` followed by `.get()`:
+
+```java
+// BAD
+AtomicBoolean found = new AtomicBoolean();
+new JavaIsoVisitor<Integer>() { /* sets found */ }.visitNonNull(tree, 0, new Cursor(getCursor(), tree));
+return found.get();
+
+// GOOD
+return new JavaIsoVisitor<AtomicBoolean>() {
+    @Override
+    public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, AtomicBoolean found) {
+        if (MATCHER.matches(method)) {
+            found.set(true);
+        }
+        return super.visitMethodInvocation(method, found);
+    }
+}.reduce(tree, new AtomicBoolean()).get();
+```
+
+Pass a cursor (`reduce(tree, acc, cursor)`) only when the inner visitor reads `getCursor()`. Don't build `Cursor` chains by hand for visitors that never read them.
+
+### Use preconditions instead of tracking skipped trees
+
+To exclude whole source files, wrap the edit visitor in a precondition instead of having the scanner record ids of files to skip:
+
+```java
+// BAD: scanner collects UUIDs into skippedCompilationUnits; the visitor checks the set
+
+// GOOD
+return Preconditions.check(Preconditions.not(new DeclaresMethod<>(RUN_MATCHER)), new EditVisitor());
+```
+
+Keep a comment explaining why those files are excluded.
+
+## ScanningRecipe Accumulators
+
+### Keep the accumulator simple and skip ambiguous cases
+
+Prefer keying the accumulator globally (for example by fully qualified name) and treating anything ambiguous, such as a name declared in more than one module, as "don't change". Skipping a rare case is cheaper than per-project ownership logic that maintainers must reason through.
+
+### Watch the per-file cost of `getVisitor`
+
+Derive sets from the accumulator once, not inside the per-file visitor. A loop over accumulator entries per compilation unit, especially one that also walks every project, costs files × entries × projects and gets slow on large multi-module repositories.
+
+### Keep the scanner consistent with the edit visitor
+
+The scanner's idea of what will change must match what the edit visitor actually reaches. If the scanner marks a declaration removable but the edit visitor never descends into its enclosing class, callers get rewritten against a declaration that still exists unchanged.
+
+## Unsafe Cases
+
+### Mark what you can't migrate instead of guessing
+
+When a case can't be migrated safely, leave it unchanged and add a `SearchResult` marker explaining why. A visible marker beats a silently wrong rewrite.
+
+### Don't move a failure from compile time to run time
+
+Check what a partial migration leaves behind. Code that used to fail to compile but now compiles and fails at run time (for example a test class JUnit can no longer instantiate) is harder to spot in a large migration. Either finish the change or leave something both callers and the framework can use.
 
 ## Recipe Metadata
 
@@ -322,6 +386,34 @@ Add `//language=java` for IDE highlighting. With a plain `java("before", "after"
 
 Do not add `//language=java` to `JavaTemplate` strings containing `#{any()}` or `#{}`; they are not valid Java.
 
+### One scenario per test
+
+Write one test method per scenario, not one test with dozens of sources or a parameterized test over several fixtures. Each test then has one reason to pass, a failure points at the case that broke, and no source passes for the wrong reason. Group related scenarios in a `@Nested` class, and tag a reproducer from an issue with `@Issue`.
+
+Place new tests after the `@DocumentExample` test.
+
+### Don't cap cycles to hide a non-idempotent visitor
+
+Avoid `withMaxCycles(1)` to make a test pass. Make the visitor stop once its change is done (for example by matching its own output) and let the default cycles run, which also exercises the second cycle, where markers added in the first are already present.
+
+### Assert types, not only text
+
+When a change affects type attribution, assert the resulting types in `afterRecipe`, for example by collecting `getMethodType()` and argument types with a visitor's `reduce` and comparing them with `containsExactly`.
+
 ### Coverage
 
-Cover basic cases, edge cases (custom types, fully qualified types), cases where the recipe must not change anything, import handling, and formatting preservation.
+Cover basic cases, edge cases (custom types, fully qualified types), cases where the recipe must not change anything, import handling, and formatting preservation. Cover every branch of new code, including fallbacks.
+
+Probe the shapes that commonly break recipes:
+
+- Anonymous subclasses: `new Foo(x) {}` carries the anonymous class's constructor type, not `Foo`'s
+- Classes nested inside classes the visitor skips
+- Callers in other source files, including non-Java (Kotlin) sources
+- Arguments that are constants, side-effecting expressions, lambdas, or method references
+- Calls left dangling after a change, such as `super()` once a base constructor loses its arguments
+
+## Pull Requests
+
+### Call out incidental fixes in the description
+
+When a PR also fixes something on the side, such as a guard that stops the recipe from damaging Kotlin files, mention it in the description so it shows up in the release notes.
