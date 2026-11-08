@@ -14,10 +14,22 @@ This skill covers system time (transaction time) only. For valid time and bitemp
 - **Far-future sentinel over NULL**: use a far-future value (`9999-12-31 23:59:59.999`, or `253402300799999` as epoch milliseconds) for open-ended records. This allows NOT NULL constraints, composite primary keys, and uniform queries.
 - **Sub-second precision**: store `system_from` and `system_to` with millisecond precision or finer. Two versions of one entity within the same unit of precision share a `system_from` and collide on the unique index, and upstream timestamps such as JavaScript's `Date.now()` and Reladomo's `TIMESTAMP` are already in milliseconds. Whole seconds are acceptable only when writes to one entity are guaranteed to be at least a second apart.
 - **Deduplication**: before a phase-out / phase-in, compare incoming data with the current row and leave it untouched if unchanged. Adjacent identical rows produce false changes in history queries and diffs.
-- **Universal**: every table is temporal, with no domain exceptions. Temporality sits outside the domain model, so rollback restores everything (data, settings, account state) to the same instant.
+- **Universal**: every table is temporal by default. Temporality sits outside the domain model, so rollback restores everything (data, settings, account state) to the same instant. The only exceptions are the two in [Exceptions to universal temporality](#exceptions-to-universal-temporality).
 - **No JSON columns**: model every field as a typed column or child table, including upstream fields the app does not read yet. Unread fields point at unimplemented features.
 - **One timestamp per unit of work**: the application takes the current UTC time once per logical unit of work and stamps every `system_from`/`system_to` it writes with that identical value, even when the ORM splits the unit across several transactions (a self-referential hierarchy, a bulk update). The database does not issue timestamps.
 - **No artificial ordering**: two units may share a timestamp, and timestamps need not increase in commit order; units that take different amounts of time land out of order. Never bump a timestamp (for example `max(now, last + 1)`) to make it unique or monotonic.
+
+## Exceptions to universal temporality
+
+There are two legitimate exceptions. Anything else is temporal, including reference data that merely never changes in practice. A table such as a game-version list is better temporal than exempt: it costs two columns, and relying on an upstream never mutating its identifiers is a promise this schema cannot enforce.
+
+### Derivable caches
+
+A table whose rows are computed from other temporal tables, such as a per-entity count of current child rows, may be a plain table. It is a cache, rebuilt on demand and never a source of truth. This holds only while every query asks about now. If the value must also be queryable as of an earlier instant, the cache is part of the history and must be temporal like everything else. Before building one, measure whether a view or a query over the temporal tables is already fast enough.
+
+### Content-addressed composites
+
+A composite whose identity is a hash of its content is immutable by construction: the same key can never hold different content, so there is no version to record and nothing to phase out. A blueprint string keyed by the SHA-1 of the string is one, and the tables derived by parsing it (parsed game data, icons, recipes, entities) belong to the same composite and are exempt with it. Rows of a content-addressed composite are only inserted, never updated. Anything that merely references the composite by hash, such as the blueprint that points at a string, is an ordinary temporal table.
 
 ## Schema Design
 
