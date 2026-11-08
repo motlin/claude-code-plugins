@@ -11,7 +11,8 @@ This skill covers system time (transaction time) only. For valid time and bitemp
 
 - **Immutability**: writes are append-only, except for `system_to`.
 - **Contiguous timeline**: a new row's `system_from` equals the old row's `system_to`, forming an unbroken chain of versions per entity.
-- **Far-future sentinel over NULL**: use `9999-12-31 23:59:59` for open-ended records. This allows NOT NULL constraints, composite primary keys, and uniform queries.
+- **Far-future sentinel over NULL**: use a far-future value (`9999-12-31 23:59:59.999`, or `253402300799999` as epoch milliseconds) for open-ended records. This allows NOT NULL constraints, composite primary keys, and uniform queries.
+- **Sub-second precision**: store `system_from` and `system_to` with millisecond precision or finer. Two versions of one entity within the same unit of precision share a `system_from` and collide on the unique index, and upstream timestamps such as JavaScript's `Date.now()` and Reladomo's `TIMESTAMP` are already in milliseconds. Whole seconds are acceptable only when writes to one entity are guaranteed to be at least a second apart.
 - **Deduplication**: before a phase-out / phase-in, compare incoming data with the current row and leave it untouched if unchanged. Adjacent identical rows produce false changes in history queries and diffs.
 - **Universal**: every table is temporal, with no domain exceptions. Temporality sits outside the domain model, so rollback restores everything (data, settings, account state) to the same instant.
 - **No JSON columns**: model every field as a typed column or child table, including upstream fields the app does not read yet. Unread fields point at unimplemented features.
@@ -25,6 +26,46 @@ Every temporal table has `system_from` (when this version became current, set by
 ### Primary key on `(id, system_to)` or `(id, system_from)`, unique index on the other
 
 Either works, and they are equivalent as long as the other pair has a unique index. The `(id, system_to)` constraint is the one that catches a bug that creates two current rows for one ID: all current rows share `system_to = FAR_FUTURE_DATE`, so the second insert fails immediately. Reladomo puts the PK on `(id, system_to)`. The `(id, system_to)` index also serves the most common query, finding the current version.
+
+### Timestamp encoding
+
+Pick one encoding for every temporal table, with millisecond precision or finer:
+
+| Encoding               | Column type | Sentinel                  | Notes                                                                                                                                                  |
+| ---------------------- | ----------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Epoch milliseconds     | `INTEGER`   | `253402300799999`         | Cheapest to compare, index and bind, and identical to JavaScript `Date.now()`. Unreadable in raw queries unless paired with the derived columns below. |
+| ISO text with fraction | `TEXT`      | `9999-12-31 23:59:59.999` | Readable as stored and sorts correctly, provided every value has the same width and fraction digits.                                                   |
+
+The query and DDL examples below use the whole-second text form `9999-12-31 23:59:59` to keep them short. Substitute your encoding's sentinel and comparison values.
+
+### Human-readable derived columns
+
+With epoch milliseconds, add generated `VIRTUAL` columns that render each timestamp as text. They cost no storage, they appear in `SELECT *` and in the database console, and the application never writes them.
+
+```sql
+CREATE TABLE nodes (
+  id TEXT NOT NULL,
+  name TEXT,
+  system_from INTEGER NOT NULL, -- set by the application, once per unit of work
+  system_to INTEGER NOT NULL DEFAULT 253402300799999,
+  system_from_text TEXT GENERATED ALWAYS AS (strftime('%Y-%m-%d %H:%M:%f', system_from / 1000.0, 'unixepoch')) VIRTUAL,
+  system_to_text TEXT GENERATED ALWAYS AS (strftime('%Y-%m-%d %H:%M:%f', system_to / 1000.0, 'unixepoch')) VIRTUAL,
+  PRIMARY KEY (id, system_to)
+);
+```
+
+The sentinel renders as `9999-12-31 23:59:59.999`. SQLite rejects an `INSERT` or `UPDATE` that names a generated column, so a writer cannot set them by mistake. Never filter or join on them; compare the integer columns. Columns added later with `ALTER TABLE ... ADD COLUMN` must be `VIRTUAL`.
+
+An ORM can ignore them by leaving them out of its table definition, in which case they need a hand-written migration. Or it can declare them so migrations create them. In Drizzle:
+
+```typescript
+systemFromText: text('system_from_text').generatedAlwaysAs(
+	sql`strftime('%Y-%m-%d %H:%M:%f', system_from / 1000.0, 'unixepoch')`,
+	{mode: 'virtual'},
+),
+```
+
+Drizzle's SQLite generated-column support needs `drizzle-orm` 0.32 or later and `drizzle-kit` 0.23 or later. Cloudflare D1 supports generated columns, but verify that `drizzle-kit` emits `VIRTUAL` ones for D1 with your versions. An alternative with no schema footprint is a read-only view that adds the text columns.
 
 ### Example DDL
 
@@ -54,7 +95,7 @@ CREATE TABLE my_table_new (
 );
 
 INSERT INTO my_table_new
-SELECT *, strftime('%Y-%m-%d %H:%M:%S', 'now'), '9999-12-31 23:59:59'
+SELECT *, strftime('%Y-%m-%d %H:%M:%f', 'now'), '9999-12-31 23:59:59.999'
 FROM my_table;
 
 DROP TABLE my_table;
