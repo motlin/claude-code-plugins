@@ -320,7 +320,7 @@ ${queueTable()}`,
 	);
 }
 const summary = await agent(
-	`Read ${DIR}/README.md, ${DIR}/features.md, ${DIR}/local-inventory.md, ${DIR}/upstream-survey.md and every ${DIR}/features/*.md. Write ${DIR}/SUMMARY.md: (1) one-paragraph state of parity, (2) table of features by local status, (3) a prioritized, deduplicated implementation roadmap grouping proposed tasks into ordered milestones (shared infrastructure and foundational DOM/CSS alignment first, then P1, P2, P3), noting cross-feature dependencies and conflicts between feature files, (4) features skipped as not-applicable, (5) open questions for the user. Do not edit anything outside ${DIR}. Return a 20-line plain-text digest.`,
+	`Read ${DIR}/README.md, ${DIR}/features.md, ${DIR}/local-inventory.md, ${DIR}/upstream-survey.md and every ${DIR}/features/*.md. Write ${DIR}/SUMMARY.md: (1) one-paragraph state of parity, (2) table of features by local status, (3) a prioritized, deduplicated implementation roadmap grouping proposed tasks into ordered milestones (shared infrastructure and foundational DOM/CSS alignment first, then P1, P2, P3, ending with a final task to run a code:test-speed pass over the tests the roadmap added), noting cross-feature dependencies and conflicts between feature files, (4) features skipped as not-applicable, (5) open questions for the user. Do not edit anything outside ${DIR}. Return a 20-line plain-text digest.`,
 	{label: "summary", phase: "Synthesize"},
 );
 

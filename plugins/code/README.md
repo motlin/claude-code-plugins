@@ -9,4 +9,5 @@ Code quality, CLI, and test-writing guidelines.
 - `code:code-generation`: formatting rules for Java code generators
 - `code:test-assertions`: strict whole-value test assertions
 - `code:test-data`: self-evidently fake literals in tests
+- `code:test-speed`: fewer, fuller tests and a faster suite without losing coverage
 - `code:markdown-authoring`: unwrapped paragraphs and unnumbered lists in Markdown

@@ -99,3 +99,7 @@ python <plugin-root>/scripts/task_archive.py .llm/todo.md
 ```
 
 Report "All tasks completed - task list archived to .llm/YYYY-MM-DD-todo.md", the number of blocked tasks carried forward, and the tasks blocked during this run. Do not archive when the user's stopping instructions leave `[ ]` tasks behind.
+
+## Consider a Test Speed Pass
+
+Each task's worker tends to add its own tests, so a long run can grow the suite and slow the gate. When this run completed many tasks or the gate got noticeably slower, judge whether a `code:test-speed` pass is worth it, and if so suggest it to the user or append it as a task.

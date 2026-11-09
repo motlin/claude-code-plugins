@@ -15,3 +15,5 @@ Use the caller's prompt as the commit intent. Run every applicable step, in orde
 - Review the committed diff for reuse, quality, and efficiency, and make cleanup changes when warranted.
 - If cleanup changed anything, create a fixup commit for `HEAD`.
 - Run the `build:precommit` skill again.
+
+If the work added many tests or the suite got slower, a `code:test-speed` pass is an option. Judge whether it is warranted and mention it to the user when it is.

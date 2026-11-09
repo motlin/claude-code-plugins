@@ -54,7 +54,7 @@ Local-only adaptation: <how it maps to the local app, or "n/a">
 - <bullet per concrete difference>
 
 ## Proposed tasks
-- <self-contained task: files to touch, behavior, red/green TDD tests>
+- <self-contained task: files to touch, behavior, red/green TDD tests that extend an existing test where one already covers the area, adding a new test only when none fits, at the lowest pyramid level that proves the behavior (see the code:test-speed skill)>
 
 ## Discovered features
 - <slug>: <one line>

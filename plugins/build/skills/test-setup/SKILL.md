@@ -53,3 +53,7 @@ git test list
 ```
 
 Show the `git test list` output to the user.
+
+## Keep test timings
+
+The `code:test-speed` skill reads suite and per-file durations from runs that already happen, so nobody runs the suite a second time just to measure it. Check whether the precommit run leaves timings behind: a test summary in saved logs, a JSON reporter output file, surefire reports. If it leaves nothing, offer to configure the test runner to write per-file timings to a stable path on every run.
