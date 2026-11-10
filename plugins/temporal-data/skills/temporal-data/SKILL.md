@@ -18,6 +18,7 @@ This skill covers system time (transaction time) only. For valid time and bitemp
 - **No JSON columns**: model every field as a typed column or child table, including upstream fields the app does not read yet. Unread fields point at unimplemented features.
 - **One timestamp per unit of work**: the application takes the current UTC time once per logical unit of work and stamps every `system_from`/`system_to` it writes with that identical value, even when the ORM splits the unit across several transactions (a self-referential hierarchy, a bulk update). The database does not issue timestamps.
 - **No artificial ordering**: two units may share a timestamp, and timestamps need not increase in commit order; units that take different amounts of time land out of order. Never bump a timestamp (for example `max(now, last + 1)`) to make it unique or monotonic.
+- **Never shift a timestamp to dodge a collision**: when a write would give one entity two versions with the same `system_from`, never add 1 ms, 1 ns or any other offset, and never use a clock that returns `max(now, last + 1)`. A shifted timestamp records an instant at which nothing happened, breaks the rule that `system_from` is when the database learned the fact, and drifts ahead of the wall clock under bursts. A collision is information: either one logical change was split into several units of work (merge them into one), a caller or test wrote the same entity twice in one clock tick (fix the caller), or the encoding is too coarse (store finer precision). Let the unique index fail loudly until the cause is fixed.
 
 ## Exceptions to universal temporality
 
@@ -43,10 +44,11 @@ Either works, and they are equivalent as long as the other pair has a unique ind
 
 Pick one encoding for every temporal table, with millisecond precision or finer:
 
-| Encoding               | Column type | Sentinel                  | Notes                                                                                                                                                  |
-| ---------------------- | ----------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Epoch milliseconds     | `INTEGER`   | `253402300799999`         | Cheapest to compare, index and bind, and identical to JavaScript `Date.now()`. Unreadable in raw queries unless paired with the derived columns below. |
-| ISO text with fraction | `TEXT`      | `9999-12-31 23:59:59.999` | Readable as stored and sorts correctly, provided every value has the same width and fraction digits.                                                   |
+| Encoding | Column type | Sentinel | Notes |
+| --- | --- | --- | --- |
+| Epoch milliseconds | `INTEGER` | `253402300799999` | Cheapest to compare, index and bind, and identical to JavaScript `Date.now()`. Unreadable in raw queries unless paired with the derived columns below. |
+| Epoch nanoseconds | `INTEGER` | `9223372036854775807` | The finest integer encoding; the 64-bit maximum (year 2262) is the sentinel. Precision is only as fine as the clock: Node's `process.hrtime.bigint()` resolves nanoseconds, but browsers and Cloudflare Workers expose milliseconds (Workers also freeze the clock while code runs), so there the values are milliseconds times 1,000,000. |
+| ISO text with fraction | `TEXT` | `9999-12-31 23:59:59.999` | Readable as stored and sorts correctly, provided every value has the same width and fraction digits. |
 
 The query and DDL examples below use the whole-second text form `9999-12-31 23:59:59` to keep them short. Substitute your encoding's sentinel and comparison values.
 
