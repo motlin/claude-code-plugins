@@ -53,7 +53,7 @@ Then ask via AskUserQuestion:
 Run `git history reword <sha>` for each approved commit, oldest first, with a `GIT_EDITOR` that overwrites the whole message file so the body is dropped too:
 
 ```bash
-MSG="<new single-line message>" GIT_EDITOR='sh -c "printf %s\\n \"$MSG\" > \"$1\"" --' git history reword <sha>
+MSG="<new single-line message>" GIT_EDITOR='printf "%s\n" "$MSG" >' git history reword <sha>
 ```
 
 If any invocation fails, stop, report the SHA and error, and leave the rest alone. Don't fall back to `rebase -i` or `--amend`.
