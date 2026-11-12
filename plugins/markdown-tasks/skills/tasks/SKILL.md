@@ -107,6 +107,7 @@ A task starts with one of these markers:
 - `[ ]` - Ready
 - `[x]` - Completed
 - `[!]` - Blocked after a failed attempt
+- `[>]` - Claimed by a session that is working on it
 
 Each task is extracted and executed in isolation, so it must carry all the context needed to implement it in indented lines:
 

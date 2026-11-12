@@ -32,7 +32,10 @@ python <plugin-root>/scripts/task_add.py .llm/todo.md "Another task
 ## Example
 
 ```markdown
-- [ ] Create a new test class `SynchronizedBagTest` at `/workspace/project/unit-tests-thread-safety/src/test/java/com/example/collections/bag/mutable/SynchronizedBagTest.java` to test thread-safety of `com.example.collections.bag.mutable.SynchronizedBag`. Similar to how `SynchronizedMutableListTest` covers `SynchronizedMutableList`, this should extend `SynchronizedTestTrait` and implement test traits like `SynchronizedCollectionTestTrait`, `SynchronizedMutableIterableTestTrait`, and `SynchronizedRichIterableTestTrait`. The test should verify that all public methods of SynchronizedBag properly synchronize on the lock object using the `assertSynchronized()` method. Include tests for bag-specific methods like `addOccurrences()`, `removeOccurrences()`, `occurrencesOf()`, `forEachWithOccurrences()`, and `toMapOfItemToCount()`.
+- [ ] Add `SynchronizedBagTest` for the thread-safety of `SynchronizedBag`
+  Create `/workspace/project/unit-tests-thread-safety/src/test/java/com/example/collections/bag/mutable/SynchronizedBagTest.java` to test `com.example.collections.bag.mutable.SynchronizedBag`.
+  Follow `SynchronizedMutableListTest`, which covers `SynchronizedMutableList`: extend `SynchronizedTestTrait` and implement `SynchronizedCollectionTestTrait`, `SynchronizedMutableIterableTestTrait`, and `SynchronizedRichIterableTestTrait`.
+  Verify with `assertSynchronized()` that every public method synchronizes on the lock object, including the bag-specific `addOccurrences()`, `removeOccurrences()`, `occurrencesOf()`, `forEachWithOccurrences()`, and `toMapOfItemToCount()`.
 ```
 
 Report how many tasks were created.

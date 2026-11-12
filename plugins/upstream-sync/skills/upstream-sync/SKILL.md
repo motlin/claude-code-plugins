@@ -69,7 +69,7 @@ Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js`
 | `maxCriticRounds`             | Default 3                                                                                                                                                                                                             |
 | `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                                                                                       |
 
-Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving. When that message was an unrelated question, investigators declined the browser work and returned placeholder results, wasting a hundred investigations. They now report `investigated: false`, which counts as a failure, but the cost is still a retry per feature. If the run needs relaunching after the user asked something else, ask them to say so first.
+Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving, and on an unrelated question they decline the browser work and report `investigated: false`, which counts as a failure and costs a retry per feature. If the run needs relaunching after the user asked something else, ask them to say so first.
 
 The run is long. Tell the user the run id, that `/workflows` shows progress, and that `features.md` plus the `features/` file count are the live progress readout.
 
@@ -127,4 +127,4 @@ Keep the branch count minimal so the user can follow the state: delete merged, b
 
 Parity checks in the browser during implementation follow the same data-safety rules as the investigation, including the `location.href` check before every write action.
 
-Append any lesson that would help the next project to the Tips section of `protocol-template.md` in this plugin, not only to the project's README.
+Append any lesson that would help the next project to the Tips section of `plugins/upstream-sync/skills/upstream-sync/protocol-template.md` in the plugin's source repository, not the installed plugin cache, and not only to the project's README.
