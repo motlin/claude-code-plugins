@@ -98,6 +98,11 @@ function install_claude_plugins() {
             echo "  - ${plugin_id} not enabled, skipping."
         fi
     done < <(excluded_claude_plugin_names)
+
+    # A plugin dropped from a marketplace or uninstalled can leave the
+    # dependencies Claude Code auto-installed for it behind.
+    echo "🧹 Pruning orphaned auto-installed Claude Code plugin dependencies..."
+    claude plugin prune --yes
 }
 
 function install_codex_plugins() {

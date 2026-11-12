@@ -109,6 +109,7 @@ EOF
 
     [ "$status" -eq 0 ]
     grep -Fqx "claude plugin marketplace list --json" "$COMMAND_LOG"
+    [ "$(tail -n 1 "$COMMAND_LOG")" = "claude plugin prune --yes" ]
     run grep -q '^codex ' "$COMMAND_LOG"
     [ "$status" -eq 1 ]
 }
