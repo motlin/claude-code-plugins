@@ -10,6 +10,7 @@ Plugins for agent workflows, development tools, terminal feedback, and safety ch
 
 | Plugin                                                               | Use it to                                                              | Claude Code | Codex |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------- | ----- |
+| [burn](plugins/burn/skills/burn/SKILL.md)                            | Spend spare weekly quota on tested branches and queued tasks           | ✅          | ✅    |
 | [markdown-tasks](plugins/markdown-tasks/README.md)                   | Manage a visible task queue in `.llm/todo.md`                          | ✅          | ✅    |
 | [upstream-sync](plugins/upstream-sync/skills/upstream-sync/SKILL.md) | Investigate a local clone against its upstream app, feature by feature | ✅          | ✅    |
 

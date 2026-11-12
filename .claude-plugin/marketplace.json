@@ -282,6 +282,17 @@
 			},
 			"source": "./plugins/upstream-sync",
 			"category": "productivity"
+		},
+		{
+			"name": "burn",
+			"description": "Spend spare weekly quota on improvement skills in worktrees, leaving tested local branches and a ranked task queue",
+			"version": "1.41.0",
+			"author":
+			{
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/burn",
+			"category": "productivity"
 		}
 	]
 }

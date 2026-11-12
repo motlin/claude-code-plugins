@@ -1,0 +1,25 @@
+{
+	"name": "burn",
+	"version": "1.41.0",
+	"description": "Spend spare weekly quota on improvement skills in worktrees, leaving tested local branches and a ranked task queue",
+	"author":
+	{
+		"name": "Craig Motlin"
+	},
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/motlin/claude-code-plugins/tree/main/plugins/burn",
+	"repository": "https://github.com/motlin/claude-code-plugins",
+	"keywords": ["codex", "plugin", "quota", "review", "tests"],
+	"interface":
+	{
+		"displayName": "Burn",
+		"shortDescription": "Turn spare quota into tested branches and queued tasks",
+		"longDescription": "Spend spare weekly quota before the reset by running code review, test, and cleanup skills in worktrees, leaving a few tested local branches plus a ranked task queue for the morning",
+		"developerName": "Craig Motlin",
+		"category": "Productivity",
+		"capabilities": ["Skills"],
+		"defaultPrompt": ["Use the burn plugin."],
+		"brandColor": "#3B82F6"
+	},
+	"skills": "./skills/"
+}
