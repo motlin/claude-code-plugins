@@ -69,11 +69,11 @@ Then, for each applicable track, list candidate shards in its declared granulari
 python3 <plugin-root>/scripts/ledger.py pick --track <track> --count <n> <candidate>...
 ```
 
-Spread the tier's track runs across applicable tracks, one shard per run. `ledger.py dismissed` prints the dismissed findings that track prompts must not raise again.
+Spread the tier's track runs across applicable tracks, one shard per run. When the tier allows fewer runs than there are applicable tracks, give the runs to tracks the ledger has never recorded first, then to those whose latest coverage date is oldest, so successive nights rotate through every track. `ledger.py dismissed` prints the dismissed findings that track prompts must not raise again.
 
 ### Project the cost
 
-Projected tokens come from the per-track spend in earlier runs' `.llm/burn/<date>/runs.json`. With no earlier run, say the projection is unknown rather than inventing a figure.
+Concurrent track runs share one budget counter, so there is no per-track spend. Project from the `totalTokens` that earlier runs recorded in `.llm/burn/<date>/runs.json`: divide each by its count of launched runs, and multiply the average by the planned run count. With no earlier total, say the projection is unknown rather than inventing a figure.
 
 ### Confirm the plan
 
@@ -113,7 +113,7 @@ Launch the run only in the turn where the user confirmed the plan. Workflow suba
 
 To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
 
-When it returns, show the user the ranked branches, the number of queued tasks and the path of `REPORT.md`. Never push or open a PR.
+When it returns, add the run's total token spend from the Workflow result to `runs.json` as `totalTokens`, so the next preflight can project its cost. Then show the user the ranked branches, the number of queued tasks and the path of `REPORT.md`. Never push or open a PR.
 
 ## Run it in Codex
 

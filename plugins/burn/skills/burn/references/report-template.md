@@ -37,4 +37,4 @@ Write `REPORT.md` in this shape. Keep every section, writing "None." under a hea
 <A track whose runs were refuted or failed the gate in this run and in earlier `.llm/burn/*/runs.json` files is a candidate for removal. Name it with its record, or write "None.">
 ```
 
-Tokens spent per track are not in `runs.json`, because concurrent runs share one budget counter. Take the run's total from the Workflow result, and say per-track spend is unknown.
+Tokens spent per track are unknown, because concurrent runs share one budget counter; say so in the report. The run's total is not known until the Workflow returns, so the burn skill adds it to `runs.json` as `totalTokens` afterwards.
