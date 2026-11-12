@@ -15,6 +15,14 @@ Never number steps (`## Step 1:`, `## Step 2:`). LLMs reorder steps during edits
 
 When steps must be run in sequence, say so, without numbering.
 
+## Use one term per concept
+
+Pick one name for each thing and each action, and reuse it everywhere in the file. When "the task", "the item", and "the entry" all appear, the reader cannot tell whether they are one thing or three.
+
+## Keep hedges that carry meaning
+
+When tightening a sentence, keep words like "may", "usually", and "if present" that state real uncertainty or scope. Cutting them turns a guess into a rule. Cut only hedges that assert nothing, such as "it is important to note that".
+
 ## Scrub personal data
 
 Never put real personal data in an example: names, emails, places, phone numbers, addresses, or verbatim private text.
