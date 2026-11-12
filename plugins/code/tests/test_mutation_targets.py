@@ -1,5 +1,7 @@
 """Tool detection, mutant-line selection and tests-only diff contracts for mutation_targets."""
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -121,6 +123,61 @@ class ChangedTest(unittest.TestCase):
 
             write(root, {'src/a.py': 'mutant\n', 'src/b.py': 'new\n'})
             self.assertEqual(mutation_targets.non_test_changes(root), ['src/a.py', 'src/b.py'])
+
+
+class MainTest(unittest.TestCase):
+    def main(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            try:
+                mutation_targets.main(list(argv))
+                code = None
+            except SystemExit as stopped:
+                code = stopped.code
+        return code, out.getvalue()
+
+    def test_targets_ranks_only_files_under_paths_and_names_each_skip(self):
+        covered = {'lines': 2, 'covered': 2, 'hit': [1, 2], 'uncovered': [], 'partial': []}
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'src/hot.py': 'def f(a):\n    return a > 1\n', 'src/flat.py': 'x = 1\ny = 2\n',
+                         'src/vendor/lib.py': 'return a > 1\n', 'src/dist/app.py': 'return a > 1\n',
+                         'lib/other.py': 'return a > 1\n'})
+            git(root, 'init', '--quiet')
+            git(root, 'add', '.')
+            git(root, 'commit', '--quiet', '--message', 'one')
+            write(root, {'coverage.json': json.dumps({path: covered for path in (
+                'src/hot.py', 'src/flat.py', 'src/gone.py', 'src/vendor/lib.py', 'src/dist/app.py', 'lib/other.py')})})
+            code, out = self.main('--root', root, 'targets', f'{root}/coverage.json', '--paths', 'src')
+
+        self.assertEqual((code, json.loads(out)), (None, {
+            'targets': [{'path': 'src/hot.py', 'churn': 1,
+                         'lines': [{'line': 2, 'kind': 'relational', 'text': 'return a > 1'}]}],
+            'skipped': [
+                {'path': 'src/dist/app.py', 'reason': 'generated'},
+                {'path': 'src/flat.py', 'reason': 'no mutable covered lines'},
+                {'path': 'src/gone.py', 'reason': 'no recent churn'},
+                {'path': 'src/vendor/lib.py', 'reason': 'vendored'},
+            ],
+        }))
+
+    def test_changed_exits_1_while_a_non_test_file_differs_from_head(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'src/a.py': 'one\n'})
+            git(root, 'init', '--quiet')
+            git(root, 'add', '.')
+            git(root, 'commit', '--quiet', '--message', 'one')
+            clean = self.main('--root', root, 'changed')
+            write(root, {'src/a.py': 'mutant\n'})
+            dirty = self.main('--root', root, 'changed')
+
+        self.assertEqual((clean, dirty), ((0, '\n'), (1, 'src/a.py\n')))
+
+    def test_detect_prints_the_configured_tools(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'pyproject.toml': '[tool.mutmut]'})
+            code, out = self.main('--root', root, 'detect')
+
+        self.assertEqual((code, json.loads(out)), (None, [{'tool': 'mutmut', 'command': 'mutmut run'}]))
 
 
 if __name__ == '__main__':

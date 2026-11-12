@@ -1,5 +1,7 @@
 """Detector discovery and reference-count evidence contracts for dead_code."""
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -94,6 +96,32 @@ class RefsTest(unittest.TestCase):
             'symbol': 'fake_helper', 'verdict': 'referenced',
             'code': ['src/registry.py:1:HANDLERS = ["fake_helper"]'], 'tests': [],
         })
+
+
+class MainTest(unittest.TestCase):
+    def main(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            dead_code.main(list(argv))
+        return json.loads(out.getvalue())
+
+    def test_detect_and_refs_print_their_results(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'knip.json': '{}', 'src/fake.py': 'def fake_helper():\n    return 1\n'})
+            git(root, 'init', '-q')
+            git(root, 'add', '.')
+            detected = self.main('--root', root, 'detect')
+            found = self.main('--root', root, 'refs', 'fake_helper', '--definition', 'src/fake.py:1')
+
+        self.assertEqual(detected, [{'tool': 'knip', 'commands': ['npx knip', 'npx knip --production']}])
+        self.assertEqual(found, {'symbol': 'fake_helper', 'verdict': 'unreferenced', 'code': [], 'tests': []})
+
+    def test_refs_raises_with_git_error_outside_a_repository(self):
+        with tempfile.TemporaryDirectory() as root:
+            with self.assertRaises(RuntimeError) as failed:
+                dead_code.refs(root, 'fake_helper', '')
+
+        self.assertIn('not a git repository', str(failed.exception))
 
 
 if __name__ == '__main__':

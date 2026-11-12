@@ -1,5 +1,8 @@
 """Churn counting and churn x (1 - coverage) ranking contracts for churn_rank."""
+import contextlib
 import importlib.util
+import io
+import json
 from pathlib import Path
 import subprocess
 import tempfile
@@ -71,6 +74,28 @@ class ChurnTest(unittest.TestCase):
             git('commit', '--quiet', '--message', 'three')
 
             self.assertEqual(churn_rank.churn_counts(root, '1.year'), {'a.py': 2, 'b.py': 1})
+
+
+class MainTest(unittest.TestCase):
+    def test_paths_limit_the_ranking_to_files_under_those_directories(self):
+        with tempfile.TemporaryDirectory() as root:
+            subprocess.run(['git', 'init', '--quiet'], cwd=root, check=True)
+            for name in ('src/a.py', 'lib/b.py'):
+                Path(root, name).parent.mkdir(exist_ok=True)
+                Path(root, name).write_text('one')
+            subprocess.run(['git', '-c', 'user.name=Example', '-c', 'user.email=dev@example.com', 'add', '.'],
+                           cwd=root, check=True)
+            subprocess.run(['git', '-c', 'user.name=Example', '-c', 'user.email=dev@example.com',
+                            'commit', '--quiet', '--message', 'one'], cwd=root, check=True)
+            Path(root, 'coverage.json').write_text(json.dumps({'src/a.py': entry(10, 5), 'lib/b.py': entry(10, 0)}))
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                churn_rank.main([f'{root}/coverage.json', '--root', root, '--paths', 'src/'])
+
+        self.assertEqual(json.loads(out.getvalue()), {
+            'targets': [{'path': 'src/a.py', 'churn': 1, 'coverage': 50.0, 'score': 0.5, 'uncovered': [1, 2, 3, 4, 5]}],
+            'skipped': [],
+        })
 
 
 if __name__ == '__main__':

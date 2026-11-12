@@ -1,5 +1,7 @@
 """Ecosystem detection, report parsing, comparison, and annotation contracts for coverage_baseline."""
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -140,6 +142,16 @@ class ParseTest(unittest.TestCase):
                                                          'uncovered': [6], 'partial': [4]},
         })
 
+    def test_skips_go_profile_lines_that_are_not_blocks(self):
+        profile = ('mode: set\n'
+                   'example.com/demo/calc/add.go:3.20,4.2 1 1\n'
+                   'not a coverage block\n')
+
+        self.assertEqual(self.parse('gocover', {'go.mod': 'module example.com/demo\n', 'coverage.out': profile},
+                                    'coverage.out'), {
+            'calc/add.go': {'lines': 2, 'covered': 2, 'hit': [3, 4], 'uncovered': [], 'partial': []},
+        })
+
 
 class RunTest(unittest.TestCase):
     def test_keeps_the_test_command_output_out_of_the_report(self):
@@ -194,6 +206,64 @@ class AnnotateTest(unittest.TestCase):
 
         self.assertEqual(coverage_baseline.annotate('def f(x):\n    return 1\n    if x: pass\n', entry),
                          '     1    def f(x):\n     2 !      return 1\n     3 ~      if x: pass\n')
+
+
+
+class MainTest(unittest.TestCase):
+    def main(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            try:
+                coverage_baseline.main(list(argv))
+                code = None
+            except SystemExit as stopped:
+                code = stopped.code
+        return code, out.getvalue()
+
+    def test_compare_exits_0_with_a_gain_and_1_without(self):
+        before = {'a.py': {'lines': 2, 'covered': 1, 'uncovered': [2], 'partial': []}}
+        after = {'a.py': {'lines': 2, 'covered': 2, 'uncovered': [], 'partial': []}}
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'before.json': json.dumps(before), 'after.json': json.dumps(after)})
+            gained = self.main('compare', f'{root}/before.json', f'{root}/after.json')
+            same = self.main('compare', f'{root}/before.json', f'{root}/before.json')
+
+        self.assertEqual((gained[0], json.loads(gained[1])), (0, {
+            'files': [{'path': 'a.py', 'before': 50.0, 'after': 100.0, 'gained_lines': 1, 'resolved_partial': 0}],
+            'total': {'before': 50.0, 'after': 100.0, 'gained_lines': 1, 'resolved_partial': 0},
+            'gained': True,
+        }))
+        self.assertEqual((same[0], json.loads(same[1])), (1, {
+            'files': [],
+            'total': {'before': 50.0, 'after': 50.0, 'gained_lines': 0, 'resolved_partial': 0},
+            'gained': False,
+        }))
+
+    def test_parse_and_annotate_print_the_normalized_report_and_tagged_source(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'lcov.info': 'SF:src/a.py\nDA:1,1\nDA:2,0\nend_of_record\n',
+                         'src/a.py': 'x = 1\ny = 2\n'})
+            parsed = self.main('--root', root, 'parse', '--format', 'lcov', f'{root}/lcov.info')
+            write(root, {'coverage.json': parsed[1]})
+            annotated = self.main('--root', root, 'annotate', f'{root}/coverage.json', 'src/a.py')
+
+        self.assertEqual((parsed[0], json.loads(parsed[1])),
+                         (None, {'src/a.py': {'lines': 2, 'covered': 1, 'hit': [1], 'uncovered': [2], 'partial': []}}))
+        self.assertEqual(annotated, (None, '     1    x = 1\n     2 !  y = 2\n'))
+
+    def test_detect_prints_ecosystems_and_run_stops_when_there_are_none(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, {'go.mod': 'module example.com/demo\n'})
+            detected = self.main('--root', root, 'detect')
+            chosen = self.main('--root', root, 'run', '--ecosystem', 'jest')
+
+        self.assertEqual((detected[0], json.loads(detected[1])), (None, [{
+            'ecosystem': 'go',
+            'command': ['go', 'test', '-coverprofile=coverage.out', './...'],
+            'report': 'coverage.out',
+            'format': 'gocover',
+        }]))
+        self.assertEqual(chosen, ('No coverage ecosystem detected', ''))
 
 
 if __name__ == '__main__':
