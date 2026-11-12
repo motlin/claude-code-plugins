@@ -114,3 +114,16 @@ Launch the run only in the turn where the user confirmed the plan. Workflow suba
 To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
 
 When it returns, show the user the ranked branches, the number of queued tasks and the path of `REPORT.md`. Never push or open a PR.
+
+## Run it in Codex
+
+Codex has no Workflow tool, so you are the orchestrator and do by hand what the script does, serially, at the `small` tier whatever `size` says: 3 track runs, a branch cap of 3 (lower when `maxBranches` says so), and 1 verifier vote. The code-review track never applies in Codex. The script stays the single source of truth for the briefs: read `<plugin-root>/scripts/burn-workflow.js` and reuse its track, verify, gate, cleanup and rank-and-report prompts verbatim, filling each `${...}` from the same args you would have passed.
+
+- Take one planned track run at a time, in plan order. If Codex can start subagents, give the track run its own subagent so its work stays out of your context. Otherwise do it in your own context, keeping only its summary, evidence, diff stat and findings.
+- A track run that fails or commits nothing gets the cleanup prompt's branch deletion and is recorded as `failed` or `empty`.
+- Verify a committed branch with the verify prompt in a fresh subagent. Without subagents, verify it yourself from the diff and the evidence alone, and note in the report that its verifier was not fresh-context. A refuted branch is deleted and recorded as `refuted`.
+- Gate a surviving branch by running the gate prompt's command once in its worktree. A failing branch is deleted and recorded as `gate-failed`. With no test command, keep it as untested.
+- Stop launching once the kept branches reach the branch cap. A run that ends without a branch frees its slot.
+- Never re-run a failed, empty, refuted or gate-failed run, and never fix a branch to make it pass.
+- After each run, append its outcome to `.llm/burn/<date>/runs.json` in the shape the script builds. Long runs outlive one Codex session, and `runs.json` is the resume point: a fresh session continues from the first planned run it does not list.
+- When every run is done, deduplicate the findings by track, path and symbol, dropping dismissed ones, then follow the rank-and-report prompt, and remove the kept branches' worktrees with the cleanup prompt. Report as the Workflow would, and never push or open a PR.
