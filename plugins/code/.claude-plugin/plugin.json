@@ -14,6 +14,7 @@
 		"./skills/code-generation",
 		"./skills/test-data",
 		"./skills/test-speed",
+		"./skills/test-coverage",
 		"./skills/markdown-authoring"
 	],
 	"commands": ["./commands/emoji.md", "./commands/formatter-off.md"]

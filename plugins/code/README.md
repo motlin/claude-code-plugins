@@ -10,4 +10,5 @@ Code quality, CLI, and test-writing guidelines.
 - `code:test-assertions`: strict whole-value test assertions
 - `code:test-data`: self-evidently fake literals in tests
 - `code:test-speed`: fewer, fuller tests and a faster suite without losing coverage
+- `code:test-coverage`: tests for the least-covered, most-changed code, kept only when they raise measured coverage
 - `code:markdown-authoring`: unwrapped paragraphs and unnumbered lists in Markdown
