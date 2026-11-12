@@ -1,6 +1,6 @@
 {
 	"name": "code-walkthrough",
-	"version": "1.40.0",
+	"version": "1.41.0",
 	"description": "Teach a codebase through ordered explanations and scroll-linked source, with deterministic rebuilds and iterative review",
 	"author":
 	{

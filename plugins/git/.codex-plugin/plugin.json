@@ -1,6 +1,6 @@
 {
 	"name": "git",
-	"version": "1.40.0",
+	"version": "1.41.0",
 	"description": "Git workflow automation with smart commits, conflict resolution, rebase management, worktree creation, and worktree cleanup",
 	"author":
 	{
