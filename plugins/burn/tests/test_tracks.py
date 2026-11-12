@@ -19,8 +19,9 @@ def parse(path):
 
 
 class TrackFilesTest(unittest.TestCase):
-    def test_the_core_tracks_exist(self):
-        self.assertLessEqual({'code-review', 'coverage', 'mutation', 'test-speed', 'test-assertions'},
+    def test_the_core_and_further_tracks_exist(self):
+        self.assertLessEqual({'code-review', 'coverage', 'mutation', 'test-speed', 'test-assertions',
+                              'dead-code', 'docs-drift', 'duplication'},
                              {path.stem for path in TRACKS.glob('*.md')})
 
     def test_each_track_declares_every_key_with_an_allowed_value(self):

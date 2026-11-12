@@ -12,4 +12,6 @@ Code quality, CLI, and test-writing guidelines.
 - `code:test-speed`: fewer, fuller tests and a faster suite without losing coverage
 - `code:test-coverage`: tests for the least-covered, most-changed code, kept only when they raise measured coverage
 - `code:test-mutation`: tests that kill the mutants surviving in covered, most-changed code
+- `code:dead-code`: unused code, files, exports and dependencies removed with zero-reference evidence
+- `code:docs-drift`: docs checked against the code, with only mechanical fixes applied
 - `code:markdown-authoring`: unwrapped paragraphs and unnumbered lists in Markdown
