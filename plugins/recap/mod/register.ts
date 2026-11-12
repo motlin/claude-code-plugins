@@ -52,7 +52,7 @@ const firstLine = (text: string) =>
 	text
 		.trim()
 		.split(/\r\n|[\r\n\u2028\u2029]/)[0]
-		.trim();
+		?.trim() ?? "";
 
 const hasFooter = (text: string) => /^📌 /m.test(text) && /^🔗 /m.test(text);
 
