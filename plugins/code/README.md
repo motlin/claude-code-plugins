@@ -11,4 +11,5 @@ Code quality, CLI, and test-writing guidelines.
 - `code:test-data`: self-evidently fake literals in tests
 - `code:test-speed`: fewer, fuller tests and a faster suite without losing coverage
 - `code:test-coverage`: tests for the least-covered, most-changed code, kept only when they raise measured coverage
+- `code:test-mutation`: tests that kill the mutants surviving in covered, most-changed code
 - `code:markdown-authoring`: unwrapped paragraphs and unnumbered lists in Markdown

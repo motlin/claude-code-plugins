@@ -15,6 +15,7 @@
 		"./skills/test-data",
 		"./skills/test-speed",
 		"./skills/test-coverage",
+		"./skills/test-mutation",
 		"./skills/markdown-authoring"
 	],
 	"commands": ["./commands/emoji.md", "./commands/formatter-off.md"]
