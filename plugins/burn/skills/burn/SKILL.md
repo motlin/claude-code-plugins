@@ -36,7 +36,7 @@ Do preflight yourself, in this session, before any Workflow launches: it may nee
 
 ### Check the starting point
 
-Find the upstream-tracking commit the track worktrees will branch from (`git rev-parse @{upstream}`, falling back to the default branch). Each track run gets its own worktree from `<git-plugin-root>/scripts/worktree.sh` (the `git:worktree` skill), so a dirty checkout is fine and is never touched. Mention uncommitted changes in the summary, since they are not part of what the tracks see.
+Find the upstream-tracking commit the track worktrees will branch from (`git rev-parse @{upstream}`, falling back to the default branch). Each track run gets its own worktree beside the repository, the way the `git:worktree` skill places them, but created with `git worktree add` from this exact commit, because `worktree.sh` only branches from a remote branch. A dirty checkout is fine and is never touched. Mention uncommitted changes in the summary, since they are not part of what the tracks see.
 
 ### Prove the baseline is green
 
@@ -83,4 +83,34 @@ With `dryRun`, print the same plan and stop without asking. Nothing is created: 
 
 ## Launch the workflow
 
-The Workflow engine and the track files are not built yet. After the plan is confirmed, stop and tell the user that only preflight and `dryRun` exist so far.
+The engine is a Workflow script, `<plugin-root>/scripts/burn-workflow.js`. It runs four phases:
+
+- **Run tracks:** one agent per track run, each in its own worktree on the branch `burn/<date>/<track>-<shard>`. Launches stop while kept branches plus runs in flight reach the branch cap; a run that ends without a branch frees its slot.
+- **Verify:** fresh-context verifiers try to refute each branch. A branch needs more than half the votes to survive; a verifier that dies counts as refuting.
+- **Gate:** the test command, or `git test run <base>..<branch>` when git-test is configured, runs once on each surviving branch. With no test command, kept branches are marked untested.
+- **Rank and report:** one agent ranks the kept branches, queues new findings in `.llm/todo.md` through `ledger.py merge`, records coverage with `ledger.py record`, and writes `runs.json` and `REPORT.md` from `references/report-template.md`. Worktrees are removed; branches stay.
+
+A failed, empty, refuted or gate-failed run has its worktree and branch deleted, and is never re-run.
+
+Read each planned run's track file from `references/tracks/<track>.md`: its frontmatter gives `invokes` and `evidence`, and its body is the run's `instructions`. Then call Workflow with `scriptPath: <plugin-root>/scripts/burn-workflow.js` and these `args`:
+
+| Arg              | Value                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| `repo`           | absolute path of the repository                                                             |
+| `base`           | the upstream-tracking commit from preflight                                                 |
+| `date`           | today, `YYYY-MM-DD`                                                                         |
+| `runDir`         | absolute path of `.llm/burn/<date>`                                                         |
+| `worktreeRoot`   | the repository's parent directory, so worktrees sit beside it as `git:worktree` places them |
+| `ledger`         | absolute path of `<plugin-root>/scripts/ledger.py`                                          |
+| `reportTemplate` | absolute path of `<plugin-root>/skills/burn/references/report-template.md`                  |
+| `testCommand`    | the test command from preflight, or `null`                                                  |
+| `gitTest`        | `true` when `git config --get-regexp '^test\.'` found a git-test command                    |
+| `tier`           | `{runs, maxBranches, votes}` from the tier table, with `maxBranches` overriding the cap     |
+| `runs`           | the confirmed plan: `[{track, shard, invokes, evidence, instructions}]` in launch order     |
+| `dismissed`      | the `track`, `path` and `symbol` of each entry `ledger.py dismissed` printed                |
+
+Launch the run only in the turn where the user confirmed the plan. Workflow subagents read the user's latest message as the request they serve.
+
+To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
+
+When it returns, show the user the ranked branches, the number of queued tasks and the path of `REPORT.md`. Never push or open a PR.
