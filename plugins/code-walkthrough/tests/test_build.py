@@ -97,7 +97,7 @@ class RendererTests(unittest.TestCase):
         result = self.cli('--review', 'all')
         self.assertEqual((result.returncode, result.stderr), (0, ''))
         page = self.output.read_text()
-        for text in ['Astro v7.3.5', 'Python · Complete file', 'A counter experiment', 'window.exampleCounter = 0;']:
+        for text in ['Astro v7.4.12', 'Python · Complete file', 'A counter experiment', 'window.exampleCounter = 0;']:
             with self.subTest(text=text):
                 self.assertIn(text, page)
 
