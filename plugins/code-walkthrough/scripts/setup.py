@@ -30,7 +30,7 @@ def install(runtime, run=subprocess.run):
     for name in ('package.json', 'package-lock.json'):
         shutil.copyfile(PLUGIN / 'assets/astro' / name, runtime / name)
     run(['npm', 'ci', '--prefix', str(runtime)], check=True)
-    run([sys.executable, '-m', 'venv', str(runtime / '.venv')], check=True)
+    run([sys.executable, '-m', 'venv', '--upgrade-deps', str(runtime / '.venv')], check=True)
     run([str(runtime / '.venv/bin/python'), '-m', 'pip', 'install', '-r', str(PLUGIN / 'scripts/requirements.txt')], check=True)
     stamp.write_text(expected)
     return True
