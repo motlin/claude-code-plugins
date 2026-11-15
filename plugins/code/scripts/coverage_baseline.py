@@ -2,8 +2,8 @@
 """Detect a repository's coverage tooling, run it, and normalize its report to one JSON shape.
 
 The normalized report maps each source path, relative to the repository root, to
-{"lines": N, "covered": M, "uncovered": [line, ...], "partial": [line, ...]}. A partial line ran
-but left some branch untaken. Supported reports: LCOV (Jest, Vitest, cargo tarpaulin), Cobertura
+{"lines": N, "covered": M, "hit": [line, ...], "uncovered": [line, ...], "partial": [line, ...]}.
+hit and uncovered together are the executable lines. A partial line ran but left some branch untaken. Supported reports: LCOV (Jest, Vitest, cargo tarpaulin), Cobertura
 XML (pytest-cov), Go coverprofiles and JaCoCo XML.
 """
 import argparse
@@ -77,6 +77,7 @@ class Lines:
     def result(self):
         return {path: {'lines': len(lines),
                        'covered': sum(lines.values()),
+                       'hit': sorted(line for line, hit in lines.items() if hit),
                        'uncovered': sorted(line for line, hit in lines.items() if not hit),
                        'partial': sorted(line for line in self.partial.get(path, ()) if lines.get(line))}
                 for path, lines in sorted(self.hits.items())}

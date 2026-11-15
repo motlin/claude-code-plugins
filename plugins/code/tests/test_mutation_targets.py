@@ -56,25 +56,28 @@ class DetectTest(unittest.TestCase):
 class CandidatesTest(unittest.TestCase):
     SOURCE = '\n'.join([
         'def grade(score, bonus):',              # 1 declaration
-        '    # if score > 90 the grade is A',    # 2 comment
-        '    logger.info("high: %s", score > 50)',  # 3 arid: logging
-        '    deadline = time.now() + 5',            # 4 arid: time
-        '    if score > 90 and bonus:',          # 5 relational
-        '        return "A"',                    # 6 return
-        '    if score >= 80 or bonus:',          # 7 relational, uncovered
-        '        return "B"',                    # 8 return, uncovered
-        '    total = score + bonus',             # 9 arithmetic
-        '    ready = done and checked',          # 10 logical
-        '    return total',                      # 11 return
+        '    """Grade a score.',                  # 2 docstring, not executable
+        '    Uses score - bonus when bonus > 0.',  # 3 docstring, not executable
+        '    """',                                # 4 docstring, not executable
+        '    # if score > 90 the grade is A',    # 5 comment
+        '    logger.info("high: %s", score > 50)',  # 6 arid: logging
+        '    deadline = time.now() + 5',            # 7 arid: time
+        '    if score > 90 and bonus:',          # 8 relational
+        '        return "A"',                    # 9 return
+        '    if score >= 80 or bonus:',          # 10 relational, uncovered
+        '        return "B"',                    # 11 return, uncovered
+        '    total = score + bonus',             # 12 arithmetic
+        '    ready = done and checked',          # 13 logical
+        '    return total',                      # 14 return
     ]) + '\n'
 
     def test_picks_covered_non_arid_lines_by_operator_priority_up_to_the_cap(self):
-        entry = {'lines': 9, 'covered': 7, 'uncovered': [7, 8], 'partial': []}
+        entry = {'lines': 10, 'covered': 8, 'hit': [1, 6, 7, 8, 9, 12, 13, 14], 'uncovered': [10, 11], 'partial': []}
 
         self.assertEqual(mutation_targets.candidates(self.SOURCE, entry, per_file=3), [
-            {'line': 5, 'kind': 'relational', 'text': 'if score > 90 and bonus:'},
-            {'line': 6, 'kind': 'return', 'text': 'return "A"'},
-            {'line': 10, 'kind': 'logical', 'text': 'ready = done and checked'},
+            {'line': 8, 'kind': 'relational', 'text': 'if score > 90 and bonus:'},
+            {'line': 9, 'kind': 'return', 'text': 'return "A"'},
+            {'line': 13, 'kind': 'logical', 'text': 'ready = done and checked'},
         ])
 
 
@@ -83,11 +86,11 @@ class TargetsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             write(root, {'src/hot.py': 'def f(a):\n    return a > 1\n', 'src/cold.py': 'def g(b):\n    return b < 2\n'})
             coverage = {
-                'src/hot.py': {'lines': 2, 'covered': 2, 'uncovered': [], 'partial': []},
-                'src/cold.py': {'lines': 2, 'covered': 2, 'uncovered': [], 'partial': []},
-                'src/unrun.py': {'lines': 2, 'covered': 0, 'uncovered': [1, 2], 'partial': []},
-                'src/stable.py': {'lines': 2, 'covered': 2, 'uncovered': [], 'partial': []},
-                'tests/test_hot.py': {'lines': 2, 'covered': 2, 'uncovered': [], 'partial': []},
+                'src/hot.py': {'lines': 2, 'covered': 2, 'hit': [1, 2], 'uncovered': [], 'partial': []},
+                'src/cold.py': {'lines': 2, 'covered': 2, 'hit': [1, 2], 'uncovered': [], 'partial': []},
+                'src/unrun.py': {'lines': 2, 'covered': 0, 'hit': [], 'uncovered': [1, 2], 'partial': []},
+                'src/stable.py': {'lines': 2, 'covered': 2, 'hit': [1, 2], 'uncovered': [], 'partial': []},
+                'tests/test_hot.py': {'lines': 2, 'covered': 2, 'hit': [1, 2], 'uncovered': [], 'partial': []},
             }
             churn = {'src/hot.py': 5, 'src/cold.py': 2, 'src/unrun.py': 9, 'tests/test_hot.py': 9}
 

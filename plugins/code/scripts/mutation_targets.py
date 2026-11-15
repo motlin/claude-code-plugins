@@ -61,12 +61,15 @@ def kind(text):
 
 
 def candidates(source, entry, per_file):
-    """Up to per_file covered, non-arid lines with a mutable operator, the most productive operators first."""
-    uncovered = set(entry['uncovered'])
+    """Up to per_file covered, non-arid lines with a mutable operator, the most productive operators first.
+
+    Only lines the coverage report lists as hit count, so docstrings and other non-executable lines are never picked.
+    """
+    hit = set(entry['hit'])
     found = []
     for number, line in enumerate(source.splitlines(), 1):
         text = line.strip()
-        if number in uncovered or not text or COMMENT.match(text) or ARID.search(text):
+        if number not in hit or not text or COMMENT.match(text) or ARID.search(text):
             continue
         if found_kind := kind(text):
             found.append({'line': number, 'kind': found_kind, 'text': text})

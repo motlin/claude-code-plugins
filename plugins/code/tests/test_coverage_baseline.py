@@ -89,8 +89,8 @@ class ParseTest(unittest.TestCase):
             parsed = coverage_baseline.parse('lcov', [Path(root) / 'coverage/lcov.info'], root)
 
         self.assertEqual(parsed, {
-            'src/a.js': {'lines': 3, 'covered': 2, 'uncovered': [2], 'partial': [3]},
-            'src/b.js': {'lines': 1, 'covered': 0, 'uncovered': [1], 'partial': []},
+            'src/a.js': {'lines': 3, 'covered': 2, 'hit': [1, 3], 'uncovered': [2], 'partial': [3]},
+            'src/b.js': {'lines': 1, 'covered': 0, 'hit': [], 'uncovered': [1], 'partial': []},
         })
 
     def test_parses_cobertura_relative_to_its_source(self):
@@ -101,7 +101,7 @@ class ParseTest(unittest.TestCase):
                '</classes></package></packages></coverage>')
 
         self.assertEqual(self.parse('cobertura', {'coverage.xml': xml}, 'coverage.xml'), {
-            'src/pkg/a.py': {'lines': 3, 'covered': 2, 'uncovered': [5], 'partial': [2]},
+            'src/pkg/a.py': {'lines': 3, 'covered': 2, 'hit': [1, 2], 'uncovered': [5], 'partial': [2]},
         })
 
     def test_parses_go_blocks_against_the_module_path(self):
@@ -112,7 +112,7 @@ class ParseTest(unittest.TestCase):
 
         self.assertEqual(self.parse('gocover', {'go.mod': 'module example.com/demo\n', 'coverage.out': profile},
                                     'coverage.out'), {
-            'calc/add.go': {'lines': 7, 'covered': 3, 'uncovered': [6, 7, 8, 9], 'partial': []},
+            'calc/add.go': {'lines': 7, 'covered': 3, 'hit': [3, 4, 5], 'uncovered': [6, 7, 8, 9], 'partial': []},
         })
 
     def test_parses_jacoco_reports_and_finds_their_source_files(self):
@@ -122,7 +122,8 @@ class ParseTest(unittest.TestCase):
         files = {'core/target/site/jacoco/jacoco.xml': xml, 'core/src/main/java/com/example/Calc.java': ''}
 
         self.assertEqual(self.parse('jacoco', files, '**/target/site/jacoco/jacoco.xml'), {
-            'core/src/main/java/com/example/Calc.java': {'lines': 3, 'covered': 2, 'uncovered': [6], 'partial': [4]},
+            'core/src/main/java/com/example/Calc.java': {'lines': 3, 'covered': 2, 'hit': [3, 4],
+                                                         'uncovered': [6], 'partial': [4]},
         })
 
 
@@ -137,7 +138,7 @@ class RunTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             result = subprocess.run([sys.executable, '-c', driver], cwd=root, capture_output=True, text=True, check=True)
 
-        self.assertEqual(json.loads(result.stdout), {'a.py': {'lines': 1, 'covered': 1, 'uncovered': [], 'partial': []}})
+        self.assertEqual(json.loads(result.stdout), {'a.py': {'lines': 1, 'covered': 1, 'hit': [1], 'uncovered': [], 'partial': []}})
         self.assertEqual(result.stderr, 'noisy test output\n')
 
 
