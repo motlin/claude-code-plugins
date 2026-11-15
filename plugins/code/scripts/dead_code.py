@@ -37,7 +37,7 @@ def detect(root, which=shutil.which):
     if mentions(root, ['package.json'], '"knip"') or (root / 'knip.json').is_file():
         found.append(('knip', ['npx knip', 'npx knip --production']))
     python = ['pyproject.toml', 'setup.cfg', 'requirements-dev.txt', 'requirements.txt']
-    if mentions(root, python, 'vulture') or (any((root / name).is_file() for name in python) and which('vulture')):
+    if mentions(root, python + ['mise.toml'], 'vulture') or (any((root / name).is_file() for name in python) and which('vulture')):
         found.append(('vulture', ['vulture {paths}']))
     if (root / 'go.mod').is_file() and which('deadcode'):
         found.append(('deadcode', ['deadcode -test ./...', 'deadcode -test -whylive={symbol} ./...']))

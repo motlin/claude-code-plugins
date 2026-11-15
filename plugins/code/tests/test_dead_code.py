@@ -50,6 +50,10 @@ class DetectTest(unittest.TestCase):
         self.assertEqual(self.detect({'pyproject.toml': '[project]'}, installed={'vulture'}),
                          [{'tool': 'vulture', 'commands': ['vulture {paths}']}])
 
+    def test_detects_a_python_detector_pinned_in_mise(self):
+        self.assertEqual(self.detect({'mise.toml': '[tools]\n"pipx:vulture" = "2.14"\n'}),
+                         [{'tool': 'vulture', 'commands': ['vulture {paths}']}])
+
     def test_detects_nothing_without_a_configured_or_installed_detector(self):
         self.assertEqual(self.detect({
             'package.json': json.dumps({'devDependencies': {'vitest': '1'}}),

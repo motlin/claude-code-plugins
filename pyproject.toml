@@ -1,0 +1,4 @@
+# Configuration for vulture, the dead-code detector pinned in mise.toml. This repository is not a Python package.
+[tool.vulture]
+# argparse.ArgumentParser calls error(); task_blocks.TaskArgumentParser overrides it.
+ignore_names = ["error"]
