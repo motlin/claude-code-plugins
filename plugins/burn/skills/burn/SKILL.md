@@ -115,7 +115,7 @@ Launch the run only in the turn where the user confirmed the plan. Workflow suba
 
 To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
 
-When it returns, add the run's total token spend from the Workflow result to `runs.json` as `totalTokens`, so the next preflight can project its cost. Then show the user the ranked branches, the number of queued tasks and the path of `REPORT.md`. Never push or open a PR.
+When it returns, add the run's total token spend from the Workflow result to `runs.json` as `totalTokens`, so the next preflight can project its cost. Then show the user the ranked branches, the number of queued tasks and the Workflow result's `report` path. When `report` is null the report agent did not write `REPORT.md`; say so. Never push or open a PR.
 
 ## Run it in Codex
 

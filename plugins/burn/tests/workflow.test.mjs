@@ -88,6 +88,7 @@ async function runWorkflow(args, responders)
 		{
 			ranked: ["ranked-by-agent"],
 			queued: 0,
+			reportPath: "/repo/.llm/burn/2000-01-01/REPORT.md",
 		}),
 		...responders,
 	};
@@ -145,6 +146,7 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 		{
 			ranked: ["ranked-by-agent"],
 			queued: 0,
+			report: "/repo/.llm/burn/2000-01-01/REPORT.md",
 			outcomes: [
 				{
 					branch: "burn/2000-01-01/code-review-src-a",
@@ -399,6 +401,35 @@ test("queued findings reach the report once, deduplicated across runs and withou
 	assert.doesNotMatch(report, /"symbol": "gone"/);
 	assert.match(report, /ledger\.py --ledger \/repo\/\.llm\/burn\/ledger\.json merge/);
 	assert.match(report, /## burn 2000-01-01/);
+	assert.match(report, /You must write \/repo\/\.llm\/burn\/2000-01-01\/REPORT\.md/);
+});
+
+test("a report agent that does not return the REPORT.md path leaves the report null", async () =>
+{
+	const {result} = await runWorkflow(
+		BASE_ARGS,
+		{
+			"rank-and-report": () => (
+			{
+				ranked: ["ranked-by-agent"],
+				queued: 0,
+				reportPath: "",
+			}),
+		},
+	);
+
+	assert.deepEqual(
+		{
+			ranked: result.ranked,
+			queued: result.queued,
+			report: result.report,
+		},
+		{
+			ranked: ["ranked-by-agent"],
+			queued: 0,
+			report: null,
+		},
+	);
 });
 
 test("dismissed findings reach only their own track's prompts", async () =>

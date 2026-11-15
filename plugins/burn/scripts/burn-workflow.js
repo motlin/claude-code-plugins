@@ -169,8 +169,13 @@ const RANK_SCHEMA =
 			type: "number",
 			description: "tasks appended to .llm/todo.md",
 		},
+		reportPath:
+		{
+			type: "string",
+			description: "absolute path of the REPORT.md you wrote",
+		},
 	},
-	required: ["ranked", "queued"],
+	required: ["ranked", "queued", "reportPath"],
 };
 
 const slug = (s) =>
@@ -459,18 +464,22 @@ Queue the findings: pipe them as a JSON list, each with its track, path, symbol 
 
 Record coverage: for each of ${JSON.stringify(covered)}, run \`python3 ${A.ledger} --ledger ${A.repo}/.llm/burn/ledger.json record --track <track> --date ${A.date} <shard>\`.
 
-Write ${A.runDir}/REPORT.md from the template. Do not push, open PRs, or delete any branch.`,
+You must write ${A.runDir}/REPORT.md from the template; the run is not reported until that file exists. Return its absolute path as reportPath. Do not push, open PRs, or delete any branch.`,
 	{
 		label: "rank-and-report",
 		phase: "Rank and report",
 		schema: RANK_SCHEMA,
 	},
 );
+const reportPath = `${A.runDir}/REPORT.md`;
+const reported = report && report.reportPath === reportPath;
+if (!reported) log(`The report agent did not return ${reportPath}`);
 await parallel(kept.map((o) => () => cleanup(o, true)));
 
 return {
 	ranked: report ? report.ranked : kept.map((o) => o.branch),
 	queued: report ? report.queued : null,
+	report: reported ? reportPath : null,
 	outcomes: outcomes.map((o) => (
 	{
 		branch: o.branch,
