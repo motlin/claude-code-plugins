@@ -1,6 +1,6 @@
 ---
 name: tasks
-description: Work with markdown-based task lists in .llm/todo.md files. Use when managing tasks, working with todo lists, extracting incomplete tasks, marking tasks complete, or implementing tasks from a task list.
+description: Work with the markdown task list in .llm/todo.md. Use when managing tasks, working with todo lists, extracting incomplete tasks, marking tasks complete or blocked, or archiving a finished list. To add tasks use add-one-task, to implement them use do-one-task or do-all-tasks, and to recover blocked ones use markdown-unblock-tasks.
 ---
 
 # Markdown Task Management
