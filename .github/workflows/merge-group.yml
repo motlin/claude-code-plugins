@@ -58,10 +58,6 @@ jobs:
       # The bats suite runs `claude plugin validate`, which needs the claude CLI.
       - run: npm install --global @anthropic-ai/claude-code # zizmor: ignore[adhoc-packages] the claude CLI has no lockfile here
       - run: just test
-      - name: Test source-backed walkthrough renderer
-        run: |
-          python3 plugins/code-walkthrough/scripts/setup.py --runtime .llm/code-walkthrough
-          .llm/code-walkthrough/.venv/bin/python -m unittest discover -s plugins/code-walkthrough/tests
       - name: Test narration script
         run: python3 -m unittest discover -s plugins/narration/tests
       - name: Test herdr-reboot scripts

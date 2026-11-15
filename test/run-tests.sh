@@ -14,3 +14,9 @@ script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mise exec -- bats "$script_dir/hooks"/*.bats
 mise exec -- bats "$script_dir/scripts"/*.bats
 mise exec -- python3 -m unittest discover -s "$script_dir/../plugins/code/tests"
+
+# The walkthrough suite needs the renderer runtime (Pygments and Astro), which
+# setup.py installs at the repository-relative path test_build.py reads.
+walkthrough_runtime="$script_dir/../.llm/code-walkthrough"
+mise exec -- python3 "$script_dir/../plugins/code-walkthrough/scripts/setup.py" --runtime "$walkthrough_runtime"
+"$walkthrough_runtime/.venv/bin/python" -m unittest discover -s "$script_dir/../plugins/code-walkthrough/tests"
