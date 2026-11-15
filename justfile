@@ -17,6 +17,12 @@ install:
 test: install
     ./test/run-tests.sh
 
+# Measure plugins/code unittest coverage into coverage/lcov.info, the report coverage_baseline.py reads
+coverage: install
+    coverage erase
+    coverage run --branch --source=plugins/code/scripts -m unittest discover -s plugins/code/tests
+    coverage lcov -o coverage/lcov.info
+
 # Run shellcheck, markdownlint, and yamllint
 lint: install
     shellcheck --external-sources {{ shellcheck_scripts }}

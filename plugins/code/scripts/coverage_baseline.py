@@ -4,7 +4,8 @@
 The normalized report maps each source path, relative to the repository root, to
 {"lines": N, "covered": M, "hit": [line, ...], "uncovered": [line, ...], "partial": [line, ...]}.
 hit and uncovered together are the executable lines. A partial line ran but left some branch untaken. Supported reports: LCOV (Jest, Vitest, cargo tarpaulin), Cobertura
-XML (pytest-cov), Go coverprofiles and JaCoCo XML.
+XML (pytest-cov), Go coverprofiles and JaCoCo XML. A `just coverage` recipe that writes coverage/lcov.info
+covers any other tool, such as coverage.py over stdlib unittest.
 """
 import argparse
 import json
@@ -24,6 +25,7 @@ ECOSYSTEMS = {
     'jacoco-maven': (['mvn', 'verify'], '**/target/site/jacoco/jacoco.xml', 'jacoco'),
     'jacoco-gradle': (['./gradlew', 'test', 'jacocoTestReport'],
                       '**/build/reports/jacoco/test/jacocoTestReport.xml', 'jacoco'),
+    'just': (['just', 'coverage'], 'coverage/lcov.info', 'lcov'),
 }
 PYTEST_MARKERS = {'pytest.ini': '', 'conftest.py': '', 'pyproject.toml': 'pytest', 'setup.cfg': 'pytest',
                   'tox.ini': 'pytest', 'requirements-dev.txt': 'pytest', 'requirements.txt': 'pytest'}
@@ -52,6 +54,9 @@ def detect(root):
         found.append('jacoco-maven')
     if any('jacoco' in (read(root, name) or '') for name in ('build.gradle', 'build.gradle.kts')):
         found.append('jacoco-gradle')
+    if any(re.search(r'^coverage\b[^:=\n]*:(?!=)', read(root, name) or '', re.MULTILINE)
+           for name in ('justfile', 'Justfile', '.justfile')):
+        found.append('just')
     return [dict(zip(('ecosystem', 'command', 'report', 'format'), (name, *ECOSYSTEMS[name]))) for name in found]
 
 

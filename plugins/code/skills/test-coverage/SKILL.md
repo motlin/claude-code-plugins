@@ -25,7 +25,7 @@ python3 <plugin-root>/scripts/coverage_baseline.py --root . detect
 python3 <plugin-root>/scripts/coverage_baseline.py --root . run > "$WORKDIR/coverage-before.json"
 ```
 
-`detect` recognizes Vitest, Jest, pytest-cov, Go, cargo tarpaulin, and JaCoCo through Maven or Gradle, and prints the command it would run. Pass `--ecosystem <name>` to `run` to pick one when several are detected. Put `$WORKDIR` outside the repository so reports are never committed.
+`detect` recognizes Vitest, Jest, pytest-cov, Go, cargo tarpaulin, JaCoCo through Maven or Gradle, plus any `just coverage` recipe that writes `coverage/lcov.info`, and prints the command it would run. Pass `--ecosystem <name>` to `run` to pick one when several are detected. Put `$WORKDIR` outside the repository so reports are never committed.
 
 When the project uses a tool `detect` does not know, or needs different flags, run the project's own coverage command and normalize what it writes with `coverage_baseline.py parse --format lcov|cobertura|gocover|jacoco <report>...`. When the project has no coverage provider at all, add one temporarily, and revert the dependency and lockfile changes before committing. An interactive run asks before adding one; an unattended run queues the question and stops.
 

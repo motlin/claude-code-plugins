@@ -69,10 +69,17 @@ class DetectTest(unittest.TestCase):
             'report': '**/build/reports/jacoco/test/jacocoTestReport.xml',
             'format': 'jacoco',
         }])
+        self.assertEqual(self.detect({'justfile': 'coverage_dir := "coverage"\n\n# Run tests\ncoverage: install\n    true\n'}), [{
+            'ecosystem': 'just',
+            'command': ['just', 'coverage'],
+            'report': 'coverage/lcov.info',
+            'format': 'lcov',
+        }])
 
     def test_detects_nothing_without_a_known_test_framework(self):
         self.assertEqual(self.detect({'package.json': json.dumps({'dependencies': {'left-pad': '1'}}),
-                                      'pom.xml': '<project/>'}), [])
+                                      'pom.xml': '<project/>',
+                                      'justfile': 'coverage := "on"\ntest:\n    echo coverage: none\n'}), [])
 
 
 class ParseTest(unittest.TestCase):
