@@ -13,3 +13,4 @@ script_dir="$(command cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # resolves under local shell activation but not in GitHub Actions.
 mise exec -- bats "$script_dir/hooks"/*.bats
 mise exec -- bats "$script_dir/scripts"/*.bats
+mise exec -- python3 -m unittest discover -s "$script_dir/../plugins/code/tests"
