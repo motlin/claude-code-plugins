@@ -93,6 +93,13 @@ class ParseTest(unittest.TestCase):
             'src/b.js': {'lines': 1, 'covered': 0, 'hit': [], 'uncovered': [1], 'partial': []},
         })
 
+    def test_lcov_branch_records_never_add_lines_without_a_da_record(self):
+        lcov = 'SF:a.py\nBRDA:0,8,0,1\nBRDA:0,11,0,-\nBRDA:2,0,0,-\nDA:1,0\nDA:2,1\nend_of_record\n'
+
+        self.assertEqual(self.parse('lcov', {'lcov.info': lcov}, 'lcov.info'), {
+            'a.py': {'lines': 2, 'covered': 1, 'hit': [2], 'uncovered': [1], 'partial': [2]},
+        })
+
     def test_parses_cobertura_relative_to_its_source(self):
         xml = ('<coverage><sources><source>src</source></sources><packages><package><classes>'
                '<class filename="pkg/a.py"><lines><line number="1" hits="1"/>'

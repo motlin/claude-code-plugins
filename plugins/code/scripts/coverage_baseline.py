@@ -72,7 +72,10 @@ class Lines:
         lines = self.hits.setdefault(path, {})
         lines[line] = lines.get(line, False) or hit
         if partial:
-            self.partial.setdefault(path, set()).add(line)
+            self.mark_partial(path, line)
+
+    def mark_partial(self, path, line):
+        self.partial.setdefault(path, set()).add(line)
 
     def result(self):
         return {path: {'lines': len(lines),
@@ -95,7 +98,7 @@ def parse_lcov(report, root, lines):
         elif tag == 'BRDA':
             line, _, _, taken = value.split(',')
             if taken in ('-', '0'):
-                lines.add(path, int(line), False, partial=True)
+                lines.mark_partial(path, int(line))
 
 
 def parse_cobertura(report, root, lines):
