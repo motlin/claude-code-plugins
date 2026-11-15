@@ -18,6 +18,7 @@
 		"./skills/test-mutation",
 		"./skills/dead-code",
 		"./skills/docs-drift",
+		"./skills/build-warnings",
 		"./skills/markdown-authoring"
 	],
 	"commands": ["./commands/emoji.md", "./commands/formatter-off.md"]
