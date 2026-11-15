@@ -214,7 +214,7 @@ function queueTable()
 	return queue
 		.map(
 			(q, i) =>
-				`| ${i + 2} | ${q.slug} | ${cell(q.name)} | ${q.priority} | ${q.status}${q.result ? " (" + q.result.localStatus + ")" : ""} | ${cell(q.result ? q.result.summary + " · " + q.result.featureFile : q.notes)} |`,
+				`| ${i + 2} | ${q.slug} | ${cell(q.name)} | ${q.priority} | ${q.status}${q.result ? " (" + q.result.localStatus + ")" : ""} | ${cell(q.result ? q.result.summary + " · " + q.result.featureFile : q.notes + (q.failure ? " · failed: " + q.failure : ""))} |`,
 		)
 		.join("\n");
 }
@@ -362,25 +362,19 @@ ${item.existing ? `A feature file from an earlier run exists at ${DIR}/features/
 		};
 		// A null result is a dead agent (network drop, terminal API error);
 		// investigated: false is an agent that declined, e.g. one that judged the
-		// run unauthorized. Neither is a finding. The retry prompt differs so a
-		// resumed run doesn't replay the failure.
-		const usable = (res) => (res && res.investigated !== false ? res : null);
-		let r = usable(await agent(prompt, opts));
-		if (!r)
-		{
-			log(`${item.slug}: agent failed, retrying once`);
-			r = usable(
-				await agent(
-					`${prompt}\n\nThis is a retry: an earlier attempt died mid-run or declined. Reuse any ${DIR}/dumps/${item.slug}-* or partial feature file it left, and finish the job.`,
-					opts,
-				),
-			);
-		}
-
-		if (!r)
+		// run unauthorized. Neither is a finding, and neither is retried: the
+		// failure is recorded with its reason and the run moves on.
+		const r = await agent(prompt, opts);
+		const failure = !r
+			? "agent died with no result (network drop or terminal API error)"
+			: r.investigated === false
+				? `agent declined: ${r.summary}`
+				: null;
+		if (failure)
 		{
 			item.status = "failed";
-			log(`${item.slug}: agent failed twice`);
+			item.failure = failure;
+			log(`${item.slug}: ${failure}`);
 			continue;
 		}
 		item.status = "done";

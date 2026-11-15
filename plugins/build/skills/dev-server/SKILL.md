@@ -56,4 +56,4 @@ When a check fails:
 - Rerun prerequisite builds if startup needs them.
 - Restart the server as a new background process, wait for readiness, and tell the user it was restarted.
 
-If restarts keep failing, report the relevant output and stop retrying.
+Restart automatically only once. If the server fails again after that restart, report the relevant output and ask the user before restarting it again.

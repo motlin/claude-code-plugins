@@ -30,11 +30,14 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-@test "git-cleanup skill runs delete-merged without asking" {
-    run rg --fixed-strings "Do these without asking" "$SKILL"
+@test "git-cleanup skill deletes local merged branches without asking but asks before deleting remote branches" {
+    run rg --fixed-strings "Delete duplicate twins and local merged branches without asking" "$SKILL"
     [ "$status" -eq 0 ]
 
-    run rg --fixed-strings "Run \`<plugin-root>/scripts/delete-merged\`" "$SKILL"
+    run rg --fixed-strings "Remote branches are different: ask before deleting any." "$SKILL"
+    [ "$status" -eq 0 ]
+
+    run rg --fixed-strings "OFFLINE=true <plugin-root>/scripts/delete-merged" "$SKILL"
     [ "$status" -eq 0 ]
 }
 

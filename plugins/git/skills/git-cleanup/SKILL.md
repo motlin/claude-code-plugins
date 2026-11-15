@@ -81,8 +81,8 @@ Offer to compare and delete the backup branches named in the report.
 
 ## Clean Up Duplicates and Merged Branches
 
-Do these without asking; the user always wants them. This overrides the `git:rebase-all` skill's instruction to ask before running `delete-merged`.
+Delete duplicate twins and local merged branches without asking; the user always wants them. Remote branches are different: ask before deleting any.
 
 The rebase skips a branch that points at the same commit as another branch, which leaves both on the old base. Delete the local-only twin of each such pair, keeping the branch that has a remote counterpart. Record each deleted branch's SHA first so it can be restored.
 
-Run `<plugin-root>/scripts/delete-merged`. It deletes local branches merged into upstream main and runs `git push --delete origin` for merged remote branches.
+`<plugin-root>/scripts/delete-merged` deletes local branches merged into upstream main and also runs `git push --delete origin` for merged remote branches, so ask the user before running it and list the remote branches it would delete. When the user declines, run it as `OFFLINE=true <plugin-root>/scripts/delete-merged`, which deletes only the local merged branches.

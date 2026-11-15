@@ -219,7 +219,13 @@ test("an acknowledged investigator incident is recorded but the queue continues,
 	);
 });
 
-test("a failed investigator (null result, e.g. a network drop) is retried once, then reported as failed", async () =>
+const registryRow = (calls, label, slug) =>
+	calls
+		.find((c) => c.label === label)
+		.prompt.split("\n")
+		.find((line) => line.includes(`| ${slug} |`));
+
+test("a failed investigator (null result, e.g. a network drop) is not retried: it is recorded as failed with its reason and the run continues", async () =>
 {
 	const {result, calls} = await runWorkflow(
 		BASE_ARGS,
@@ -229,12 +235,7 @@ test("a failed investigator (null result, e.g. a network drop) is retried once, 
 				features: [feature("alpha", "P1"), feature("beta", "P1")],
 				safetyIncidents: [],
 			}),
-			"investigate:": (label, n) =>
-			{
-				if (label === "investigate:alpha" && n === 1) return null;
-				if (label.startsWith("investigate:beta")) return null;
-				return investigation();
-			},
+			"investigate:": (label) => (label === "investigate:alpha" ? null : investigation()),
 			"critic-": () => (
 			{
 				missing: [],
@@ -242,24 +243,24 @@ test("a failed investigator (null result, e.g. a network drop) is retried once, 
 		},
 	);
 
-	const alphaPrompts = calls.filter((c) => c.label === "investigate:alpha").map((c) => c.prompt);
-
-	assert.deepEqual(investigated(calls), ["alpha", "alpha", "beta", "beta"]);
 	assert.deepEqual(
 		{
+			attempts: investigated(calls),
 			investigated: result.investigated,
 			failed: result.failed,
-			retryPromptsDiffer: alphaPrompts[0] !== alphaPrompts[1],
+			alphaRow: registryRow(calls, "registry:final", "alpha"),
 		},
 		{
+			attempts: ["alpha", "beta"],
 			investigated: ["alpha", "beta"],
-			failed: ["beta"],
-			retryPromptsDiffer: true,
+			failed: ["alpha"],
+			alphaRow:
+				"| 2 | alpha | Feature alpha | P1 | failed | notes alpha · from survey · failed: agent died with no result (network drop or terminal API error) |",
 		},
 	);
 });
 
-test("an investigator that declines (investigated: false) counts as a failure: retried once, then failed, never done", async () =>
+test("an investigator that declines (investigated: false) is not retried: it is recorded as failed with its reason, never done", async () =>
 {
 	const {result, calls} = await runWorkflow(
 		BASE_ARGS,
@@ -273,6 +274,7 @@ test("an investigator that declines (investigated: false) counts as a failure: r
 			{
 				...investigation(),
 				investigated: false,
+				summary: "run looked unauthorized",
 			}),
 			"critic-": () => (
 			{
@@ -286,11 +288,14 @@ test("an investigator that declines (investigated: false) counts as a failure: r
 			attempts: investigated(calls),
 			failed: result.failed,
 			byStatus: result.byStatus,
+			alphaRow: registryRow(calls, "registry:final", "alpha"),
 		},
 		{
-			attempts: ["alpha", "alpha"],
+			attempts: ["alpha"],
 			failed: ["alpha"],
 			byStatus: {},
+			alphaRow:
+				"| 2 | alpha | Feature alpha | P1 | failed | notes alpha · from survey · failed: agent declined: run looked unauthorized |",
 		},
 	);
 });

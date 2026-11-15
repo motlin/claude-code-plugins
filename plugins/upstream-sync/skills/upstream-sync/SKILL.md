@@ -69,7 +69,7 @@ Call Workflow with `scriptPath: <plugin-root>/scripts/upstream-sync-workflow.js`
 | `maxCriticRounds`             | Default 3                                                                                                                                                                                                             |
 | `registryEvery`               | Default 6; how often `features.md` is rewritten                                                                                                                                                                       |
 
-Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving, and on an unrelated question they decline the browser work and report `investigated: false`, which counts as a failure and costs a retry per feature. If the run needs relaunching after the user asked something else, ask them to say so first.
+Launch or resume the run only in a turn where the user's latest message asks for it. Workflow subagents read the user's most recent message as the request they are serving, and on an unrelated question they decline the browser work and report `investigated: false`, which marks every feature they touch `failed`. If the run needs relaunching after the user asked something else, ask them to say so first.
 
 The run is long. Tell the user the run id, that `/workflows` shows progress, and that `features.md` plus the `features/` file count are the live progress readout.
 
@@ -81,7 +81,7 @@ Codex has no Workflow tool, so you are the orchestrator and do by hand what the 
 - Keep the queue in `features.md` yourself, as the script's `writeRegistry` does: dedup slugs case-insensitively, and always take the next `todo` row in P1, then P2, then P3 order.
 - Investigate one feature at a time. If Codex can start subagents, give each investigator its own subagent so the browser dumps stay out of your context. Otherwise investigate in your own context and keep only the feature file's summary line. Never run two browser investigations at once.
 - After each investigation, add the features it discovered to `features.md`, and check its safety report. Stop at the first incident, exactly as the script would.
-- A dead investigator gets one retry with the script's retry note; after that, mark it `failed`.
+- A dead or declining investigator is not retried: mark it `failed`, record its reason in the `features.md` row, and move on.
 - When the queue is empty, run critic rounds until one adds nothing (at most 3), then write `SUMMARY.md` with the summary prompt.
 - Long runs outlive one Codex session. `features.md` is the resume point: a fresh session continues from the first `todo` row.
 
@@ -99,7 +99,7 @@ The workflow stops at the first reported incident. A survey incident stops it be
 
 ## When investigators fail
 
-An investigator whose agent dies (a network drop, a terminal API error) is retried once automatically, with a prompt that tells it to reuse any partial dumps. If the retry dies too, the feature is marked `failed` and the run moves on. Don't stop the run to fix it: the result lists the failed slugs. After the run finishes, launch a fresh Workflow with the same args plus `only` set to those features (take name, priority and notes from `features.md`). Never run it while the main run is still going, because the two would fight over the browser.
+An investigator whose agent dies (a network drop, a terminal API error) or declines is not retried. The feature is marked `failed`, its `features.md` row records the reason, and the run moves on. Don't stop the run to fix it: the result lists the failed slugs. After the run finishes, launch a fresh Workflow with the same args plus `only` set to those features (take name, priority and notes from `features.md`). Never run it while the main run is still going, because the two would fight over the browser.
 
 ## After the run
 
