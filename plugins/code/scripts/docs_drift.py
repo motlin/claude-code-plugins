@@ -4,8 +4,9 @@
 `docs` lists README*, CLAUDE.md, AGENTS.md, SKILL.md and command files, optionally only those naming a file
 changed since a git ref. `claims` checks paths and link targets against the tree and git renames, `just`
 recipes and npm scripts against the justfile and package.json in both directions, `name@version` against
-the manifest, and flags hard-coded counts. Statuses: `renamed` and `contradicted` with a `replacement` are
-mechanical fixes, `contradicted` alone needs judgment, and `check` needs a look.
+the manifest, and flags hard-coded counts, skipping lines tagged `<!-- docs-drift: skip -->`. Statuses:
+`renamed` and `contradicted` with a `replacement` are mechanical fixes, `contradicted` alone needs judgment,
+and `check` needs a look.
 """
 import argparse
 import json
@@ -27,6 +28,7 @@ JUST = re.compile(r'\bjust\s+([A-Za-z][\w-]*)')
 NPM = re.compile(r'\b(?:npm|pnpm|yarn|bun)\s+run\s+([\w:.-]+)')
 RECIPE = re.compile(r'^@?([A-Za-z_][\w-]*)(?:\s[^:]*)?:(?!=)|^alias\s+([\w-]+)\s*:=')
 NUMBER = r'\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve'
+SKIP = '<!-- docs-drift: skip -->'
 COUNT = re.compile(rf'\b(?:{NUMBER})\s+(?:skills|plugins|commands|recipes|tracks|tests|files|scripts|agents|hooks|'
                    r'tools|rules|steps|checks)\b', re.IGNORECASE)
 
@@ -145,10 +147,6 @@ def manifest(root):
     return None
 
 
-def code_text(line, in_fence):
-    return line if in_fence else ' '.join(SPAN.findall(line))
-
-
 def claims(root, doc_paths):
     moves = renames(root)
     recipes, scripts, project = just_recipes(root), npm_scripts(root), manifest(root)
@@ -165,19 +163,21 @@ def claims(root, doc_paths):
             if line.lstrip().startswith(('```', '~~~')):
                 in_fence = not in_fence
                 continue
-            code = code_text(line, in_fence)
+            if SKIP in line:
+                continue
             spans = [] if in_fence else SPAN.findall(line)
+            code = [line] if in_fence else spans
             targets = [target for target in LINK.findall(line)
                        if re.search(r'[./]', target) and not re.match(r'^(\w+:|#)', target)]
             targets += [span for span in spans if PATHLIKE.match(span)]
             for target in targets:
                 if result := check_path(root, doc, target, moves):
                     add(doc, number, 'path', target.split('#', 1)[0], result)
-            for name in JUST.findall(code):
+            for name in [name for text in code for name in JUST.findall(text)]:
                 used_recipes.add(name)
                 if recipes is not None and name not in recipes:
                     add(doc, number, 'recipe', f'just {name}', {'status': 'contradicted'})
-            for name in NPM.findall(code):
+            for name in [name for text in code for name in NPM.findall(text)]:
                 used_scripts.add(name)
                 if scripts is not None and name not in scripts:
                     add(doc, number, 'recipe', f'npm run {name}', {'status': 'contradicted'})

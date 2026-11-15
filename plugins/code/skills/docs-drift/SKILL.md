@@ -36,7 +36,9 @@ The pre-pass is deterministic, so you judge only what it flags rather than readi
 - link targets and path-like code spans against the tree, resolved from the doc's directory and every directory above it, and against git renames, which catches moved and deleted files;
 - `just` recipes and npm scripts named in code against the `justfile` and `package.json`, in both directions: recipes the docs name that do not exist, and recipes no doc names;
 - `name@version` against the project manifest;
-- hard-coded counts such as "12 plugins".
+- hard-coded counts such as "12 plugins". <!-- docs-drift: skip -->
+
+It skips any line carrying a `<!-- docs-drift: skip -->` tag, so tag examples in prose that would otherwise be flagged.
 
 Each claim has a status:
 

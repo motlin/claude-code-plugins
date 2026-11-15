@@ -112,7 +112,8 @@ class ClaimsTest(unittest.TestCase):
 
     def test_recipes_and_scripts_are_checked_both_ways(self):
         self.assertEqual(self.claims({
-            'README.md': 'Run `just test`, `just deploy`, `npm run build` and `npm run lint`.\n',
+            'README.md': 'Run `just test`, `just deploy`, `npm run build` and `npm run lint`.\n'
+                         'Check `just` recipes against the `justfile`.\n',
             'justfile': 'set shell := ["bash"]\nroot := "x"\ndefault:\n    @just --list\n\n# Run tests\ntest quick="": install\n    ./run\n\nrelease VERSION:\n    ./r\n',
             'package.json': json.dumps({'scripts': {'build': 'tsc', 'watch': 'tsc -w'}}),
         }, 'README.md'), [
@@ -133,7 +134,8 @@ class ClaimsTest(unittest.TestCase):
 
     def test_hard_coded_counts_are_flagged_for_checking(self):
         self.assertEqual(self.claims({
-            'README.md': 'This repo has 12 plugins and three skills.\nIt took 2 days.\n',
+            'README.md': 'This repo has 12 plugins and three skills.\nIt took 2 days.\n'
+                         'Counts such as "5 tools" are examples. <!-- docs-drift: skip -->\n',
         }, 'README.md'), [
             {'doc': 'README.md', 'line': 1, 'kind': 'count', 'claim': '12 plugins', 'status': 'check'},
             {'doc': 'README.md', 'line': 1, 'kind': 'count', 'claim': 'three skills', 'status': 'check'},
