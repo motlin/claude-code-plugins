@@ -19,6 +19,7 @@ THIRD_PARTY = {'node_modules', 'site-packages', 'dist-packages', 'vendor', '.ven
 PYTHON = re.compile(r'^\s*(?P<file>[^\s:][^:]*?):(?P<line>\d+):\s*(?P<cat>\w*Warning):\s*(?P<msg>.*)$')
 NODE = re.compile(r'^\(node:\d+\)\s+(?:\[(?P<code>[\w-]+)\]\s+)?(?P<cat>\w*Warning):\s*(?P<msg>.*)$')
 NPM = re.compile(r'^npm (?:warn|WARN)\s+deprecated\s+(?P<pkg>@?[^@\s:]+)(?:@[^\s:]+)?:\s*(?P<msg>.*)$')
+NPM_WARN = re.compile(r'^npm (?:warn|WARN)\s+(?P<category>[\w-]+)\b')
 COMPILER = re.compile(r'^\s*(?P<file>[^\s:][^:]*?):(?P<line>\d+)(?::\d+)?:\s*warning:\s*(?P<msg>.*)$')
 MAVEN = re.compile(r'^\[WARNING\]\s+(?P<file>\S+?):\[\d+,\d+\]\s+(?P<msg>.*)$')
 RUST = re.compile(r'^warning:\s*(?P<msg>.*)$')
@@ -70,6 +71,8 @@ def warnings(lines, slow):
             yield kind, match['code'] or match['cat'], match['code'] or normalize(match['msg']), '', line
         elif match := NPM.match(line):
             yield 'deprecation', 'npm-deprecated', match['pkg'], '', line
+        elif match := NPM_WARN.match(line):
+            yield 'other', match['category'], f'npm {match["category"]}', '', line
         elif (match := COMPILER.match(line)) or (match := MAVEN.match(line)):
             yield (*compiler_warning(match['file'], match['msg']), line)
         elif match := RUST.match(line):

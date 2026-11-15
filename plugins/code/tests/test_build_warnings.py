@@ -28,6 +28,8 @@ tests/test_fake.py:4: DeprecationWarning: fake_old() is deprecated, use fake_new
 /venv/lib/python3.12/site-packages/fakelib/core.py:88: UserWarning: fakelib default changed
 (node:4242) [DEP0040] DeprecationWarning: The `punycode` module is deprecated.
 npm warn deprecated inflight@1.0.6: This module is not supported
+npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   fakepkg@1.0.0
 2.50s call     tests/test_fake.py::test_slow
 0.01s call     tests/test_fake.py::test_quick
   console.log
@@ -42,8 +44,9 @@ class ClassifyTest(unittest.TestCase):
     def test_groups_each_warning_class_by_kind_and_source_with_counts(self):
         report = build_warnings.classify(LOG, '/repo', slow=1.0)
         self.assertEqual(report, {
-            'total': 12,
-            'kinds': {'compiler': 3, 'lint': 1, 'deprecation': 4, 'runtime': 1, 'slow-test': 1, 'noise': 2},
+            'total': 14,
+            'kinds': {'compiler': 3, 'lint': 1, 'deprecation': 4, 'runtime': 1, 'other': 2, 'slow-test': 1,
+                      'noise': 2},
             'groups': [
                 {'kind': 'compiler', 'rule': '-Wunused-variable', 'source': '-Wunused-variable', 'count': 2,
                  'files': ['src/fake.c'], 'thirdParty': False,
@@ -68,6 +71,9 @@ class ClassifyTest(unittest.TestCase):
                  'example': '(node:4242) [DEP0040] DeprecationWarning: The `punycode` module is deprecated.'},
                 {'kind': 'deprecation', 'rule': 'npm-deprecated', 'source': 'inflight', 'count': 1, 'files': [],
                  'thirdParty': False, 'example': 'npm warn deprecated inflight@1.0.6: This module is not supported'},
+                {'kind': 'other', 'rule': 'install-scripts', 'source': 'npm install-scripts', 'count': 2,
+                 'files': [], 'thirdParty': False,
+                 'example': 'npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:'},
                 {'kind': 'slow-test', 'rule': 'slow', 'source': 'tests/test_fake.py', 'count': 1,
                  'files': ['tests/test_fake.py'], 'thirdParty': False,
                  'example': '2.50s call     tests/test_fake.py::test_slow'},
