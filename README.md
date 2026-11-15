@@ -111,3 +111,13 @@ npx skills add motlin/claude-code-plugins --skill markdown-tasks --agent claude-
 ```
 
 From a local checkout, use `.` as the repository. This installs skills only, not hooks, commands, or agents.
+
+## Develop This Repository
+
+Run `just` to list every recipe. The ones you need most:
+
+- `just install` installs the tools pinned in `mise.toml`.
+- `just verify` runs `just format`, `just lint`, `just pre-commit`, and `just test`; `just verify --quick` skips the tests.
+- `just format` checks Justfile, shell, and oxfmt formatting without rewriting files.
+- `just pre-commit` runs every configured pre-commit hook on all tracked files.
+- `just release --version X.Y.Z` bumps every plugin and marketplace version, then commits, tags, and pushes. Version bumps happen only through this recipe.
