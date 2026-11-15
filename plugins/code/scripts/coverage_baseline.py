@@ -165,7 +165,7 @@ def percent(covered, total):
 def compare(before, after):
     """Per-file and total coverage change.
 
-    gained is true when no line lost coverage and either more lines are covered or a partial line lost its untaken branch.
+    gained is true when the total of covered lines did not drop and either more lines are covered or a partial line lost its untaken branch.
     """
     files, resolved_total = [], 0
     for path in sorted(after):
