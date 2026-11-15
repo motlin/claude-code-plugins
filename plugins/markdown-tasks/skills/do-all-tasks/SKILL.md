@@ -32,7 +32,7 @@ The leader (this agent) coordinates and never implements. It uses only Bash and 
 - Run the test gate against `HEAD`.
 - Archive the task list with `task_archive.py`.
 
-`task_get.py` is the leader's only view of the queue. It never reads `.llm/todo.md`, task-referenced files, or source files. Each worker discovers its own implementation context.
+`task_get.py` is the leader's only view of the queue. The leader never reads `.llm/todo.md`, task-referenced files, or source files. Each worker discovers its own implementation context.
 
 ## Report Blocked Work Before the Loop
 
