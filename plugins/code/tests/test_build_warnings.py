@@ -1,5 +1,7 @@
 """Warning-class grouping and before/after comparison contracts for build_warnings."""
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import sys
@@ -125,9 +127,13 @@ class CompareTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             same = Path(root) / 'same.json'
             same.write_text(json.dumps(self.report({('lint', 'no-fake'): 1})))
-            with self.assertRaises(SystemExit) as exit_:
+            stdout = io.StringIO()
+            with self.assertRaises(SystemExit) as exit_, contextlib.redirect_stdout(stdout):
                 build_warnings.main(['compare', str(same), str(same)])
-            self.assertEqual(exit_.exception.code, 1)
+            self.assertEqual((exit_.exception.code, json.loads(stdout.getvalue())), (1, {
+                'before': 1, 'after': 1, 'reduced': False,
+                'classes': [{'kind': 'lint', 'source': 'no-fake', 'before': 1, 'after': 1}],
+            }))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,7 @@
 """Doc-set discovery and claim-checking contracts for docs_drift."""
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -151,13 +153,18 @@ class MainTest(unittest.TestCase):
             git(root, 'mv', 'docs/old.md', 'docs/new.md')
             commit(root, 'rename')
             write(root, {'README.md': '[x](docs/old.md)\n'})
-            with self.assertRaises(SystemExit) as stopped:
+            stdout = io.StringIO()
+            with self.assertRaises(SystemExit) as stopped, contextlib.redirect_stdout(stdout):
                 docs_drift.main(['--root', root, 'claims', '--strict', 'README.md'])
-            self.assertEqual(stopped.exception.code, 1)
+            self.assertEqual((stopped.exception.code, json.loads(stdout.getvalue())), (1, [
+                {'doc': 'README.md', 'line': 1, 'kind': 'path', 'claim': 'docs/old.md', 'status': 'renamed',
+                 'replacement': 'docs/new.md'},
+            ]))
             write(root, {'README.md': '[x](docs/new.md)\n'})
-            with self.assertRaises(SystemExit) as stopped:
+            stdout = io.StringIO()
+            with self.assertRaises(SystemExit) as stopped, contextlib.redirect_stdout(stdout):
                 docs_drift.main(['--root', root, 'claims', '--strict', 'README.md'])
-            self.assertEqual(stopped.exception.code, 0)
+            self.assertEqual((stopped.exception.code, json.loads(stdout.getvalue())), (0, []))
 
 
 if __name__ == '__main__':
