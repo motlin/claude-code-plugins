@@ -24,13 +24,17 @@ Write `REPORT.md` in this shape. Keep every section, writing "None." under a hea
 
 <Each task the ledger accepted, as its title and the file it is about, under the `## burn <date>` heading it was added to in `.llm/todo.md`. Note how many findings were skipped because the ledger already knew them.>
 
-## Runs without a branch
+## Runs not kept
 
-| Run | Status | Reason |
-| --- | ------ | ------ |
-| <track>-<shard> | empty, refuted, gate-failed or failed | <reason> |
+| Run | Status | Reason | Branch |
+| --- | ------ | ------ | ------ |
+| <track>-<shard> | empty, refuted, gate-failed or failed | <reason> | <branch>, or "deleted" when `branchDeleted` is true |
 
-<Then the runs that were never launched, and whether the tier's run count or the branch cap stopped them.>
+<A failed, refuted or gate-failed branch with commits stays for the user to inspect; only a branch with no commits beyond the base is deleted. Then the runs that were never launched, and whether the tier's run count or the branch cap stopped them.>
+
+## Unfinished worktrees
+
+<Each `unfinishedWorktree` in the outcomes, with its run: git refused to remove it, usually because of uncommitted changes, and it was left as it is for the user. Write "None." when every worktree was removed.>
 
 ## Tracks to reconsider
 

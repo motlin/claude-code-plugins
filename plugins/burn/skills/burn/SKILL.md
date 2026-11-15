@@ -92,7 +92,7 @@ The engine is a Workflow script, `<plugin-root>/scripts/burn-workflow.js`. It ru
 - **Gate:** the test command, or `git test run <base>..<branch>` when git-test is configured, runs once on each surviving branch. With no test command, kept branches are marked untested.
 - **Rank and report:** one agent ranks the kept branches, queues new findings in `.llm/todo.md` through `ledger.py merge`, records coverage with `ledger.py record`, and writes `runs.json` and `REPORT.md` from `references/report-template.md`. Worktrees are removed; branches stay.
 
-A failed, empty, refuted or gate-failed run has its worktree and branch deleted, and is never re-run.
+A failed, empty, refuted or gate-failed run is never re-run. Cleanup never forces anything: worktrees are removed with a plain `git worktree remove`, and one that git refuses to remove, usually for uncommitted changes, stays and is reported as unfinished. A run's branch stays for the user to inspect, and is listed in `REPORT.md` with its status, unless it has no commits beyond the base, in which case `git branch -d` deletes it.
 
 Read each planned run's track file from `references/tracks/<track>.md`: its frontmatter gives `invokes` and `evidence`, and its body is the run's `instructions`. Then call Workflow with `scriptPath: <plugin-root>/scripts/burn-workflow.js` and these `args`:
 
@@ -122,9 +122,9 @@ When it returns, add the run's total token spend from the Workflow result to `ru
 Codex has no Workflow tool, so you are the orchestrator and do by hand what the script does, serially, at the `small` tier whatever `size` says: 3 track runs, a branch cap of 3 (lower when `maxBranches` says so), and 1 verifier vote. The code-review track never applies in Codex. The script stays the single source of truth for the briefs: read `<plugin-root>/scripts/burn-workflow.js` and reuse its track, verify, gate, cleanup and rank-and-report prompts verbatim, filling each `${...}` from the same args you would have passed.
 
 - Take one planned track run at a time, in plan order. If Codex can start subagents, give the track run its own subagent so its work stays out of your context. Otherwise do it in your own context, keeping only its summary, evidence, diff stat and findings.
-- A track run that fails or commits nothing gets the cleanup prompt's branch deletion and is recorded as `failed` or `empty`.
-- Verify a committed branch with the verify prompt in a fresh subagent. Without subagents, verify it yourself from the diff and the evidence alone, and note in the report that its verifier was not fresh-context. A refuted branch is deleted and recorded as `refuted`.
-- Gate a surviving branch by running the gate prompt's command once in its worktree. A failing branch is deleted and recorded as `gate-failed`. With no test command, keep it as untested.
+- A track run that fails or commits nothing gets the cleanup prompt and is recorded as `failed` or `empty`.
+- Verify a committed branch with the verify prompt in a fresh subagent. Without subagents, verify it yourself from the diff and the evidence alone, and note in the report that its verifier was not fresh-context. A refuted branch gets the cleanup prompt and is recorded as `refuted`.
+- Gate a surviving branch by running the gate prompt's command once in its worktree. A failing branch gets the cleanup prompt and is recorded as `gate-failed`. With no test command, keep it as untested.
 - Stop launching once the kept branches reach the branch cap. A run that ends without a branch frees its slot.
 - Never re-run a failed, empty, refuted or gate-failed run, and never fix a branch to make it pass.
 - After each run, append its outcome to `.llm/burn/<date>/runs.json` in the shape the script builds. Long runs outlive one Codex session, and `runs.json` is the resume point: a fresh session continues from the first planned run it does not list.

@@ -72,6 +72,12 @@ const passed = () => (
 	output: "ok",
 });
 
+const removed = (branchDeleted = false) => (
+{
+	worktreeRemoved: true,
+	branchDeleted,
+});
+
 // Runs the workflow script with stubbed hooks. `responders` maps a label (or
 // label prefix ending in ':') to a function returning the agent's result.
 async function runWorkflow(args, responders)
@@ -84,6 +90,7 @@ async function runWorkflow(args, responders)
 		"track:": () => committed(),
 		"verify:": upheld,
 		"gate:": passed,
+		"cleanup:": () => removed(),
 		"rank-and-report": () => (
 		{
 			ranked: ["ranked-by-agent"],
@@ -179,7 +186,7 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 	assert.match(prompt(calls, "gate:code-review-src-a"), /run `just test` once/);
 	const cleanups = calls.filter((c) => c.label.startsWith("cleanup:"));
 	assert.deepEqual(cleanups.length, 3);
-	cleanups.forEach((c) => assert.doesNotMatch(c.prompt, /branch -D/));
+	cleanups.forEach((c) => assert.doesNotMatch(c.prompt, /--force|branch -[dD]/));
 	assert.deepEqual(
 		[...new Set(phases)].filter((p) => !meta.phases.some((m) => m.title === p)),
 		[],
@@ -244,7 +251,7 @@ test("launches stop at the branch cap, but a run that leaves no branch frees its
 	assert.deepEqual(freed.result.notLaunched, []);
 });
 
-test("an empty, refuted, gate-failed or dead run deletes its branch once and is never re-run", async () =>
+test("an empty, refuted, gate-failed or dead run keeps its branch unless it has no commits, and is never re-run", async () =>
 {
 	const {result, calls} = await runWorkflow(
 		{
@@ -273,6 +280,7 @@ test("an empty, refuted, gate-failed or dead run deletes its branch once and is 
 				passed: false,
 				output: "1 failed",
 			}),
+			"cleanup:": (label) => removed(label === "cleanup:code-review-src-a" || label === "cleanup:coverage-src-b"),
 		},
 	);
 
@@ -281,32 +289,80 @@ test("an empty, refuted, gate-failed or dead run deletes its branch once and is 
 			branch: "burn/2000-01-01/code-review-src-a",
 			status: "empty",
 			reason: "nothing worth committing",
+			branchDeleted: true,
 		},
 		{
 			branch: "burn/2000-01-01/code-review-src-b",
 			status: "refuted",
 			reason: "wrong",
+			branchDeleted: false,
 		},
 		{
 			branch: "burn/2000-01-01/coverage-src-a",
 			status: "gate-failed",
 			reason: "1 failed",
+			branchDeleted: false,
 		},
 		{
 			branch: "burn/2000-01-01/coverage-src-b",
 			status: "failed",
 			reason: "the track agent died",
+			branchDeleted: true,
 		},
 	]);
 	assert.deepEqual(labels(calls, "track:").length, 4);
-	const deletions = calls.filter((c) => c.label.startsWith("cleanup:") && /branch -D/.test(c.prompt));
-	assert.deepEqual(deletions.map((c) => c.label).sort(), [
+	const cleanups = calls.filter((c) => c.label.startsWith("cleanup:"));
+	assert.deepEqual(cleanups.map((c) => c.label).sort(), [
 		"cleanup:code-review-src-a",
 		"cleanup:code-review-src-b",
 		"cleanup:coverage-src-a",
 		"cleanup:coverage-src-b",
 	]);
+	cleanups.forEach((c) =>
+	{
+		assert.doesNotMatch(c.prompt, /--force|branch -D/);
+		assert.match(c.prompt, /rev-list --count abc123\.\.burn\/2000-01-01\/[a-z-]+`/);
+		assert.match(c.prompt, /git -C \/repo branch -d burn\/2000-01-01\/[a-z-]+`/);
+	});
 	assert.deepEqual(labels(calls, "gate:"), ["gate:coverage-src-a"]);
+});
+
+test("a worktree git refuses to remove stays and is reported as unfinished", async () =>
+{
+	const {result, calls} = await runWorkflow(
+		{
+			...BASE_ARGS,
+			runs: [run("code-review", "src/a"), run("coverage", "src/a")],
+		},
+		{
+			"track:": (label) => (label === "track:code-review-src-a" ? empty() : committed()),
+			"cleanup:": () => (
+			{
+				worktreeRemoved: false,
+				branchDeleted: false,
+			}),
+		},
+	);
+
+	assert.deepEqual(result.outcomes, [
+		{
+			branch: "burn/2000-01-01/code-review-src-a",
+			status: "empty",
+			reason: "nothing worth committing",
+			branchDeleted: false,
+			unfinishedWorktree: "/worktrees/burn-2000-01-01-code-review-src-a",
+		},
+		{
+			branch: "burn/2000-01-01/coverage-src-a",
+			status: "kept",
+			tested: true,
+			unfinishedWorktree: "/worktrees/burn-2000-01-01-coverage-src-a",
+		},
+	]);
+	assert.match(
+		prompt(calls, "rank-and-report"),
+		/"unfinishedWorktree": "\/worktrees\/burn-2000-01-01-code-review-src-a"/,
+	);
 });
 
 test("a dead verifier counts as refuting", async () =>
@@ -326,6 +382,7 @@ test("a dead verifier counts as refuting", async () =>
 			branch: "burn/2000-01-01/code-review-src-a",
 			status: "refuted",
 			reason: "no verifier upheld it",
+			branchDeleted: false,
 		},
 	]);
 });

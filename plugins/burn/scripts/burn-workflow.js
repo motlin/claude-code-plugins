@@ -232,22 +232,63 @@ function gatePrompt(where)
 	return `In ${where.worktree}, run \`${command}\` once and report whether it passed. Do not edit, fix, retry or commit anything.`;
 }
 
-function cleanupPrompt(where, keepBranch)
+const CLEANUP_SCHEMA =
 {
-	return keepBranch
-		? `Run \`git -C ${A.repo} worktree remove ${where.worktree}\`. Keep the branch ${where.branch}. Never use --force. Reply "ok".`
-		: `Run \`git -C ${A.repo} worktree remove --force ${where.worktree}\` if that worktree exists, then \`git -C ${A.repo} branch -D ${where.branch}\` if that branch exists. Reply "ok".`;
+	type: "object",
+	properties:
+	{
+		worktreeRemoved:
+		{
+			type: "boolean",
+			description: "true when the worktree is gone, or never existed",
+		},
+		branchDeleted:
+		{
+			type: "boolean",
+		},
+	},
+	required: ["worktreeRemoved", "branchDeleted"],
+};
+
+// Cleanup never forces anything: a worktree with uncommitted changes stays as
+// unfinished, and a branch with commits stays for the user to inspect.
+function cleanupPrompt(where, keptBranch)
+{
+	const worktree = `If ${where.worktree} exists, run \`git -C ${A.repo} worktree remove ${where.worktree}\` with no other flags. If git refuses, leave the worktree as it is and return worktreeRemoved: false.`;
+	const branch = keptBranch
+		? `Keep the branch ${where.branch} and return branchDeleted: false.`
+		: `Then, if the branch ${where.branch} exists and \`git -C ${A.repo} rev-list --count ${A.base}..${where.branch}\` prints 0, delete it with \`git -C ${A.repo} branch -d ${where.branch}\`. Otherwise keep it. Never delete a branch that has commits, and return whether you deleted it as branchDeleted.`;
+	return `${worktree}\n\n${branch}`;
 }
 
-const cleanup = (where, keepBranch) =>
-	agent(
-		cleanupPrompt(where, keepBranch),
+async function cleanup(where, keptBranch)
+{
+	const result = await agent(
+		cleanupPrompt(where, keptBranch),
 		{
 			label: `cleanup:${where.id}`,
-			phase: keepBranch ? "Rank and report" : "Run tracks",
+			phase: keptBranch ? "Rank and report" : "Run tracks",
+			schema: CLEANUP_SCHEMA,
 			effort: "low",
 		},
 	);
+	return {
+		branchDeleted: Boolean(result && result.branchDeleted),
+		...(result && result.worktreeRemoved
+			? {}
+			:
+				{
+					unfinishedWorktree: where.worktree,
+				}),
+	};
+}
+
+// A run that ends without a kept branch cleans up and returns its outcome.
+const settle = async (where, outcome) => (
+{
+	...outcome,
+	...(await cleanup(where, false)),
+});
 
 async function trackChain(run)
 {
@@ -269,12 +310,14 @@ async function trackChain(run)
 	);
 	if (!result)
 	{
-		await cleanup(where, false);
-		return {
-			...outcome,
-			status: "failed",
-			reason: "the track agent died",
-		};
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "failed",
+				reason: "the track agent died",
+			},
+		);
 	}
 	outcome.summary = result.summary;
 	outcome.evidence = result.evidence;
@@ -286,12 +329,14 @@ async function trackChain(run)
 	}));
 	if (!result.committed)
 	{
-		await cleanup(where, false);
-		return {
-			...outcome,
-			status: "empty",
-			reason: "nothing worth committing",
-		};
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "empty",
+				reason: "nothing worth committing",
+			},
+		);
 	}
 
 	const votes = await parallel(
@@ -314,16 +359,18 @@ async function trackChain(run)
 	const upheld = votes.filter((v) => v && !v.refuted).length;
 	if (upheld * 2 <= TIER.votes)
 	{
-		await cleanup(where, false);
-		return {
-			...outcome,
-			status: "refuted",
-			reason:
-				votes
-					.filter((v) => v && v.refuted)
-					.map((v) => v.reason)
-					.join(" / ") || "no verifier upheld it",
-		};
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "refuted",
+				reason:
+					votes
+						.filter((v) => v && v.refuted)
+						.map((v) => v.reason)
+						.join(" / ") || "no verifier upheld it",
+			},
+		);
 	}
 
 	if (!A.testCommand)
@@ -345,12 +392,14 @@ async function trackChain(run)
 	);
 	if (!gate || !gate.passed)
 	{
-		await cleanup(where, false);
-		return {
-			...outcome,
-			status: "gate-failed",
-			reason: gate ? gate.output : "the gate agent died",
-		};
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "gate-failed",
+				reason: gate ? gate.output : "the gate agent died",
+			},
+		);
 	}
 	return {
 		...outcome,
@@ -474,7 +523,12 @@ You must write ${A.runDir}/REPORT.md from the template; the run is not reported 
 const reportPath = `${A.runDir}/REPORT.md`;
 const reported = report && report.reportPath === reportPath;
 if (!reported) log(`The report agent did not return ${reportPath}`);
-await parallel(kept.map((o) => () => cleanup(o, true)));
+const keptCleanups = await parallel(kept.map((o) => () => cleanup(o, true)));
+kept.forEach((o, i) =>
+{
+	const left = keptCleanups[i] ? keptCleanups[i].unfinishedWorktree : o.worktree;
+	if (left) o.unfinishedWorktree = left;
+});
 
 return {
 	ranked: report ? report.ranked : kept.map((o) => o.branch),
@@ -494,6 +548,15 @@ return {
 			?
 				{
 					tested: o.tested,
+				}
+			:
+				{
+					branchDeleted: o.branchDeleted,
+				}),
+		...(o.unfinishedWorktree
+			?
+				{
+					unfinishedWorktree: o.unfinishedWorktree,
 				}
 			: {}),
 	})),
