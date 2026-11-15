@@ -53,6 +53,7 @@ Each track file under `references/tracks/` declares an `applies` key: `any`, or 
 - `has-coverage-tool`: c8 or `--coverage` support in Jest or Vitest, coverage.py or pytest-cov, Go's `-coverprofile`, `cargo tarpaulin`, or JaCoCo.
 - `has-mutation-tool`: Stryker, PIT, mutmut or cargo-mutants.
 - `has-prompts`: the repo has skills (`SKILL.md`), agents, commands, or a `CLAUDE.md` or `AGENTS.md`.
+- `is-plugin-repo`: the repo is a Claude Code plugin, marketplace or skill repo: it has a `.claude-plugin/` directory, a `marketplace.json`, or `skills/*/SKILL.md` files.
 
 A track applies when its key is detected, then `tracks` and `skipTracks` narrow the set. In Codex, the code-review track never applies, because `/code-review` is a Claude Code skill. The duplication track also needs the `goal-sloc` skill, which this marketplace does not ship: skip it when `goal-sloc` is not among the available skills.
 
