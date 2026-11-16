@@ -1,6 +1,6 @@
 {
 	"name": "burn",
-	"version": "1.41.0",
+	"version": "1.42.0",
 	"description": "Spend spare weekly quota on improvement skills in worktrees, leaving tested local branches and a ranked task queue",
 	"author":
 	{
