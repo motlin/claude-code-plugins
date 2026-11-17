@@ -89,10 +89,12 @@ class RendererTests(unittest.TestCase):
         (self.root / 'sample.py').write_text('def tick():\n    return 1\n')
         (self.root / 'experiment.html').write_text('<div class="lab">A counter experiment</div>')
         (self.root / 'experiment.js').write_text('window.exampleCounter = 0;')
+        (self.root / 'demo.html').write_text('<pre><code>$ counter --help</code></pre>')
         self.spec['sections'] = [{'file': 'sample.py', 'title': 'Counter', 'steps': [
             {'id': 'tick', 'title': 'Return one', 'start': 'return 1', 'html': '<p>Return one.</p>'}
         ], 'experiments': [{'id': 'counter', 'title': 'Try a counter', 'html': '<p>Increment the count.</p>', 'file': 'experiment.html'}]}]
         self.spec['scripts'] = ['experiment.js']
+        self.spec['preface'] = [{'id': 'demo', 'title': 'Run the counter', 'file': 'demo.html'}]
         self.spec_path.write_text(json.dumps(self.spec))
         result = self.cli('--review', 'all')
         self.assertEqual((result.returncode, result.stderr), (0, ''))
@@ -100,6 +102,8 @@ class RendererTests(unittest.TestCase):
         for text in ['Astro v7.4.12', 'Python · Complete file', 'A counter experiment', 'window.exampleCounter = 0;']:
             with self.subTest(text=text):
                 self.assertIn(text, page)
+        preface = '<section class="preface" id="demo"><div class="preface-body"><h2>Run the counter</h2><pre><code>$ counter --help</code></pre></div></section>'
+        self.assertLess(page.index(preface), page.index('id="section-1"'))
 
     def test_changed_excerpt_requires_review_but_relocation_does_not(self):
         self.assertEqual(self.cli('--review', 'tick').returncode, 0)

@@ -76,7 +76,8 @@ def render(spec, sections, root, runtime=None):
                        for experiment in section.get('experiments', [])]
         rendered.append(dict(section, language=lexer.name, lines=lines, experiments=experiments))
         warnings.extend(step['id'] for step in section['steps'] if step['stale'])
-    data = dict(title=spec['title'], sections=rendered,
+    preface = [dict(part, markup=within(root, part['file']).read_text()) for part in spec.get('preface', [])]
+    data = dict(title=spec['title'], preface=preface, sections=rendered,
                 scripts=[within(root, path).read_text() for path in spec.get('scripts', [])],
                 references=spec.get('references', ''),
                 status=f'{len(warnings)} explanations need source review.' if warnings else 'Source anchors and reviewed excerpts match.')

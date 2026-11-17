@@ -62,7 +62,7 @@ Repeat `--review` for several reviewed steps. Use `--review all` only after revi
 
 ## Experiments and trusted content
 
-An optional section `experiments` array contains objects with `id`, `title`, explanatory `html`, and `file` (a local HTML fragment). Each appears after its source panel. Scope styles and selectors to its container. Optional root `scripts` lists local JavaScript paths to inline, and `references` supplies footer HTML. Keep the generated page self-contained; do not introduce external assets unless requested. The renderer treats explanation HTML and experiment fragments as trusted author input; it escapes source code, titles, and paths. Review authored HTML before publishing it.
+An optional section `experiments` array contains objects with `id`, `title`, explanatory `html`, and `file` (a local HTML fragment). Each appears after its source panel. Scope styles and selectors to its container. An optional root `preface` array holds prose sections shown before the first source section, such as a captured CLI demo or background the reader needs first: objects with a unique `id` (its URL fragment), a `title`, and `file` (a local HTML fragment, for example a Showboat demo rendered with `--fragment`). Preface sections have no source panel and are not in the section selector, so link to them from their own contents. Optional root `scripts` lists local JavaScript paths to inline, and `references` supplies footer HTML. Keep the generated page self-contained; do not introduce external assets unless requested. The renderer treats explanation HTML and experiment fragments as trusted author input; it escapes source code, titles, and paths. Review authored HTML before publishing it.
 
 ## Reading layout
 
