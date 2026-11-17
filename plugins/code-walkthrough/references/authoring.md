@@ -8,7 +8,7 @@ python3 /path/to/plugin/scripts/setup.py --runtime .llm/code-walkthrough
 
 This leaves the plugin unchanged. The runtime contains npm dependencies and a Python virtual environment.
 
-Keep a JSON specification in the target repository, for example `docs/walkthrough.json`. Paths inside it are relative to the `--root` directory. CLI specification and output paths are relative to the command's working directory.
+Keep a JSON specification in the target repository, by default the untracked `.llm/walkthrough/walkthrough.json` (see the skill for when to commit it instead). Paths inside it are relative to the `--root` directory. CLI specification and output paths are relative to the command's working directory.
 
 ```json
 {
@@ -40,14 +40,14 @@ Use stable, unique, lowercase hyphenated step IDs; they become shareable URL fra
 
 ```sh
 .llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
-  --spec docs/walkthrough.json --output docs/walkthrough.html
+  --spec .llm/walkthrough/walkthrough.json --output .llm/walkthrough/walkthrough.html
 ```
 
 New or changed excerpts render with a visible review notice. Read the current code and its explanation, revise as needed, then record the reviewed step:
 
 ```sh
 .llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
-  --spec docs/walkthrough.json --output docs/walkthrough.html \
+  --spec .llm/walkthrough/walkthrough.json --output .llm/walkthrough/walkthrough.html \
   --review frame-dispatch
 ```
 
@@ -55,10 +55,10 @@ Repeat `--review` for several reviewed steps. Use `--review all` only after revi
 
 ```sh
 .llm/code-walkthrough/.venv/bin/python /path/to/plugin/scripts/build.py --root . \
-  --spec docs/walkthrough.json --output docs/walkthrough.html --check
+  --spec .llm/walkthrough/walkthrough.json --output .llm/walkthrough/walkthrough.html --check
 ```
 
-`--check` leaves the specification and output unchanged (Astro builds in disposable runtime scratch space) and fails if output is stale or excerpts need review. Add it to the project's existing validation workflow when appropriate. Reproducibility assumes the same specification, sources, renderer, and pinned Astro and Pygments dependencies. Use `--runtime` to override the default `<root>/.llm/code-walkthrough` directory. A passing check verifies source alignment, not correctness of the authored explanation.
+`--check` leaves the specification and output unchanged (Astro builds in disposable runtime scratch space) and fails if output is stale or excerpts need review. When the specification is committed, add it to the project's existing validation workflow so stale explanations fail the build. Reproducibility assumes the same specification, sources, renderer, and pinned Astro and Pygments dependencies. Use `--runtime` to override the default `<root>/.llm/code-walkthrough` directory. A passing check verifies source alignment, not correctness of the authored explanation.
 
 ## Experiments and trusted content
 

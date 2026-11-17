@@ -5,7 +5,13 @@ description: Create and maintain an HTML codebase walkthrough with ordered expla
 
 # Code Walkthrough
 
-Build a reading experience around the actual source: concise explanations on the left, sticky syntax-highlighted code on the right. Scrolling selects the corresponding lines. Use the bundled Astro components and pinned build dependencies; do not recreate the layout for each codebase. Keep the walkthrough specification in the target repository. Read [authoring.md](../../references/authoring.md) for the format and rebuild commands.
+Build a reading experience around the actual source: concise explanations on the left, sticky syntax-highlighted code on the right. Scrolling selects the corresponding lines. Use the bundled Astro components and pinned build dependencies; do not recreate the layout for each codebase. Read [authoring.md](../../references/authoring.md) for the format and rebuild commands.
+
+## Choose where the walkthrough lives
+
+Keep the walkthrough untracked by default: put the specification and the generated page in the target repository's `.llm/walkthrough/` directory, as `walkthrough.json` and `walkthrough.html`. Confirm that `.llm/` is gitignored, and add it to `.gitignore` if not.
+
+Put the walkthrough in version control only when the user wants it there. Then commit only the JSON specification (for example `docs/walkthrough.json`) and gitignore the generated HTML. Never commit the HTML: it embeds every source file it shows, so each rebuild adds megabytes of duplicated source to history and noisy diffs to review.
 
 ## Choose the teaching order
 
