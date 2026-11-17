@@ -425,6 +425,11 @@ p code
 	padding: 48px clamp(22px, 4vw, 64px);
 	border-bottom: 1px solid var(--rule);
 }
+.preface,
+.preface h3
+{
+	scroll-margin-top: calc(var(--header) + 12px);
+}
 .preface-body
 {
 	max-width: 52em;
