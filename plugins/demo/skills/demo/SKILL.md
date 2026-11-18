@@ -144,6 +144,8 @@ Deliver by the best option the environment offers, and send the file as well whi
 
 Never end a demo with only a local `open` and a path on this machine.
 
+When the project has a code walkthrough (the `code-walkthrough:code-walkthrough` skill), the demo can open it as a `preface` section instead of standing alone. Render the document to an HTML fragment whose styles are scoped to that section, list it in the walkthrough spec's `preface`, and rebuild. The walkthrough's hosting then delivers both. `demo-render.py --fragment` sets page-wide `:root` and `body` styles, so scope or strip them before embedding.
+
 ## Finish with verification
 
 Run `uvx showboat verify demo.md` and report the result, including which blocks drift and why.

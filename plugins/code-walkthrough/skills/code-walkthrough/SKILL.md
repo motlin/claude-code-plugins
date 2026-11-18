@@ -21,6 +21,8 @@ Explain the current highlight before tracing where its dependencies come from. U
 
 Get to code quickly. Use descriptive headings, concrete names, and concise prose. Omit cute introductions, chapter-count marketing, and announcements of what the tutorial will teach. Explain unfamiliar language syntax where it appears. Keep complete source paths and line ranges visible.
 
+When the reader should see the program run before reading its source, or needs domain background the code assumes, put it in a `preface` section before the first source section. Capture a program demo with the `demo:demo` skill and embed its rendered fragment; never retype command output into the preface.
+
 The renderer embeds complete files. If adapting it to excerpts, showing at least half of a file means showing the entire file. Never present rewritten examples as real source. Optional interactive experiments should illuminate a particular algorithm; label models and simplifications, and keep them separate from the actual implementation.
 
 ## Discuss, review, and revise
