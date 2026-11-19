@@ -16,14 +16,15 @@ Plugins for agent workflows, development tools, terminal feedback, and safety ch
 
 ### Build and Maintain Code
 
-| Plugin                                             | Use it to                                                        | Claude Code | Codex |
-| -------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
-| [build](plugins/build/README.md)                   | Run precommit checks and test commits or branches                | ✅          | ✅    |
-| [code](plugins/code/README.md)                     | Apply code-quality, CLI, and test-writing conventions            | ✅          | ✅    |
-| [git](plugins/git/README.md)                       | Commit, rebase, resolve conflicts, and manage branches/worktrees | ✅          | ✅    |
-| [github](plugins/github/README.md)                 | Diagnose GitHub Actions failures                                 | ✅          | ✅    |
-| [justfile](plugins/justfile/README.md)             | Write and tighten Justfile recipe documentation                  | ✅          | ✅    |
-| [worktree-setup](plugins/worktree-setup/README.md) | Prepare files and tools in Claude Code agent worktrees           | ✅          | —     |
+| Plugin                                                               | Use it to                                                        | Claude Code | Codex |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------- | ----- |
+| [build](plugins/build/README.md)                                     | Run precommit checks and test commits or branches                | ✅          | ✅    |
+| [code](plugins/code/README.md)                                       | Apply code-quality, CLI, and test-writing conventions            | ✅          | ✅    |
+| [git](plugins/git/README.md)                                         | Commit, rebase, resolve conflicts, and manage branches/worktrees | ✅          | ✅    |
+| [github](plugins/github/README.md)                                   | Diagnose GitHub Actions failures                                 | ✅          | ✅    |
+| [inline-review](plugins/inline-review/skills/inline-review/SKILL.md) | Post multi-reviewer Conventional Comments inline in Plannotator  | ✅          | —     |
+| [justfile](plugins/justfile/README.md)                               | Write and tighten Justfile recipe documentation                  | ✅          | ✅    |
+| [worktree-setup](plugins/worktree-setup/README.md)                   | Prepare files and tools in Claude Code agent worktrees           | ✅          | —     |
 
 ### Guide Agents and Authors
 

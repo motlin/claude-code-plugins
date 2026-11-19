@@ -196,6 +196,17 @@
 			"category": "productivity"
 		},
 		{
+			"name": "inline-review",
+			"description": "Run a panel of specialist code reviewers, verify and merge their findings into Conventional Comments, and post them inline into a Plannotator review session",
+			"version": "1.42.0",
+			"author":
+			{
+				"name": "Craig Motlin"
+			},
+			"source": "./plugins/inline-review",
+			"category": "productivity"
+		},
+		{
 			"name": "investigation-report",
 			"description": "Explain a command-line investigation as a single self-contained HTML report: the commands run, their real output, and just enough reasoning to teach it",
 			"version": "1.42.0",
