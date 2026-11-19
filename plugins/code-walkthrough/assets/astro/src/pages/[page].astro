@@ -15,7 +15,7 @@ const options = [{ value: '../', label: 'Contents' }, ...data.pages.map(other =>
 ---
 <Page heading={part?.title ?? section.title}>
 {section && <a class="skip" href={`#section-${page.index + 1}`}>Skip to code</a>}
-<Topbar title={data.title} home="../" options={options} previous={page.previous} next={page.next} position={page.position} count={data.pages.length}/>
+<Topbar title={data.title} home="../" options={options} previous={page.previous} next={page.next}/>
 {section && <noscript><p class="no-script">Complete source and explanations are readable below. Enable JavaScript for synchronized highlights and experiments.</p></noscript>}
 <main>{part && <section class="preface" id={part.id}><div class="preface-body"><h2>{part.title}</h2><Fragment set:html={part.markup}/></div></section>}{section && <SourceSection section={section} index={page.index}/>}
 <Pager previous={page.previous_page} next={page.next_page}/>

@@ -103,7 +103,7 @@ def paginate(preface, sections, ids):
             experiment['html'] = relink(experiment['html'], page, homes)
             experiment['markup'] = relink(experiment['markup'], page, homes)
     kinds = [('preface', index, part['title']) for index, part in enumerate(preface)]
-    kinds += [('section', index, f'{index + 1:02d} · {section["title"]}') for index, section in enumerate(sections)]
+    kinds += [('section', index, section['title']) for index, section in enumerate(sections)]
     pages = []
     for position, (page, (kind, index, label)) in enumerate(zip(ids, kinds)):
         previous = None
@@ -112,7 +112,7 @@ def paginate(preface, sections, ids):
             if kinds[position - 1][0] == 'section':
                 previous += '#' + sections[kinds[position - 1][1]]['steps'][-1]['id']
         following = f'../{ids[position + 1]}/' if position + 1 < len(ids) else None
-        pages.append(dict(id=page, kind=kind, index=index, label=label, position=position + 1, previous=previous, next=following,
+        pages.append(dict(id=page, kind=kind, index=index, label=label, previous=previous, next=following,
                           previous_page=dict(url=f'../{ids[position - 1]}/', label=kinds[position - 1][2]) if position else dict(url='../', label='Contents'),
                           next_page=dict(url=following, label=kinds[position + 1][2]) if following else None))
     return pages, homes

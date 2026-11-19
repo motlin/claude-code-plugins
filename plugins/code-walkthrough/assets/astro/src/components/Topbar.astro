@@ -1,13 +1,12 @@
 ---
 // The sticky header. `options` fill the section picker; `previous` and `next` are page URLs that
 // the arrows follow past the first and last step, and `home` the contents page (pages mode only).
-const { title, home, options, previous, next, position, count } = Astro.props;
+const { title, home, options, previous, next } = Astro.props;
 ---
 <header class={home ? 'topbar book' : 'topbar'}>
 <h1>{home ? <a href={home}>{title}</a> : title}<span>Code walkthrough</span></h1>
 <nav class="navigation" aria-label="Walkthrough" data-page-previous={previous} data-page-next={next}>
 {home && <a class="contents-link" href={home} aria-label="Contents" aria-keyshortcuts="g" title="Contents (g)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h8"/></svg></a>}
 <div class="picker"><select id="sections" aria-label="Code section">{options.map(option => <option value={option.value} selected={option.selected}>{option.label}</option>)}</select></div>
-{count && <span class="position" aria-label={`Page ${position} of ${count}`}>{position} / {count}</span>}
 <div class="arrows"><button id="previous" aria-label="Previous explanation" aria-keyshortcuts="ArrowLeft k" title="Previous (← or k; ? for all shortcuts)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button><button id="next" aria-label="Next explanation" aria-keyshortcuts="ArrowRight j" title="Next (→ or j; ? for all shortcuts)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg></button></div>
 </nav><div class="progress" aria-hidden="true"></div></header>

@@ -109,7 +109,7 @@ summary
 	padding-left: 10px;
 	border-left: 1px solid var(--rule);
 }
-.contents ol
+.contents ul
 {
 	padding-left: 1.6em;
 	line-height: 1.8;
@@ -164,17 +164,6 @@ select:hover,
 .contents-link:hover
 {
 	border-color: var(--muted);
-}
-.position
-{
-	font:
-		12px/1 ui-monospace,
-		SFMono-Regular,
-		Menlo,
-		monospace;
-	color: var(--muted);
-	white-space: nowrap;
-	font-variant-numeric: tabular-nums;
 }
 .arrows
 {
@@ -372,12 +361,6 @@ main
 	font-weight: 500;
 	color: var(--muted);
 	margin: 0 0 26px;
-}
-.explanations h2 span
-{
-	font-family: ui-monospace, monospace;
-	color: var(--accent);
-	margin-right: 8px;
 }
 .step
 {
@@ -857,10 +840,6 @@ p code
 	.navigation
 	{
 		gap: 8px;
-	}
-	.position
-	{
-		display: none;
 	}
 	.section,
 	.lab-section

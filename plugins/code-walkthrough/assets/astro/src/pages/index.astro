@@ -6,7 +6,7 @@ import Pager from '../components/Pager.astro';
 import data from '../data.json';
 const single = data.pages.length === 0;
 const options = single
-	? data.sections.map((section, index) => ({ value: `section-${index + 1}`, label: `${String(index + 1).padStart(2, '0')} · ${section.title}` }))
+	? data.sections.map((section, index) => ({ value: `section-${index + 1}`, label: section.title }))
 	: [{ value: './', label: 'Contents', selected: true }, ...data.pages.map(page => ({ value: `${page.id}/`, label: page.label }))];
 const moved = `const moved = ${JSON.stringify(data.moved)};
 const page = moved[location.hash.slice(1)];
@@ -22,7 +22,7 @@ if (page) location.replace(page + "/" + location.hash);`;
 </> : <>
 <script is:inline set:html={moved}/>
 <Topbar title={data.title} home="./" options={options} next={`${data.pages[0].id}/`}/>
-<main><section class="preface contents"><div class="preface-body"><h2>Contents</h2><ol>{data.pages.map(page => <li><a href={`${page.id}/`}>{page.label}</a></li>)}</ol></div></section>
+<main><section class="preface contents"><div class="preface-body"><h2>Contents</h2><ul>{data.pages.map(page => <li><a href={`${page.id}/`}>{page.label}</a></li>)}</ul></div></section>
 <Pager next={{ url: `${data.pages[0].id}/`, label: data.pages[0].label }}/>
 <footer class="references"><Fragment set:html={data.references}/><p>{data.status}</p></footer></main>
 </>}
