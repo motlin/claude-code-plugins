@@ -131,10 +131,10 @@ class RendererTests(unittest.TestCase):
             (
                 ['demo/index.html', 'index.html', 'second/index.html', 'tick/index.html'],
                 {
-                    'demo/index.html': ['../', '../tick/', '../', '../demo/', '../tick/', '../second/', '../tick/#tick', '../second/#two'],
-                    'index.html': ['./', 'demo/', './', 'demo/', 'tick/', 'second/', 'demo/', 'tick/', 'second/'],
-                    'second/index.html': ['#section-2', '../', '../tick/#tick', '../', '../demo/', '../tick/', '../second/', '#two', '../tick/#tick', '../demo/#demo'],
-                    'tick/index.html': ['#section-1', '../', '../demo/', '../second/', '../', '../demo/', '../tick/', '../second/', '#tick', '../second/#two'],
+                    'demo/index.html': ['../', '../tick/', '../', '../', '../demo/', '../tick/', '../second/', '../tick/#tick', '../second/#two', '../', '../tick/'],
+                    'index.html': ['./', 'demo/', './', './', 'demo/', 'tick/', 'second/', 'demo/', 'tick/', 'second/', 'demo/'],
+                    'second/index.html': ['#section-2', '../', '../tick/#tick', '../', '../', '../demo/', '../tick/', '../second/', '#two', '../tick/#tick', '../demo/#demo', '../tick/'],
+                    'tick/index.html': ['#section-1', '../', '../demo/', '../second/', '../', '../', '../demo/', '../tick/', '../second/', '#tick', '../second/#two', '../demo/', '../second/'],
                 },
                 {'demo/index.html': [], 'index.html': [], 'second/index.html': ['return 2'], 'tick/index.html': self.source.splitlines()},
                 '{"demo":"demo","section-1":"tick","tick":"tick","section-2":"second","two":"second"}',

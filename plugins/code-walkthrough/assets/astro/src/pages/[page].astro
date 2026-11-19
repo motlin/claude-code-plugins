@@ -2,6 +2,7 @@
 import Page from '../components/Page.astro';
 import Topbar from '../components/Topbar.astro';
 import SourceSection from '../components/SourceSection.astro';
+import Pager from '../components/Pager.astro';
 import data from '../data.json';
 export function getStaticPaths()
 {
@@ -14,8 +15,9 @@ const options = [{ value: '../', label: 'Contents' }, ...data.pages.map(other =>
 ---
 <Page heading={part?.title ?? section.title}>
 {section && <a class="skip" href={`#section-${page.index + 1}`}>Skip to code</a>}
-<Topbar title={data.title} home="../" options={options} previous={page.previous} next={page.next}/>
+<Topbar title={data.title} home="../" options={options} previous={page.previous} next={page.next} position={page.position} count={data.pages.length}/>
 {section && <noscript><p class="no-script">Complete source and explanations are readable below. Enable JavaScript for synchronized highlights and experiments.</p></noscript>}
 <main>{part && <section class="preface" id={part.id}><div class="preface-body"><h2>{part.title}</h2><Fragment set:html={part.markup}/></div></section>}{section && <SourceSection section={section} index={page.index}/>}
+<Pager previous={page.previous_page} next={page.next_page}/>
 <footer class="references"><p>{data.status}</p></footer></main>
 </Page>

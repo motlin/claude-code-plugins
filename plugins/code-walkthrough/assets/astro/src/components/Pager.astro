@@ -1,0 +1,8 @@
+---
+// Previous and next page cards at the bottom of a page.
+const { previous, next } = Astro.props;
+---
+<nav class="pager" aria-label="Pages">
+{previous && <a class="pager-link previous" href={previous.url} rel="prev"><span>Previous</span><strong>« {previous.label}</strong></a>}
+{next && <a class="pager-link next" href={next.url} rel="next"><span>Next</span><strong>{next.label} »</strong></a>}
+</nav>
