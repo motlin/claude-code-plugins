@@ -1,0 +1,15 @@
+---
+import '../styles/walkthrough.css';
+import '../styles/syntax.css';
+import navigation from '../navigation.js?raw';
+import data from '../data.json';
+const { heading } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="color-scheme" content="dark"/><meta name="generator" content={Astro.generator}/><title>{heading ? `${heading} — ${data.title}` : `${data.title} — Code walkthrough`}</title></head>
+<body>
+<slot/>
+<script is:inline set:html={navigation}/>
+{data.scripts.map(script => <script is:inline set:html={script}/>)}
+</body></html>

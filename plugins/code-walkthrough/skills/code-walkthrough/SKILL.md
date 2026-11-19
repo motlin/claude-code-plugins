@@ -9,7 +9,7 @@ Build a reading experience around the actual source: concise explanations on the
 
 ## Choose where the walkthrough lives
 
-Keep the walkthrough untracked by default: put the specification and the generated page in the target repository's `.llm/walkthrough/` directory, as `walkthrough.json` and `walkthrough.html`. Confirm that `.llm/` is gitignored, and add it to `.gitignore` if not.
+Keep the walkthrough untracked by default: put the specification and the generated pages in the target repository's `.llm/walkthrough/` directory, as `walkthrough.json` and the `site/` directory. Confirm that `.llm/` is gitignored, and add it to `.gitignore` if not.
 
 Put the walkthrough in version control only when the user wants it there. Then commit only the JSON specification (for example `docs/walkthrough.json`) and gitignore the generated HTML. Never commit the HTML: it embeds every source file it shows, so each rebuild adds megabytes of duplicated source to history and noisy diffs to review.
 

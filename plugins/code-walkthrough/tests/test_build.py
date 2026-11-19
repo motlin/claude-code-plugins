@@ -3,6 +3,7 @@ import hashlib
 from html.parser import HTMLParser
 import importlib.util
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -59,8 +60,9 @@ class RendererTests(unittest.TestCase):
         self.output = self.root / 'walkthrough.html'
         self.spec_path.write_text(json.dumps(self.spec))
 
-    def cli(self, *arguments):
-        return subprocess.run([sys.executable, str(PLUGIN / 'scripts/build.py'), '--runtime', str(RUNTIME), '--root', str(self.root), '--spec', str(self.spec_path), '--output', str(self.output), *arguments], capture_output=True, text=True)
+    def cli(self, *arguments, output=None):
+        mode = [] if output else ['--single-page']
+        return subprocess.run([sys.executable, str(PLUGIN / 'scripts/build.py'), '--runtime', str(RUNTIME), '--root', str(self.root), '--spec', str(self.spec_path), '--output', str(output or self.output), *mode, *arguments], capture_output=True, text=True)
 
     def test_anchor_range_and_review_survive_line_insertion(self):
         first, last, digest = build.resolve(self.source, 'function tick()', 'end -- tick')
@@ -80,7 +82,8 @@ class RendererTests(unittest.TestCase):
         (self.root / 'sample.lua').write_text(source)
         self.spec['sections'][0]['steps'][0].update(start='return text', end='return text')
         sections = build.prepare(self.spec, self.root)
-        page, warnings = build.render(self.spec, sections, self.root, RUNTIME)
+        files, warnings = build.render(self.spec, sections, self.root, RUNTIME, single=True)
+        page = files['index.html']
         parser = CodeText()
         parser.feed(page)
         self.assertEqual((parser.lines, warnings), (source.splitlines(), ['tick']))
@@ -104,6 +107,43 @@ class RendererTests(unittest.TestCase):
                 self.assertIn(text, page)
         preface = '<section class="preface" id="demo"><div class="preface-body"><h2>Run the counter</h2><pre><code>$ counter --help</code></pre></div></section>'
         self.assertLess(page.index(preface), page.index('id="section-1"'))
+
+    def test_pages_give_each_preface_and_section_its_own_url(self):
+        (self.root / 'other.lua').write_text('return 2\n')
+        (self.root / 'demo.html').write_text('<p>See <a href="#tick">tick</a> and <a href="#two">two</a>.</p>')
+        self.spec['sections'][0]['steps'][0]['html'] = '<p>Compare <a href="#two">two</a>.</p>'
+        self.spec['sections'].append({'id': 'second', 'file': 'other.lua', 'title': 'Other', 'steps': [
+            {'id': 'two', 'title': 'Return two', 'start': 'return 2', 'html': '<p>Back to <a href="#tick">tick</a> and <a href="#demo">the demo</a>.</p>'}
+        ]})
+        self.spec['preface'] = [{'id': 'demo', 'title': 'Run it', 'file': 'demo.html'}]
+        self.spec_path.write_text(json.dumps(self.spec))
+        site = self.root / 'site'
+        result = self.cli('--review', 'all', output=site)
+        self.assertEqual((result.returncode, result.stderr), (0, ''))
+        files = sorted(path.relative_to(site).as_posix() for path in site.rglob('*') if path.is_file())
+        pages = {name: (site / name).read_text() for name in files}
+        links = {name: re.findall(r'(?:href|data-page-[a-z]+|value)="([^"]*)"', page) for name, page in pages.items()}
+        code = {name: CodeText() for name in files}
+        for name, parser in code.items():
+            parser.feed(pages[name])
+        self.assertEqual(
+            (files, links, {name: parser.lines for name, parser in code.items()}, re.search(r'const moved = (\{.*?\});', pages['index.html']).group(1)),
+            (
+                ['demo/index.html', 'index.html', 'second/index.html', 'tick/index.html'],
+                {
+                    'demo/index.html': ['../', '../tick/', '../', '../demo/', '../tick/', '../second/', '../tick/#tick', '../second/#two'],
+                    'index.html': ['./', 'demo/', './', 'demo/', 'tick/', 'second/', 'demo/', 'tick/', 'second/'],
+                    'second/index.html': ['#section-2', '../', '../tick/#tick', '../', '../demo/', '../tick/', '../second/', '#two', '../tick/#tick', '../demo/#demo'],
+                    'tick/index.html': ['#section-1', '../', '../demo/', '../second/', '../', '../demo/', '../tick/', '../second/', '#tick', '../second/#two'],
+                },
+                {'demo/index.html': [], 'index.html': [], 'second/index.html': ['return 2'], 'tick/index.html': self.source.splitlines()},
+                '{"demo":"demo","section-1":"tick","tick":"tick","section-2":"second","two":"second"}',
+            ),
+        )
+
+    def test_pages_need_a_directory(self):
+        result = self.cli(output=self.root / 'site.html')
+        self.assertEqual((result.returncode, result.stderr), (2, 'Pages are written to a directory; pass --single-page for one HTML file: ' + str(self.root / 'site.html') + '\n'))
 
     def test_changed_excerpt_requires_review_but_relocation_does_not(self):
         self.assertEqual(self.cli('--review', 'tick').returncode, 0)

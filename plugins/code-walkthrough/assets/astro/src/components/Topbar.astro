@@ -1,0 +1,7 @@
+---
+// The sticky header. `options` fill the section picker; `previous` and `next` are page URLs that
+// the arrows follow past the first and last step (pages mode only).
+const { title, home, options, previous, next } = Astro.props;
+---
+<header class="topbar"><h1>{home ? <a href={home}>{title}</a> : title}<span>Code walkthrough</span></h1>
+<nav class="navigation" aria-label="Walkthrough" data-page-previous={previous} data-page-next={next}><select id="sections" aria-label="Code section">{options.map(option => <option value={option.value} selected={option.selected}>{option.label}</option>)}</select><button id="previous" aria-label="Previous explanation">←</button><button id="next" aria-label="Next explanation">→</button></nav><div class="progress" aria-hidden="true"></div></header>

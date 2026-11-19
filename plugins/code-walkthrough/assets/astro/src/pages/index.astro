@@ -1,20 +1,27 @@
 ---
+import Page from '../components/Page.astro';
+import Topbar from '../components/Topbar.astro';
 import SourceSection from '../components/SourceSection.astro';
 import data from '../data.json';
-import '../styles/walkthrough.css';
-import '../styles/syntax.css';
-import navigation from '../navigation.js?raw';
+const single = data.pages.length === 0;
+const options = single
+	? data.sections.map((section, index) => ({ value: `section-${index + 1}`, label: `${String(index + 1).padStart(2, '0')} ${section.title} — ${section.file}` }))
+	: [{ value: './', label: 'Contents', selected: true }, ...data.pages.map(page => ({ value: `${page.id}/`, label: page.label }))];
+const moved = `const moved = ${JSON.stringify(data.moved)};
+const page = moved[location.hash.slice(1)];
+if (page) location.replace(page + "/" + location.hash);`;
 ---
-<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="color-scheme" content="dark"/><meta name="generator" content={Astro.generator}/><title>{data.title} — Code walkthrough</title></head>
-<body>
+<Page>
+{single ? <>
 <a class="skip" href="#section-1">Skip to code</a>
-<header class="topbar"><h1>{data.title}<span>Code walkthrough</span></h1>
-<nav class="navigation" aria-label="Walkthrough"><select id="sections" aria-label="Code section">{data.sections.map((section, index) => <option value={`section-${index + 1}`}>{String(index + 1).padStart(2, '0')} {section.title} — {section.file}</option>)}</select><button id="previous" aria-label="Previous explanation">←</button><button id="next" aria-label="Next explanation">→</button></nav><div class="progress" aria-hidden="true"></div></header>
+<Topbar title={data.title} options={options}/>
 <noscript><p class="no-script">Complete source and explanations are readable below. Enable JavaScript for synchronized highlights and experiments.</p></noscript>
 <main>{data.preface.map(part => <section class="preface" id={part.id}><div class="preface-body"><h2>{part.title}</h2><Fragment set:html={part.markup}/></div></section>)}{data.sections.map((section, index) => <SourceSection section={section} index={index}/>)}
 <footer class="references"><Fragment set:html={data.references}/><p>{data.status}</p></footer></main>
-<script is:inline set:html={navigation}/>
-{data.scripts.map(script => <script is:inline set:html={script}/>)}
-</body></html>
+</> : <>
+<script is:inline set:html={moved}/>
+<Topbar title={data.title} home="./" options={options} next={`${data.pages[0].id}/`}/>
+<main><section class="preface contents"><div class="preface-body"><h2>Contents</h2><ol>{data.pages.map(page => <li><a href={`${page.id}/`}>{page.label}</a></li>)}</ol></div></section>
+<footer class="references"><Fragment set:html={data.references}/><p>{data.status}</p></footer></main>
+</>}
+</Page>

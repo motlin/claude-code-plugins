@@ -4,6 +4,10 @@ const steps = Array.from(document.querySelectorAll(".step"));
 const select = document.getElementById("sections");
 const previous = document.getElementById("previous");
 const next = document.getElementById("next");
+// In pages mode the arrows turn to these pages past the first and last step, and the picker
+// holds page URLs instead of section ids.
+const pages = document.querySelector(".navigation").dataset;
+const book = !select.options[0]?.value.startsWith("section-");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 let active = null;
 let navigating = false;
@@ -13,6 +17,7 @@ function threshold()
 	const header = document.querySelector(".topbar").getBoundingClientRect().height;
 	document.documentElement.style.setProperty("--header", `${header}px`);
 	const panel = document.querySelector(".code-panel");
+	if (!panel) return header + 20;
 	const line =
 		innerWidth > 650
 			? Math.max(header + 20, innerHeight * 0.35)
@@ -46,17 +51,17 @@ function activate(step)
 		active = step;
 		active.classList.add("is-active");
 	}
-	select.value = step.closest(".section").id;
+	if (!book) select.value = step.closest(".section").id;
 	const index = steps.indexOf(step);
-	previous.disabled = index === 0;
-	next.disabled = index === steps.length - 1;
+	previous.disabled = index === 0 && !pages.pagePrevious;
+	next.disabled = index === steps.length - 1 && !pages.pageNext;
 	focusCode(step);
 }
 function update()
 {
 	const height = document.documentElement.scrollHeight - innerHeight;
 	document.querySelector(".progress").style.transform = `scaleX(${height > 0 ? scrollY / height : 0})`;
-	if (navigating) return;
+	if (navigating || !steps.length) return;
 	const limit = threshold();
 	let candidate = steps[0];
 	for (const step of steps)
@@ -119,9 +124,23 @@ for (const event of ["wheel", "touchstart"])
 			passive: true,
 		},
 	);
-select.addEventListener("change", () => goTo(document.getElementById(select.value).querySelector(".step")));
-previous.addEventListener("click", () => goTo(steps[Math.max(0, steps.indexOf(active) - 1)]));
-next.addEventListener("click", () => goTo(steps[Math.min(steps.length - 1, steps.indexOf(active) + 1)]));
+select.addEventListener("change", () =>
+{
+	if (book) location.href = select.value;
+	else goTo(document.getElementById(select.value).querySelector(".step"));
+});
+previous.addEventListener("click", () =>
+{
+	const index = steps.indexOf(active);
+	if (index > 0) goTo(steps[index - 1]);
+	else if (pages.pagePrevious) location.href = pages.pagePrevious;
+});
+next.addEventListener("click", () =>
+{
+	const index = steps.indexOf(active);
+	if (index >= 0 && index < steps.length - 1) goTo(steps[index + 1]);
+	else if (pages.pageNext) location.href = pages.pageNext;
+});
 for (const section of document.querySelectorAll(".section"))
 {
 	focusCode(section.querySelector(".step"));
@@ -153,8 +172,16 @@ function fromHash()
 }
 window.addEventListener("popstate", fromHash);
 threshold();
-activate(steps[0]);
-fromHash();
+if (steps.length)
+{
+	activate(steps[0]);
+	fromHash();
+}
+else
+{
+	previous.disabled = !pages.pagePrevious;
+	next.disabled = !pages.pageNext;
+}
 
 document.querySelectorAll(".lab canvas").forEach((canvas) =>
 {
