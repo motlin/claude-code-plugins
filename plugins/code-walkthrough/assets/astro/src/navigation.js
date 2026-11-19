@@ -141,6 +141,112 @@ next.addEventListener("click", () =>
 	if (index >= 0 && index < steps.length - 1) goTo(steps[index + 1]);
 	else if (pages.pageNext) location.href = pages.pageNext;
 });
+// Keyboard: ← / k and → / j step through explanations (turning pages at the ends), [ and ]
+// jump a whole page or section, g goes to the contents, ? lists the shortcuts. Typing in a field, a focused code
+// listing (where arrows scroll) and modified keys keep their usual meaning.
+function turnSection(direction)
+{
+	if (book)
+	{
+		const url = direction < 0 ? pages.pagePrevious : pages.pageNext;
+		if (url) location.href = url.split("#")[0];
+		return;
+	}
+	const sections = Array.from(document.querySelectorAll(".section"));
+	const current = sections.indexOf(active?.closest(".section"));
+	const target = sections[Math.max(0, Math.min(sections.length - 1, current + direction))];
+	if (target) goTo(target.querySelector(".step"));
+}
+const shortcuts = [
+	["→ or j", "Next explanation; turns the page after the last one"],
+	["← or k", "Previous explanation"],
+	["]", book ? "Next page" : "Next section"],
+	["[", book ? "Previous page" : "Previous section"],
+	["g", book ? "Contents" : "Top of the page"],
+	["?", "Show or hide these shortcuts"],
+];
+let help = null;
+function toggleHelp()
+{
+	if (!help)
+	{
+		help = document.createElement("dialog");
+		help.className = "shortcuts";
+		help.setAttribute("aria-label", "Keyboard shortcuts");
+		const heading = document.createElement("h2");
+		heading.textContent = "Keyboard shortcuts";
+		const list = document.createElement("dl");
+		for (const [keys, meaning] of shortcuts)
+		{
+			const term = document.createElement("dt");
+			for (const key of keys.split(" or "))
+			{
+				if (term.childNodes.length) term.append(" or ");
+				const kbd = document.createElement("kbd");
+				kbd.textContent = key;
+				term.append(kbd);
+			}
+			const description = document.createElement("dd");
+			description.textContent = meaning;
+			list.append(term, description);
+		}
+		const close = document.createElement("button");
+		close.textContent = "Close";
+		close.addEventListener("click", () => help.close());
+		help.append(heading, list, close);
+		help.addEventListener("click", (event) =>
+		{
+			if (event.target === help) help.close();
+		});
+		document.body.append(help);
+	}
+	if (help.open) help.close();
+	else help.showModal();
+}
+document.addEventListener("keydown", (event) =>
+{
+	if (
+		event.key === "?" &&
+		!event.ctrlKey &&
+		!event.metaKey &&
+		!event.altKey &&
+		!event.target.closest?.("input, select, textarea, [contenteditable]")
+	)
+	{
+		event.preventDefault();
+		toggleHelp();
+		return;
+	}
+	if (help?.open) return;
+
+	if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+	const target = event.target;
+	if (target.closest?.("input, select, textarea, [contenteditable], pre")) return;
+	const action =
+	{
+		ArrowLeft: () => previous.click(),
+		k: () => previous.click(),
+		ArrowRight: () => next.click(),
+		j: () => next.click(),
+		"[": () => turnSection(-1),
+		"]": () => turnSection(1),
+		g: () =>
+		{
+			const home = document.querySelector(".topbar h1 a");
+			if (home) location.href = home.href;
+			else
+				window.scrollTo(
+					{
+						top: 0,
+						behavior: reduced.matches ? "instant" : "smooth",
+					},
+				);
+		},
+	}[event.key];
+	if (!action) return;
+	event.preventDefault();
+	action();
+});
 for (const section of document.querySelectorAll(".section"))
 {
 	focusCode(section.querySelector(".step"));

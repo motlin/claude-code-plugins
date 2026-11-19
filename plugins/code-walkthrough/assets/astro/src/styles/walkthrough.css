@@ -242,6 +242,59 @@ button:disabled
 	opacity: 0.35;
 	cursor: default;
 }
+.shortcuts
+{
+	background: var(--panel);
+	color: var(--ink);
+	border: 1px solid var(--rule);
+	border-radius: 12px;
+	padding: 20px 24px;
+	max-width: min(440px, calc(100vw - 32px));
+	box-shadow: 0 20px 60px #000a;
+}
+.shortcuts::backdrop
+{
+	background: #0009;
+}
+.shortcuts h2
+{
+	margin: 0 0 14px;
+	font-size: 18px;
+}
+.shortcuts dl
+{
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 10px 18px;
+	margin: 0 0 18px;
+	font-size: 14px;
+}
+.shortcuts dt
+{
+	white-space: nowrap;
+	color: var(--muted);
+}
+.shortcuts dd
+{
+	margin: 0;
+}
+.shortcuts kbd
+{
+	display: inline-block;
+	min-width: 24px;
+	padding: 2px 7px;
+	border: 1px solid var(--rule);
+	border-bottom-width: 2px;
+	border-radius: 5px;
+	background: var(--bg);
+	color: var(--ink);
+	font:
+		12px/1.5 ui-monospace,
+		SFMono-Regular,
+		Menlo,
+		monospace;
+	text-align: center;
+}
 .pager
 {
 	display: grid;
