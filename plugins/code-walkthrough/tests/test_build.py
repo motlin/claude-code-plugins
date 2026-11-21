@@ -88,6 +88,27 @@ class RendererTests(unittest.TestCase):
         parser.feed(page)
         self.assertEqual((parser.lines, warnings), (source.splitlines(), ['tick']))
 
+    def test_spec_lexers_highlight_by_filename_and_alias_before_pygments(self):
+        (self.root / 'lexers').mkdir()
+        (self.root / 'lexers/toy.py').write_text(
+            'from pygments.lexer import RegexLexer\n'
+            'from pygments.token import Keyword, Text\n'
+            'class ToyLexer(RegexLexer):\n'
+            '    name = "Toy"\n'
+            '    aliases = ["toy"]\n'
+            '    filenames = ["*.toy", "*.lua"]\n'
+            '    tokens = {"root": [(r"\\btick\\b", Keyword), (r"(?s).", Text)]}\n'
+        )
+        (self.root / 'sample.toy').write_text(self.source)
+        self.spec['lexers'] = [{'module': 'lexers/toy.py', 'class': 'ToyLexer'}]
+        step = self.spec['sections'][0]['steps'][0]
+        self.spec['sections'] = [dict(self.spec['sections'][0], file=name, steps=[dict(step, id=f'tick-{index}')], **extra)
+                                 for index, (name, extra) in enumerate([('sample.toy', {}), ('sample.lua', {'language': 'toy'}), ('sample.lua', {})])]
+        sections = build.prepare(self.spec, self.root)
+        files, _ = build.render(self.spec, sections, self.root, RUNTIME, single=True)
+        page = files['index.html']
+        self.assertEqual((page.count('Toy · Complete file'), page.count('<span class="k">tick</span>'), page.count('Lua · Complete file')), (3, 6, 0))
+
     def test_python_experiment_and_scripts_are_embedded(self):
         (self.root / 'sample.py').write_text('def tick():\n    return 1\n')
         (self.root / 'experiment.html').write_text('<div class="lab">A counter experiment</div>')

@@ -1,6 +1,8 @@
 """Render a source-backed walkthrough; built with bundled Astro components."""
 import argparse
+from fnmatch import fnmatch
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -36,6 +38,26 @@ def resolve(source, start, end=None):
     last = source[:finish].rstrip('\n').count('\n') + 1
     excerpt = '\n'.join(source.splitlines()[first - 1:last])
     return first, last, hashlib.sha256(excerpt.encode()).hexdigest()
+
+
+def spec_lexers(spec, root):
+    """The Pygments lexer classes named by the spec's `lexers` entries, each loaded from a Python file under the root."""
+    found = []
+    for index, entry in enumerate(spec.get('lexers', [])):
+        module_spec = importlib.util.spec_from_file_location(f'walkthrough_lexer_{index}', within(root, entry['module']))
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        found.append(getattr(module, entry['class']))
+    return found
+
+
+def lexer_for(section, extra):
+    """The section's lexer: a spec lexer matching its `language` alias or file name, else Pygments' own."""
+    language, name = section.get('language'), Path(section['file']).name
+    for lexer in extra:
+        if language in lexer.aliases if language else any(fnmatch(name, pattern) for pattern in lexer.filenames):
+            return lexer(stripnl=False)
+    return get_lexer_by_name(language, stripnl=False) if language else get_lexer_for_filename(section['file'], stripnl=False)
 
 
 ID_CHARACTERS = set('abcdefghijklmnopqrstuvwxyz0123456789-')
@@ -126,8 +148,9 @@ def render(spec, sections, root, runtime=None, single=False):
     formatter = HtmlFormatter(nowrap=True, style='native')
     warnings = []
     rendered = []
+    extra = spec_lexers(spec, root)
     for section in sections:
-        lexer = get_lexer_by_name(section['language'], stripnl=False) if 'language' in section else get_lexer_for_filename(section['file'], stripnl=False)
+        lexer = lexer_for(section, extra)
         lines = highlight(section['source'], lexer, formatter).removesuffix('\n').split('\n')
         experiments = [dict(experiment, markup=within(root, experiment['file']).read_text())
                        for experiment in section.get('experiments', [])]
