@@ -14,7 +14,7 @@
 	{
 		"displayName": "Burn",
 		"shortDescription": "Turn spare quota into tested branches and queued tasks",
-		"longDescription": "Spend spare weekly quota before the reset by running code review, test, and cleanup skills in worktrees, leaving a few tested local branches plus a ranked task queue for the morning",
+		"longDescription": "Spend spare weekly quota before the reset by running code review, test, and cleanup skills in worktrees, leaving a few tested local branches plus a ranked task queue for review",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Skills"],

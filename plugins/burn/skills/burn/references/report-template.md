@@ -1,6 +1,6 @@
 # Burn report template
 
-Write `REPORT.md` in this shape. Keep every section, writing "None." under a heading with nothing in it, so a morning reader can tell an empty night from a broken report.
+Write `REPORT.md` in this shape. Keep every section, writing "None." under a heading with nothing in it, so a reader can tell an empty run from a broken report.
 
 ```markdown
 # Burn <date>

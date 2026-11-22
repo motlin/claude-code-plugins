@@ -1,11 +1,11 @@
 ---
 name: burn
-description: 'Spend spare weekly quota the night before the usage reset: fan out improvement skills (code review, test speed, coverage, mutation testing, assertions) in separate worktrees, and leave a few tested local branches plus a ranked task queue for the morning. Never pushes or opens PRs. Use when the user runs /burn or asks to burn, use up, or spend remaining quota on real improvements.'
+description: 'Spend spare weekly quota before the usage reset: fan out improvement skills (code review, test speed, coverage, mutation testing, assertions) in separate worktrees, and leave a few tested local branches plus a ranked task queue for review. Never pushes or opens PRs. Use when the user runs /burn or asks to burn, use up, or spend remaining quota on real improvements.'
 ---
 
 # Burn
 
-Turn quota that would otherwise expire into reviewable work on existing code. The run leaves local `burn/<date>/<track>-<shard>` branches that pass tests, and appends queued findings to `.llm/todo.md`. It never pushes and never opens PRs. An empty night is a valid outcome: a track that finds nothing worth doing produces no branch.
+Turn quota that would otherwise expire into reviewable work on existing code. The run leaves local `burn/<date>/<track>-<shard>` branches that pass tests, and appends queued findings to `.llm/todo.md`. It never pushes and never opens PRs. An empty run is a valid outcome: a track that finds nothing worth doing produces no branch.
 
 Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/burn/SKILL.md` file.
 
@@ -28,7 +28,7 @@ Invoking `/burn` is the user's opt-in to a large Workflow. All run output goes u
 | `medium` | 6          | 5          | 2              |
 | `max`    | 12         | 8          | 3              |
 
-Claude Code exposes no API for remaining weekly quota, so `size` is the only spending control. The branch cap is a hard limit, because the user's morning review is the scarce resource.
+Claude Code exposes no API for remaining weekly quota, so `size` is the only spending control. The branch cap is a hard limit, because the user's review time is the scarce resource. A tier allows more track runs than branches because many runs find nothing and leave no branch.
 
 ## Preflight
 
@@ -71,7 +71,7 @@ Then, for each applicable track, list candidate shards in its declared granulari
 python3 <plugin-root>/scripts/ledger.py pick --track <track> --count <n> <candidate>...
 ```
 
-Spread the tier's track runs across applicable tracks, one shard per run. When the tier allows fewer runs than there are applicable tracks, give the runs to tracks the ledger has never recorded first, then to those whose latest coverage date is oldest, so successive nights rotate through every track. `ledger.py dismissed` prints the dismissed findings that track prompts must not raise again.
+Spread the tier's track runs across applicable tracks, one shard per run. When the tier allows fewer runs than there are applicable tracks, give the runs to tracks the ledger has never recorded first, then to those whose latest coverage date is oldest, so successive burn runs rotate through every track. `ledger.py dismissed` prints the dismissed findings that track prompts must not raise again.
 
 ### Project the cost
 
@@ -79,7 +79,7 @@ Concurrent track runs share one budget counter, so there is no per-track spend. 
 
 ### Confirm the plan
 
-Show the plan in one AskUserQuestion: each planned track run as track × shard, the branch cap, the verifier votes, the test command (or "untested") and the projected tokens. Offer to run it as planned, to run it at `small`, or to cancel. This is the last question of the run.
+Show the plan in one AskUserQuestion: each planned track run as track × shard, the branch cap, the verifier votes, the test command (or "untested") and the projected tokens. When the planned runs outnumber the branch cap, say that runs past the cap launch only as earlier runs finish without a branch, so they may never launch. List applicable tracks left out as not in this run, and say the next burn run picks them first; burn schedules nothing, so name no time and never imply it will come back on its own. Offer to run it as planned, to run it at `small`, or to cancel. This is the last question of the run.
 
 With `dryRun`, print the same plan and stop without asking. Nothing is created: no worktree, no branch, no ledger change other than the `sync-todo` update.
 
