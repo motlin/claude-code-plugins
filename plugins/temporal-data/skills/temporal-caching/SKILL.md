@@ -7,6 +7,8 @@ description: Efficient data loading patterns using system_from/system_to for cac
 
 In a system-time versioned table, `system_from` changes whenever a record changes, so it serves as a built-in cache validator. No separate version columns, ETag tables, or change tracking are needed. See the `temporal-data:temporal-data` skill for the underlying schema and query conventions.
 
+These patterns are also what keep sync cheap. Catching up from a watermark costs in proportion to what changed, while a periodic full rescan or re-download costs every row, every run. On stores that bill per row read or written, that difference can be most of the bill. See the Cost section of `temporal-data:temporal-data`.
+
 | Pattern                                         | Mechanism                                                                        | Best for                                             |
 | ----------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | [Global watermark](./global-watermark.md)       | Client stores max `system_from` of a collection and polls for newer records      | Feeds, dashboards, "what's new since I last checked" |
