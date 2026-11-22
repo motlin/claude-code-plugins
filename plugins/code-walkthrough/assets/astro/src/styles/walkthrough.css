@@ -660,8 +660,8 @@ p code
 .preface pre code
 {
 	color: var(--ink);
-	overflow-wrap: normal;
-	white-space: pre;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
 }
 .preface table
 {
