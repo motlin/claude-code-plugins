@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "inline-review",
 	"description": "Run a panel of specialist code reviewers, verify and merge their findings into Conventional Comments, and post them inline into a Plannotator review session",
-	"version": "1.42.0",
+	"version": "1.43.0",
 	"license": "Apache-2.0",
 	"author":
 	{
