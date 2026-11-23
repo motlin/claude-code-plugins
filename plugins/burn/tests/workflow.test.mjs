@@ -145,7 +145,22 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 				votes: 2,
 			},
 		},
-		{},
+		{
+			"track:": (label) =>
+				label === "track:code-review-src-a"
+					?
+						{
+							...committed(),
+							afterKept: ["delete ~/memory/a.md"],
+						}
+					: committed(),
+		},
+	);
+
+	assert.deepEqual(labels(calls, "after-kept:"), ["after-kept:code-review-src-a"]);
+	assert.match(
+		prompt(calls, "after-kept:code-review-src-a"),
+		/burn\/2000-01-01\/code-review-src-a in \/repo passed verification and the test gate[\s\S]*- delete ~\/memory\/a\.md/,
 	);
 
 	assert.deepEqual(
@@ -267,7 +282,15 @@ test("an empty, refuted, gate-failed or dead run keeps its branch unless it has 
 		},
 		{
 			"track:": (label) =>
-				label === "track:code-review-src-a" ? empty() : label === "track:coverage-src-b" ? null : committed(),
+				label === "track:code-review-src-a"
+					? empty()
+					: label === "track:coverage-src-b"
+						? null
+						:
+							{
+								...committed(),
+								afterKept: ["delete ~/memory/a.md"],
+							},
 			"verify:": (label) =>
 				label.startsWith("verify:code-review-src-b")
 					?
@@ -326,6 +349,7 @@ test("an empty, refuted, gate-failed or dead run keeps its branch unless it has 
 		assert.match(c.prompt, /git -C \/repo branch -d burn\/2000-01-01\/[a-z-]+`/);
 	});
 	assert.deepEqual(labels(calls, "gate:"), ["gate:coverage-src-a"]);
+	assert.deepEqual(labels(calls, "after-kept:"), []);
 });
 
 test("a worktree git refuses to remove stays and is reported as unfinished", async () =>

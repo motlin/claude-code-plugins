@@ -111,6 +111,16 @@ const TRACK_SCHEMA =
 			items: FINDING,
 			description: "real problems found but not fixed, to queue as tasks",
 		},
+		afterKept:
+		{
+			type: "array",
+			items:
+			{
+				type: "string",
+			},
+			description:
+				"steps outside git to carry out only once this branch is kept, such as deleting a memory the branch moved into the docs; omit when none",
+		},
 	},
 	required: ["committed", "summary", "evidence", "diffStat", "changesTests", "findings"],
 };
@@ -235,6 +245,62 @@ function gatePrompt(where)
 {
 	const command = A.gitTest ? `git test run ${A.base}..${where.branch}` : A.testCommand;
 	return `In ${where.worktree}, run \`${command}\` once in the background, because it can outlast the foreground command time limit, and wait for it to exit, however long it takes. Report whether it passed only once it has exited; a run you stopped waiting for is not a result. Do not edit, fix, retry or commit anything.`;
+}
+
+// Steps outside git cannot ride on the branch, so they wait until the branch
+// has earned its place; a refuted or gate-failed run never carries them out.
+function afterKeptPrompt(where, steps)
+{
+	return `The burn branch ${where.branch} in ${A.repo} passed verification and the test gate. Carry out these steps its track deferred until now, then report which you completed. Do not touch the branch or ${A.repo}.
+${steps.map((s) => `- ${s}`).join("\n")}`;
+}
+
+const AFTER_KEPT_SCHEMA =
+{
+	type: "object",
+	properties:
+	{
+		done:
+		{
+			type: "boolean",
+			description: "true when every step was carried out",
+		},
+		summary:
+		{
+			type: "string",
+		},
+	},
+	required: ["done", "summary"],
+};
+
+async function keep(where, outcome, steps, tested)
+{
+	if (!steps || !steps.length)
+		return {
+			...outcome,
+			status: "kept",
+			tested,
+		};
+	const after = await agent(
+		afterKeptPrompt(where, steps),
+		{
+			label: `after-kept:${where.id}`,
+			phase: "Gate",
+			schema: AFTER_KEPT_SCHEMA,
+			effort: "low",
+		},
+	);
+	return {
+		...outcome,
+		status: "kept",
+		tested,
+		afterKept:
+		{
+			steps,
+			done: Boolean(after && after.done),
+			summary: after ? after.summary : "the after-kept agent died",
+		},
+	};
 }
 
 const CLEANUP_SCHEMA =
@@ -378,14 +444,7 @@ async function trackChain(run)
 		);
 	}
 
-	if (!A.testCommand)
-	{
-		return {
-			...outcome,
-			status: "kept",
-			tested: false,
-		};
-	}
+	if (!A.testCommand) return keep(where, outcome, result.afterKept, false);
 	const gate = await agent(
 		gatePrompt(where),
 		{
@@ -406,11 +465,7 @@ async function trackChain(run)
 			},
 		);
 	}
-	return {
-		...outcome,
-		status: "kept",
-		tested: true,
-	};
+	return keep(where, outcome, result.afterKept, true);
 }
 
 // Launch track runs while kept branches plus runs in flight stay under the

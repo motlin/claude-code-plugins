@@ -20,6 +20,10 @@ Write `REPORT.md` in this shape. Keep every section, writing "None." under a hea
 - **Evidence:** <the track's evidence, shortened but not paraphrased>
 - **Review:** `git log -p <base>..<branch>`
 
+## Changes outside git
+
+<Every change a track made outside the repository, such as memory files deleted, shrunk or corrected, with the backup path it left. Then each kept branch's `afterKept` steps, saying whether they were done; a step not done still needs doing by hand. Write "None." when nothing changed outside git.>
+
 ## Queued tasks
 
 <Each task the ledger accepted, as its title and the file it is about, under the `## burn <date>` heading it was added to in `.llm/todo.md`. Note how many findings were skipped because the ledger already knew them.>
