@@ -40,8 +40,25 @@ Always Markdown link syntax — `🔗 [short label](URL)`. A bare URL, with or w
 - Repeat a URL from earlier turns rather than dropping the line. The user has not scrolled up.
 - Write `🔗 None`, with no brackets, only when nothing applies.
 
+## When work is still running
+
+When a turn ends while work you started is still running — background shells, subagents, workflows, CI waits — the user may read the turn as finished and close the session, which kills that work. Before the footer, add a status block:
+
+```text
+**Still running — don't exit.** The CI wait on 7 pull requests, about 20 minutes.
+
+**Done so far:** Rebased and pushed 7 branches; 27 pull requests green.
+**Next:** When CI finishes, fix failures and ask before any push.
+```
+
+- Lead with the bold banner, so it is the first thing the user sees.
+- Name each piece of running work, not just "agents are working".
+- Give a rough time estimate, or say it is unknown.
+- Repeat the block on every turn that ends while work is running, including turns that only acknowledge a background notification.
+- Omit the block when nothing you started is still running.
+
 ## Always both lines
 
 Emit the footer on every turn: trivial answers, questions back to the user, refusals, and turns that changed nothing. Both lines are always present, even when the recap is short and the link is `None`.
 
-The footer is the whole ending — do not follow it with more prose. A closing question to the user, or an AskUserQuestion call, comes before the footer.
+The footer is the whole ending — do not follow it with more prose. A closing question to the user, an AskUserQuestion call, or a still-running status block comes before the footer.
