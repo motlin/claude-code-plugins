@@ -9,7 +9,7 @@ Turn quota that would otherwise expire into reviewable work on existing code. Th
 
 Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/burn/SKILL.md` file.
 
-Invoking `/burn` is the user's opt-in to a large Workflow. All run output goes under `.llm/burn/`; confirm `.llm/` is gitignored before writing there.
+Invoking `/burn` is the user's opt-in to a large Workflow, and the user usually walks away right after starting it. Ask the user nothing at any point: preflight, the plan and the launch all happen in the turn that invoked `/burn`, and a question would leave the run sitting idle for hours. All run output goes under `.llm/burn/`; check that `.llm/` is gitignored before writing there.
 
 ## Arguments
 
@@ -32,7 +32,7 @@ Claude Code exposes no API for remaining weekly quota, so `size` is the only spe
 
 ## Preflight
 
-Do preflight yourself, in this session, before any Workflow launches: it may need the user's answers, and after the plan confirmation the run is unattended. Run these checks in order and stop at the first failure.
+Do preflight yourself, in this session, before any Workflow launches. Run these checks in order and stop at the first failure, reporting why instead of asking how to proceed.
 
 ### Check the starting point
 
@@ -77,11 +77,11 @@ Spread the tier's track runs across applicable tracks, one shard per run. When t
 
 Concurrent track runs share one budget counter, so there is no per-track spend. Project from the `totalTokens` that earlier runs recorded in `.llm/burn/<date>/runs.json`: divide each by its count of launched runs, and multiply the average by the planned run count. With no earlier total, say the projection is unknown rather than inventing a figure.
 
-### Confirm the plan
+### Show the plan
 
-Show the plan in one AskUserQuestion: each planned track run as track × shard, the branch cap, the verifier votes, the test command (or "untested") and the projected tokens. When the planned runs outnumber the branch cap, say that runs past the cap launch only as earlier runs finish without a branch, so they may never launch. List applicable tracks left out as not in this run, and say the next burn run picks them first; burn schedules nothing, so name no time and never imply it will come back on its own. Offer to run it as planned, to run it at `small`, or to cancel. This is the last question of the run.
+Print the plan as text, then launch it without waiting for a reply. The plan lists each planned track run as track × shard, the branch cap, the verifier votes, the test command (or "untested") and the projected tokens. When the planned runs outnumber the branch cap, say that runs past the cap launch only as earlier runs finish without a branch, so they may never launch. List applicable tracks left out as not in this run, and say the next burn run picks them first; burn schedules nothing, so name no time and never imply it will come back on its own. Users who want to review a plan before spending on it run with `dryRun`.
 
-With `dryRun`, print the same plan and stop without asking. Nothing is created: no worktree, no branch, no ledger change other than the `sync-todo` update.
+With `dryRun`, print the same plan and stop. Nothing is created: no worktree, no branch, no ledger change other than the `sync-todo` update.
 
 ## Launch the workflow
 
@@ -108,10 +108,10 @@ Read each planned run's track file from `references/tracks/<track>.md`: its fron
 | `testCommand`    | the test command from preflight, or `null`                                                  |
 | `gitTest`        | `true` when `git config --get-regexp '^test\.'` found a git-test command                    |
 | `tier`           | `{runs, maxBranches, votes}` from the tier table, with `maxBranches` overriding the cap     |
-| `runs`           | the confirmed plan: `[{track, shard, invokes, evidence, instructions}]` in launch order     |
+| `runs`           | the planned runs: `[{track, shard, invokes, evidence, instructions}]` in launch order       |
 | `dismissed`      | the `track`, `path` and `symbol` of each entry `ledger.py dismissed` printed                |
 
-Launch the run only in the turn where the user confirmed the plan. Workflow subagents read the user's latest message as the request they serve.
+Launch the run in the same turn as preflight, right after printing the plan. Workflow subagents read the user's latest message as the request they serve, and that message is the `/burn` invocation.
 
 To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
 
