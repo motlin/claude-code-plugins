@@ -184,13 +184,18 @@ const slug = (s) =>
 		.replace(/^-|-$/g, "")
 		.toLowerCase() || "repo";
 
+// Worktree names carry the repository name, as git:worktree's do, because
+// worktreeRoot is shared by every repository beside this one and two repos
+// burned on the same day would otherwise collide on the same path.
+const REPO_NAME = slug(A.repo.split("/").filter(Boolean).pop() || "");
+
 function identity(run)
 {
 	const name = `${run.track}-${slug(run.shard)}`;
 	return {
 		id: name,
 		branch: `burn/${A.date}/${name}`,
-		worktree: `${A.worktreeRoot}/burn-${A.date}-${name}`,
+		worktree: `${A.worktreeRoot}/${REPO_NAME}-burn-${A.date}-${name}`,
 	};
 }
 
@@ -203,7 +208,7 @@ function trackPrompt(run, where)
 	const dismissed = DISMISSED.filter((f) => f.track === run.track);
 	return `You are the ${run.track} track of a burn run over ${A.repo}. Work only on existing code in ${run.shard}.
 
-Create your worktree first: \`git -C ${A.repo} worktree add ${where.worktree} -b ${where.branch} ${A.base}\`. Work and commit only inside ${where.worktree}, following the repo's commit conventions. Never push, never open a PR, never touch ${A.repo} itself.
+Create your worktree first: \`git -C ${A.repo} worktree add ${where.worktree} -b ${where.branch} ${A.base}\`. If that command fails, stop: change nothing, create no other worktree, and return committed: false. Later steps look for your work at exactly ${where.worktree}. Work and commit only inside ${where.worktree}, following the repo's commit conventions. Never push, never open a PR, never touch ${A.repo} itself.
 
 Invoke: ${invocation}, unattended. Ask the user nothing; turn each question you would have asked into a finding.
 
@@ -229,7 +234,7 @@ Try to show the change is wrong, unnecessary, or changes behavior where it shoul
 function gatePrompt(where)
 {
 	const command = A.gitTest ? `git test run ${A.base}..${where.branch}` : A.testCommand;
-	return `In ${where.worktree}, run \`${command}\` once and report whether it passed. Do not edit, fix, retry or commit anything.`;
+	return `In ${where.worktree}, run \`${command}\` once in the background, because it can outlast the foreground command time limit, and wait for it to exit, however long it takes. Report whether it passed only once it has exited; a run you stopped waiting for is not a result. Do not edit, fix, retry or commit anything.`;
 }
 
 const CLEANUP_SCHEMA =

@@ -181,9 +181,10 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 	]);
 	assert.match(
 		prompt(calls, "track:code-review-src-a"),
-		/worktree add \/worktrees\/burn-2000-01-01-code-review-src-a -b burn\/2000-01-01\/code-review-src-a abc123/,
+		/worktree add \/worktrees\/repo-burn-2000-01-01-code-review-src-a -b burn\/2000-01-01\/code-review-src-a abc123`\. If that command fails, stop: change nothing, create no other worktree, and return committed: false\./,
 	);
-	assert.match(prompt(calls, "gate:code-review-src-a"), /run `just test` once/);
+	assert.match(prompt(calls, "gate:code-review-src-a"), /run `just test` once in the background/);
+	assert.match(prompt(calls, "gate:code-review-src-a"), /wait for it to exit, however long it takes/);
 	const cleanups = calls.filter((c) => c.label.startsWith("cleanup:"));
 	assert.deepEqual(cleanups.length, 3);
 	cleanups.forEach((c) => assert.doesNotMatch(c.prompt, /--force|branch -[dD]/));
@@ -350,18 +351,18 @@ test("a worktree git refuses to remove stays and is reported as unfinished", asy
 			status: "empty",
 			reason: "nothing worth committing",
 			branchDeleted: false,
-			unfinishedWorktree: "/worktrees/burn-2000-01-01-code-review-src-a",
+			unfinishedWorktree: "/worktrees/repo-burn-2000-01-01-code-review-src-a",
 		},
 		{
 			branch: "burn/2000-01-01/coverage-src-a",
 			status: "kept",
 			tested: true,
-			unfinishedWorktree: "/worktrees/burn-2000-01-01-coverage-src-a",
+			unfinishedWorktree: "/worktrees/repo-burn-2000-01-01-coverage-src-a",
 		},
 	]);
 	assert.match(
 		prompt(calls, "rank-and-report"),
-		/"unfinishedWorktree": "\/worktrees\/burn-2000-01-01-code-review-src-a"/,
+		/"unfinishedWorktree": "\/worktrees\/repo-burn-2000-01-01-code-review-src-a"/,
 	);
 });
 

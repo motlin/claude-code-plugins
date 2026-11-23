@@ -87,9 +87,9 @@ With `dryRun`, print the same plan and stop without asking. Nothing is created: 
 
 The engine is a Workflow script, `<plugin-root>/scripts/burn-workflow.js`. It runs four phases:
 
-- **Run tracks:** one agent per track run, each in its own worktree on the branch `burn/<date>/<track>-<shard>`. Launches stop while kept branches plus runs in flight reach the branch cap; a run that ends without a branch frees its slot.
+- **Run tracks:** one agent per track run, each in its own worktree `<repo>-burn-<date>-<track>-<shard>` on the branch `burn/<date>/<track>-<shard>`. The repository name keeps two repos burned on the same day from colliding in the shared parent directory. Launches stop while kept branches plus runs in flight reach the branch cap; a run that ends without a branch frees its slot.
 - **Verify:** fresh-context verifiers try to refute each branch. A branch needs more than half the votes to survive; a verifier that dies counts as refuting.
-- **Gate:** the test command, or `git test run <base>..<branch>` when git-test is configured, runs once on each surviving branch. With no test command, kept branches are marked untested.
+- **Gate:** the test command, or `git test run <base>..<branch>` when git-test is configured, runs once on each surviving branch, in the background so a suite longer than the foreground command limit still finishes before the gate reports. With no test command, kept branches are marked untested.
 - **Rank and report:** one agent ranks the kept branches, queues new findings in `.llm/todo.md` through `ledger.py merge`, records coverage with `ledger.py record`, and writes `runs.json` and `REPORT.md` from `references/report-template.md`. Worktrees are removed; branches stay.
 
 A failed, empty, refuted or gate-failed run is never re-run. Cleanup never forces anything: worktrees are removed with a plain `git worktree remove`, and one that git refuses to remove, usually for uncommitted changes, stays and is reported as unfinished. A run's branch stays for the user to inspect, and is listed in `REPORT.md` with its status, unless it has no commits beyond the base, in which case `git branch -d` deletes it.
