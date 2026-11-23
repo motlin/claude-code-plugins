@@ -10,4 +10,4 @@ Run `code:dead-code` with the shard as its scope, unattended. References are sea
 
 Commit only high-tier removals that pass the build, type check and tests, one commit per category as the skill describes. Paste each removal's detector line or `refs` output as the evidence. A batch the skill reverted stays reverted: report it, do not try again.
 
-Return the skill's queued findings as findings: medium and low candidates, tests that exercise only dead code, and detectors worth adding.
+Return medium and low candidates as findings, with the removal you would make and the tests that exercise only that code. Drop detectors worth adding: they belong in the dead-code skill, not this repository.

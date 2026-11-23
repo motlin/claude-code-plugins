@@ -2,13 +2,17 @@ export const meta =
 {
 	name: "burn",
 	description:
-		"Fan out improvement tracks over existing code, one worktree each; verify, test-gate, rank and report the surviving local branches",
+		"Fan out improvement tracks over existing code, one worktree each; build each design question they raise as an idea branch; verify, test-gate, rank and report the surviving local branches",
 	whenToUse:
 		"Spending spare weekly quota on real improvements, launched by the burn skill with its preflight results as args",
 	phases: [
 		{
 			title: "Run tracks",
 			detail: "one agent per track run, each in its own worktree and branch",
+		},
+		{
+			title: "Build ideas",
+			detail: "one agent per design question, each on its own idea branch with a keep or drop recommendation",
 		},
 		{
 			title: "Verify",
@@ -20,7 +24,7 @@ export const meta =
 		},
 		{
 			title: "Rank and report",
-			detail: "rank branches, queue findings, update the ledger, write REPORT.md",
+			detail: "rank branches, update the ledger, write REPORT.md",
 		},
 	],
 };
@@ -34,7 +38,7 @@ export const meta =
 //   ledger       absolute path of scripts/ledger.py
 //   testCommand  command that proves a branch green, or null when the repo has none
 //   gitTest      true when git-test is configured; the gate then runs `git test run`
-//   tier         { runs, maxBranches, votes }
+//   tier         { runs, votes, effort }; effort is passed to the track and idea agents and fills {level} in invokes
 //   reportTemplate absolute path of skills/burn/references/report-template.md
 //   runs         [{ track, shard, invokes, evidence, instructions }], in launch order
 //   dismissed    [{ track, path, symbol }] findings the user dismissed
@@ -43,6 +47,12 @@ const TIER = A.tier;
 const PLANNED = A.runs.slice(0, TIER.runs);
 const DROPPED = A.runs.slice(TIER.runs);
 const DISMISSED = A.dismissed || [];
+
+// The user starts a burn and walks away, so every agent hears that a question
+// would leave the run idle until they return.
+const NO_ASK =
+	"The user is away until the run ends: ask them nothing, and decide anything you would have asked about yourself.";
+const ask = (prompt, opts) => agent(`${prompt}\n\n${NO_ASK}`, opts);
 
 const FINDING =
 {
@@ -67,7 +77,8 @@ const FINDING =
 		details:
 		{
 			type: "string",
-			description: "self-contained task body: exact files, the evidence, and what done looks like",
+			description:
+				"self-contained body: exact files, the evidence, the change you would build, and what done looks like",
 		},
 	},
 	required: ["path", "symbol", "title", "details"],
@@ -109,7 +120,7 @@ const TRACK_SCHEMA =
 		{
 			type: "array",
 			items: FINDING,
-			description: "real problems found but not fixed, to queue as tasks",
+			description: "design questions only, each built later as its own idea branch",
 		},
 		afterKept:
 		{
@@ -123,6 +134,58 @@ const TRACK_SCHEMA =
 		},
 	},
 	required: ["committed", "summary", "evidence", "diffStat", "changesTests", "findings"],
+};
+
+const IDEA_SCHEMA =
+{
+	type: "object",
+	properties:
+	{
+		committed:
+		{
+			type: "boolean",
+			description: "true only if the branch holds a complete, working implementation of the idea",
+		},
+		recommend:
+		{
+			type: "string",
+			enum: ["keep", "drop"],
+			description: "whether, having built it, you recommend the user keep this change",
+		},
+		rationale:
+		{
+			type: "string",
+			description: "why you recommend keeping or dropping it, from what building it showed",
+		},
+		alternative:
+		{
+			type: "string",
+			description: "the other answer to the question, which you did not build, in one sentence",
+		},
+		summary:
+		{
+			type: "string",
+		},
+		evidence:
+		{
+			type: "array",
+			items:
+			{
+				type: "string",
+			},
+			description: "real command output backing the change and the recommendation",
+		},
+		diffStat:
+		{
+			type: "string",
+			description: "`git diff --shortstat <base>..HEAD`, empty when nothing was committed",
+		},
+		changesTests:
+		{
+			type: "boolean",
+		},
+	},
+	required: ["committed", "recommend", "rationale", "alternative", "summary", "evidence", "diffStat", "changesTests"],
 };
 
 const VERDICT_SCHEMA =
@@ -174,18 +237,13 @@ const RANK_SCHEMA =
 			},
 			description: "kept branch names, most valuable and cheapest to review first",
 		},
-		queued:
-		{
-			type: "number",
-			description: "tasks appended to .llm/todo.md",
-		},
 		reportPath:
 		{
 			type: "string",
 			description: "absolute path of the REPORT.md you wrote",
 		},
 	},
-	required: ["ranked", "queued", "reportPath"],
+	required: ["ranked", "reportPath"],
 };
 
 const slug = (s) =>
@@ -214,19 +272,40 @@ const dismissedKeys = new Set(DISMISSED.map(findingKey));
 
 function trackPrompt(run, where)
 {
-	const invocation = run.invokes.replace("{paths}", run.shard);
+	const invocation = run.invokes.replace("{level}", TIER.effort).replace("{paths}", run.shard);
 	const dismissed = DISMISSED.filter((f) => f.track === run.track);
 	return `You are the ${run.track} track of a burn run over ${A.repo}. Work only on existing code in ${run.shard}.
 
 Create your worktree first: \`git -C ${A.repo} worktree add ${where.worktree} -b ${where.branch} ${A.base}\`. If that command fails, stop: change nothing, create no other worktree, and return committed: false. Later steps look for your work at exactly ${where.worktree}. Work and commit only inside ${where.worktree}, following the repo's commit conventions. Never push, never open a PR, never touch ${A.repo} itself.
 
-Invoke: ${invocation}, unattended. Ask the user nothing; turn each question you would have asked into a finding.
+Invoke: ${invocation}, unattended.
 
 ${run.instructions}
 
 Evidence rule: ${run.evidence} A change without evidence is not committed.
 
-${dismissed.length ? `The user dismissed these findings; never raise them again:\n${dismissed.map((f) => `- ${f.path} ${f.symbol}`).join("\n")}\n\n` : ""}If nothing is worth committing, commit nothing and return committed: false. Return findings only for real problems you found and chose not to fix.`;
+${dismissed.length ? `The user dismissed these findings; never raise them again:\n${dismissed.map((f) => `- ${f.path} ${f.symbol}`).join("\n")}\n\n` : ""}If nothing is worth committing, commit nothing and return committed: false.
+
+Sort every problem you find, including the ones the instructions above say to return:
+- Fix every problem whose fix needs no decision on this branch, with its evidence, even when the skill you invoked would only queue it.
+- Drop every problem nothing in this repository can fix, such as a third-party bug with no fixed release or work waiting on another project. Never return it.
+- Return as findings only design questions: changes a reasonable maintainer could accept or reject. A later phase builds each one on its own branch, so put the change you would build in its details.`;
+}
+
+function ideaPrompt(f, where)
+{
+	return `You build one idea for a burn run over ${A.repo}. The ${f.track} track raised this design question and left it for you:
+
+${f.title} (${f.path}, ${f.symbol})
+${f.details}
+
+Create your worktree first: \`git -C ${A.repo} worktree add ${where.worktree} -b ${where.branch} ${A.base}\`. If that command fails, stop: change nothing, create no other worktree, and return committed: false. Work and commit only inside ${where.worktree}, following the repo's commit conventions. Never push, never open a PR, never touch ${A.repo} itself.
+
+Implement the change completely, as if the user had asked for it: the code, its tests, and the docs it touches, with the repo's tests passing. When the question has more than one answer, build the one you prefer and name the other as the alternative.
+
+Building it is how you form an opinion. Once it works, judge it: does it leave the code simpler, safer or more useful, and is it worth the user's review? Recommend keep or drop, with a rationale that rests on what building it showed. Recommend drop when the change fights the design, grows the code without a matching gain, or turned out wrong, and commit the attempt anyway so the user can look.
+
+If the idea cannot be built at all, commit nothing and return committed: false.`;
 }
 
 function verifyPrompt(run, where, result, vote)
@@ -239,6 +318,19 @@ ${result.evidence.map((e) => `- ${e}`).join("\n")}
 Summary from the track: ${result.summary}
 
 Try to show the change is wrong, unnecessary, or changes behavior where it should not. Check that the evidence is real by rerunning what it cites where you can. Do not edit anything. Return refuted: true when you are not convinced the change is correct and worth a reviewer's time.`;
+}
+
+function ideaVerifyPrompt(where, result, vote)
+{
+	return `You are verifier ${vote + 1} of ${TIER.votes} for the burn idea branch ${where.branch} in ${A.repo}. An agent built it to answer a design question, and recommends keeping it because: ${result.rationale}
+
+Read \`git -C ${A.repo} diff ${A.base}..${where.branch}\` and this evidence:
+${result.evidence.map((e) => `- ${e}`).join("\n")}
+
+Summary from the builder: ${result.summary}
+The alternative it did not build: ${result.alternative}
+
+The user decides whether the idea is wanted, so do not refute it for being a choice you would make differently. Refute it when the implementation is incomplete or wrong, when the evidence is not real, or when the diff does not support the rationale. Do not edit anything.`;
 }
 
 function gatePrompt(where)
@@ -281,7 +373,7 @@ async function keep(where, outcome, steps, tested)
 			status: "kept",
 			tested,
 		};
-	const after = await agent(
+	const after = await ask(
 		afterKeptPrompt(where, steps),
 		{
 			label: `after-kept:${where.id}`,
@@ -334,7 +426,7 @@ function cleanupPrompt(where, keptBranch)
 
 async function cleanup(where, keptBranch)
 {
-	const result = await agent(
+	const result = await ask(
 		cleanupPrompt(where, keptBranch),
 		{
 			label: `cleanup:${where.id}`,
@@ -371,12 +463,13 @@ async function trackChain(run)
 		shard: run.shard,
 	};
 
-	const result = await agent(
+	const result = await ask(
 		trackPrompt(run, where),
 		{
 			label: `track:${where.id}`,
 			phase: "Run tracks",
 			schema: TRACK_SCHEMA,
+			effort: TIER.effort,
 		},
 	);
 	if (!result)
@@ -410,14 +503,21 @@ async function trackChain(run)
 		);
 	}
 
+	return verifyAndGate(where, outcome, (vote) => verifyPrompt(run, where, result, vote), result.afterKept);
+}
+
+// Verify a committed branch, then gate it on the test command. A refuted or
+// gate-failed branch settles; one that survives both is kept.
+async function verifyAndGate(where, outcome, verify, afterKept)
+{
 	const votes = await parallel(
 		Array.from(
 			{
 				length: TIER.votes,
 			},
 			(_, vote) => () =>
-				agent(
-					verifyPrompt(run, where, result, vote),
+				ask(
+					verify(vote),
 					{
 						label: `verify:${where.id}:${vote + 1}`,
 						phase: "Verify",
@@ -444,8 +544,8 @@ async function trackChain(run)
 		);
 	}
 
-	if (!A.testCommand) return keep(where, outcome, result.afterKept, false);
-	const gate = await agent(
+	if (!A.testCommand) return keep(where, outcome, afterKept, false);
+	const gate = await ask(
 		gatePrompt(where),
 		{
 			label: `gate:${where.id}`,
@@ -465,79 +565,134 @@ async function trackChain(run)
 			},
 		);
 	}
-	return keep(where, outcome, result.afterKept, true);
+	return keep(where, outcome, afterKept, true);
 }
 
-// Launch track runs while kept branches plus runs in flight stay under the
-// branch cap. A run that ends without a branch frees its slot for the next
-// launch, so no finished branch is ever thrown away to meet the cap.
-async function runAll()
+function ideaIdentity(f)
 {
-	const queue = [...PLANNED];
-	const outcomes = [];
-	let held = 0;
-	let inFlight = 0;
-	await new Promise((resolve) =>
-	{
-		function launch()
-		{
-			while (queue.length && held < TIER.maxBranches)
-			{
-				const run = queue.shift();
-				held++;
-				inFlight++;
-				trackChain(run)
-					.catch((e) => (
-					{
-						...identity(run),
-						track: run.track,
-						shard: run.shard,
-						status: "failed",
-						reason: String(e),
-					}))
-					.then((outcome) =>
-					{
-						outcomes.push(outcome);
-						log(`${outcome.id}: ${outcome.status}${outcome.reason ? ` (${outcome.reason})` : ""}`);
-						inFlight--;
-						if (outcome.status !== "kept") held--;
-						launch();
-					});
-			}
-			if (!inFlight) resolve();
-		}
-		launch();
-	});
+	const name = `idea-${slug(f.title).slice(0, 60).replace(/-$/, "")}`;
 	return {
-		outcomes,
-		capped: queue,
+		id: name,
+		branch: `burn/${A.date}/${name}`,
+		worktree: `${A.worktreeRoot}/${REPO_NAME}-burn-${A.date}-${name}`,
 	};
+}
+
+async function ideaChain(f)
+{
+	const where = ideaIdentity(f);
+	const outcome =
+	{
+		...where,
+		track: f.track,
+		shard: f.path,
+		kind: "idea",
+		question: f.title,
+	};
+	const result = await ask(
+		ideaPrompt(f, where),
+		{
+			label: `idea:${where.id.slice("idea-".length)}`,
+			phase: "Build ideas",
+			schema: IDEA_SCHEMA,
+			effort: TIER.effort,
+		},
+	);
+	if (!result)
+	{
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "failed",
+				reason: "the idea agent died",
+			},
+		);
+	}
+	outcome.summary = result.summary;
+	outcome.evidence = result.evidence;
+	outcome.diffStat = result.diffStat;
+	outcome.recommend = result.recommend;
+	outcome.rationale = result.rationale;
+	outcome.alternative = result.alternative;
+	if (!result.committed)
+	{
+		return settle(
+			where,
+			{
+				...outcome,
+				status: "empty",
+				reason: result.rationale || "the idea could not be built",
+			},
+		);
+	}
+	// An idea its builder recommends dropping skips review: its branch stays
+	// for the curious, and its slot under the branch cap goes to the next idea.
+	if (result.recommend === "drop")
+	{
+		return {
+			...outcome,
+			status: "idea-dropped",
+			reason: result.rationale,
+			...(await cleanup(where, true)),
+		};
+	}
+	return verifyAndGate(where, outcome, (vote) => ideaVerifyPrompt(where, result, vote), null);
+}
+
+// Every run launches at once and is never capped: spending the quota is the
+// point, and each branch arrives with the evidence a reviewer needs.
+async function runAll(items, chain, identify)
+{
+	return Promise.all(
+		items.map((item) =>
+			chain(item)
+				.catch((e) => (
+				{
+					...identify(item),
+					track: item.track,
+					shard: item.shard || item.path,
+					status: "failed",
+					reason: String(e),
+				}))
+				.then((outcome) =>
+				{
+					log(`${outcome.id}: ${outcome.status}${outcome.reason ? ` (${outcome.reason})` : ""}`);
+					return outcome;
+				}),
+		),
+	);
 }
 
 phase("Run tracks");
 if (DROPPED.length)
 	log(`Tier allows ${TIER.runs} runs; not launched: ${DROPPED.map((r) => identity(r).id).join(", ")}`);
-const {outcomes, capped} = await runAll();
-if (capped.length)
-	log(`Branch cap ${TIER.maxBranches} reached; not launched: ${capped.map((r) => identity(r).id).join(", ")}`);
+const trackOutcomes = await runAll(PLANNED, trackChain, identity);
 
-const order = PLANNED.map((r) => identity(r).id);
-outcomes.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-const kept = outcomes.filter((o) => o.status === "kept");
-
-const findings = [];
+const ideas = [];
 const seen = new Set(dismissedKeys);
-for (const o of outcomes)
+const ideaIds = new Set();
+for (const o of trackOutcomes)
 	for (const f of o.findings || [])
 	{
-		if (seen.has(findingKey(f))) continue;
+		const id = ideaIdentity(f).id;
+		if (seen.has(findingKey(f)) || ideaIds.has(id)) continue;
 		seen.add(findingKey(f));
-		findings.push(f);
+		ideaIds.add(id);
+		ideas.push(f);
 	}
+
+// Every design question is built rather than queued or asked about; the user
+// decides by looking at a working change and its builder's recommendation.
+phase("Build ideas");
+const ideaOutcomes = await runAll(ideas, ideaChain, ideaIdentity);
+
+const outcomes = [...trackOutcomes, ...ideaOutcomes];
+const kept = outcomes.filter((o) => o.status === "kept");
 
 phase("Rank and report");
 const covered = outcomes
-	.filter((o) => o.status !== "failed")
+	.filter((o) => o.status !== "failed" && o.kind !== "idea")
 	.map((o) => (
 	{
 		track: o.track,
@@ -548,28 +703,29 @@ const runsJson = JSON.stringify(
 		date: A.date,
 		base: A.base,
 		tier: TIER,
-		// Each run's own findings are folded into the deduplicated list below,
-		// so the report agent never sees a finding twice.
+		// Each track's findings were built as ideas, which have outcomes of their own.
 		outcomes: outcomes.map(({findings: own, ...o}) => (
 		{
 			...o,
-			findingCount: own ? own.length : 0,
+			...(own
+				?
+					{
+						ideaCount: own.length,
+					}
+				: {}),
 		})),
-		notLaunched: [...capped, ...DROPPED].map((r) => identity(r).id),
-		findings,
+		notLaunched: DROPPED.map((r) => identity(r).id),
 	},
 	null,
 	2,
 );
-const report = await agent(
+const report = await ask(
 	`You rank and report the burn run of ${A.date} over ${A.repo}. Read the template at ${A.reportTemplate} and follow it.
 
 Phase results (write them verbatim to ${A.runDir}/runs.json first):
 ${runsJson}
 
-Rank the kept branches by value to the user against review effort; read each one's diff with \`git -C ${A.repo} diff ${A.base}..<branch>\` to judge.
-
-Queue the findings: pipe them as a JSON list, each with its track, path, symbol and title, to \`python3 ${A.ledger} --ledger ${A.repo}/.llm/burn/ledger.json merge\`. It prints only the findings never seen before, each with a fingerprint. Append each of those to ${A.repo}/.llm/todo.md as a self-contained \`- [ ]\` task under the heading \`## burn ${A.date}\`, with its details as indented lines and a final indented line \`burn: <fingerprint>\`. Add nothing for findings the ledger did not print.
+Rank the kept branches by value to the user against review effort; read each one's diff with \`git -C ${A.repo} diff ${A.base}..<branch>\` to judge. Kept outcomes with kind "idea" are design questions for the user to decide, each with its builder's recommendation; report them as ideas, not as fixes.
 
 Record coverage: for each of ${JSON.stringify(covered)}, run \`python3 ${A.ledger} --ledger ${A.repo}/.llm/burn/ledger.json record --track <track> --date ${A.date} <shard>\`.
 
@@ -592,7 +748,6 @@ kept.forEach((o, i) =>
 
 return {
 	ranked: report ? report.ranked : kept.map((o) => o.branch),
-	queued: report ? report.queued : null,
 	report: reported ? reportPath : null,
 	outcomes: outcomes.map((o) => (
 	{
@@ -608,6 +763,12 @@ return {
 			?
 				{
 					tested: o.tested,
+					...(o.kind === "idea"
+						?
+							{
+								recommend: o.recommend,
+							}
+						: {}),
 				}
 			:
 				{
@@ -620,6 +781,5 @@ return {
 				}
 			: {}),
 	})),
-	notLaunched: [...capped, ...DROPPED].map((r) => identity(r).id),
-	findings: findings.length,
+	notLaunched: DROPPED.map((r) => identity(r).id),
 };

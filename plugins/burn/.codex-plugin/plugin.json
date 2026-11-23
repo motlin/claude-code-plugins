@@ -1,7 +1,7 @@
 {
 	"name": "burn",
 	"version": "1.43.0",
-	"description": "Spend spare weekly quota on improvement skills in worktrees, leaving tested local branches and a ranked task queue",
+	"description": "Spend spare weekly quota on improvement skills in worktrees, leaving tested local branches and a built, recommended branch for each design question",
 	"author":
 	{
 		"name": "Craig Motlin"
@@ -14,7 +14,7 @@
 	{
 		"displayName": "Burn",
 		"shortDescription": "Turn spare quota into tested branches and queued tasks",
-		"longDescription": "Spend spare weekly quota before the reset by running code review, test, and cleanup skills in worktrees, leaving a few tested local branches plus a ranked task queue for review",
+		"longDescription": "Spend spare weekly quota before the reset by running code review, test, and cleanup skills in worktrees, leaving tested local branches plus a built, recommended branch for each design question",
 		"developerName": "Craig Motlin",
 		"category": "Productivity",
 		"capabilities": ["Skills"],

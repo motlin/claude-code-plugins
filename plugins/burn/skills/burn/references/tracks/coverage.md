@@ -10,4 +10,4 @@ Run `code:test-coverage` with the shard as its scope. Keep its working files, su
 
 Commit only when its final gate passes: `coverage_baseline.py compare` exits 0 against the baseline taken in this worktree. Paste the compare output as the evidence. Without a measured gain, commit nothing.
 
-Return the skill's queued findings as findings: a missing coverage provider, untested code that looks dead, and code that needs a design change before it can be tested.
+Drop a missing coverage provider. Return untested code that looks dead, and code that needs a design change before it can be tested, as findings, with the deletion or change you would make.

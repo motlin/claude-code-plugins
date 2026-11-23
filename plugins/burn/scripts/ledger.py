@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The burn ledger: which paths each track covered, and the status of every queued finding.
+"""The burn ledger: which paths each track covered, and the status of findings earlier runs queued.
 
 The ledger lives at `.llm/burn/ledger.json`. Coverage maps track -> path -> ISO date. Findings
 map a fingerprint (track, path, symbol; never a line number) to its status: queued, dismissed or
@@ -11,7 +11,6 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sys
 
 SETTLED = ('dismissed', 'done')
 TASK = re.compile(r'^- \[(.)\]')
@@ -53,19 +52,6 @@ def fingerprint(finding):
     return hashlib.sha256(key.encode()).hexdigest()[:12]
 
 
-def merge_findings(state, findings):
-    """Record new findings as queued and return them; known fingerprints are never re-queued."""
-    queued = []
-    for finding in findings:
-        key = fingerprint(finding)
-        if key in state['findings']:
-            continue
-        state['findings'][key] = {'track': finding['track'], 'path': finding['path'],
-                                  'symbol': finding['symbol'], 'status': 'queued'}
-        queued.append(dict(finding, fingerprint=key))
-    return queued
-
-
 def sync_todo(state, todo_text):
     """A queued finding whose task is checked is done; one whose task is gone is dismissed."""
     marks, mark = {}, None
@@ -98,8 +84,6 @@ def main(argv=None):
     record.add_argument('--date', required=True)
     record.add_argument('paths', nargs='+')
 
-    commands.add_parser('merge', help='Read findings as a JSON list on stdin; print the new ones')
-
     sync = commands.add_parser('sync-todo', help='Mark findings done or dismissed from the task list')
     sync.add_argument('--todo', default='.llm/todo.md')
 
@@ -117,8 +101,6 @@ def main(argv=None):
         return
     if args.command == 'record':
         record_coverage(state, args.track, args.paths, args.date)
-    elif args.command == 'merge':
-        print(json.dumps(merge_findings(state, json.load(sys.stdin)), indent=2))
     elif args.command == 'sync-todo':
         todo = Path(args.todo)
         sync_todo(state, todo.read_text() if todo.exists() else '')

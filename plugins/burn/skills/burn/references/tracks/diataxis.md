@@ -10,6 +10,6 @@ Restructure the docs in the shard along Diátaxis, which sorts documentation int
 
 Look for docs that mix types, such as a reference page that wanders into tutorial steps or a how-to guide stuffed with background, and split or move the parts so each doc serves one type. Fix titles and openings that do not say which need a doc meets, and link related docs of different types to each other.
 
-Never invent content. Move, split, retitle and trim what exists, and check every moved fact against the code; one that is wrong goes in a finding, not into the new structure. Leave docs that are generated, vendored, or skill and agent instructions, since those are prompts, not documentation for readers.
+Never invent content. Move, split, retitle and trim what exists, and check every moved fact against the code; one that is wrong is corrected against the code, not carried into the new structure. Leave docs that are generated, vendored, or skill and agent instructions, since those are prompts, not documentation for readers.
 
 A missing type, such as a project with reference docs but no how-to guide for its main task, is a finding with the doc it would go beside and an outline, not a page you write. With nothing to restructure, commit nothing.

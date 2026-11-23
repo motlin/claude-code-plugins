@@ -1,11 +1,11 @@
 ---
 name: burn
-description: 'Spend spare weekly quota before the usage reset: fan out improvement skills (code review, test speed, coverage, mutation testing, assertions) in separate worktrees, and leave a few tested local branches plus a ranked task queue for review. Never pushes or opens PRs. Use when the user runs /burn or asks to burn, use up, or spend remaining quota on real improvements.'
+description: 'Spend spare weekly quota before the usage reset: fan out improvement skills (code review, test speed, coverage, mutation testing, assertions) in separate worktrees, and leave tested local branches, plus a built branch with a recommendation for each design question, for review. Never pushes or opens PRs. Use when the user runs /burn or asks to burn, use up, or spend remaining quota on real improvements.'
 ---
 
 # Burn
 
-Turn quota that would otherwise expire into reviewable work on existing code. The run leaves local `burn/<date>/<track>-<shard>` branches that pass tests, and appends queued findings to `.llm/todo.md`. It never pushes and never opens PRs. An empty run is a valid outcome: a track that finds nothing worth doing produces no branch.
+Turn quota that would otherwise expire into reviewable work on existing code. The run leaves local `burn/<date>/<track>-<shard>` branches that pass tests, plus `burn/<date>/idea-<title>` branches that each build one design question a track raised and say whether to keep it. Nothing is queued in `.llm/todo.md`. The run never asks the user anything: a track fixes what needs no decision, drops what the repository cannot fix, and hands only design questions to the idea phase. It never pushes and never opens PRs. An empty run is a valid outcome: a track that finds nothing worth doing produces no branch.
 
 Resolve `<plugin-root>` first: in Claude Code use `${CLAUDE_PLUGIN_ROOT}`; in Codex use the plugin root that contains this `skills/burn/SKILL.md` file.
 
@@ -13,22 +13,21 @@ Invoking `/burn` is the user's opt-in to a large Workflow, and the user usually 
 
 ## Arguments
 
-| Arg           | Default        | Meaning                                                                        |
-| ------------- | -------------- | ------------------------------------------------------------------------------ |
-| `size`        | `medium`       | `small`, `medium` or `max`; sets the track runs, branch cap and verifier votes |
-| `tracks`      | all that apply | Restrict to the named tracks                                                   |
-| `skipTracks`  | none           | Exclude the named tracks                                                       |
-| `maxBranches` | from `size`    | Hard cap on branches left for review                                           |
-| `paths`       | whole repo     | Restrict to these directories; use it for a first trial run on one directory   |
-| `dryRun`      | false          | Run preflight, print the planned track runs and projected tokens, then stop    |
+| Arg          | Default        | Meaning                                                                          |
+| ------------ | -------------- | -------------------------------------------------------------------------------- |
+| `size`       | `medium`       | `small`, `medium` or `max`; sets the track runs, effort level and verifier votes |
+| `tracks`     | all that apply | Restrict to the named tracks                                                     |
+| `skipTracks` | none           | Exclude the named tracks                                                         |
+| `paths`      | whole repo     | Restrict to these directories; use it for a first trial run on one directory     |
+| `dryRun`     | false          | Run preflight, print the planned track runs and projected tokens, then stop      |
 
-| Tier     | Track runs | Branch cap | Verifier votes |
-| -------- | ---------- | ---------- | -------------- |
-| `small`  | 3          | 3          | 1              |
-| `medium` | 6          | 5          | 2              |
-| `max`    | 12         | 8          | 3              |
+| Tier     | Track runs | Effort   | Verifier votes |
+| -------- | ---------- | -------- | -------------- |
+| `small`  | 3          | `medium` | 1              |
+| `medium` | 6          | `high`   | 2              |
+| `max`    | 12         | `max`    | 3              |
 
-Claude Code exposes no API for remaining weekly quota, so `size` is the only spending control. The branch cap is a hard limit, because the user's review time is the scarce resource. A tier allows more track runs than branches because many runs find nothing and leave no branch.
+Claude Code exposes no API for remaining weekly quota, so `size` is the only spending control. Its effort level goes to every track and idea agent, and fills `{level}` in a track's `invokes`, the way `/code-review` takes a level. Nothing caps the branches a run leaves: every planned run launches, and every design question a track raises is built.
 
 ## Preflight
 
@@ -63,7 +62,7 @@ A track applies when its key is detected, then `tracks` and `skipTracks` narrow 
 
 ### Read the ledger
 
-The ledger at `.llm/burn/ledger.json` records which paths each track covered and every queued finding's status. Update it from the task list first, so tasks the user deleted count as dismissed and checked tasks count as done:
+The ledger at `.llm/burn/ledger.json` records which paths each track covered and the status of findings earlier runs queued. Update it from the task list first, so tasks the user deleted count as dismissed and checked tasks count as done:
 
 ```bash
 python3 <plugin-root>/scripts/ledger.py sync-todo
@@ -85,18 +84,19 @@ Concurrent track runs share one budget counter, so there is no per-track spend. 
 
 ### Show the plan
 
-Print the plan as text, then launch it without waiting for a reply. The plan lists each planned track run as track × shard, the branch cap, the verifier votes, the test command (or "untested") and the projected tokens. When the planned runs outnumber the branch cap, say that runs past the cap launch only as earlier runs finish without a branch, so they may never launch. List applicable tracks left out as not in this run, and say the next burn run picks them first; burn schedules nothing, so name no time and never imply it will come back on its own. Users who want to review a plan before spending on it run with `dryRun`.
+Print the plan as text, then launch it without waiting for a reply. The plan lists each planned track run as track × shard, the effort level, the verifier votes, the test command (or "untested") and the projected tokens. List applicable tracks left out as not in this run, and say the next burn run picks them first; burn schedules nothing, so name no time and never imply it will come back on its own. Users who want to review a plan before spending on it run with `dryRun`.
 
 With `dryRun`, print the same plan and stop. Nothing is created: no worktree, no branch, no ledger change other than the `sync-todo` update.
 
 ## Launch the workflow
 
-The engine is a Workflow script, `<plugin-root>/scripts/burn-workflow.js`. It runs four phases:
+The engine is a Workflow script, `<plugin-root>/scripts/burn-workflow.js`. It runs five phases:
 
-- **Run tracks:** one agent per track run, each in its own worktree `<repo>-burn-<date>-<track>-<shard>` on the branch `burn/<date>/<track>-<shard>`. The repository name keeps two repos burned on the same day from colliding in the shared parent directory. Launches stop while kept branches plus runs in flight reach the branch cap; a run that ends without a branch frees its slot.
-- **Verify:** fresh-context verifiers try to refute each branch. A branch needs more than half the votes to survive; a verifier that dies counts as refuting.
+- **Run tracks:** one agent per track run, each in its own worktree `<repo>-burn-<date>-<track>-<shard>` on the branch `burn/<date>/<track>-<shard>`. The repository name keeps two repos burned on the same day from colliding in the shared parent directory. Every planned run launches at once.
+- **Build ideas:** after the tracks, one agent per design question builds it completely in its own worktree on `burn/<date>/idea-<title>`, then recommends keeping or dropping it from what building it showed. Every idea is built; none is queued. An idea its builder recommends dropping keeps its branch and skips verify and gate.
+- **Verify:** fresh-context verifiers try to refute each branch. On an idea branch they check that the implementation is complete and the evidence supports the recommendation, not whether they would have made the same choice. A branch needs more than half the votes to survive; a verifier that dies counts as refuting.
 - **Gate:** the test command, or `git test run <base>..<branch>` when git-test is configured, runs once on each surviving branch, in the background so a suite longer than the foreground command limit still finishes before the gate reports. With no test command, kept branches are marked untested.
-- **Rank and report:** one agent ranks the kept branches, queues new findings in `.llm/todo.md` through `ledger.py merge`, records coverage with `ledger.py record`, and writes `runs.json` and `REPORT.md` from `references/report-template.md`. Worktrees are removed; branches stay.
+- **Rank and report:** one agent ranks the kept branches, reports idea branches as questions with their recommendations, records coverage with `ledger.py record`, and writes `runs.json` and `REPORT.md` from `references/report-template.md`. Worktrees are removed; branches stay.
 
 A failed, empty, refuted or gate-failed run is never re-run. Cleanup never forces anything: worktrees are removed with a plain `git worktree remove`, and one that git refuses to remove, usually for uncommitted changes, stays and is reported as unfinished. A run's branch stays for the user to inspect, and is listed in `REPORT.md` with its status, unless it has no commits beyond the base, in which case `git branch -d` deletes it.
 
@@ -113,7 +113,7 @@ Read each planned run's track file from `references/tracks/<track>.md`: its fron
 | `reportTemplate` | absolute path of `<plugin-root>/skills/burn/references/report-template.md`                  |
 | `testCommand`    | the test command from preflight, or `null`                                                  |
 | `gitTest`        | `true` when `git config --get-regexp '^test\.'` found a git-test command                    |
-| `tier`           | `{runs, maxBranches, votes}` from the tier table, with `maxBranches` overriding the cap     |
+| `tier`           | `{runs, votes, effort}` from the tier table                                                 |
 | `runs`           | the planned runs: `[{track, shard, invokes, evidence, instructions}]` in launch order       |
 | `dismissed`      | the `track`, `path` and `symbol` of each entry `ledger.py dismissed` printed                |
 
@@ -121,17 +121,16 @@ Launch the run in the same turn as preflight, right after printing the plan. Wor
 
 To resume a stopped run, re-invoke Workflow with the persisted script path and `resumeFromRunId`, with the args unchanged, so finished track runs replay from cache.
 
-When it returns, add the run's total token spend from the Workflow result to `runs.json` as `totalTokens`, so the next preflight can project its cost. Then show the user the ranked branches, the number of queued tasks and the Workflow result's `report` path. When `report` is null the report agent did not write `REPORT.md`; say so. Never push or open a PR.
+When it returns, add the run's total token spend from the Workflow result to `runs.json` as `totalTokens`, so the next preflight can project its cost. Then show the user the ranked branches, each idea branch with its keep or drop recommendation, and the Workflow result's `report` path. When `report` is null the report agent did not write `REPORT.md`; say so. Never push or open a PR.
 
 ## Run it in Codex
 
-Codex has no Workflow tool, so you are the orchestrator and do by hand what the script does, serially, at the `small` tier whatever `size` says: 3 track runs, a branch cap of 3 (lower when `maxBranches` says so), and 1 verifier vote. The code-review track never applies in Codex. The script stays the single source of truth for the briefs: read `<plugin-root>/scripts/burn-workflow.js` and reuse its track, verify, gate, cleanup and rank-and-report prompts verbatim, filling each `${...}` from the same args you would have passed.
+Codex has no Workflow tool, so you are the orchestrator and do by hand what the script does, serially, at the `small` tier whatever `size` says: 3 track runs, `medium` effort, and 1 verifier vote. The code-review track never applies in Codex. The script stays the single source of truth for the briefs: read `<plugin-root>/scripts/burn-workflow.js` and reuse its track, verify, gate, cleanup and rank-and-report prompts verbatim, filling each `${...}` from the same args you would have passed.
 
 - Take one planned track run at a time, in plan order. If Codex can start subagents, give the track run its own subagent so its work stays out of your context. Otherwise do it in your own context, keeping only its summary, evidence, diff stat and findings.
 - A track run that fails or commits nothing gets the cleanup prompt and is recorded as `failed` or `empty`.
 - Verify a committed branch with the verify prompt in a fresh subagent. Without subagents, verify it yourself from the diff and the evidence alone, and note in the report that its verifier was not fresh-context. A refuted branch gets the cleanup prompt and is recorded as `refuted`.
 - Gate a surviving branch by running the gate prompt's command once in its worktree. A failing branch gets the cleanup prompt and is recorded as `gate-failed`. With no test command, keep it as untested.
-- Stop launching once the kept branches reach the branch cap. A run that ends without a branch frees its slot.
 - Never re-run a failed, empty, refuted or gate-failed run, and never fix a branch to make it pass.
 - After each run, append its outcome to `.llm/burn/<date>/runs.json` in the shape the script builds. Long runs outlive one Codex session, and `runs.json` is the resume point: a fresh session continues from the first planned run it does not list.
-- When every run is done, deduplicate the findings by track, path and symbol, dropping dismissed ones, then follow the rank-and-report prompt, and remove the kept branches' worktrees with the cleanup prompt. Report as the Workflow would, and never push or open a PR.
+- When every run is done, deduplicate the findings by track, path and symbol, dropping dismissed ones. Build each one with the idea prompt, verify a keep recommendation with the idea verify prompt and gate it, then follow the rank-and-report prompt and remove the kept branches' worktrees with the cleanup prompt. Report as the Workflow would, and never push or open a PR.

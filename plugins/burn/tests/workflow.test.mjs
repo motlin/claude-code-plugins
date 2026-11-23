@@ -9,7 +9,7 @@ const run = (track, shard) => (
 {
 	track,
 	shard,
-	invokes: `${track} {paths}`,
+	invokes: `${track} {level} {paths}`,
 	evidence: `EVIDENCE-RULE-${track}`,
 	instructions: `INSTRUCTIONS-${track}`,
 });
@@ -28,7 +28,7 @@ const BASE_ARGS =
 	tier:
 	{
 		runs: 3,
-		maxBranches: 3,
+		effort: "high",
 		votes: 1,
 	},
 	runs: [run("code-review", "src/a"), run("code-review", "src/b"), run("coverage", "src/a")],
@@ -66,6 +66,18 @@ const upheld = () => (
 	reason: "sound",
 });
 
+const idea = (recommend = "keep") => (
+{
+	committed: true,
+	recommend,
+	rationale: `RATIONALE-${recommend}`,
+	alternative: "ALTERNATIVE",
+	summary: "built the idea",
+	evidence: ["idea test output"],
+	diffStat: "2 files changed",
+	changesTests: false,
+});
+
 const passed = () => (
 {
 	passed: true,
@@ -88,13 +100,13 @@ async function runWorkflow(args, responders)
 	const all =
 	{
 		"track:": () => committed(),
+		"idea:": () => idea(),
 		"verify:": upheld,
 		"gate:": passed,
 		"cleanup:": () => removed(),
 		"rank-and-report": () => (
 		{
 			ranked: ["ranked-by-agent"],
-			queued: 0,
 			reportPath: "/repo/.llm/burn/2000-01-01/REPORT.md",
 		}),
 		...responders,
@@ -104,6 +116,7 @@ async function runWorkflow(args, responders)
 		calls.push(
 			{
 				label: opts.label,
+				effort: opts.effort,
 				prompt,
 			},
 		);
@@ -141,7 +154,7 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 			tier:
 			{
 				runs: 3,
-				maxBranches: 3,
+				effort: "high",
 				votes: 2,
 			},
 		},
@@ -167,7 +180,6 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 		result,
 		{
 			ranked: ["ranked-by-agent"],
-			queued: 0,
 			report: "/repo/.llm/burn/2000-01-01/REPORT.md",
 			outcomes: [
 				{
@@ -187,7 +199,6 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 				},
 			],
 			notLaunched: [],
-			findings: 0,
 		},
 	);
 	assert.deepEqual(labels(calls, "verify:code-review-src-a"), [
@@ -203,6 +214,7 @@ test("each run gets its branch, verify votes and a gate; kept worktrees are remo
 	const cleanups = calls.filter((c) => c.label.startsWith("cleanup:"));
 	assert.deepEqual(cleanups.length, 3);
 	cleanups.forEach((c) => assert.doesNotMatch(c.prompt, /--force|branch -[dD]/));
+	calls.forEach((c) => assert.match(c.prompt, /The user is away until the run ends: ask them nothing/, c.label));
 	assert.deepEqual(
 		[...new Set(phases)].filter((p) => !meta.phases.some((m) => m.title === p)),
 		[],
@@ -217,7 +229,7 @@ test("the tier's run count holds, and the dropped runs are reported", async () =
 			tier:
 			{
 				runs: 2,
-				maxBranches: 5,
+				effort: "high",
 				votes: 1,
 			},
 		},
@@ -226,45 +238,6 @@ test("the tier's run count holds, and the dropped runs are reported", async () =
 
 	assert.deepEqual(labels(calls, "track:"), ["track:code-review-src-a", "track:code-review-src-b"]);
 	assert.deepEqual(result.notLaunched, ["coverage-src-a"]);
-});
-
-test("launches stop at the branch cap, but a run that leaves no branch frees its slot", async () =>
-{
-	const capped = await runWorkflow(
-		{
-			...BASE_ARGS,
-			tier:
-			{
-				runs: 3,
-				maxBranches: 2,
-				votes: 1,
-			},
-		},
-		{},
-	);
-	assert.deepEqual(labels(capped.calls, "track:"), ["track:code-review-src-a", "track:code-review-src-b"]);
-	assert.deepEqual(capped.result.notLaunched, ["coverage-src-a"]);
-
-	const freed = await runWorkflow(
-		{
-			...BASE_ARGS,
-			tier:
-			{
-				runs: 3,
-				maxBranches: 2,
-				votes: 1,
-			},
-		},
-		{
-			"track:": (label) => (label === "track:code-review-src-a" ? empty() : committed()),
-		},
-	);
-	assert.deepEqual(labels(freed.calls, "track:"), [
-		"track:code-review-src-a",
-		"track:code-review-src-b",
-		"track:coverage-src-a",
-	]);
-	assert.deepEqual(freed.result.notLaunched, []);
 });
 
 test("an empty, refuted, gate-failed or dead run keeps its branch unless it has no commits, and is never re-run", async () =>
@@ -276,7 +249,7 @@ test("an empty, refuted, gate-failed or dead run keeps its branch unless it has 
 			tier:
 			{
 				runs: 4,
-				maxBranches: 4,
+				effort: "high",
 				votes: 1,
 			},
 		},
@@ -450,7 +423,7 @@ test("with git-test configured the gate runs it across the branch's commits", as
 	);
 });
 
-test("queued findings reach the report once, deduplicated across runs and without dismissed ones", async () =>
+test("design questions are built once each as idea branches, deduplicated across runs and without dismissed ones", async () =>
 {
 	const {result, calls} = await runWorkflow(
 		{
@@ -476,14 +449,69 @@ test("queued findings reach the report once, deduplicated across runs and withou
 		},
 	);
 
-	assert.deepEqual(result.findings, 2);
+	assert.deepEqual(labels(calls, "idea:"), ["idea:fix-parse", "idea:fix-kept"]);
+	assert.match(
+		prompt(calls, "idea:fix-parse"),
+		/worktree add \/worktrees\/repo-burn-2000-01-01-idea-fix-parse -b burn\/2000-01-01\/idea-fix-parse abc123`/,
+	);
+	assert.match(prompt(calls, "idea:fix-parse"), /details parse/);
+	assert.deepEqual(calls.find((c) => c.label === "idea:fix-parse").effort, "high");
 	const report = prompt(calls, "rank-and-report");
-	assert.deepEqual(report.match(/"symbol": "parse"/g).length, 1);
-	assert.deepEqual(report.match(/"symbol": "kept"/g).length, 1);
 	assert.doesNotMatch(report, /"symbol": "gone"/);
-	assert.match(report, /ledger\.py --ledger \/repo\/\.llm\/burn\/ledger\.json merge/);
-	assert.match(report, /## burn 2000-01-01/);
+	assert.doesNotMatch(report, /merge|todo\.md/);
 	assert.match(report, /You must write \/repo\/\.llm\/burn\/2000-01-01\/REPORT\.md/);
+});
+
+test("every design question is built, with no cap; a self-dropped idea keeps its branch and skips verify and gate", async () =>
+{
+	const {result, calls} = await runWorkflow(
+		{
+			...BASE_ARGS,
+			runs: [run("code-review", "src/a")],
+			tier:
+			{
+				runs: 1,
+				votes: 1,
+				effort: "high",
+			},
+		},
+		{
+			"track:": () => committed([finding("src/a.js", "a"), finding("src/b.js", "b"), finding("src/c.js", "c")]),
+			"idea:": (label) => (label === "idea:fix-a" ? idea("drop") : idea("keep")),
+		},
+	);
+
+	assert.deepEqual(labels(calls, "idea:"), ["idea:fix-a", "idea:fix-b", "idea:fix-c"]);
+	assert.deepEqual(labels(calls, "verify:idea-"), ["verify:idea-fix-b:1", "verify:idea-fix-c:1"]);
+	assert.deepEqual(labels(calls, "gate:idea-"), ["gate:idea-fix-b", "gate:idea-fix-c"]);
+	assert.match(prompt(calls, "verify:idea-fix-b:1"), /recommends keeping it/);
+	assert.match(prompt(calls, "verify:idea-fix-b:1"), /RATIONALE-keep/);
+	assert.deepEqual(result.outcomes, [
+		{
+			branch: "burn/2000-01-01/code-review-src-a",
+			status: "kept",
+			tested: true,
+		},
+		{
+			branch: "burn/2000-01-01/idea-fix-a",
+			status: "idea-dropped",
+			reason: "RATIONALE-drop",
+			branchDeleted: false,
+		},
+		{
+			branch: "burn/2000-01-01/idea-fix-b",
+			status: "kept",
+			tested: true,
+			recommend: "keep",
+		},
+		{
+			branch: "burn/2000-01-01/idea-fix-c",
+			status: "kept",
+			tested: true,
+			recommend: "keep",
+		},
+	]);
+	assert.match(prompt(calls, "cleanup:idea-fix-a"), /Keep the branch burn\/2000-01-01\/idea-fix-a/);
 });
 
 test("a report agent that does not return the REPORT.md path leaves the report null", async () =>
@@ -494,7 +522,6 @@ test("a report agent that does not return the REPORT.md path leaves the report n
 			"rank-and-report": () => (
 			{
 				ranked: ["ranked-by-agent"],
-				queued: 0,
 				reportPath: "",
 			}),
 		},
@@ -503,12 +530,10 @@ test("a report agent that does not return the REPORT.md path leaves the report n
 	assert.deepEqual(
 		{
 			ranked: result.ranked,
-			queued: result.queued,
 			report: result.report,
 		},
 		{
 			ranked: ["ranked-by-agent"],
-			queued: 0,
 			report: null,
 		},
 	);
@@ -539,9 +564,13 @@ test("track prompts carry the track's invocation, instructions and evidence rule
 	const {calls} = await runWorkflow(BASE_ARGS, {});
 
 	const p = prompt(calls, "track:coverage-src-a");
-	assert.match(p, /Invoke: coverage src\/a, unattended/);
+	assert.match(p, /Invoke: coverage high src\/a, unattended/);
+	assert.deepEqual(calls.find((c) => c.label === "track:coverage-src-a").effort, "high");
 	assert.match(p, /INSTRUCTIONS-coverage/);
 	assert.match(p, /Evidence rule: EVIDENCE-RULE-coverage/);
+	assert.match(p, /Fix every problem whose fix needs no decision/);
+	assert.match(p, /Drop every problem nothing in this repository can fix/);
+	assert.match(p, /Return as findings only design questions/);
 });
 
 test("coverage is recorded for every run that finished, including empty ones, but not dead ones", async () =>

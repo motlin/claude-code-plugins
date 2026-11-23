@@ -10,4 +10,4 @@ Run `code:build-warnings` unattended with the test command from preflight. The b
 
 Fix causes, never silence them: no suppression comments, no lowered log levels, no flags that hide warnings. Commit only classes whose count fell while the build and tests stayed green, one commit per class as the skill describes. Paste the `compare` output as the evidence. If the total did not fall, commit nothing.
 
-Return the skill's queued findings as findings: third-party warnings no upgrade fixes, deprecations that need a major-version upgrade, and slow tests for `code:test-speed`.
+Drop third-party warnings that no upgrade fixes, and leave slow tests to the test-speed track. Return a deprecation that needs a major-version upgrade as a finding, with the upgrade you would make.
