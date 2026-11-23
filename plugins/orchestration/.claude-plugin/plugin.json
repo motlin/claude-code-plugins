@@ -13,6 +13,6 @@
 		"./skills/llm-context",
 		"./skills/conversation-style",
 		"./skills/finish",
-		"./skills/memory"
+		"./skills/memory-placement"
 	]
 }

@@ -1,5 +1,5 @@
 ---
-name: memory
+name: memory-placement
 description: Decide where a lesson belongs before saving a memory. Use before every memory write, and whenever a correction or preference seems worth remembering.
 ---
 

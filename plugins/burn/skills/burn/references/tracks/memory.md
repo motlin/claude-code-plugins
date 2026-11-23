@@ -2,11 +2,11 @@
 name: memory
 applies: has-memories
 shard: whole-repo
-invokes: "orchestration:memory over the repository's auto-memory files, scoped to {paths}"
+invokes: "orchestration:memory-placement over the repository's auto-memory files, scoped to {paths}"
 evidence: "Each change cites the memory file and the reason: the file, commit or command output that contradicts it, the instruction file that already says it, or the docs section the branch moved it into."
 ---
 
-Prune and promote the repository's auto-memory files, following the `orchestration:memory` skill on where a lesson belongs. The folder is `~/.claude/projects/<slug>/memory/`, where `<slug>` is the absolute path of the repository itself, never of your worktree, with every character other than a letter or digit replaced by `-`. Read every memory file and its `MEMORY.md` index.
+Prune and promote the repository's auto-memory files, following the `orchestration:memory-placement` skill on where a lesson belongs. The folder is `~/.claude/projects/<slug>/memory/`, where `<slug>` is the absolute path of the repository itself, never of your worktree, with every character other than a letter or digit replaced by `-`. Read every memory file and its `MEMORY.md` index.
 
 Before changing anything there, copy the whole folder to `~/.claude/projects/<slug>/memory-backup-<date>/`, beside it, using the run date from your branch name. The folder is outside git, so that copy is the only way back.
 
