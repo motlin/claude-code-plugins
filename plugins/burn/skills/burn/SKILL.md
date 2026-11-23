@@ -55,6 +55,8 @@ Each track file under `references/tracks/` declares an `applies` key: `any`, or 
 - `has-prompts`: the repo has skills (`SKILL.md`), agents, commands, or a `CLAUDE.md` or `AGENTS.md`.
 - `has-memories`: the repository's auto-memory folder, `~/.claude/projects/<slug>/memory/` with `<slug>` the repository path with every character other than a letter or digit replaced by `-`, holds memory files.
 - `has-docs`: the repository has prose docs for readers beyond a bare README, such as a `docs/` directory or several Markdown guides.
+- `has-dependencies`: the repository declares dependencies in its own manifest, such as `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, a Gradle build or `mise.toml`.
+- `has-type-checker`: the repository is type-checked, by `tsconfig.json`, mypy or pyright config, or a statically typed language such as Java, Kotlin, Go or Rust.
 - `is-plugin-repo`: the repo is a Claude Code plugin, marketplace or skill repo: it has a `.claude-plugin/` directory, a `marketplace.json`, or `skills/*/SKILL.md` files.
 
 A track applies when its key is detected, then `tracks` and `skipTracks` narrow the set. In Codex, the code-review and memory tracks never apply, because `/code-review` and auto-memory are Claude Code features. The duplication track also needs the `goal-sloc` skill, which this marketplace does not ship: skip it when `goal-sloc` is not among the available skills.
@@ -67,7 +69,9 @@ The ledger at `.llm/burn/ledger.json` records which paths each track covered and
 python3 <plugin-root>/scripts/ledger.py sync-todo
 ```
 
-Then, for each applicable track, list candidate shards in its declared granularity (`directory`, `file-set` or `whole-repo`, limited to `paths`) and pick the ones covered least recently:
+Then, for each applicable track, list candidate shards in its declared granularity (`directory`, `file-set`, `whole-repo` or `skill`, limited to `paths`) and pick the ones covered least recently.
+
+A `skill` shard is the name of an installed skill that is relevant to this repository and no other track already runs. Go through the skills available in this session and keep those whose subject the repository actually uses, judging by its files rather than the skill's name alone: for example `temporal-data:temporal-data` for bitemporal or audit tables, `java:openrewrite` and `java:pom-ordering` for Maven projects, and `justfile:justfile-style` for a `justfile`. Leave out skills about workflows rather than code, such as git, task lists, reviews of the user's day, mail, and burn itself; skills the other tracks already invoke; and `security-review`, which burn does not run.
 
 ```bash
 python3 <plugin-root>/scripts/ledger.py pick --track <track> --count <n> <candidate>...

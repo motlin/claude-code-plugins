@@ -5,8 +5,8 @@ import unittest
 TRACKS = Path(__file__).resolve().parents[1] / 'skills/burn/references/tracks'
 KEYS = {'name', 'applies', 'shard', 'invokes', 'evidence'}
 APPLIES = {'any', 'has-tests', 'has-coverage-tool', 'has-mutation-tool', 'has-prompts', 'is-plugin-repo',
-           'has-memories', 'has-docs'}
-SHARDS = {'directory', 'file-set', 'whole-repo'}
+           'has-memories', 'has-docs', 'has-dependencies', 'has-type-checker'}
+SHARDS = {'directory', 'file-set', 'whole-repo', 'skill'}
 
 
 def parse(path):
@@ -23,7 +23,8 @@ class TrackFilesTest(unittest.TestCase):
     def test_the_core_and_further_tracks_exist(self):
         self.assertLessEqual({'code-review', 'coverage', 'mutation', 'test-speed', 'test-assertions',
                               'dead-code', 'docs-drift', 'duplication', 'prompt-audit',
-                              'plugin-quality', 'build-warnings', 'memory', 'diataxis'},
+                              'plugin-quality', 'build-warnings', 'memory', 'diataxis',
+                              'retry-removal', 'dependency-bumps', 'type-strictness', 'skill-review'},
                              {path.stem for path in TRACKS.glob('*.md')})
 
     def test_each_track_declares_every_key_with_an_allowed_value(self):
