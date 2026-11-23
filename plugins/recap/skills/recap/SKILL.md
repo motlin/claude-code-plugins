@@ -55,7 +55,7 @@ When a turn ends while work you started is still running — background shells, 
 - Name each piece of running work, not just "agents are working".
 - Give a rough time estimate, or say it is unknown.
 - Repeat the block on every turn that ends while work is running, including turns that only acknowledge a background notification.
-- Omit the block when nothing you started is still running.
+- Omit the block when nothing you started is still running. Check before claiming that: list your agents and background tasks, since a subagent that already reported can still be holding a watcher open.
 
 ## Always both lines
 
