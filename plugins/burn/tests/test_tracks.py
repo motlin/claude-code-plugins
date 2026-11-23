@@ -4,7 +4,7 @@ import unittest
 
 TRACKS = Path(__file__).resolve().parents[1] / 'skills/burn/references/tracks'
 KEYS = {'name', 'applies', 'shard', 'invokes', 'evidence'}
-APPLIES = {'any', 'has-tests', 'has-coverage-tool', 'has-mutation-tool', 'has-prompts', 'is-plugin-repo',
+APPLIES = {'any', 'has-tests', 'has-coverage-tool', 'has-mutation-tool', 'has-prompts',
            'has-memories', 'has-docs', 'has-dependencies', 'has-type-checker'}
 SHARDS = {'directory', 'file-set', 'whole-repo', 'skill'}
 
@@ -38,6 +38,14 @@ class TrackFilesTest(unittest.TestCase):
                 self.assertIn('{paths}', keys['invokes'])
                 self.assertTrue(keys['evidence'])
                 self.assertTrue(body)
+
+    def test_plugin_quality_runs_the_instruction_and_mod_skills_wherever_there_are_prompts(self):
+        keys, body = parse(TRACKS / 'plugin-quality.md')
+        self.assertEqual(keys['applies'], 'has-prompts')
+        for skill in ('plugin-and-skill-dev:writing-instructions', 'plugin-authoring'):
+            with self.subTest(skill=skill):
+                self.assertIn(skill, keys['invokes'])
+                self.assertIn(skill, body)
 
 
 if __name__ == '__main__':

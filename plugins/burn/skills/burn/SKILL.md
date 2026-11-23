@@ -51,12 +51,11 @@ Each track file under `references/tracks/` declares an `applies` key: `any`, or 
 - `has-tests`: a test command was found and the repo contains test files.
 - `has-coverage-tool`: c8 or `--coverage` support in Jest or Vitest, coverage.py or pytest-cov, Go's `-coverprofile`, `cargo tarpaulin`, or JaCoCo.
 - `has-mutation-tool`: Stryker, PIT, mutmut or cargo-mutants.
-- `has-prompts`: the repo has skills (`SKILL.md`), agents, commands, or a `CLAUDE.md` or `AGENTS.md`.
+- `has-prompts`: the repo has skills (`SKILL.md`), agents, commands, hooks, or a `CLAUDE.md` or `AGENTS.md`.
 - `has-memories`: the repository's auto-memory folder, `~/.claude/projects/<slug>/memory/` with `<slug>` the repository path with every character other than a letter or digit replaced by `-`, holds memory files.
 - `has-docs`: the repository has prose docs for readers beyond a bare README, such as a `docs/` directory or several Markdown guides.
 - `has-dependencies`: the repository declares dependencies in its own manifest, such as `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, a Gradle build or `mise.toml`.
 - `has-type-checker`: the repository is type-checked, by `tsconfig.json`, mypy or pyright config, or a statically typed language such as Java, Kotlin, Go or Rust.
-- `is-plugin-repo`: the repo is a Claude Code plugin, marketplace or skill repo: it has a `.claude-plugin/` directory, a `marketplace.json`, or `skills/*/SKILL.md` files.
 
 A track applies when its key is detected, then `tracks` and `skipTracks` narrow the set. In Codex, the code-review and memory tracks never apply, because `/code-review` and auto-memory are Claude Code features. The duplication track also needs the `goal-sloc` skill, which this marketplace does not ship: skip it when `goal-sloc` is not among the available skills.
 
