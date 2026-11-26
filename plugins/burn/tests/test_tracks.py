@@ -24,7 +24,8 @@ class TrackFilesTest(unittest.TestCase):
         self.assertLessEqual({'code-review', 'coverage', 'mutation', 'test-speed', 'test-assertions',
                               'dead-code', 'docs-drift', 'duplication', 'prompt-audit',
                               'plugin-quality', 'build-warnings', 'memory', 'diataxis',
-                              'retry-removal', 'dependency-bumps', 'type-strictness', 'skill-review', 'template-sync'},
+                              'retry-removal', 'dependency-bumps', 'type-strictness', 'skill-review', 'template-sync',
+                              'object-oriented'},
                              {path.stem for path in TRACKS.glob('*.md')})
 
     def test_each_track_declares_every_key_with_an_allowed_value(self):
