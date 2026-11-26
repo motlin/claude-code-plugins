@@ -1,6 +1,7 @@
-"""Runtime install contracts: install once, skip while the pinned inputs are unchanged."""
+"""Runtime install contracts: install once, skip while the pinned inputs and location are unchanged."""
 import importlib.util
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 
@@ -28,16 +29,22 @@ class InstallTest(unittest.TestCase):
         return [call[0] if call[0] == 'npm' else call[1:4] for call in self.calls]
 
     def test_installs_once_then_skips_until_inputs_change(self):
-        full = ['npm', ['-m', 'venv', '--upgrade-deps'], ['-m', 'pip', 'install']]
+        full = ['npm', ['-m', 'venv', '--clear'], ['-m', 'pip', 'install']]
         self.assertEqual(self.install(), full)
         self.assertEqual(self.install(), [])
         (self.runtime / setup.STAMP).write_text('stale')
+        self.assertEqual(self.install(), full)
+        # A virtualenv is not relocatable: a copy, such as the .llm/ a new
+        # worktree copies from the main checkout, must reinstall.
+        copy = Path(tempfile.mkdtemp()) / 'runtime'
+        shutil.copytree(self.runtime, copy)
+        self.runtime = copy
         self.assertEqual(self.install(), full)
 
     def test_reinstalls_when_an_installed_directory_is_missing(self):
         self.install()
         (self.runtime / 'node_modules').rmdir()
-        self.assertEqual(self.install(), ['npm', ['-m', 'venv', '--upgrade-deps'], ['-m', 'pip', 'install']])
+        self.assertEqual(self.install(), ['npm', ['-m', 'venv', '--clear'], ['-m', 'pip', 'install']])
 
 
 if __name__ == '__main__':
