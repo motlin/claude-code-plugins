@@ -5,7 +5,7 @@ import unittest
 TRACKS = Path(__file__).resolve().parents[1] / 'skills/burn/references/tracks'
 KEYS = {'name', 'applies', 'shard', 'invokes', 'evidence'}
 APPLIES = {'any', 'has-tests', 'has-coverage-tool', 'has-mutation-tool', 'has-prompts',
-           'has-memories', 'has-docs', 'has-dependencies', 'has-type-checker'}
+           'has-memories', 'has-docs', 'has-dependencies', 'has-type-checker', 'has-template'}
 SHARDS = {'directory', 'file-set', 'whole-repo', 'skill'}
 
 
@@ -24,7 +24,7 @@ class TrackFilesTest(unittest.TestCase):
         self.assertLessEqual({'code-review', 'coverage', 'mutation', 'test-speed', 'test-assertions',
                               'dead-code', 'docs-drift', 'duplication', 'prompt-audit',
                               'plugin-quality', 'build-warnings', 'memory', 'diataxis',
-                              'retry-removal', 'dependency-bumps', 'type-strictness', 'skill-review'},
+                              'retry-removal', 'dependency-bumps', 'type-strictness', 'skill-review', 'template-sync'},
                              {path.stem for path in TRACKS.glob('*.md')})
 
     def test_each_track_declares_every_key_with_an_allowed_value(self):

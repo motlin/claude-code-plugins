@@ -56,6 +56,7 @@ Each track file under `references/tracks/` declares an `applies` key: `any`, or 
 - `has-docs`: the repository has prose docs for readers beyond a bare README, such as a `docs/` directory or several Markdown guides.
 - `has-dependencies`: the repository declares dependencies in its own manifest, such as `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, a Gradle build or `mise.toml`.
 - `has-type-checker`: the repository is type-checked, by `tsconfig.json`, mypy or pyright config, or a statically typed language such as Java, Kotlin, Go or Rust.
+- `has-template`: a sibling repository with a `.claude/commands/sync-template.md` lists this repository in its `.llm/projects.yaml`, by `own`, `forks` or `nested`, or by `scan` without a `skip`; or this repository is itself such a template.
 
 A track applies when its key is detected, then `tracks` and `skipTracks` narrow the set. In Codex, the code-review and memory tracks never apply, because `/code-review` and auto-memory are Claude Code features. The duplication track also needs the `goal-sloc` skill, which this marketplace does not ship: skip it when `goal-sloc` is not among the available skills.
 
