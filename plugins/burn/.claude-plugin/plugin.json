@@ -2,7 +2,7 @@
 	"$schema": "https://anthropic.com/claude-code/plugin.schema.json",
 	"name": "burn",
 	"description": "Spend spare weekly quota before the reset by fanning out improvement skills in worktrees, leaving tested local branches and a built, recommended branch for each design question",
-	"version": "1.43.0",
+	"version": "1.44.0",
 	"license": "Apache-2.0",
 	"author":
 	{
